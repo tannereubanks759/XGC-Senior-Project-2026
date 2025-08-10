@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class CombatController : MonoBehaviour
@@ -15,13 +16,16 @@ public class CombatController : MonoBehaviour
     private bool swinging;
     private bool blocking;
 
-
+    //Private
+    private DodgeDash dodgeScript;
+    private Rigidbody rb;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        dodgeScript = GetComponentInChildren<DodgeDash>();
+        rb = GetComponentInParent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -57,6 +61,12 @@ public class CombatController : MonoBehaviour
         else
         {
             swordAnim.SetBool("heavy", false);
+        }
+
+        if(blocking && !swinging && Input.GetKeyDown(dodge))
+        {
+            Vector3 direction = rb.linearVelocity.normalized;
+            dodgeScript.Dodge(direction);
         }
         
     }

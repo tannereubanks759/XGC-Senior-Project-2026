@@ -59,6 +59,17 @@ public class FirstPersonController : MonoBehaviour
     public float walkSpeed = 5f;
     public float maxVelocityChange = 10f;
 
+    //added
+    // Air control tuning
+    public bool preserveAirMomentum = true;
+    public float airAcceleration = 2.5f;  // small accel toward input while airborne
+    public float airMaxVelocityChange = 1.5f; // cap per FixedUpdate in air
+                                              // Cache input each frame so Update drives UI and FixedUpdate drives physics
+    private Vector3 cachedInput;
+    private bool cachedHasInput;
+
+
+
     // Internal Variables
     private bool isWalking = false;
 
@@ -273,60 +284,80 @@ public class FirstPersonController : MonoBehaviour
         #endregion
 
         #region Sprint
+        // Cache input for both UI logic and physics step
+        cachedInput = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
+        cachedHasInput = cachedInput.sqrMagnitude > 0.0001f;
 
-        if(enableSprint)
+        #region Sprint
+        if (enableSprint)
         {
-            if(isSprinting)
+            // Decide sprint state here so FOV/UI respond immediately
+            bool wantsSprint = enableSprint && Input.GetKey(sprintKey) && sprintRemaining > 0f && !isSprintCooldown && cachedHasInput;
+            isSprinting = wantsSprint;
+
+            if (isSprinting)
             {
+                // FOV while sprinting
                 isZoomed = false;
                 playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, sprintFOV, sprintFOVStepTime * Time.deltaTime);
 
-                // Drain sprint remaining while sprinting
-                if(!unlimitedSprint)
+                // Drain sprint time
+                if (!unlimitedSprint)
                 {
-                    sprintRemaining -= 1 * Time.deltaTime;
-                    if (sprintRemaining <= 0)
+                    sprintRemaining -= 1f * Time.deltaTime;
+                    if (sprintRemaining <= 0f)
                     {
                         isSprinting = false;
                         isSprintCooldown = true;
                     }
                 }
+
+                // Fade bar in while actually moving, if requested
+                if (useSprintBar && hideBarWhenFull)
+                    sprintBarCG.alpha = Mathf.Min(1f, sprintBarCG.alpha + 5f * Time.deltaTime);
             }
             else
             {
-                // Regain sprint while not sprinting
-                sprintRemaining = Mathf.Clamp(sprintRemaining += 1 * Time.deltaTime, 0, sprintDuration);
-            }
+                // Not sprinting: lerp back to base FOV (unless zoom is active)
+                if (!isZoomed)
+                    playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, fov, sprintFOVStepTime * Time.deltaTime);
 
-            // Handles sprint cooldown 
-            // When sprint remaining == 0 stops sprint ability until hitting cooldown
-            if(isSprintCooldown)
-            {
-                sprintCooldown -= 1 * Time.deltaTime;
-                if (sprintCooldown <= 0)
+                // Regain sprint over time
+                if (!unlimitedSprint)
+                    sprintRemaining = Mathf.Clamp(sprintRemaining + 1f * Time.deltaTime, 0f, sprintDuration);
+
+                // Handle cooldown
+                if (isSprintCooldown)
                 {
-                    isSprintCooldown = false;
+                    sprintCooldown -= 1f * Time.deltaTime;
+                    if (sprintCooldown <= 0f) isSprintCooldown = false;
                 }
-            }
-            else
-            {
-                sprintCooldown = sprintCooldownReset;
+                else
+                {
+                    sprintCooldown = sprintCooldownReset;
+                }
+
+                // Fade bar out when fully recharged
+                if (useSprintBar && hideBarWhenFull && sprintRemaining >= sprintDuration - 0.0001f)
+                    sprintBarCG.alpha = Mathf.Max(0f, sprintBarCG.alpha - 3f * Time.deltaTime);
             }
 
-            // Handles sprintBar 
-            if(useSprintBar && !unlimitedSprint)
+            // Keep your existing sprint bar fill scaling
+            if (useSprintBar && !unlimitedSprint)
             {
                 float sprintRemainingPercent = sprintRemaining / sprintDuration;
                 sprintBar.transform.localScale = new Vector3(sprintRemainingPercent, 1f, 1f);
             }
         }
+        #endregion
+
 
         #endregion
 
         #region Jump
 
         // Gets input and calls jump method
-        if(enableJump && Input.GetKeyDown(jumpKey) && isGrounded)
+        if (enableJump && Input.GetKeyDown(jumpKey) && isGrounded)
         {
             Jump();
         }
@@ -367,79 +398,42 @@ public class FirstPersonController : MonoBehaviour
     void FixedUpdate()
     {
         #region Movement
+        if (!playerCanMove) return;
 
-        if (playerCanMove)
+        Vector3 wishDir = transform.TransformDirection(cachedInput).normalized;
+        bool hasInput = cachedHasInput;
+
+        float targetSpeed = (isSprinting ? sprintSpeed : walkSpeed);
+
+        Vector3 vel = rb.linearVelocity;             // use rb.velocity if on older Unity
+        Vector3 velH = new Vector3(vel.x, 0f, vel.z);
+
+        if (isGrounded)
         {
-            // Calculate how fast we should be moving
-            Vector3 targetVelocity = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            // Grounded: match target velocity
+            Vector3 targetVelH = wishDir * targetSpeed;
+            Vector3 delta = targetVelH - velH;
+            delta.x = Mathf.Clamp(delta.x, -maxVelocityChange, maxVelocityChange);
+            delta.z = Mathf.Clamp(delta.z, -maxVelocityChange, maxVelocityChange);
 
-            // Checks if player is walking and isGrounded
-            // Will allow head bob
-            if (targetVelocity.x != 0 || targetVelocity.z != 0 && isGrounded)
+            rb.AddForce(new Vector3(delta.x, 0f, delta.z), ForceMode.VelocityChange);
+        }
+        else
+        {
+            // Airborne: preserve momentum when no input; gentle steer when there is
+            if (!(preserveAirMomentum && !hasInput))
             {
-                isWalking = true;
-            }
-            else
-            {
-                isWalking = false;
-            }
-
-            // All movement calculations shile sprint is active
-            if (enableSprint && Input.GetKey(sprintKey) && sprintRemaining > 0f && !isSprintCooldown)
-            {
-                targetVelocity = transform.TransformDirection(targetVelocity) * sprintSpeed;
-
-                // Apply a force that attempts to reach our target velocity
-                Vector3 velocity = rb.linearVelocity;
-                Vector3 velocityChange = (targetVelocity - velocity);
-                velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
-                velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
-                velocityChange.y = 0;
-
-                // Player is only moving when valocity change != 0
-                // Makes sure fov change only happens during movement
-                if (velocityChange.x != 0 || velocityChange.z != 0)
-                {
-                    isSprinting = true;
-
-                    if (isCrouched)
-                    {
-                        Crouch();
-                    }
-
-                    if (hideBarWhenFull && !unlimitedSprint)
-                    {
-                        sprintBarCG.alpha += 5 * Time.deltaTime;
-                    }
-                }
-
-                rb.AddForce(velocityChange, ForceMode.VelocityChange);
-            }
-            // All movement calculations while walking
-            else
-            {
-                isSprinting = false;
-
-                if (hideBarWhenFull && sprintRemaining == sprintDuration)
-                {
-                    sprintBarCG.alpha -= 3 * Time.deltaTime;
-                }
-
-                targetVelocity = transform.TransformDirection(targetVelocity) * walkSpeed;
-
-                // Apply a force that attempts to reach our target velocity
-                Vector3 velocity = rb.linearVelocity;
-                Vector3 velocityChange = (targetVelocity - velocity);
-                velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
-                velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
-                velocityChange.y = 0;
-
-                rb.AddForce(velocityChange, ForceMode.VelocityChange);
+                Vector3 targetVelH = wishDir * Mathf.Min(targetSpeed, velH.magnitude + airAcceleration);
+                Vector3 delta = targetVelH - velH;
+                delta = Vector3.ClampMagnitude(new Vector3(delta.x, 0f, delta.z), airMaxVelocityChange);
+                rb.AddForce(new Vector3(delta.x, 0f, delta.z), ForceMode.VelocityChange);
             }
         }
-
         #endregion
     }
+
+
+
 
     // Sets isGrounded based on a raycast sent straigth down from the player object
     private void CheckGround()
