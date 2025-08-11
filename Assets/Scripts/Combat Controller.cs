@@ -19,6 +19,7 @@ public class CombatController : MonoBehaviour
     //Private
     private DodgeDash dodgeScript;
     private Rigidbody rb;
+    private FirstPersonController controller;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -26,6 +27,7 @@ public class CombatController : MonoBehaviour
     {
         dodgeScript = GetComponentInChildren<DodgeDash>();
         rb = GetComponentInParent<Rigidbody>();
+        controller = rb.GetComponent<FirstPersonController>();
     }
 
     // Update is called once per frame
@@ -57,10 +59,12 @@ public class CombatController : MonoBehaviour
         if(swinging && blocking) //heavy attack
         {
             swordAnim.SetBool("heavy", true);
+            controller.playerCanMove = false;
         }
         else
         {
             swordAnim.SetBool("heavy", false);
+            controller.playerCanMove = true;
         }
 
         if(blocking && !swinging && Input.GetKeyDown(dodge))
@@ -68,6 +72,8 @@ public class CombatController : MonoBehaviour
             Vector3 direction = rb.linearVelocity.normalized;
             dodgeScript.Dodge(direction);
         }
+
+        
         
     }
 }

@@ -110,7 +110,7 @@ public class FirstPersonController : MonoBehaviour
     public float jumpPower = 5f;
 
     // Internal Variables
-    private bool isGrounded = false;
+    public bool isGrounded = false;
 
     #endregion
 
@@ -393,6 +393,8 @@ public class FirstPersonController : MonoBehaviour
         {
             HeadBob();
         }
+        isWalking = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).sqrMagnitude > 0.01f;
+
     }
 
     void FixedUpdate()
