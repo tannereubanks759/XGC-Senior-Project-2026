@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class Blunderbuss : MonoBehaviour
 {
@@ -24,7 +23,7 @@ public class Blunderbuss : MonoBehaviour
     void Update()
     {
         //shoot functionality
-        if(Input.GetKey(shootKey) && isLoaded)
+        if(Input.GetKeyDown(shootKey) && isLoaded)
         {
             Shoot();
         }
@@ -43,7 +42,7 @@ public class Blunderbuss : MonoBehaviour
     void Shoot()
     {
         totalAmmo--;
-        bulletRadius = ret.GetComponent<RectTransform>().anchoredPosition.x;
+        bulletRadius = ret.GetComponent<RectTransform>().anchoredPosition.x / 10;
         //Debug.Log(bulletRadius);
         for (int i = 0; i < PelletPerBullet; i++)
         {
@@ -51,11 +50,32 @@ public class Blunderbuss : MonoBehaviour
             float randomy = Random.Range(-bulletRadius, bulletRadius);
             Vector3 ScreenPos = Input.mousePosition + new Vector3(randomx, randomy, 0);
             Ray Ray = Camera.main.ScreenPointToRay(ScreenPos);
-            if (Physics.Raycast(Ray, out RaycastHit hit, layers))
+            
+            if (Physics.Raycast(Ray, out RaycastHit hit, Mathf.Infinity, layers))
             {
-                Debug.Log(hit.ToString());
+                ShowShotLine(BulletPos.position, hit.point);
             }
         }
         
     }
+
+    void ShowShotLine(Vector3 start, Vector3 end)
+    {
+        GameObject lineObj = new GameObject("ShotTracer");
+        var lr = lineObj.AddComponent<LineRenderer>();
+
+        lr.positionCount = 2;
+        lr.SetPosition(0, start);
+        lr.SetPosition(1, end);
+
+        lr.startWidth = 0.02f;
+        lr.endWidth = 0.02f;
+
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.startColor = Color.red;
+        lr.endColor = Color.red;
+
+        Destroy(lineObj, 0.05f); // disappear quickly like a tracer
+    }
+
 }
