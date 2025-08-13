@@ -8,8 +8,6 @@ public class CombatController : MonoBehaviour
     public KeyCode block_or_aim = KeyCode.Mouse1; 
     public KeyCode dodge = KeyCode.Space; //must be holding block key
 
-    [Header("Stats")]
-    public int health = 100;
 
     [Header("Animation")]
     public Animator swordAnim;
