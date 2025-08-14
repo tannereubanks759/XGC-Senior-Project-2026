@@ -7,6 +7,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("References")]
     public Transform Player;
     public NavMeshAgent Agent;
+    public Animator Animator;
 
     [Header("Vision & Ranges")]
     public float ChaseRange = 10f;
@@ -18,6 +19,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     protected virtual void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
+        Animator = GetComponent<Animator>();
     }
 
     // Shared movement
@@ -55,6 +57,15 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);
         // Play animation, disable collider, etc.
+    }
+
+    public void ResetTriggers()
+    {
+        Animator.ResetTrigger("Idle");
+        Animator.ResetTrigger("Chase");
+        Animator.ResetTrigger("Dead");
+        Animator.ResetTrigger("Attack");
+        Animator.ResetTrigger("Patrol");
     }
 
     protected virtual void OnDrawGizmosSelected()

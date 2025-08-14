@@ -14,12 +14,14 @@ public class AttackState : BaseState<EnemyState>
     public override void EnterState()
     {
         Debug.Log("Entered Attack State");
+        _enemy.Animator.SetTrigger("Attack");
         _enemy.StopMoving();
     }
 
     public override void ExitState()
     {
         Debug.Log("Exiting Attack State");
+        _enemy.ResetTriggers();
     }
 
     public override void UpdateState()

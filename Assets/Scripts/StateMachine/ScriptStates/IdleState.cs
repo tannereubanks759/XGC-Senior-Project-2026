@@ -12,12 +12,14 @@ public class IdleState : BaseState<EnemyState>
     public override void EnterState()
     {
         Debug.Log("Entered Idle State");
+        _enemy.Animator.SetTrigger("Idle");
         _enemy.StopMoving();
     }
 
     public override void ExitState()
     {
         Debug.Log("Exiting Idle State");
+        _enemy.ResetTriggers();
     }
 
     public override void UpdateState()

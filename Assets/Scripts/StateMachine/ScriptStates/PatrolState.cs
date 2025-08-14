@@ -12,10 +12,15 @@ public class PatrolState : BaseState<EnemyState>
     public override void EnterState()
     {
         Debug.Log("Entered Patrol State");
+        _enemy.Animator.SetTrigger("Patrol");
         _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex].transform.position);
     }
 
-    public override void ExitState() => Debug.Log("Exiting Patrol");
+    public override void ExitState()
+    {
+        Debug.Log("Exiting Patrol");
+        _enemy.ResetTriggers();
+    }
 
     public override void UpdateState()
     {

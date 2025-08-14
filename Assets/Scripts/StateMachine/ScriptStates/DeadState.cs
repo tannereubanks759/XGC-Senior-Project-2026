@@ -13,6 +13,8 @@ public class DeadState : BaseState<EnemyState>
     {
         Debug.Log($"{_enemy.name} entered DEAD state.");
 
+        _enemy.Animator.SetTrigger("Dead");
+
         _enemy.StopMoving();
 
         // Optionally disable NavMeshAgent or AI components
@@ -25,10 +27,6 @@ public class DeadState : BaseState<EnemyState>
         Collider col = _enemy.GetComponent<Collider>();
         if (col != null)
             col.enabled = false;
-
-        Animator animator = _enemy.GetComponent<Animator>();
-        if (animator != null)
-            animator.SetTrigger("Die");
     }
 
     public override void ExitState()

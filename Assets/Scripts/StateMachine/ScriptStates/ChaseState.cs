@@ -12,11 +12,13 @@ public class ChaseState : BaseState<EnemyState>
     public override void EnterState()
     {
         Debug.Log("Entered Chase State");
+        _enemy.Animator.SetTrigger("Chase");
     }
 
     public override void ExitState()
     {
         Debug.Log("Exiting Chase State");
+        _enemy.ResetTriggers();
         _enemy.StopMoving();
     }
 
