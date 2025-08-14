@@ -13,7 +13,12 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public float AttackRange = 2f;
 
     [Header("Patrolling")]
-    public Vector3[] PatrolPoints;
+    public Transform[] PatrolPoints;
+
+    protected virtual void Awake()
+    {
+        Agent = GetComponent<NavMeshAgent>();
+    }
 
     // Shared movement
     public void MoveTo(Vector3 destination)
@@ -25,12 +30,18 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public void StopMoving()
     {
         if (Agent != null)
+        {
             Agent.ResetPath();
+        }
     }
 
     public float DistanceToPlayer()
     {
-        if (Player == null) return Mathf.Infinity;
+        if (Player == null)
+        {
+            return Mathf.Infinity;
+        }
+
         return Vector3.Distance(transform.position, Player.position);
     }
 

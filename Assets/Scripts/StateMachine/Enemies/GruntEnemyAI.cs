@@ -5,6 +5,8 @@ public class GruntEnemyAI : BaseEnemyAI
 {
     void Awake()
     {
+        base.Awake();
+
         States[EnemyState.Idle] = new IdleState(EnemyState.Idle, this);
         States[EnemyState.Patrol] = new PatrolState(EnemyState.Patrol, this);
         States[EnemyState.Chase] = new ChaseState(EnemyState.Chase, this);

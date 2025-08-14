@@ -12,7 +12,7 @@ public class PatrolState : BaseState<EnemyState>
     public override void EnterState()
     {
         Debug.Log("Entered Patrol State");
-        _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex]);
+        _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex].transform.position);
     }
 
     public override void ExitState() => Debug.Log("Exiting Patrol");
@@ -22,7 +22,7 @@ public class PatrolState : BaseState<EnemyState>
         if (_enemy.Agent.remainingDistance < 0.5f)
         {
             _currentWaypointIndex = (_currentWaypointIndex + 1) % _enemy.PatrolPoints.Length;
-            _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex]);
+            _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex].transform.position);
         }
     }
 
