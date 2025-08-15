@@ -1,4 +1,3 @@
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,6 +12,10 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public float ChaseRange = 10f;
     public float AttackRange = 2f;
 
+    [Header("Health")]
+    public int maxHealth = 100;
+    public int currentHealth { get; private set; }
+
     [Header("Speeds")]
     public float WalkSpeed = 2f;
     public float RunSpeed = 5f;
@@ -26,6 +29,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
         Player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        currentHealth = maxHealth;
     }
 
     // Shared movement
@@ -70,6 +74,21 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public virtual void Attack()
     {
         Debug.Log($"{name} attacks!");
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+        Debug.Log($"{name} took {damage} damage. Health: {currentHealth}");
+
+        // Animator.SetTrigger("Hit");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
     }
 
     public virtual void Die()

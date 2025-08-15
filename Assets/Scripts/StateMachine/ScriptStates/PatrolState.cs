@@ -34,7 +34,9 @@ public class PatrolState : BaseState<EnemyState>
 
     public override EnemyState GetNextState()
     {
-        if (_enemy.DistanceToPlayer() < _enemy.ChaseRange)
+        if (_enemy.currentHealth <= 0)
+            return EnemyState.Dead;
+        else if (_enemy.DistanceToPlayer() < _enemy.ChaseRange)
             return EnemyState.Chase;
 
         return StateKey;

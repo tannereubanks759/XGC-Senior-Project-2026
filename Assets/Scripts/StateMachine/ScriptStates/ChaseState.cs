@@ -31,9 +31,10 @@ public class ChaseState : BaseState<EnemyState>
     {
         float dist = _enemy.DistanceToPlayer();
 
+        if (_enemy.currentHealth <= 0)
+            return EnemyState.Dead;
         if (dist < _enemy.AttackRange)
             return EnemyState.Attack;
-
         if (dist > _enemy.ChaseRange + 2f) // Add a buffer so they don't constantly flip
             return EnemyState.Idle;
 

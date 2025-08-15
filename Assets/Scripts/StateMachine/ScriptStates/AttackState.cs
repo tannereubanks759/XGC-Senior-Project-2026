@@ -16,6 +16,7 @@ public class AttackState : BaseState<EnemyState>
         Debug.Log("Entered Attack State");
         _enemy.Animator.SetTrigger("Attack");
         _enemy.StopMoving();
+        _enemy.SetSpeed(0f);
     }
 
     public override void ExitState()
@@ -38,9 +39,10 @@ public class AttackState : BaseState<EnemyState>
     {
         float dist = _enemy.DistanceToPlayer();
 
+        if (_enemy.currentHealth <= 0)
+            return EnemyState.Dead;
         if (dist > _enemy.AttackRange)
             return EnemyState.Chase;
-
         return StateKey;
     }
 }
