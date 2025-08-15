@@ -13,6 +13,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public float ChaseRange = 10f;
     public float AttackRange = 2f;
 
+    [Header("Speeds")]
+    public float WalkSpeed = 2f;
+    public float RunSpeed = 5f;
+    public float CurrentSpeed { get; private set; } // Current active movement speed
+
     [Header("Patrolling")]
     public Transform[] PatrolPoints;
 
@@ -20,6 +25,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
+        Player = GameObject.FindGameObjectWithTag("Player")?.transform;
     }
 
     // Shared movement
@@ -29,13 +35,27 @@ public class BaseEnemyAI : StateManager<EnemyState>
             Agent.SetDestination(destination);
     }
 
+    public void SetSpeed(float speed)
+    {
+        CurrentSpeed = speed;
+        Agent.speed = speed;
+    }
+
     public void StopMoving()
     {
         if (Agent != null)
         {
-            Agent.ResetPath();
+            //Agent.ResetPath();
+            Agent.isStopped = true;
+            Agent.velocity = Vector3.zero;
         }
     }
+
+    public void ResumeMoving()
+    {
+        Agent.isStopped = false;
+    }
+
 
     public float DistanceToPlayer()
     {

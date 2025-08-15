@@ -13,6 +13,7 @@ public class PatrolState : BaseState<EnemyState>
     {
         Debug.Log("Entered Patrol State");
         _enemy.Animator.SetTrigger("Patrol");
+        _enemy.SetSpeed(_enemy.WalkSpeed);
         _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex].transform.position);
     }
 

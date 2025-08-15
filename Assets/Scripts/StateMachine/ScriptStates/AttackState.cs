@@ -22,6 +22,7 @@ public class AttackState : BaseState<EnemyState>
     {
         Debug.Log("Exiting Attack State");
         _enemy.ResetTriggers();
+        _enemy.ResumeMoving();
     }
 
     public override void UpdateState()

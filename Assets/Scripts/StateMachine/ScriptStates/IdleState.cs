@@ -4,6 +4,9 @@ public class IdleState : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
 
+    private float idleTime;
+    private float timeBeforPatrol = 5f;
+
     public IdleState(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
@@ -14,17 +17,19 @@ public class IdleState : BaseState<EnemyState>
         Debug.Log("Entered Idle State");
         _enemy.Animator.SetTrigger("Idle");
         _enemy.StopMoving();
+        idleTime = 0f;
     }
 
     public override void ExitState()
     {
         Debug.Log("Exiting Idle State");
+        _enemy.ResumeMoving();
         _enemy.ResetTriggers();
     }
 
     public override void UpdateState()
     {
-        // Optional idle behavior (e.g. look around, animation)
+        idleTime += Time.deltaTime;
     }
 
     public override EnemyState GetNextState()
@@ -32,6 +37,11 @@ public class IdleState : BaseState<EnemyState>
         if (_enemy.DistanceToPlayer() < _enemy.ChaseRange)
         {
             return EnemyState.Chase;
+        }
+
+        if (idleTime >= timeBeforPatrol)
+        {
+            return EnemyState.Patrol;
         }
 
         return StateKey;
