@@ -7,8 +7,8 @@ public class WeaponsManager : MonoBehaviour
     public KeyCode GunKey = KeyCode.Alpha2;
     public KeyCode changeWeapon = KeyCode.WheelUp;
     public KeyCode changeWeaponAlt = KeyCode.WheelDown;
-    public GameObject currentWeapon;
-    public GameObject weapons;
+    private int currentWeapon = 0;
+    public GameObject[] weapons;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -19,5 +19,20 @@ public class WeaponsManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    void InitializeWeapons()
+    {
+        for (int i = 0; i < weapons.Length; i++)
+        {
+            if (i == currentWeapon)
+            {
+                weapons[i].SetActive(true);
+            }
+            else
+            {
+                weapons[i].SetActive(false);
+            }
+        }
     }
 }
