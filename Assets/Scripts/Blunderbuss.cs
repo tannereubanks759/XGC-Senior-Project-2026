@@ -17,30 +17,39 @@ public class Blunderbuss : MonoBehaviour
     void Start()
     {
         isLoaded = true;
+        anim.SetBool("canShoot", true);
     }
-
+    private void OnEnable()
+    {
+        if (isLoaded)
+        {
+            anim.SetBool("canShoot", true);
+        }
+    }
     // Update is called once per frame
     void Update()
     {
         //shoot functionality
         if(Input.GetKeyDown(shootKey) && isLoaded)
         {
-            Shoot();
+            anim.SetTrigger("Shoot");
         }
 
         //aim functionality
         if (Input.GetKey(AimKey))
         {
-
+            anim.SetBool("Aim", true);
         }
         else
         {
-
+            anim.SetBool("Aim", false);
         }
     }
 
     void Shoot()
     {
+        isLoaded = false;
+        anim.SetBool("canShoot", false);
         totalAmmo--;
         bulletRadius = ret.GetComponent<RectTransform>().anchoredPosition.x / 10;
         //Debug.Log(bulletRadius);
@@ -56,9 +65,15 @@ public class Blunderbuss : MonoBehaviour
                 ShowShotLine(BulletPos.position, hit.point);
             }
         }
+
+        
         
     }
-
+    void SetLoaded()
+    {
+        isLoaded = true;
+        anim.SetBool("canShoot", true);
+    }
     void ShowShotLine(Vector3 start, Vector3 end)
     {
         GameObject lineObj = new GameObject("ShotTracer");
