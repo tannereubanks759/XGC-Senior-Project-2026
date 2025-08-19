@@ -6,5 +6,6 @@ public enum EnemyState
     Patrol,
     Chase,
     Attack,
+    Hit,
     Dead,
 }

@@ -24,6 +24,10 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("Patrolling")]
     public Transform[] PatrolPoints;
 
+    [Header("Attack Control")]
+    public float AttackCooldown = 1.5f;
+    private float lastAttackTime;
+
     protected virtual void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
@@ -35,9 +39,12 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Shared movement
     public void MoveTo(Vector3 destination)
     {
-        if (Agent != null)
-            Agent.SetDestination(destination);
+        if (Agent == null)
+            return;
+        
+        Agent.SetDestination(destination);
     }
+
 
     public void SetSpeed(float speed)
     {
@@ -51,7 +58,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         {
             //Agent.ResetPath();
             Agent.isStopped = true;
-            Agent.velocity = Vector3.zero;
         }
     }
 
@@ -83,11 +89,24 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
         Debug.Log($"{name} took {damage} damage. Health: {currentHealth}");
 
-        // Animator.SetTrigger("Hit");
-
         if (currentHealth <= 0)
         {
             Die();
+        }
+        else
+        {
+            TransitionToState(EnemyState.Hit);
+        }
+    }
+
+    public void OnTriggerEnter(Collider other)
+    {
+        // Check if collided with the player's sword
+        if (other.CompareTag("PlayerSword"))
+        {
+            // get damage from sword component if needed
+            int damage = 10;
+            TakeDamage(damage);
         }
     }
 
