@@ -2,11 +2,13 @@ using UnityEngine;
 public class PatrolState : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
-    private int _currentWaypointIndex = 0;
+    private Vector3 _currentTarget;
+    private PatrolArea _patrolArea;
 
-    public PatrolState(EnemyState key, BaseEnemyAI enemy) : base(key)
+    public PatrolState(EnemyState key, BaseEnemyAI enemy, PatrolArea area) : base(key)
     {
         _enemy = enemy;
+        _patrolArea = area;
     }
 
     public override void EnterState()
@@ -14,7 +16,7 @@ public class PatrolState : BaseState<EnemyState>
         Debug.Log("Entered Patrol State");
         _enemy.Animator.SetTrigger("Patrol");
         _enemy.SetSpeed(_enemy.WalkSpeed);
-        _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex].transform.position);
+        PickNewTarget();
     }
 
     public override void ExitState()
@@ -27,9 +29,15 @@ public class PatrolState : BaseState<EnemyState>
     {
         if (_enemy.Agent.remainingDistance < 0.5f)
         {
-            _currentWaypointIndex = (_currentWaypointIndex + 1) % _enemy.PatrolPoints.Length;
-            _enemy.MoveTo(_enemy.PatrolPoints[_currentWaypointIndex].transform.position);
+            PickNewTarget();
         }
+
+        _enemy.MoveTo(_currentTarget);
+    }
+
+    private void PickNewTarget()
+    {
+        _currentTarget = _patrolArea.GetRandomPoint();
     }
 
     public override EnemyState GetNextState()

@@ -16,7 +16,6 @@ public class AttackState : BaseState<EnemyState>
         Debug.Log("Entered Attack State");
         _enemy.Animator.SetTrigger("Attack");
         _enemy.StopMoving();
-        _enemy.SetSpeed(0f);
     }
 
     public override void ExitState()

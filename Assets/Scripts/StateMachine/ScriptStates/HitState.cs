@@ -3,7 +3,7 @@ using UnityEngine;
 public class HitState : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
-    private float hitDuration = 0.7f; // how long the flinch lasts
+    private float hitDuration = 1.7f; // how long the flinch lasts
     private float enterTime;
 
     public HitState(EnemyState key, BaseEnemyAI enemy) : base(key)

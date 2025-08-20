@@ -22,7 +22,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public float CurrentSpeed { get; private set; } // Current active movement speed
 
     [Header("Patrolling")]
-    public Transform[] PatrolPoints;
+    public Vector3[] PatrolPoints;
 
     [Header("Attack Control")]
     public float AttackCooldown = 1.5f;
@@ -45,6 +45,25 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Agent.SetDestination(destination);
     }
 
+    public PatrolArea FindClosestPatrolArea()
+    {
+        PatrolArea[] areas = FindObjectsOfType<PatrolArea>();
+        PatrolArea closest = null;
+        float minDistance = Mathf.Infinity;
+
+        foreach (var area in areas)
+        {
+            float dist = Vector3.Distance(transform.position, area.transform.position);
+            if (dist < minDistance)
+            {
+                minDistance = dist;
+                closest = area;
+            }
+        }
+
+        return closest;
+    }
+
 
     public void SetSpeed(float speed)
     {
@@ -58,12 +77,15 @@ public class BaseEnemyAI : StateManager<EnemyState>
         {
             //Agent.ResetPath();
             Agent.isStopped = true;
+            Agent.velocity = Vector3.zero;
+            Agent.updatePosition = false;
         }
     }
 
     public void ResumeMoving()
     {
         Agent.isStopped = false;
+        Agent.updatePosition = true;
     }
 
 
