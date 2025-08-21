@@ -63,6 +63,13 @@ public class Blunderbuss : MonoBehaviour
             if (Physics.Raycast(Ray, out RaycastHit hit, Mathf.Infinity, layers))
             {
                 ShowShotLine(BulletPos.position, hit.point);
+
+                // Damage what was hit
+                IDamageable damageable = hit.collider.GetComponent<IDamageable>();
+                if (damageable != null)
+                {
+                    damageable.TakeDamage(10);
+                }
             }
         }
 

@@ -29,6 +29,7 @@ public class PatrolState : BaseState<EnemyState>
     {
         if (_enemy.Agent.remainingDistance < 0.5f)
         {
+            _enemy.TransitionToState(EnemyState.Idle);
             PickNewTarget();
         }
 
