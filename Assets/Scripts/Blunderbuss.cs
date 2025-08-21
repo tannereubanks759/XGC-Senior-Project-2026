@@ -9,10 +9,13 @@ public class Blunderbuss : MonoBehaviour
     private float bulletRadius;
     public LayerMask layers;
     public GameObject ret;
-    public Transform BulletPos;
+    public GameObject BulletPos;
     public KeyCode shootKey = KeyCode.Mouse0;
     public KeyCode AimKey = KeyCode.Mouse1;
     public Animator anim;
+
+    public GameObject PelletHitEffect;
+    public GameObject MuzzleFlashParticle;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -48,6 +51,7 @@ public class Blunderbuss : MonoBehaviour
 
     void Shoot()
     {
+        Instantiate(MuzzleFlashParticle, BulletPos.transform.position, BulletPos.transform.rotation);
         isLoaded = false;
         anim.SetBool("canShoot", false);
         totalAmmo--;
@@ -62,7 +66,9 @@ public class Blunderbuss : MonoBehaviour
             
             if (Physics.Raycast(Ray, out RaycastHit hit, Mathf.Infinity, layers))
             {
-                ShowShotLine(BulletPos.position, hit.point);
+                ShowShotLine(BulletPos.transform.position, hit.point);
+
+                Instantiate(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal));
 
                 // Damage what was hit
                 IDamageable damageable = hit.collider.GetComponent<IDamageable>();
