@@ -383,8 +383,8 @@ MonoBehaviour:
   WalkSpeed: 2
   RunSpeed: 5
   PatrolPoints:
-  - {fileID: 1188503525}
-  - {fileID: 1463895014}
+  - {x: -1.1279423e+21, y: 6.74e-43, z: -1.1278235e+21}
+  - {x: 6.74e-43, y: -1.12794454e+21, z: 6.74e-43}
   AttackCooldown: 1.5
 --- !u!195 &119245943
 NavMeshAgent:
@@ -560,6 +560,51 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 42398eaef0e71fd4f8a0d5564ac03bc6, type: 3}
   m_PrefabInstance: {fileID: 832700047}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &597000635
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 597000637}
+  - component: {fileID: 597000636}
+  m_Layer: 0
+  m_Name: PatrolArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &597000636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 597000635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 692f886dd24178e4e807caa4747a7509, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  patrolRadius: 20
+--- !u!4 &597000637
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 597000635}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.7, y: 0, z: -6.55}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &616315156
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -711,7 +756,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!135 &1066993455
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -1020,37 +1065,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1188503524
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1188503525}
-  m_Layer: 0
-  m_Name: Patrol Point
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1188503525
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1188503524}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -14.69, y: 0, z: -21.7}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1234522861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1293,37 +1307,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 42398eaef0e71fd4f8a0d5564ac03bc6, type: 3}
   m_PrefabInstance: {fileID: 616315156}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1463895013
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1463895014}
-  m_Layer: 0
-  m_Name: Patrol Point (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1463895014
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1463895013}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.74, y: 0, z: 3.97}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1489396735
 GameObject:
   m_ObjectHideFlags: 0
@@ -1501,13 +1484,7 @@ Animator:
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
-    are already bound by a Humanoid avatar. These transforms can only be changed
-    by Humanoid clips.\n\tTransform 'mixamorig:Hips'\n\tTransform 'mixamorig:LeftFoot'\n\tTransform
-    'mixamorig:LeftHandThumb2'\n\tTransform 'mixamorig:LeftHandIndex1'\n\tTransform
-    'mixamorig:LeftHandPinky2'\n\tTransform 'mixamorig:Spine1'\n\tTransform 'mixamorig:LeftToeBase'\n\tTransform
-    'mixamorig:LeftHandThumb3'\n\tTransform 'mixamorig:RightArm'\n\tTransform 'mixamorig:LeftLeg'\n\tand
-    more ...\n\tFrom animation clip 'SwordHit'"
+  m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
@@ -1533,8 +1510,8 @@ MonoBehaviour:
   WalkSpeed: 1.25
   RunSpeed: 5
   PatrolPoints:
-  - {fileID: 1188503525}
-  - {fileID: 1463895014}
+  - {x: 0.000000003294316, y: 0.000000010664143, z: 0.000043681073}
+  - {x: 0.00000016408816, y: 2.1749259e+23, z: 0.000000042651855}
   AttackCooldown: 1.5
 --- !u!1 &1645884755
 GameObject:
@@ -1578,8 +1555,8 @@ MonoBehaviour:
   WalkSpeed: 2
   RunSpeed: 5
   PatrolPoints:
-  - {fileID: 1188503525}
-  - {fileID: 1463895014}
+  - {x: 0.000000003294316, y: 0.000000010664143, z: 0.000043681073}
+  - {x: 0.00000016408816, y: 2.1749259e+23, z: 0.000000042651855}
   AttackCooldown: 1.5
 --- !u!195 &1645884757
 NavMeshAgent:
@@ -1848,6 +1825,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: dab0b39ba916310408fcabc713f45572, type: 3}
       propertyPath: m_Name
       value: EnemyPrototype
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: dab0b39ba916310408fcabc713f45572, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3030,7 +3011,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -3040,8 +3021,7 @@ SceneRoots:
   - {fileID: 1645884761}
   - {fileID: 1066993458}
   - {fileID: 1170458549}
-  - {fileID: 1188503525}
-  - {fileID: 1463895014}
   - {fileID: 119245940}
   - {fileID: 1858154405}
   - {fileID: 4459864851522855575}
+  - {fileID: 597000637}

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BaseEnemyAI : StateManager<EnemyState>
+public class BaseEnemyAI : StateManager<EnemyState>, IDamageable
 {
     [Header("References")]
     public Transform Player;
@@ -86,6 +86,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Agent.isStopped = false;
         Agent.updatePosition = true;
+    }
+
+    public void RotateToPlayer()
+    {
+        if (Agent != null)
+        {
+            Agent.updateRotation = true;
+        }
     }
 
 
