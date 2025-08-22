@@ -51,7 +51,7 @@ public class Blunderbuss : MonoBehaviour
 
     void Shoot()
     {
-        Instantiate(MuzzleFlashParticle, BulletPos.transform.position, BulletPos.transform.rotation);
+        Destroy(Instantiate(MuzzleFlashParticle, BulletPos.transform.position, BulletPos.transform.rotation), 3f);
         isLoaded = false;
         anim.SetBool("canShoot", false);
         totalAmmo--;
@@ -66,9 +66,9 @@ public class Blunderbuss : MonoBehaviour
             
             if (Physics.Raycast(Ray, out RaycastHit hit, Mathf.Infinity, layers))
             {
-                ShowShotLine(BulletPos.transform.position, hit.point);
+                //ShowShotLine(BulletPos.transform.position, hit.point);
 
-                Instantiate(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal));
+                Destroy(Instantiate(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal)), 3f);
 
                 // Damage what was hit
                 IDamageable damageable = hit.collider.GetComponent<IDamageable>();
