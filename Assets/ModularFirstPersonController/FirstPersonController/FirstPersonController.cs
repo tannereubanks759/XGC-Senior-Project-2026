@@ -16,6 +16,30 @@ using UnityEngine.UI;
 
 public class FirstPersonController : MonoBehaviour
 {
+    // --- Swimming (ported) ---
+    [Header("Swimming")]
+    public bool enableSwimming = true;
+    public float swimSpeed = 6f;
+    public float swimUpForce = 6f;          // vertical swim thrust
+    public float waterDrag = 1f;            // drag while in water (Unity 6: linearDamping)
+    public float normalDrag = 0.5f;         // drag on land
+    public LayerMask waterLayer;            // (optional) water layer if you prefer layers over tags
+    public KeyCode swimUpKey = KeyCode.Space;
+    public KeyCode swimDownKey = KeyCode.LeftControl;
+    // --- Water surface + sinking until camera submerged ---
+    [Header("Water Surface & Buoyancy")]
+    public Transform waterSurface;            // optional: set to the water plane transform (its Y = surface)
+    public float sinkAcceleration = 4f;       // how strongly you sink before submerging
+    public float submergeOffset = 0.00f;      // small tolerance; 0 = camera must go strictly below surface
+
+    // Internal: captured from trigger when you enter water (if waterSurface is not assigned)
+    private float currentWaterSurfaceY = float.NaN;
+
+    private bool isSwimming = false;
+    private float storedDrag = 0f;
+    private bool storedUseGravity = true;
+
+
     private Rigidbody rb;
 
     #region Camera Movement Variables
@@ -211,6 +235,8 @@ public class FirstPersonController : MonoBehaviour
 
     float camRotation;
 
+
+
     private void Update()
     {
         #region Camera
@@ -357,10 +383,12 @@ public class FirstPersonController : MonoBehaviour
         #region Jump
 
         // Gets input and calls jump method
-        if (enableJump && Input.GetKeyDown(jumpKey) && isGrounded)
+        // Disable jump while swimming (Space is used to ascend)
+        if (!isSwimming && enableJump && Input.GetKeyDown(jumpKey) && isGrounded)
         {
             Jump();
         }
+
 
         #endregion
 
@@ -389,7 +417,7 @@ public class FirstPersonController : MonoBehaviour
 
         CheckGround();
 
-        if(enableHeadBob)
+        if (enableHeadBob && !isSwimming)
         {
             HeadBob();
         }
@@ -399,15 +427,77 @@ public class FirstPersonController : MonoBehaviour
 
     void FixedUpdate()
     {
-        #region Movement
+        
         if (!playerCanMove) return;
 
+        // --- SWIMMING (camera-relative; Space up, Q down) ---
+        if (isSwimming && enableSwimming)
+        {
+            float camY = playerCamera.transform.position.y;
+            // Determine the current water surface height
+            float waterY = !float.IsNaN(currentWaterSurfaceY)
+                ? currentWaterSurfaceY
+                : (waterSurface != null ? waterSurface.position.y : transform.position.y + 99999f); // fallback if not set
+
+            // If the CAMERA is above the water surface, gently push the player down until submerged.
+            // Allow Space to override (player intentionally swimming up).
+            if (playerCamera != null)
+            {
+                
+                if (camY > waterY - submergeOffset && !Input.GetKey(swimUpKey))
+                {
+                    // Apply downward acceleration (acts like gravity in water until your head goes under)
+                    rb.AddForce(Vector3.down * sinkAcceleration, ForceMode.Acceleration);
+                }
+            }
+
+            // --- your existing swim forces (camera-relative WASD + Space/Q) continue here ---
+            Transform camT = playerCamera != null ? playerCamera.transform : transform;
+            float h = cachedInput.x;
+            float v = cachedInput.z;
+
+            Vector3 fwd = camT.forward; fwd.y = 0f; fwd.Normalize();
+            Vector3 right = camT.right; right.y = 0f; right.Normalize();
+
+            Vector3 horiz = (right * h + fwd * v);
+            if (horiz.sqrMagnitude > 1f) horiz.Normalize();
+
+            // --- Vertical input (with surface clamp) ---
+            float upInput = 0f;
+            //float camY = playerCamera.transform.position.y;
+            float surfaceY = currentWaterSurfaceY;
+            if (waterSurface != null) surfaceY = waterSurface.position.y;
+
+            // Allow rising only if camera is still below surface
+            if (Input.GetKey(swimUpKey) && camY < surfaceY - submergeOffset)
+            {
+                upInput += 1f;
+            }
+
+            // Descend always works
+            if (Input.GetKey(swimDownKey))
+            {
+                upInput -= 1f;
+            }
+
+            Vector3 vert = camT.up * upInput;
+
+
+            Vector3 swimAccel = horiz * swimSpeed + vert * swimUpForce;
+            if (enableSprint && Input.GetKey(sprintKey)) swimAccel *= 1.15f;
+
+            rb.AddForce(swimAccel, ForceMode.Acceleration);
+            return;
+        }
+
+
+        // --- LAND/AIR MOVEMENT (exact same logic you used before) ---
         Vector3 wishDir = transform.TransformDirection(cachedInput).normalized;
         bool hasInput = cachedHasInput;
 
         float targetSpeed = (isSprinting ? sprintSpeed : walkSpeed);
 
-        Vector3 vel = rb.linearVelocity;             // use rb.velocity if on older Unity
+        Vector3 vel = rb.linearVelocity;
         Vector3 velH = new Vector3(vel.x, 0f, vel.z);
 
         if (isGrounded)
@@ -417,7 +507,6 @@ public class FirstPersonController : MonoBehaviour
             Vector3 delta = targetVelH - velH;
             delta.x = Mathf.Clamp(delta.x, -maxVelocityChange, maxVelocityChange);
             delta.z = Mathf.Clamp(delta.z, -maxVelocityChange, maxVelocityChange);
-
             rb.AddForce(new Vector3(delta.x, 0f, delta.z), ForceMode.VelocityChange);
         }
         else
@@ -431,8 +520,9 @@ public class FirstPersonController : MonoBehaviour
                 rb.AddForce(new Vector3(delta.x, 0f, delta.z), ForceMode.VelocityChange);
             }
         }
-        #endregion
     }
+
+
 
 
 
@@ -522,13 +612,80 @@ public class FirstPersonController : MonoBehaviour
             joint.localPosition = new Vector3(Mathf.Lerp(joint.localPosition.x, jointOriginalPos.x, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.y, jointOriginalPos.y, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.z, jointOriginalPos.z, Time.deltaTime * bobSpeed));
         }
     }
+
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!enableSwimming) return;
+        if (other.CompareTag("Water") || ((waterLayer.value & (1 << other.gameObject.layer)) != 0))
+        {
+            // Try to infer surface height from the collider you entered
+            currentWaterSurfaceY = float.NaN;
+            if (waterSurface == null)
+            {
+                // If the trigger is an axis-aligned BoxCollider: top face is bounds.max.y
+                if (other is BoxCollider)
+                {
+                    currentWaterSurfaceY = other.bounds.max.y;
+                }
+                else
+                {
+                    // Fallback: use object position (good if the water plane sits at its transform.y)
+                    currentWaterSurfaceY = other.transform.position.y;
+                }
+            }
+
+            BeginSwim();
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (!enableSwimming) return;
+        if (other.CompareTag("Water") || ((waterLayer.value & (1 << other.gameObject.layer)) != 0))
+        {
+            EndSwim();
+            currentWaterSurfaceY = float.NaN;
+        }
+    }
+
+
+    private void BeginSwim()
+    {
+        if (isSwimming) return;
+        isSwimming = true;
+
+        storedUseGravity = rb.useGravity;
+        storedDrag = rb.linearDamping;           // if you use rb.drag, store that instead
+
+        rb.useGravity = false;
+        rb.linearDamping = waterDrag;
+
+        // prevent sinking on enter
+        Vector3 v = rb.linearVelocity;
+        if (v.y < 0f) v.y = 0f;
+        rb.linearVelocity = v;
+
+        // Space is used to ascend—don’t trigger jump logic
+        isZoomed = false;
+    }
+
+    private void EndSwim()
+    {
+        if (!isSwimming) return;
+        isSwimming = false;
+
+        rb.useGravity = storedUseGravity;
+        rb.linearDamping = storedDrag;           // RESTORE what you had before water
+    }
+
 }
 
 
-
+/*
 // Custom Editor
 #if UNITY_EDITOR
-    [CustomEditor(typeof(FirstPersonController)), InitializeOnLoadAttribute]
+[CustomEditor(typeof(FirstPersonController)), InitializeOnLoadAttribute]
     public class FirstPersonControllerEditor : Editor
     {
     FirstPersonController fpc;
@@ -734,5 +891,4 @@ public class FirstPersonController : MonoBehaviour
     }
 
 }
-
-#endif
+*/
