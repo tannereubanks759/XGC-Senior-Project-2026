@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class ChaseState : BaseState<EnemyState>
+public class ChaseStateFSM : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
 
-    public ChaseState(EnemyState key, BaseEnemyAI enemy) : base(key)
+    public ChaseStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
     }

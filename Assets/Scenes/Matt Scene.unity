@@ -385,7 +385,6 @@ MonoBehaviour:
   PatrolPoints:
   - {x: -1.1279423e+21, y: 6.74e-43, z: -1.1278235e+21}
   - {x: 6.74e-43, y: -1.12794454e+21, z: 6.74e-43}
-  AttackCooldown: 1.5
 --- !u!195 &119245943
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -533,6 +532,8 @@ MonoBehaviour:
   shootKey: 323
   AimKey: 324
   anim: {fileID: 294129035}
+  PelletHitEffect: {fileID: 0}
+  MuzzleFlashParticle: {fileID: 0}
 --- !u!95 &294129035
 Animator:
   serializedVersion: 7
@@ -840,7 +841,7 @@ Transform:
   m_GameObject: {fileID: 1066993454}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 37, y: 0.5, z: -6.88}
+  m_LocalPosition: {x: 8.52, y: 0.5, z: -6.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1512,7 +1513,6 @@ MonoBehaviour:
   PatrolPoints:
   - {x: 0.000000003294316, y: 0.000000010664143, z: 0.000043681073}
   - {x: 0.00000016408816, y: 2.1749259e+23, z: 0.000000042651855}
-  AttackCooldown: 1.5
 --- !u!1 &1645884755
 GameObject:
   m_ObjectHideFlags: 0
@@ -1557,7 +1557,6 @@ MonoBehaviour:
   PatrolPoints:
   - {x: 0.000000003294316, y: 0.000000010664143, z: 0.000043681073}
   - {x: 0.00000016408816, y: 2.1749259e+23, z: 0.000000042651855}
-  AttackCooldown: 1.5
 --- !u!195 &1645884757
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2851,6 +2850,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d90ba6530d9bfda47abb4610956b2f44, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enableSwimming: 1
+  swimSpeed: 6
+  swimUpForce: 6
+  waterDrag: 1
+  normalDrag: 0.5
+  waterLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  swimUpKey: 32
+  swimDownKey: 306
+  waterSurface: {fileID: 0}
+  sinkAcceleration: 4
+  submergeOffset: 0
   playerCamera: {fileID: 4459864850200528911}
   fov: 60
   invertCamera: 0

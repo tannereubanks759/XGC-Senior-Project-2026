@@ -9,12 +9,12 @@ public class GruntEnemyAI : BaseEnemyAI
 
         PatrolArea area = FindClosestPatrolArea();
         
-        States[EnemyState.Idle] = new IdleState(EnemyState.Idle, this);
-        States[EnemyState.Patrol] = new PatrolState(EnemyState.Patrol, this, area);
-        States[EnemyState.Chase] = new ChaseState(EnemyState.Chase, this);
-        States[EnemyState.Attack] = new AttackState(EnemyState.Attack, this);
-        States[EnemyState.Hit] = new HitState(EnemyState.Hit, this);
-        States[EnemyState.Dead] = new DeadState(EnemyState.Dead, this);
+        States[EnemyState.Idle] = new IdleStateFSM(EnemyState.Idle, this);
+        States[EnemyState.Patrol] = new PatrolStateFSM(EnemyState.Patrol, this, area);
+        States[EnemyState.Chase] = new ChaseStateFSM(EnemyState.Chase, this);
+        States[EnemyState.Attack] = new AttackStateFSM(EnemyState.Attack, this);
+        States[EnemyState.Hit] = new HitStateFSM(EnemyState.Hit, this);
+        States[EnemyState.Dead] = new DeadStateFSM(EnemyState.Dead, this);
 
         CurrentState = States[EnemyState.Patrol]; // Start in patrol
     }

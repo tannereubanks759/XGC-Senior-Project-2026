@@ -1,13 +1,13 @@
 using UnityEngine;
 
-public class IdleState : BaseState<EnemyState>
+public class IdleStateFSM : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
 
     private float idleTime;
     private float timeBeforPatrol = 5f;
 
-    public IdleState(EnemyState key, BaseEnemyAI enemy) : base(key)
+    public IdleStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
     }

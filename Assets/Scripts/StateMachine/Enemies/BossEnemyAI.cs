@@ -4,10 +4,10 @@ public class BossEnemyAI : BaseEnemyAI
 {
     void Awake()
     {
-        States[EnemyState.Idle] = new IdleState(EnemyState.Idle, this);
-        States[EnemyState.Chase] = new ChaseState(EnemyState.Chase, this);
+        States[EnemyState.Idle] = new IdleStateFSM(EnemyState.Idle, this);
+        States[EnemyState.Chase] = new ChaseStateFSM(EnemyState.Chase, this);
         // States[EnemyState.Attack] = new BossAttackState(EnemyState.Attack, this);
-        States[EnemyState.Dead] = new DeadState(EnemyState.Dead, this);
+        States[EnemyState.Dead] = new DeadStateFSM(EnemyState.Dead, this);
 
         // Future boss states:
         // States[EnemyState.Phase2] = new PhaseTwoState(...);

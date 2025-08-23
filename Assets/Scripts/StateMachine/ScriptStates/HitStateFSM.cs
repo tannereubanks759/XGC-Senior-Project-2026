@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class HitState : BaseState<EnemyState>
+public class HitStateFSM : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
-    private float hitDuration = 1.7f; // how long the flinch lasts
+    private float hitDuration = 1f; // how long the flinch lasts
     private float enterTime;
 
-    public HitState(EnemyState key, BaseEnemyAI enemy) : base(key)
+    public HitStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
     }
@@ -15,6 +15,8 @@ public class HitState : BaseState<EnemyState>
     {
         Debug.Log("Entered Hit State");
         _enemy.StopMoving();
+        _enemy.SetAttackState(BaseEnemyAI.AttackState.None);
+        _enemy.ResetTriggers();
         _enemy.Animator.SetTrigger("Hit");
         enterTime = Time.time;
     }

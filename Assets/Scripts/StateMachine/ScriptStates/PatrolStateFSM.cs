@@ -1,11 +1,11 @@
 using UnityEngine;
-public class PatrolState : BaseState<EnemyState>
+public class PatrolStateFSM : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
     private Vector3 _currentTarget;
     private PatrolArea _patrolArea;
 
-    public PatrolState(EnemyState key, BaseEnemyAI enemy, PatrolArea area) : base(key)
+    public PatrolStateFSM(EnemyState key, BaseEnemyAI enemy, PatrolArea area) : base(key)
     {
         _enemy = enemy;
         _patrolArea = area;

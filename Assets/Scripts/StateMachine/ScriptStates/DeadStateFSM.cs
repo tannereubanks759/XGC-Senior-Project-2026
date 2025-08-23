@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class DeadState : BaseState<EnemyState>
+public class DeadStateFSM : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
 
-    public DeadState(EnemyState key, BaseEnemyAI enemy) : base(key)
+    public DeadStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
     }
