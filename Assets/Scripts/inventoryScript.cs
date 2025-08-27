@@ -1,12 +1,15 @@
 using System.Collections.Generic;
 using NUnit.Framework.Interfaces;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class inventoryScript : MonoBehaviour
 {
-    public List<GameObject> items = new List<GameObject>();
+    //public List<GameObject> items = new List<GameObject>();
     public GameObject inventoryUI;
     public bool isOpen = false;
+    public Image assigningSpotImage;
+    public List<ItemData> items = new List<ItemData>();
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -18,16 +21,22 @@ public class inventoryScript : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Tab)) 
         {
-            inventoryUI.SetActive(!isOpen);
-            isOpen = !isOpen;
+            toggleInv();
         }
     }
-    public void addToInventory(GameObject itemToAdd)
+    public void toggleInv() 
+    {
+        inventoryUI.SetActive(!isOpen);
+        setPauseLogic(!isOpen);
+        isOpen = !isOpen;
+    }
+    public void addToInventory(ItemData itemToAdd)
     {
         //Debug.Log("Adding", itemToAdd);
         items.Add(itemToAdd);
+        assigningSpotImage.sprite = itemToAdd.icon;
     }
-    public void removeInventory(GameObject itemToRemove) 
+    public void removeInventory(ItemData itemToRemove) 
     {
         items.Remove(itemToRemove);
     }
@@ -40,6 +49,21 @@ public class inventoryScript : MonoBehaviour
         else
         {
             // logic for removing from ui
+        }
+    }
+    public void setPauseLogic(bool pause)
+    {
+        if(pause) 
+        { 
+            Time.timeScale = 0f;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 }

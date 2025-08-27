@@ -1,48 +1,61 @@
 using UnityEngine;
-using TMPro; 
+using TMPro;
 
 
 public class interactScript : MonoBehaviour
 {
+    
     public GameObject interactText;
     public bool canInteract = false;
-    public GameObject currentArtifact;
+    public GameObject currentArtifactObj;
+    public ItemData currentArtifact;
     public inventoryScript inventoryScript;
+
     void Start()
     {
         interactText.SetActive(false);
     }
+
     private void OnTriggerStay(Collider other)
     {
-        //Debug.Log("Detected anything");
-        if (other.gameObject.CompareTag("Artifact"))
+        if (other.CompareTag("Artifact"))
         {
-            currentArtifact = other.gameObject;
-            Debug.Log("Touched artifact");
-            interactText.SetActive(true);
-            canInteract = true;
-           
+            itemDataAssigner artifact = other.GetComponent<itemDataAssigner>();
+            if (artifact != null)
+            {
+                currentArtifact = artifact.itemData;  // grab SO reference
+                currentArtifactObj = other.gameObject;
+                canInteract = true;
+
+                if (interactText != null)
+                    interactText.SetActive(true);
+
+                Debug.Log("Touched artifact: " + currentArtifact.itemName);
+            }
         }
     }
+
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.CompareTag("Artifact"))
+        if (other.CompareTag("Artifact"))
         {
-            Debug.Log("Left artifact");
+            currentArtifact = null;
+            currentArtifactObj = null;
             interactText.SetActive(false);
-            canInteract=false;
+            canInteract = false;
+            Debug.Log("Left artifact");
         }
-
     }
-    // Update is called once per frame
+
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E)&& canInteract == true)
+        if (Input.GetKeyDown(KeyCode.E) && canInteract && currentArtifact != null)
         {
             inventoryScript.addToInventory(currentArtifact);
-            currentArtifact.SetActive(false);
-            Debug.Log("Adding to inv");
+            Destroy(currentArtifactObj);
+            Debug.Log("Added to inventory: " + currentArtifact.itemName);
             interactText.SetActive(false);
+            inventoryScript.toggleInv();
         }
     }
 }
