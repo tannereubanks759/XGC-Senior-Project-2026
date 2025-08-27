@@ -23,7 +23,7 @@ public class interactScript : MonoBehaviour
             itemDataAssigner artifact = other.GetComponent<itemDataAssigner>();
             if (artifact != null)
             {
-                currentArtifact = artifact.itemData;  // grab SO reference
+                currentArtifact = artifact.itemData;
                 currentArtifactObj = other.gameObject;
                 canInteract = true;
 
