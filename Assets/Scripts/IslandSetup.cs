@@ -1,3 +1,4 @@
+using Unity.AI.Navigation;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -15,6 +16,8 @@ public class IslandSetup : MonoBehaviour
     public Transform[] largeLocations;
     public Transform[] chestLocations;
 
+    public NavMeshSurface surface;
+
     public GameObject playerPref; //used only if player doesnt already exist in scene
     public Transform playerSpawnPos;
 
@@ -26,6 +29,7 @@ public class IslandSetup : MonoBehaviour
     {
         SpawnChests();
         SpawnObjects();
+        ResetNavmesh();
         SpawnPlayer();
     }
 
@@ -95,6 +99,10 @@ public class IslandSetup : MonoBehaviour
         }
     }
 
+    void ResetNavmesh()
+    {
+        surface.BuildNavMesh();
+    }
     void SpawnPlayer()
     {
         if (GameObject.FindGameObjectWithTag("Player"))
