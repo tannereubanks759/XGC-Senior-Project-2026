@@ -1,16 +1,21 @@
 using UnityEngine;
 using TMPro;
-
+using NUnit.Framework;
+using System.Collections.Generic;
 
 public class interactScript : MonoBehaviour
 {
     
     public GameObject interactText;
-    public bool canInteract = false;
+    private bool canInteract = false;
     public GameObject currentArtifactObj;
     public ItemData currentArtifact;
     public inventoryScript inventoryScript;
-
+    private bool keyInteract = false;
+    private bool chestInteract = false; 
+    public int keyCount = 0;
+    public GameObject keyobj;
+    public ChestScript chest;
     void Start()
     {
         interactText.SetActive(false);
@@ -33,6 +38,18 @@ public class interactScript : MonoBehaviour
                 Debug.Log("Touched artifact: " + currentArtifact.itemName);
             }
         }
+        else if (other.CompareTag("Key"))
+        {
+            keyInteract = true;
+            interactText.SetActive(true);
+            keyobj = other.gameObject;
+        }
+        else if (other.CompareTag("Chest"))
+        {
+
+            interactText.SetActive(true);
+            chestInteract = true;   
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -45,6 +62,19 @@ public class interactScript : MonoBehaviour
             canInteract = false;
             Debug.Log("Left artifact");
         }
+        else if (other.CompareTag("Key"))
+        {
+            keyInteract = false;
+            keyobj = null;
+            interactText.SetActive(false);
+            
+        }
+        else if (other.CompareTag("Chest"))
+        {
+            
+            interactText.SetActive(false);
+            chestInteract = false;
+        }
     }
 
     void Update()
@@ -56,6 +86,20 @@ public class interactScript : MonoBehaviour
             Debug.Log("Added to inventory: " + currentArtifact.itemName);
             interactText.SetActive(false);
             inventoryScript.toggleInv();
+            canInteract = false;
+        }
+        else if (Input.GetKeyDown(KeyCode.E) && keyInteract) 
+        {
+            Destroy(keyobj);
+            keyCount++;
+            interactText.SetActive(false);
+            keyInteract = false;
+        }
+        else if (Input.GetKeyDown(KeyCode.E) && chestInteract)
+        {   
+            interactText.SetActive(false);
+            chestInteract = false;
+            chest.chestOpen();
         }
     }
 }
