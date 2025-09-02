@@ -29,7 +29,7 @@ public class IslandSetup : MonoBehaviour
     {
         SpawnChests();
         SpawnObjects();
-        ResetNavmesh();
+        //ResetNavmesh(); //needs to be fixed
         SpawnPlayer();
     }
 

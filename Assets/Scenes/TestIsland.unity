@@ -3925,18 +3925,18 @@ MonoBehaviour:
   ShowExpertColorSettings: 0
   ShowWaves: 1
   ShowExpertWavesSettings: 0
-  ShowFoam: 0
+  ShowFoam: 1
   ShowReflectionSettings: 0
   ShowExpertReflectionSettings: 0
   ShowRefractionSettings: 0
   ShowExpertRefractionSettings: 0
-  ShowVolumetricLightSettings: 0
+  ShowVolumetricLightSettings: 1
   ShowExpertVolumetricLightSettings: 0
   ShowFlowMap: 0
   ShowExpertFlowmapSettings: 0
   FlowMapInEditMode: 0
   FlowMapBrushStrength: 0.75
-  ShowDynamicWaves: 0
+  ShowDynamicWaves: 1
   ShowExpertDynamicWavesSettings: 0
   ShowShorelineMap: 0
   ShorelineInEditMode: 0
@@ -3947,7 +3947,7 @@ MonoBehaviour:
   CausticDepthScaleInEditMode: 0
   ShowUnderwaterEffectSettings: 0
   ShowExpertUnderwaterSettings: 0
-  ShowMeshSettings: 0
+  ShowMeshSettings: 1
   SplineMeshInEditMode: 0
   ShowExpertMeshSettings: 0
   WideAngleCameraRenderingMode: 0
@@ -5376,7 +5376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bf75699500d2c349aac22df3efb5415, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Transparent: 7
+  Transparent: 9
   DyeColor: {r: 1, g: 1, b: 1, a: 1}
   TurbidityColor: {r: 0.02745098, g: 0.25490198, b: 0.3137255, a: 1}
   UseGlobalWind: 1
@@ -5402,7 +5402,7 @@ MonoBehaviour:
   OceanFoamColor: {r: 0.535, g: 0.649, b: 0.664, a: 0.86}
   OceanFoamStrength: 0.2
   OceanFoamTextureSize: 30
-  UseIntersectionFoam: 0
+  UseIntersectionFoam: 1
   IntersectionFoamColor: {r: 0.64705884, g: 0.9019608, b: 1, a: 0.92156863}
   IntersectionFoamFadeDistance: 1.5
   IntersectionTextureFoamSize: 25
@@ -5492,19 +5492,19 @@ MonoBehaviour:
   MeshProfile: 0
   WaterMeshType: 0
   UseAquariumMode: 0
-  OceanDetailingFarDistance: 1000
+  OceanDetailingFarDistance: 500
   RiverSplineNormalOffset: 1
   RiverSplineVertexCountBetweenPoints: 20
   RiverSplineDepth: 10
   CustomMesh: {fileID: 0}
   WaterMeshQualityInfinite: 1
   WaterMeshQualityFinite: 1
-  UseTesselation: 0
+  UseTesselation: 1
   TesselationFactor_Infinite: 0.75
   TesselationFactor_Finite: 200
   TesselationFactor_Custom: 100
   TesselationFactor_River: 100
-  TesselationMaxDistance_Infinite: 2000
+  TesselationMaxDistance_Infinite: 3000
   TesselationMaxDistance_Finite: 100
   TesselationMaxDistance_Custom: 100
   TesselationMaxDistance_River: 100
@@ -6762,6 +6762,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1904890781}
   - component: {fileID: 1904890782}
+  - component: {fileID: 1904890783}
   m_Layer: 0
   m_Name: IslandManager
   m_TagString: Untagged
@@ -6910,11 +6911,44 @@ MonoBehaviour:
   - {fileID: 1263536119}
   - {fileID: 2088405117}
   - {fileID: 923439208}
+  surface: {fileID: 1904890783}
   playerPref: {fileID: 6428402459396883477, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
   playerSpawnPos: {fileID: 1172330324}
   common: 1
   rare: 0
   epic: 0
+--- !u!114 &1904890783
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1904890780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SerializedVersion: 0
+  m_AgentTypeID: 0
+  m_CollectObjects: 0
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_GenerateLinks: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_MinRegionArea: 2
+  m_NavMeshData: {fileID: 0}
+  m_BuildHeightMesh: 0
 --- !u!1001 &1927844683
 PrefabInstance:
   m_ObjectHideFlags: 0
