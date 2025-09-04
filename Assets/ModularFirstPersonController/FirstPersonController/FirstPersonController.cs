@@ -164,6 +164,8 @@ public class FirstPersonController : MonoBehaviour
     private Vector3 jointOriginalPos;
     private float timer = 0;
 
+
+    public static bool isPaused = false;
     #endregion
 
     private void Awake()
@@ -200,7 +202,7 @@ public class FirstPersonController : MonoBehaviour
         {
             crosshairObject.gameObject.SetActive(false);
         }
-
+        waterSurface = GameObject.FindGameObjectWithTag("Water").gameObject.transform;
         #region Sprint Bar
 
         sprintBarCG = GetComponentInChildren<CanvasGroup>();
@@ -240,7 +242,7 @@ public class FirstPersonController : MonoBehaviour
     private void Update()
     {
         #region Camera
-
+        if (isPaused) return;
         // Control camera movement
         if(cameraCanMove)
         {
@@ -427,7 +429,7 @@ public class FirstPersonController : MonoBehaviour
 
     void FixedUpdate()
     {
-        
+        if (isPaused) return;
         if (!playerCanMove) return;
 
         // --- SWIMMING (camera-relative; Space up, Q down) ---

@@ -19,7 +19,7 @@ public class IslandSetup : MonoBehaviour
     public NavMeshSurface surface;
 
     public GameObject playerPref; //used only if player doesnt already exist in scene
-    public Transform playerSpawnPos;
+    public Transform[] playerSpawnPos;
 
 
     public bool common;
@@ -105,15 +105,16 @@ public class IslandSetup : MonoBehaviour
     }
     void SpawnPlayer()
     {
+        int random = Random.Range(0, playerSpawnPos.Length);
         if (GameObject.FindGameObjectWithTag("Player"))
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            player.transform.position = playerSpawnPos.position;
+            player.transform.position = playerSpawnPos[random].position;
             Debug.Log("existing player spawned succesfully");
         }
         else
         {
-            Instantiate(playerPref, playerSpawnPos.position, Quaternion.identity);
+            Instantiate(playerPref, playerSpawnPos[random].position, Quaternion.identity);
         }
 
     }

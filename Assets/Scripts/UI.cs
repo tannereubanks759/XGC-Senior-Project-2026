@@ -1,0 +1,73 @@
+using UnityEngine;
+
+public class UI : MonoBehaviour
+{
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
+    public KeyCode PauseKey = KeyCode.Tab;
+
+    public bool isPaused = false;
+    public GameObject PauseScreen;
+    public Camera SceneCamera;
+    void Start()
+    {
+        Resume();
+        SceneCamera.gameObject.SetActive(false);
+        EnableCursor(false);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(PauseKey))
+        {
+            if (isPaused)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+        }
+    }
+
+    void Pause()
+    {
+        FirstPersonController.isPaused = true;
+        PauseScreen.SetActive(true);
+        isPaused = true;
+        EnableCursor(true);
+        Time.timeScale = 0f;
+    }
+
+    public void Resume()
+    {
+        FirstPersonController.isPaused = false;
+        PauseScreen.SetActive(false);
+        isPaused = false;
+        EnableCursor(false);
+        Time.timeScale = 1f;
+    }
+
+    void ShowDeathScreen()
+    {
+
+    }
+
+    void EnableCursor(bool enabled)
+    {
+        if (enabled)
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
+
+    }
+}
