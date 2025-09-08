@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UI : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class UI : MonoBehaviour
 
     public bool isPaused = false;
     public GameObject PauseScreen;
+    public GameObject DeathScreen;
     public Camera SceneCamera;
     void Start()
     {
@@ -52,7 +54,9 @@ public class UI : MonoBehaviour
 
     void ShowDeathScreen()
     {
-
+        DeathScreen.SetActive(true);
+        EnableCursor(true);
+        Time.timeScale = 1f;
     }
 
     void EnableCursor(bool enabled)
@@ -70,4 +74,14 @@ public class UI : MonoBehaviour
 
 
     }
+
+    public void LoadScene(string name)
+    {
+        SceneManager.LoadScene(name);
+    }
+    public void RestartScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
 }

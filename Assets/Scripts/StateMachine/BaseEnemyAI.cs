@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class BaseEnemyAI : StateManager<EnemyState>, IDamageable
+public class BaseEnemyAI : StateManager<EnemyState>
 {
     [Header("References")]
     public Transform Player;

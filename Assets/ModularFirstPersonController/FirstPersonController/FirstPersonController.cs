@@ -8,9 +8,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.VisualScripting;
+
 
 #if UNITY_EDITOR
-    using UnityEditor;
+using UnityEditor;
     using System.Net;
 #endif
 
@@ -638,6 +640,16 @@ public class FirstPersonController : MonoBehaviour
             }
 
             BeginSwim();
+        }
+
+        if (other.CompareTag("EnemyWeapon"))
+        {
+            CombatController healthSystem = GetComponent<CombatController>();
+
+            if (healthSystem != null)
+            {
+                healthSystem.TakeDamage(1);
+            }
         }
     }
 
