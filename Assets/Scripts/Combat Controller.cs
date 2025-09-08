@@ -188,7 +188,7 @@ public class CombatController : MonoBehaviour
         }
     }
 
-    void TakeDamage(int damage)
+    public void TakeDamage(int damage)
     {
         health = Mathf.Max(health - damage, 0);
         lastDamageTime = Time.time;   // reset regen cooldown
