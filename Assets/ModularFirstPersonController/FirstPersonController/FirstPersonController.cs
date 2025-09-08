@@ -41,6 +41,8 @@ public class FirstPersonController : MonoBehaviour
     private float storedDrag = 0f;
     private bool storedUseGravity = true;
 
+    public CombatController healthSystem;
+
 
     private Rigidbody rb;
 
@@ -175,6 +177,9 @@ public class FirstPersonController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
 
         crosshairObject = GetComponentInChildren<Image>();
+
+
+        healthSystem = GetComponent<CombatController>();
 
         // Set internal variables
         playerCamera.fieldOfView = fov;
@@ -644,11 +649,10 @@ public class FirstPersonController : MonoBehaviour
 
         if (other.CompareTag("EnemyWeapon"))
         {
-            CombatController healthSystem = GetComponent<CombatController>();
-
             if (healthSystem != null)
             {
-                healthSystem.TakeDamage(1);
+                other.GetComponent<Collider>().enabled = false;
+                healthSystem.TakeDamage(other.GetComponentInParent<BaseEnemyAI>().Damage);
             }
         }
     }
@@ -660,6 +664,11 @@ public class FirstPersonController : MonoBehaviour
         {
             EndSwim();
             currentWaterSurfaceY = float.NaN;
+        }
+
+        if (other.CompareTag("EnemyWeapon"))
+        {
+            other.enabled = true;
         }
     }
 

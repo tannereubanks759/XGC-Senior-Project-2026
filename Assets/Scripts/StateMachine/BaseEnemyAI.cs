@@ -25,6 +25,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("Patrolling")]
     public Vector3[] PatrolPoints;
 
+    [Header("Damage")]
+    public int Damage;
+
     public enum AttackState { None, InProgress, Finished }
 
     [Header("Attack Control")]
