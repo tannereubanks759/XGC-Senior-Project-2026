@@ -1,7 +1,9 @@
+using NUnit.Framework;
 using UnityEngine;
 
 public class ChestScript : MonoBehaviour
 {
+    //public List<GameObject> artifactPool;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     public interactScript interactScript;
     void Start()
