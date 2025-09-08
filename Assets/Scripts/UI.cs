@@ -16,6 +16,7 @@ public class UI : MonoBehaviour
         Resume();
         SceneCamera.gameObject.SetActive(false);
         EnableCursor(false);
+        DeathScreen.SetActive(false);
     }
 
     // Update is called once per frame
@@ -52,11 +53,12 @@ public class UI : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    void ShowDeathScreen()
+    public void ShowDeathScreen()
     {
+        FirstPersonController.isPaused = true;
         DeathScreen.SetActive(true);
         EnableCursor(true);
-        Time.timeScale = 1f;
+        Time.timeScale = 0f;
     }
 
     void EnableCursor(bool enabled)
