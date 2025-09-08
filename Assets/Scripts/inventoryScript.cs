@@ -8,8 +8,10 @@ public class inventoryScript : MonoBehaviour
     //public List<GameObject> items = new List<GameObject>();
     public GameObject inventoryUI;
     public bool isOpen = false;
-    public Image assigningSpotImage;
+    
     public List<ItemData> items = new List<ItemData>();
+    public  ItemData currentlyEquippingItemData;
+    public equipScript equip;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -34,7 +36,13 @@ public class inventoryScript : MonoBehaviour
     {
         //Debug.Log("Adding", itemToAdd);
         items.Add(itemToAdd);
-        assigningSpotImage.sprite = itemToAdd.icon;
+        // do this in other script as well
+        
+        //send to another script
+        currentlyEquippingItemData = itemToAdd;
+        equip.equip(currentlyEquippingItemData);
+        Debug.Log("Sent call");
+
     }
     public void removeInventory(ItemData itemToRemove) 
     {
