@@ -186,8 +186,17 @@ public class CombatController : MonoBehaviour
             Heal(10);
             Debug.Log("Current health " + health);
         }
+
+        if(health <= 0)
+        {
+            Die();
+        }
     }
 
+    public void Die()
+    {
+        GameObject.FindAnyObjectByType<UI>().ShowDeathScreen();
+    }
     public void TakeDamage(int damage)
     {
         health = Mathf.Max(health - damage, 0);
