@@ -37,7 +37,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
-        Player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        //Player = GameObject.FindGameObjectWithTag("Player")?.transform;
         currentHealth = maxHealth;
         canRotate = true;
     }

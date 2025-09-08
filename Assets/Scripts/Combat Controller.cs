@@ -77,7 +77,20 @@ public class CombatController : MonoBehaviour
             regenHeart.color = c;
         }
 
+        Enemies();
+
     }
+
+    void Enemies()
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        foreach (var enemy in enemies)
+        {
+            enemy.GetComponent<BaseEnemyAI>().Player = this.transform;
+        }
+    }
+
 
     void Update()
     {
