@@ -8,6 +8,7 @@ public class UI : MonoBehaviour
 
     public bool isPaused = false;
     public GameObject PauseScreen;
+    public GameObject DeathScreen;
     public Camera SceneCamera;
     void Start()
     {
@@ -52,7 +53,9 @@ public class UI : MonoBehaviour
 
     void ShowDeathScreen()
     {
-
+        DeathScreen.SetActive(true);
+        EnableCursor(true);
+        Time.timeScale = 1f;
     }
 
     void EnableCursor(bool enabled)
