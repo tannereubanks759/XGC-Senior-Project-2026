@@ -110,6 +110,7 @@ MonoBehaviour:
   PatrolPoints:
   - {x: 0.000000003294316, y: 0.000000010664143, z: 0.000043681073}
   - {x: 0.00000016408816, y: 2.1749259e+23, z: 0.000000042651855}
+  Damage: 0
 --- !u!95 &8704558919035892567
 Animator:
   serializedVersion: 7
@@ -261,7 +262,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
