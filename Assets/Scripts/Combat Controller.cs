@@ -221,6 +221,23 @@ public class CombatController : MonoBehaviour
         damageAlphaVel = 0f;          // reset ease
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("EnemyWeapon"))
+        {
+            other.GetComponent<Collider>().enabled = false;
+            TakeDamage(other.GetComponentInParent<GruntEnemyAI>().Damage);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("EnemyWeapon"))
+        {
+            other.GetComponent<Collider>().enabled = true;
+        }
+    }
+
 
     public void Heal(int amount)
     {
