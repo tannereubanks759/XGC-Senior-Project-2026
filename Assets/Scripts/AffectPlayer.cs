@@ -14,14 +14,19 @@ public class AffectPlayer : MonoBehaviour
     private void Start()
     {
         swordCollider = GetComponent<Collider>();
-        CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
+        //CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
     }
-
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-           swordCollider.enabled = false;
+            Debug.Log("Hit Player");
+            if(CombatController == null)
+            {
+                CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
+            }
+            swordCollider.enabled = false;
             CombatController.TakeDamage(damage);
         }
     }
