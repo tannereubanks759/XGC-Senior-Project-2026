@@ -178,9 +178,6 @@ public class FirstPersonController : MonoBehaviour
 
         crosshairObject = GetComponentInChildren<Image>();
 
-
-        healthSystem = GetComponent<CombatController>();
-
         // Set internal variables
         playerCamera.fieldOfView = fov;
         originalScale = transform.localScale;
@@ -240,6 +237,8 @@ public class FirstPersonController : MonoBehaviour
         }
 
         #endregion
+
+        healthSystem = GetComponent<CombatController>();
     }
 
     float camRotation;
@@ -652,7 +651,7 @@ public class FirstPersonController : MonoBehaviour
             if (healthSystem != null)
             {
                 other.GetComponent<Collider>().enabled = false;
-                healthSystem.TakeDamage(other.GetComponentInParent<BaseEnemyAI>().Damage);
+                healthSystem.TakeDamage(other.GetComponentInParent<GruntEnemyAI>().Damage);
             }
         }
     }
