@@ -645,6 +645,15 @@ public class FirstPersonController : MonoBehaviour
 
             BeginSwim();
         }
+
+        /*if (other.CompareTag("EnemyWeapon"))
+        {
+            if (healthSystem != null)
+            {
+                other.GetComponent<Collider>().enabled = false;
+                healthSystem.TakeDamage(other.GetComponentInParent<GruntEnemyAI>().Damage);
+            }
+        }*/
     }
 
     private void OnTriggerExit(Collider other)
@@ -655,6 +664,11 @@ public class FirstPersonController : MonoBehaviour
             EndSwim();
             currentWaterSurfaceY = float.NaN;
         }
+
+        /*if (other.CompareTag("EnemyWeapon"))
+        {
+            other.enabled = true;
+        }*/
     }
 
 
