@@ -1332,6 +1332,7 @@ GameObject:
   - component: {fileID: 2259459058816825701}
   - component: {fileID: 7945717937085838674}
   - component: {fileID: 6007496857955723791}
+  - component: {fileID: 6230349697370413922}
   m_Layer: 0
   m_Name: Weapons
   m_TagString: Untagged
@@ -1398,6 +1399,37 @@ MonoBehaviour:
   movementSway: 1.13
   lookSway: 1
   jumpKick: 1.13
+--- !u!114 &6230349697370413922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6199241630844518463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1446ea4249196294086f0d473f585931, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  primaryAttack: 323
+  block_or_aim: 324
+  dodge: 32
+  swordAnim: {fileID: 8196703046278169767}
+  maxHealth: 100
+  health: 100
+  healthSlider: {fileID: 0}
+  healthSmoothTime: 0.18
+  passiveHealing: 1
+  regenDelay: 3
+  regenTickInterval: 1
+  regenAmountPerTick: 1
+  regenHeart: {fileID: 0}
+  heartRegenColor: {r: 0.35, g: 1, b: 0.35, a: 1}
+  heartDamageColor: {r: 1, g: 0.25, b: 0.25, a: 1}
+  blinkMinAlpha: 0.25
+  blinkMaxAlpha: 1
+  blinkFrequency: 1.5
+  damageFadeTime: 0.6
 --- !u!1 &6351160074191772888
 GameObject:
   m_ObjectHideFlags: 0
@@ -1709,7 +1741,6 @@ GameObject:
   - component: {fileID: 5597446599923421742}
   - component: {fileID: 8196703046278169767}
   - component: {fileID: 2762810941035145519}
-  - component: {fileID: 4939474170541546844}
   m_Layer: 0
   m_Name: Sword Parent
   m_TagString: Untagged
@@ -1774,37 +1805,6 @@ MonoBehaviour:
   dodgeSpeedChange: 20
   lockDuration: 1
   maxHorizontalSpeed: 14
---- !u!114 &4939474170541546844
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7482587371532213724}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1446ea4249196294086f0d473f585931, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  primaryAttack: 323
-  block_or_aim: 324
-  dodge: 32
-  swordAnim: {fileID: 8196703046278169767}
-  maxHealth: 100
-  health: 100
-  healthSlider: {fileID: 0}
-  healthSmoothTime: 0.18
-  passiveHealing: 1
-  regenDelay: 3
-  regenTickInterval: 1
-  regenAmountPerTick: 1
-  regenHeart: {fileID: 0}
-  heartRegenColor: {r: 0.35, g: 1, b: 0.35, a: 1}
-  heartDamageColor: {r: 1, g: 0.25, b: 0.25, a: 1}
-  blinkMinAlpha: 0.25
-  blinkMaxAlpha: 1
-  blinkFrequency: 1.5
-  damageFadeTime: 0.6
 --- !u!1 &7638729564069392685
 GameObject:
   m_ObjectHideFlags: 0
