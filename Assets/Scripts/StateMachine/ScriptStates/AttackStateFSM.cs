@@ -8,6 +8,8 @@ public class AttackStateFSM : BaseState<EnemyState>
 
     private float rotationSpeed = 10f;
 
+    private Collider swordCollider;
+
     public AttackStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
@@ -16,6 +18,10 @@ public class AttackStateFSM : BaseState<EnemyState>
     public override void EnterState()
     {
         Debug.Log("Entered Attack State");
+
+        // Get the collider
+        swordCollider = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Collider>();
+        swordCollider.enabled = true;
 
         // Stop movement and face player
         _enemy.StopMoving();
@@ -34,6 +40,8 @@ public class AttackStateFSM : BaseState<EnemyState>
     public override void ExitState()
     {
         Debug.Log("Exiting Attack State");
+
+        swordCollider.enabled = false;
 
         // Reset attack state
         _enemy.SetAttackState(BaseEnemyAI.AttackState.None);

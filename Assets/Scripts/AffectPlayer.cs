@@ -26,16 +26,8 @@ public class AffectPlayer : MonoBehaviour
             {
                 CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
             }
-            swordCollider.enabled = false;
             CombatController.TakeDamage(damage);
         }
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            swordCollider.enabled = true;
-        }
-    }
 }
