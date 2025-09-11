@@ -51,7 +51,7 @@ public class CombatController : MonoBehaviour
     [Min(0.02f)] public float damageFadeTime = 0.6f; // SmoothDamp time
     private float damageAlpha = 0f;                  // 1 -> 0 after hit
     private float damageAlphaVel = 0f;               // SmoothDamp velocity
-
+    private WeaponInertia wInertia;
 
     void Start()
     {
@@ -76,6 +76,8 @@ public class CombatController : MonoBehaviour
             c.a = 0f;                // default invisible
             regenHeart.color = c;
         }
+
+        wInertia = GetComponent<WeaponInertia>();
 
         Enemies();
 
@@ -212,13 +214,20 @@ public class CombatController : MonoBehaviour
     }
     public void TakeDamage(int damage)
     {
-        health = Mathf.Max(health - damage, 0);
-        lastDamageTime = Time.time;   // reset regen cooldown
-        regenAccumulator = 0f;        // reset regen tick build-up
+        if(blocking == false)
+        {
+            health = Mathf.Max(health - damage, 0);
+            lastDamageTime = Time.time;   // reset regen cooldown
+            regenAccumulator = 0f;        // reset regen tick build-up
 
-        // Kick off damage flash
-        damageAlpha = 1f;             // fully visible red
-        damageAlphaVel = 0f;          // reset ease
+            // Kick off damage flash
+            damageAlpha = 1f;             // fully visible red
+            damageAlphaVel = 0f;          // reset ease
+        }
+        else
+        {
+            wInertia.ParryClash(1);
+        }
     }
 
     /*

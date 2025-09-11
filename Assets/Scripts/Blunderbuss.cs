@@ -16,9 +16,11 @@ public class Blunderbuss : MonoBehaviour
 
     public GameObject PelletHitEffect;
     public GameObject MuzzleFlashParticle;
+    private WeaponInertia wIntertia;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        wIntertia = GetComponentInParent<WeaponInertia>();
         isLoaded = true;
         anim.SetBool("canShoot", true);
     }
@@ -51,6 +53,7 @@ public class Blunderbuss : MonoBehaviour
 
     void Shoot()
     {
+        wIntertia.FireRecoil(2);
         Destroy(Instantiate(MuzzleFlashParticle, BulletPos.transform.position, BulletPos.transform.rotation), 3f);
         isLoaded = false;
         anim.SetBool("canShoot", false);

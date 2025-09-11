@@ -147,4 +147,126 @@ public class WeaponInertia : MonoBehaviour
         d.z = Mathf.Clamp(d.z, -maxDeg, maxDeg);
         return center + d;
     }
+
+    // --- Parry / Block clash effect ---
+    [Header("Parry Clash")]
+    [Tooltip("Approx distance pushed toward camera (meters).")]
+    public float clashBackDistance = 0.06f;
+    [Tooltip("Approx distance pushed back out (meters).")]
+    public float clashForwardDistance = 0.04f;
+    [Tooltip("Peak tilt (degrees) during clash.")]
+    public float clashTiltDegrees = 7f;
+    [Tooltip("Time between the 'in' shove and the 'out' rebound.")]
+    public float clashDelay = 0.055f;
+    [Tooltip("Minimum time between clashes.")]
+    public float clashCooldown = 0.05f;
+
+    Coroutine _clashRoutine;
+    float _lastClashTime = -999f;
+
+    /// Call this when a blocked hit/clash happens.
+    /// Example: weaponInertia.ParryClash();  or weaponInertia.ParryClash(1.25f);
+    public void ParryClash(float intensity = 1f)
+    {
+        if (Time.time - _lastClashTime < clashCooldown) return;
+        _lastClashTime = Time.time;
+
+        if (_clashRoutine != null) StopCoroutine(_clashRoutine);
+        _clashRoutine = StartCoroutine(CoParryClash(intensity));
+    }
+
+    System.Collections.IEnumerator CoParryClash(float intensity)
+    {
+        // Convert desired distances/angles into velocity impulses for the springs.
+        // Use the delay as the "rise time" so it feels snappy but controllable.
+        float rise = Mathf.Max(0.015f, clashDelay);
+        float backVel = (clashBackDistance * intensity) / rise;          // m/s toward camera (local -Z)
+        float outVel = (clashForwardDistance * intensity) / rise;       // m/s away from camera (local +Z)
+        float tiltVel = (clashTiltDegrees * intensity) / rise;           // deg/s
+
+        // 1) Shove IN (toward player) + slight tilt up and a tiny randomized roll for life
+        AddImpulse(
+            new Vector3(0f, 0f, -backVel),
+            new Vector3(tiltVel, 0f, Random.Range(-tiltVel * 0.4f, tiltVel * 0.4f))
+        );
+
+        yield return new WaitForSeconds(clashDelay);
+
+        // 2) Rebound OUT (away from player) + counter tilt
+        AddImpulse(
+            new Vector3(0f, 0f, outVel),
+            new Vector3(-tiltVel * 0.7f, 0f, 0f)
+        );
+
+        // Optional small settle delay to avoid overlap
+        yield return new WaitForSeconds(clashDelay * 0.5f);
+        _clashRoutine = null;
+    }
+
+    // --- Gun Recoil ---
+    [Header("Gun Recoil")]
+    [Tooltip("How far the weapon kicks back (meters).")]
+    public float recoilBackDistance = 0.08f;
+    [Tooltip("How much the muzzle rises (degrees).")]
+    public float recoilUpDegrees = 5f;
+    [Tooltip("Random left/right twist (degrees).")]
+    public float recoilYawJitter = 1.2f;
+    [Tooltip("Random roll (degrees).")]
+    public float recoilRollJitter = 0.8f;
+    [Tooltip("Time used to convert distances/angles into a sharp snap impulse.")]
+    public float recoilSnapTime = 0.04f;
+    [Tooltip("Pause at peak before recovery.")]
+    public float recoilReturnDelay = 0.02f;
+    [Tooltip("Small forward overshoot during recovery (meters).")]
+    public float recoilForwardOvershoot = 0.02f;
+    [Tooltip("Small downward overshoot during recovery (degrees).")]
+    public float recoilDownOvershoot = 2.0f;
+    [Tooltip("Scale recoil when aiming down sights.")]
+    public float adsRecoilScale = 0.6f;
+
+    Coroutine _recoilRoutine;
+
+    /// Call when firing. Example:
+    /// weaponInertia.FireRecoil();              // hip-fire
+    /// weaponInertia.FireRecoil(1.2f, true);    // heavier + ADS
+    public void FireRecoil(float intensity = 1f, bool isAiming = false)
+    {
+        if (_recoilRoutine != null) StopCoroutine(_recoilRoutine);
+        _recoilRoutine = StartCoroutine(CoFireRecoil(intensity, isAiming));
+    }
+
+    System.Collections.IEnumerator CoFireRecoil(float intensity, bool isAiming)
+    {
+        float aimScale = isAiming ? adsRecoilScale : 1f;
+        float snap = Mathf.Max(0.015f, recoilSnapTime);
+
+        // Convert desired amplitudes into spring-velocity impulses.
+        float backVel = (recoilBackDistance * intensity * aimScale) / snap;   // m/s (local -Z)
+        float upVel = (recoilUpDegrees * intensity * aimScale) / snap;    // deg/s (pitch up)
+        float yawVel = (Random.Range(-recoilYawJitter, recoilYawJitter) * intensity * aimScale) / snap;
+        float rollVel = (Random.Range(-recoilRollJitter, recoilRollJitter) * intensity * aimScale) / snap;
+
+        // 1) Immediate kick: back + up, with a touch of random yaw/roll
+        AddImpulse(
+            new Vector3(0f, 0f, -backVel),
+            new Vector3(upVel, yawVel, rollVel)
+        );
+
+        // Brief hold at peak
+        yield return new WaitForSeconds(recoilReturnDelay);
+
+        // 2) Recovery overshoot: slightly forward + down to settle naturally
+        float fwdVel = (recoilForwardOvershoot * intensity * aimScale) / snap;
+        float downVel = (recoilDownOvershoot * intensity * aimScale) / snap;
+
+        AddImpulse(
+            new Vector3(0f, 0f, fwdVel),
+            new Vector3(-downVel, -yawVel * 0.25f, -rollVel * 0.5f)
+        );
+
+        // Small settle time to avoid reentry overlaps
+        yield return new WaitForSeconds(recoilReturnDelay * 0.5f);
+        _recoilRoutine = null;
+    }
+
 }
