@@ -27,6 +27,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
         objectIdentifier = obj.GetComponent<objectIdentifier>();
         Instantiate(objectIdentifier.item.prefab);
         Debug.Log("Spawned");
+        Destroy(obj);
         
     }
 }
