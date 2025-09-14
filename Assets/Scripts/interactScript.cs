@@ -16,6 +16,7 @@ public class interactScript : MonoBehaviour
     public int keyCount = 0;
     public GameObject keyobj;
     public ChestScript chest;
+    public objectIdentifier objIdentifierRef;
     void Start()
     {
         interactText.SetActive(false);
@@ -81,9 +82,11 @@ public class interactScript : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E) && canInteract && currentArtifact != null)
         {
+            
             inventoryScript.addToInventory(currentArtifact);
             Destroy(currentArtifactObj);
-            Debug.Log("Added to inventory: " + currentArtifact.itemName);
+            //Debug.Log("Added to inventory: " + currentArtifact.itemName);
+            //objIdentifierRef.updateInfo(currentArtifact);
             interactText.SetActive(false);
             inventoryScript.toggleInv();
             canInteract = false;

@@ -18,7 +18,7 @@ public class artifactStarter : MonoBehaviour
     }
     public void assignedArtifact(string nameOfArtifact) 
     {
-       Debug.Log("New artifact: " + nameOfArtifact + " on: " + gameObject.name);
+       /*Debug.Log("New artifact: " + nameOfArtifact + " on: " + gameObject.name);
        if(nameOfArtifact == "Test1")
         {
             //playerContrtoller.GetComponent<FirstPersonController>().walkSpeed = 40;
@@ -27,6 +27,6 @@ public class artifactStarter : MonoBehaviour
        else
         {
             Debug.Log("Dk what artifact");
-        }
+        }*/
     }  
 }

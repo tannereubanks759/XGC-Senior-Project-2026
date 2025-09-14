@@ -8,6 +8,7 @@ public class DragScript : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public artifactStarter currentSlotChanged;
     private string nameOfArtifact;
     private Transform originalParent;
+    
     public void OnBeginDrag(PointerEventData eventData)
     {
         originalParent = transform.parent;
@@ -31,8 +32,10 @@ public class DragScript : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
         currentSlotChanged = parentAfterDrag.GetComponent<artifactStarter>();
         if (currentSlotChanged != null && parentAfterDrag != originalParent) 
         {
-            nameOfArtifact = image.sprite.name;
-            currentSlotChanged.assignedArtifact(nameOfArtifact);
+
+            //nameOfArtifact = image.sprite.name;
+            //currentSlotChanged.assignedArtifact(nameOfArtifact);
+            
         }
     }
 
