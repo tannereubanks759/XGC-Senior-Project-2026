@@ -25,8 +25,10 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("Patrolling")]
     public Vector3[] PatrolPoints;
 
-    [Header("Damage")]
+    [Header("Damage/Combat")]
     public int Damage;
+    public bool isBlocking;
+    public bool isDodging;
 
     public enum AttackState { None, InProgress, Finished }
 
@@ -40,6 +42,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
         //Player = GameObject.FindGameObjectWithTag("Player")?.transform;
         currentHealth = maxHealth;
         canRotate = true;
+        isBlocking = false;
+        isDodging = false;
     }
 
     #region Movement Methods
@@ -51,11 +55,13 @@ public class BaseEnemyAI : StateManager<EnemyState>
         
         Agent.SetDestination(destination);
     }
+
     public void SetSpeed(float speed)
     {
         CurrentSpeed = speed;
         Agent.speed = speed;
     }
+
     public void StopMoving()
     {
         if (Agent != null)
@@ -162,7 +168,15 @@ public class BaseEnemyAI : StateManager<EnemyState>
     #region Damage and Death Methods
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
+        if (isBlocking)
+        {
+            TakeDamageBlocking(damage);
+        }
+        else
+        {
+            currentHealth -= damage;
+        }
+        
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
         Debug.Log($"{name} took {damage} damage. Health: {currentHealth}");
@@ -176,6 +190,22 @@ public class BaseEnemyAI : StateManager<EnemyState>
             TransitionToState(EnemyState.Hit);
         }
     }
+
+    void TakeDamageBlocking(int damage)
+    {
+        currentHealth -= Mathf.FloorToInt(damage / 2);
+
+        Rigidbody playerRB = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Rigidbody>();
+
+        if (playerRB != null)
+        {
+            Vector3 knockbackVec = -Player.forward;
+
+            playerRB.AddForce(knockbackVec, ForceMode.Impulse);
+        }
+    }
+
+
     public virtual void Die()
     {
         Debug.Log($"{name} died.");
