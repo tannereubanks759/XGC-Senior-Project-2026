@@ -7,4 +7,14 @@ public class ItemData : ScriptableObject
     public Sprite icon;
     public GameObject prefab;
     //public bool isActive;
+
+    public virtual void OnEquip()
+    {
+
+    }
+
+    public virtual void OnUnEquip()
+    {
+
+    }
 }

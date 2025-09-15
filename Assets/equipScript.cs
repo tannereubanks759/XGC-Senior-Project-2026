@@ -32,6 +32,7 @@ public class equipScript : MonoBehaviour
         }
         //assigningSpotImage.sprite = itemAdded.icon;
         objIdentifierRef.updateInfo(itemAdded);
+        itemAdded.OnEquip();
         //call function from itemAdded that applies. 
     }
 }
