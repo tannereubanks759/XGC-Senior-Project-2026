@@ -29,6 +29,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public int Damage;
     public bool isBlocking;
     public bool isDodging;
+    private infoscript playerInfo;
 
     public enum AttackState { None, InProgress, Finished }
 
@@ -52,8 +53,16 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         if (Agent == null)
             return;
-        
-        Agent.SetDestination(destination);
+
+        if (!Agent.isStopped)
+        {
+            Agent.SetDestination(destination);
+        }
+    }
+
+    public void SetIsDodgingFalse()
+    {
+        isDodging = false;
     }
 
     public void SetSpeed(float speed)

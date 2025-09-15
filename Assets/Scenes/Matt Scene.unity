@@ -195,6 +195,32 @@ MonoBehaviour:
   dodgeSpeedChange: 20
   lockDuration: 1
   maxHorizontalSpeed: 14
+  dashDuration: 0.18
+  dodgeDuration: 0.14
+  speedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!114 &80693162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,6 +427,9 @@ MonoBehaviour:
   PatrolPoints:
   - {x: -1.1279423e+21, y: 6.74e-43, z: -1.1278235e+21}
   - {x: 6.74e-43, y: -1.12794454e+21, z: 6.74e-43}
+  Damage: 0
+  isBlocking: 0
+  isDodging: 0
 --- !u!195 &119245943
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1412,6 +1441,9 @@ MonoBehaviour:
   PatrolPoints:
   - {x: 0.000000003294316, y: 0.000000010664143, z: 0.000043681073}
   - {x: 0.00000016408816, y: 2.1749259e+23, z: 0.000000042651855}
+  Damage: 0
+  isBlocking: 0
+  isDodging: 0
 --- !u!195 &1645884757
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1602,6 +1634,20 @@ MonoBehaviour:
   movementSway: 1.13
   lookSway: 1
   jumpKick: 1.13
+  clashBackDistance: 0.06
+  clashForwardDistance: 0.04
+  clashTiltDegrees: 7
+  clashDelay: 0.055
+  clashCooldown: 0.05
+  recoilBackDistance: 0.08
+  recoilUpDegrees: 5
+  recoilYawJitter: 1.2
+  recoilRollJitter: 0.8
+  recoilSnapTime: 0.04
+  recoilReturnDelay: 0.02
+  recoilForwardOvershoot: 0.02
+  recoilDownOvershoot: 2
+  adsRecoilScale: 0.6
 --- !u!4 &1794833868 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 42398eaef0e71fd4f8a0d5564ac03bc6, type: 3}
@@ -2642,6 +2688,7 @@ MonoBehaviour:
   waterSurface: {fileID: 0}
   sinkAcceleration: 4
   submergeOffset: 0
+  healthSystem: {fileID: 0}
   playerCamera: {fileID: 4459864850200528911}
   fov: 60
   invertCamera: 0
@@ -2775,7 +2822,7 @@ Transform:
   m_GameObject: {fileID: 4459864851522855579}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.83552986, z: -0, w: 0.54944515}
-  m_LocalPosition: {x: 18.84, y: 3.64, z: -17.24}
+  m_LocalPosition: {x: 6.4, y: 1.37, z: -7.13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

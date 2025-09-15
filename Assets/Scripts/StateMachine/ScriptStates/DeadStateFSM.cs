@@ -3,6 +3,7 @@ using UnityEngine;
 public class DeadStateFSM : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
+    private GameObject _key;
 
     public DeadStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {

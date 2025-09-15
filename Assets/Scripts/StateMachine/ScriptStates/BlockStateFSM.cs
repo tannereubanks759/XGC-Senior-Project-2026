@@ -55,7 +55,7 @@ public class BlockStateFSM : BaseState<EnemyState>
     {
         if (_enemy.isBlocking)
         {
-            _enemy.transform.position = -_enemy.transform.forward * Time.deltaTime;
+            //_enemy.transform.position = -_enemy.transform.forward * Time.deltaTime;
         }    
     }
 
@@ -73,6 +73,8 @@ public class BlockStateFSM : BaseState<EnemyState>
                 }
                 return EnemyState.Chase;
             }
+
+            return EnemyState.Idle;
         }
         return StateKey;
     }
