@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 public class inventorySlot : MonoBehaviour, IDropHandler
 {
     private objectIdentifier objectIdentifier;
+    
     //public GameObject spawnPoint;
     public void OnDrop(PointerEventData eventData)
     {
@@ -25,7 +26,10 @@ public class inventorySlot : MonoBehaviour, IDropHandler
     public void deleteAndDrop(GameObject obj)
     {
         objectIdentifier = obj.GetComponent<objectIdentifier>();
-        Instantiate(objectIdentifier.item.prefab);
+        GameObject item = Instantiate(objectIdentifier.item.prefab, new Vector3(17.8579998f, 25.382f, 236.531006f), Quaternion.identity);
+        //item.transform.localPosition = Vector3.zero;
+        //item.transform.localRotation = Quaternion.identity;
+        //item.transform.localScale = Vector3.one;
         Debug.Log("Spawned");
         Destroy(obj);
         

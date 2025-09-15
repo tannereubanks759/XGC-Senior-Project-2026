@@ -17,9 +17,13 @@ public class interactScript : MonoBehaviour
     public GameObject keyobj;
     public ChestScript chest;
     public objectIdentifier objIdentifierRef;
+    private infoscript infoScriptRef;
     void Start()
     {
+        interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
+        infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
+        //chest =  GameObject.Find("Animated PBR Chest _Wood_Demo").GetComponent<ChestScript>();
     }
 
     private void OnTriggerStay(Collider other)
@@ -49,7 +53,9 @@ public class interactScript : MonoBehaviour
         {
 
             interactText.SetActive(true);
+            chest = other.GetComponent<ChestScript>();
             chestInteract = true;   
+            
         }
     }
 
@@ -57,8 +63,8 @@ public class interactScript : MonoBehaviour
     {
         if (other.CompareTag("Artifact"))
         {
-            currentArtifact = null;
-            currentArtifactObj = null;
+            //currentArtifact = null;
+            //currentArtifactObj = null;
             interactText.SetActive(false);
             canInteract = false;
             Debug.Log("Left artifact");
@@ -94,7 +100,7 @@ public class interactScript : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.E) && keyInteract) 
         {
             Destroy(keyobj);
-            keyCount++;
+            infoScriptRef.keyCount++;
             interactText.SetActive(false);
             keyInteract = false;
         }

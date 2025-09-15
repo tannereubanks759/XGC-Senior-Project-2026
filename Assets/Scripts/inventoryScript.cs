@@ -12,16 +12,20 @@ public class inventoryScript : MonoBehaviour
     public List<ItemData> items = new List<ItemData>();
     public  ItemData currentlyEquippingItemData;
     public equipScript equip;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        inventoryUI = GameObject.Find("NEW INV");
+        equip = inventoryUI.GetComponentInChildren<equipScript>();
+        inventoryUI.SetActive(false);
         
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Tab)) 
+        if(Input.GetKeyDown(KeyCode.I)) 
         {
             toggleInv();
         }
