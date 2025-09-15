@@ -13,19 +13,16 @@ public class ChestScript : MonoBehaviour
     public GameObject spawnLocation;
     public ItemData itemGenerated;
     public infoscript infoScriptRef;
-    private IEnumerator Start()
+
+    private void Start()
     {
         GameObject player = null;
-        
-        while (player == null)
-        {
-            player = GameObject.FindGameObjectWithTag("Player");
-            yield return null; 
-        }
+
+        player = GameObject.FindGameObjectWithTag("Player");
         interactScript = player.GetComponent<interactScript>();
         infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
     }
-   
+
     public void chestOpen()
     {
         if(infoScriptRef.keyCount > 0) 
