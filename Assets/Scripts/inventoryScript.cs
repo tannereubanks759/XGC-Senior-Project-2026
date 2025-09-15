@@ -66,13 +66,15 @@ public class inventoryScript : MonoBehaviour
     public void setPauseLogic(bool pause)
     {
         if(pause) 
-        { 
+        {
+            FirstPersonController.isPaused = true;
             Time.timeScale = 0f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
         else
         {
+            FirstPersonController.isPaused = false;
             Time.timeScale = 1f;
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;

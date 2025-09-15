@@ -32,7 +32,10 @@ public class IslandSetup : MonoBehaviour
         //ResetNavmesh(); //needs to be fixed
         SpawnPlayer();
     }
-
+    private void Awake()
+    {
+        SpawnPlayer();
+    }
     void SpawnChests()
     {
         //Assign usable chests depending on rarity of island
