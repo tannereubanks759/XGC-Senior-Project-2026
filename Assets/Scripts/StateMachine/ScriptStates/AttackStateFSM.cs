@@ -10,9 +10,11 @@ public class AttackStateFSM : BaseState<EnemyState>
 
     private Collider swordCollider;
 
-    public AttackStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
+    public AttackStateFSM(EnemyState key, BaseEnemyAI enemy, Collider sword) : base(key)
     {
         _enemy = enemy;
+        swordCollider = sword;
+
     }
 
     public override void EnterState()
@@ -97,8 +99,20 @@ public class AttackStateFSM : BaseState<EnemyState>
             if (dist > _enemy.AttackRange + 0.5f)
                 return EnemyState.Chase;
 
-            // Optionally, if player is still in range, stay in Attack
-            return StateKey; // keeps enemy in Attack state
+            // Optionally, if player is still in range, stay in Attack or BackDodge
+            int weight = Random.Range(1, 5);
+
+            switch (weight)
+            {
+                case 1:
+                    return StateKey;
+                case 2:
+                    return StateKey;
+                case 3:
+                    return EnemyState.Block;
+                case 4:
+                    return EnemyState.BackDodge;
+            }            
         }
 
         // Default: stay in the current Attack state until animation signals finished

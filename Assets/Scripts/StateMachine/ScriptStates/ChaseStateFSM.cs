@@ -31,9 +31,7 @@ public class ChaseStateFSM : BaseState<EnemyState>
     {
         float dist = _enemy.DistanceToPlayer();
 
-        if (_enemy.currentHealth <= 0)
-            return EnemyState.Dead;
-        if (dist < _enemy.AttackRange)
+        if (dist < _enemy.AttackRange + 0.5f)
             return EnemyState.Attack;
         if (dist > _enemy.ChaseRange + 2f) // Add a buffer so they don't constantly flip
             return EnemyState.Idle;
