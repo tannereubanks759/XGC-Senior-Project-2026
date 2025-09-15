@@ -1,5 +1,7 @@
 using NUnit.Framework;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WeaponsManager : MonoBehaviour
 {
@@ -7,6 +9,7 @@ public class WeaponsManager : MonoBehaviour
     public KeyCode GunKey = KeyCode.Alpha2;
     private int currentWeapon = 0;
     public GameObject[] weapons;
+    public RawImage[] weaponIcons;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -58,6 +61,7 @@ public class WeaponsManager : MonoBehaviour
             if (i == currentWeapon)
             {
                 weapons[i].SetActive(true);
+                //EnlargeWeaponIcon(weaponIcons[i]);
             }
             else
             {
@@ -71,5 +75,22 @@ public class WeaponsManager : MonoBehaviour
         weapons[currentWeapon].SetActive(false);
         currentWeapon = weaponSlot;
         weapons[weaponSlot].SetActive(true);
+    }
+
+    void EnlargeWeaponIcon(RawImage icon)
+    {
+        icon.gameObject.transform.localScale = Vector3.one;
+        for(int i = 0; i < weaponIcons.Length; i++)
+        {
+            if (weaponIcons[i] != icon)
+            {
+                    
+            }
+        }
+    }
+
+    void ShrinkWeaponIcon(RawImage icon)
+    {
+        icon.gameObject.transform.localScale = Vector3.one / 2;
     }
 }
