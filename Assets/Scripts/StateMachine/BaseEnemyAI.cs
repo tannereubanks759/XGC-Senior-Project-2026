@@ -97,7 +97,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     public PatrolArea FindClosestPatrolArea()
     {
-        PatrolArea[] areas = FindObjectsOfType<PatrolArea>();
+        PatrolArea[] areas = FindObjectsByType<PatrolArea>(FindObjectsSortMode.None);
         PatrolArea closest = null;
         float minDistance = Mathf.Infinity;
 

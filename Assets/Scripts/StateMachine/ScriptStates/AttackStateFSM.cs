@@ -22,7 +22,6 @@ public class AttackStateFSM : BaseState<EnemyState>
         Debug.Log("Entered Attack State");
 
         // Get the collider
-        swordCollider = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Collider>();
         swordCollider.enabled = true;
 
         // Stop movement and face player
