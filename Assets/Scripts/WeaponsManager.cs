@@ -61,7 +61,10 @@ public class WeaponsManager : MonoBehaviour
             if (i == currentWeapon)
             {
                 weapons[i].SetActive(true);
-                //EnlargeWeaponIcon(weaponIcons[i]);
+                if(weaponIcons.Length > 0)
+                {
+                    EnlargeWeaponIcon(weaponIcons[i]); 
+                }
             }
             else
             {
@@ -84,7 +87,7 @@ public class WeaponsManager : MonoBehaviour
         {
             if (weaponIcons[i] != icon)
             {
-                    
+                ShrinkWeaponIcon(weaponIcons[i]);
             }
         }
     }
