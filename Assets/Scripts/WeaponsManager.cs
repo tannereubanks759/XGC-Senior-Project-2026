@@ -9,10 +9,13 @@ public class WeaponsManager : MonoBehaviour
     public KeyCode GunKey = KeyCode.Alpha2;
     private int currentWeapon = 0;
     public GameObject[] weapons;
-    public RawImage[] weaponIcons;
+    public GameObject[] weaponIcons;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        weaponIcons = GameObject.FindGameObjectsWithTag("WeaponIcon");
         InitializeWeapons();
     }
 
@@ -63,7 +66,7 @@ public class WeaponsManager : MonoBehaviour
                 weapons[i].SetActive(true);
                 if(weaponIcons.Length > 0)
                 {
-                    EnlargeWeaponIcon(weaponIcons[i]); 
+                    EnlargeWeaponIcon(weaponIcons[i].GetComponent<RawImage>()); 
                 }
             }
             else
@@ -78,16 +81,22 @@ public class WeaponsManager : MonoBehaviour
         weapons[currentWeapon].SetActive(false);
         currentWeapon = weaponSlot;
         weapons[weaponSlot].SetActive(true);
+
+        if (weaponIcons.Length > 0)
+        {
+            EnlargeWeaponIcon(weaponIcons[currentWeapon].GetComponent<RawImage>());
+        }
     }
+
 
     void EnlargeWeaponIcon(RawImage icon)
     {
         icon.gameObject.transform.localScale = Vector3.one;
         for(int i = 0; i < weaponIcons.Length; i++)
         {
-            if (weaponIcons[i] != icon)
+            if (weaponIcons[i].GetComponent<RawImage>() != icon)
             {
-                ShrinkWeaponIcon(weaponIcons[i]);
+                ShrinkWeaponIcon(weaponIcons[i].GetComponent<RawImage>());
             }
         }
     }
