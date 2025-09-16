@@ -72,14 +72,17 @@ public class Blunderbuss : MonoBehaviour
                 //ShowShotLine(BulletPos.transform.position, hit.point);
 
                 Destroy(Instantiate(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal)), 3f);
-                /*
+                if(hit.collider.tag == "Enemy")
+                {
+                    hit.collider.gameObject.GetComponent<GruntEnemyAI>().TakeDamage(DamagePerPellet);
+                }
                 // Damage what was hit
-                IDamageable damageable = hit.collider.GetComponent<IDamageable>();
+                /*IDamageable damageable = hit.collider.GetComponent<IDamageable>();
                 if (damageable != null)
                 {
                     damageable.TakeDamage(10);
-                }
-                */
+                }*/
+                
             }
         }
 
