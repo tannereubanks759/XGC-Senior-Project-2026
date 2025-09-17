@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System;
 public class WeaponsManager : MonoBehaviour
 {
     public KeyCode SwordKey = KeyCode.Alpha1;
@@ -16,6 +16,8 @@ public class WeaponsManager : MonoBehaviour
     void Start()
     {
         weaponIcons = GameObject.FindGameObjectsWithTag("WeaponIcon");
+        Array.Reverse(weaponIcons);
+        Debug.Log(weaponIcons[0].name + " and " + weaponIcons[1].name);
         InitializeWeapons();
     }
 
