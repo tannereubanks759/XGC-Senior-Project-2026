@@ -9,7 +9,7 @@ public class WeaponsManager : MonoBehaviour
     public KeyCode GunKey = KeyCode.Alpha2;
     private int currentWeapon = 0;
     public GameObject[] weapons;
-    public GameObject[] weaponIcons;
+    private GameObject[] weaponIcons;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
