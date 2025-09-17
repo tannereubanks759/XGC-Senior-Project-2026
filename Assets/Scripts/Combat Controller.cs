@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class CombatController : MonoBehaviour
@@ -52,9 +53,10 @@ public class CombatController : MonoBehaviour
     private float damageAlpha = 0f;                  // 1 -> 0 after hit
     private float damageAlphaVel = 0f;               // SmoothDamp velocity
     private WeaponInertia wInertia;
-
+    private Volume healthVolume;
     void Start()
     {
+        healthVolume = GetComponent<Volume>();
         health = Mathf.Clamp(health, 0, maxHealth);
         displayedHealth = health;           // start in sync
 
@@ -205,6 +207,15 @@ public class CombatController : MonoBehaviour
         if(health <= 0)
         {
             Die();
+        }
+        Debug.Log(health);
+        if(health < 50)
+        {
+            healthVolume.weight = ((100-healthSlider.value)/100F);
+        }
+        else
+        {
+            healthVolume.weight = 0.01F;
         }
     }
 
