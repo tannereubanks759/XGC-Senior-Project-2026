@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4983369743370638993}
   - component: {fileID: 3245975627581997045}
   - component: {fileID: 7861945012390192406}
+  - component: {fileID: 8600258748660216904}
   m_Layer: 0
   m_Name: testArt2
   m_TagString: Artifact
@@ -150,3 +151,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemData: {fileID: 11400000, guid: dc78f89fb161fe74daf56ce8d42aa62d, type: 2}
+--- !u!114 &8600258748660216904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1853364408471472052}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2d76d631e065f149a8d6bd787c36c4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Speed: 0.7
+  height: 0.2
