@@ -1,3 +1,4 @@
+﻿using System.Collections;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -54,8 +55,23 @@ public class CombatController : MonoBehaviour
     private float damageAlphaVel = 0f;               // SmoothDamp velocity
     private WeaponInertia wInertia;
     private Volume healthVolume;
+
+    [Header("Stagger Settings")]
+    public bool isStaggered = false;
+    public float staggerUpwardBoost = 0.0f;  // small lift if you want (0 = none)
+    public float staggerLockTime = 0.25f;    // time the player can't move
+    [Header("Stagger Physics")]
+    [Tooltip("Instant horizontal speed change for knockback (m/s).")]
+    public float staggerSpeedChange = 7.5f;
+
+    [Tooltip("Assign a 0/0 friction PhysicMaterial (Combine: Minimum). Optional but recommended.")]
+    public PhysicsMaterial staggerLowFriction;
+
+
     void Start()
     {
+        //rb.linearDamping = 0f; // tiny values like 0.02 are fine too
+
         healthVolume = GetComponent<Volume>();
         health = Mathf.Clamp(health, 0, maxHealth);
         displayedHealth = health;           // start in sync
@@ -99,6 +115,12 @@ public class CombatController : MonoBehaviour
     void Update()
     {
         if (FirstPersonController.isPaused) return;
+
+        if (Input.GetKeyDown(KeyCode.O)) 
+        {
+            GetStaggered();
+        }
+        
 
         EnsureSlider();
 
@@ -184,7 +206,11 @@ public class CombatController : MonoBehaviour
         else
         {
             swordAnim.SetBool("heavy", false);
-            controller.playerCanMove = true;
+            if(isStaggered == false)
+            {
+                controller.playerCanMove = true;
+            }
+            
         }
 
         if (blocking && !swinging && Input.GetKeyDown(dodge))
@@ -264,7 +290,7 @@ public class CombatController : MonoBehaviour
     public void Heal(int amount)
     {
         health = Mathf.Min(health + amount, maxHealth);
-        // (Intentionally NOT resetting lastDamageTime�heals shouldn't delay passive regen)
+        // (Intentionally NOT resetting lastDamageTime—heals shouldn't delay passive regen)
     }
 
     void EnsureSlider()
@@ -313,6 +339,70 @@ public class CombatController : MonoBehaviour
         idle.a = 0f;
         regenHeart.color = idle;
     }
+
+
+    public void GetStaggered()
+    {
+        // 1) Weapon thunk (no camera shake)
+        if (wInertia != null)
+            wInertia.BlockStagger(1f); // fallback uses camera/right
+        isStaggered = true;
+        swordAnim.SetTrigger("Stagger");
+        // 2) Knockback handled in physics-friendly coroutine (does friction swap + lockout)
+        StartCoroutine(CoApplyStaggerKnockback(-transform.forward));
+    }
+
+
+    public void GetStaggeredFrom(Transform enemy, float intensity = 1f)
+    {
+        if (wInertia != null)
+        {
+            Vector3 fromEnemyToPlayer = (transform.position - enemy.position).normalized;
+            wInertia.BlockStagger(fromEnemyToPlayer, intensity);
+            isStaggered = true;
+            swordAnim.SetTrigger("Stagger");
+            StartCoroutine(CoApplyStaggerKnockback(fromEnemyToPlayer)); // push away from enemy
+        }
+        else
+        {
+            StartCoroutine(CoApplyStaggerKnockback(transform.position - enemy.position));
+        }
+    }
+    private IEnumerator CoApplyStaggerKnockback(Vector3 dir)
+    {
+        // Horizontal-only direction
+        dir.y = 0f;
+        if (dir.sqrMagnitude < 0.0001f) dir = -transform.forward;
+        dir.Normalize();
+
+        // Swap player collider to low-friction material during the stagger (optional but helps a lot)
+        Collider col = rb ? rb.GetComponent<Collider>() : null;
+        PhysicsMaterial originalMat = null;
+        if (col != null && staggerLowFriction != null)
+        {
+            originalMat = col.material;      // note: Collider.material is an instance property
+            col.material = staggerLowFriction;
+        }
+
+        // Lock movement so FPC doesn't overwrite velocity this frame
+        if (controller != null) controller.playerCanMove = false;
+
+        // Sync with physics step
+        yield return new WaitForFixedUpdate();
+
+        // Apply Δv (ignores mass) + small upward pop to decouple from ground friction
+        Vector3 dV = dir * staggerSpeedChange + Vector3.up * Mathf.Max(0.0f, staggerUpwardBoost);
+        rb.AddForce(dV, ForceMode.VelocityChange);
+
+        // Hold lockout for the stagger duration
+        yield return new WaitForSeconds(staggerLockTime);
+        isStaggered = false;
+        swordAnim.ResetTrigger("Stagger");
+        // Restore movement & friction
+        if (controller != null) controller.playerCanMove = true;
+        if (col != null && staggerLowFriction != null) col.material = originalMat;
+    }
+
 
 
 }

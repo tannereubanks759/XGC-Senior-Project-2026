@@ -269,4 +269,129 @@ public class WeaponInertia : MonoBehaviour
         _recoilRoutine = null;
     }
 
+    // =================== Block / Guard Stagger ===================
+    [Header("Block Stagger")]
+    [Tooltip("How far the weapon shoves toward camera on guard clash (m).")]
+    public float staggerBackDistance = 0.055f;
+    [Tooltip("Side skid into the impact (m).")]
+    public float staggerSideDistance = 0.03f;
+    [Tooltip("How much the weapon tilts from the hit (deg).")]
+    public float staggerTiltDegrees = 6.5f;
+    [Tooltip("Short pause between shove and rebound (s).")]
+    public float staggerDelay = 0.05f;
+    [Tooltip("Extra settle time while springs are heavier (s).")]
+    public float staggerSettleTime = 0.18f;
+
+    // Temporary spring override (to feel heavier during the clash)
+    [Tooltip("Scale pos stiffness during stagger (1 = unchanged). Lower = softer.")]
+    public float staggerPosStiffnessScale = 0.85f;
+    [Tooltip("Scale pos damping during stagger (1 = unchanged). Higher = heavier.")]
+    public float staggerPosDampingScale = 1.25f;
+    [Tooltip("Scale rot stiffness during stagger.")]
+    public float staggerRotStiffnessScale = 0.85f;
+    [Tooltip("Scale rot damping during stagger.")]
+    public float staggerRotDampingScale = 1.25f;
+
+    Coroutine _staggerRoutine;
+    Coroutine _springOverrideRoutine;
+
+    /// Call this instead of camera shake when your attack is blocked.
+    /// `worldHitDirection` should point FROM enemy TO player (the direction the
+    /// blow came from). If you don't have it, call the overload without it.
+    public void BlockStagger(Vector3 worldHitDirection, float intensity = 1f)
+    {
+        if (_staggerRoutine != null) StopCoroutine(_staggerRoutine);
+        _staggerRoutine = StartCoroutine(CoBlockStagger(worldHitDirection, intensity));
+    }
+
+    /// Overload when you don't have the enemy direction.
+    /// Uses camera right to pick a sideways skid.
+    public void BlockStagger(float intensity = 1f)
+    {
+        Vector3 approxFromRight = followTarget ? followTarget.right : transform.right;
+        BlockStagger(approxFromRight, intensity);
+    }
+
+    System.Collections.IEnumerator CoBlockStagger(Vector3 worldHitDir, float intensity)
+    {
+        // Convert hit direction to weapon local space to know which side got hit
+        Vector3 localHit = transform.InverseTransformDirection(worldHitDir.normalized);
+        float side = Mathf.Sign(Mathf.Clamp(localHit.x, -1f, 1f)); // -1 = left hit, +1 = right hit
+
+        // Convert distances/angles to spring *velocities* (sharp snap)
+        float rise = Mathf.Max(0.015f, staggerDelay);
+        float backVel = (staggerBackDistance * intensity) / rise;           // m/s toward camera (local -Z)
+        float sideVel = (staggerSideDistance * intensity) / rise * side;    // m/s sideways skid
+        float tiltVel = (staggerTiltDegrees * intensity) / rise;            // deg/s
+
+        // Heavier springs while we clash & settle
+        if (_springOverrideRoutine != null) StopCoroutine(_springOverrideRoutine);
+        _springOverrideRoutine = StartCoroutine(CoSpringOverride(staggerSettleTime));
+
+        // 1) Shove IN + skid into the hit + roll/pitch into the strike
+        AddImpulse(
+            new Vector3(sideVel * 0.5f, 0f, -backVel),
+            new Vector3(tiltVel * 0.65f,  // pitch up a bit
+                        -tiltVel * 0.35f * side, // yaw slightly away from hit side
+                        -tiltVel * 0.9f * side)  // roll into the hit
+        );
+
+        yield return new WaitForSeconds(staggerDelay);
+
+        // 2) Rebound OUT + counter-tilt to settle
+        AddImpulse(
+            new Vector3(-sideVel * 0.6f, 0f, backVel * 0.75f),
+            new Vector3(-tiltVel * 0.5f,
+                        tiltVel * 0.25f * side,
+                        tiltVel * 0.6f * side)
+        );
+
+        // Optional tiny after-kiss for life
+        yield return new WaitForSeconds(staggerDelay * 0.5f);
+        AddImpulse(
+            new Vector3(0f, 0f, backVel * -0.25f),
+            new Vector3(tiltVel * 0.2f, 0f, -tiltVel * 0.25f * side)
+        );
+
+        _staggerRoutine = null;
+    }
+
+    /// Temporarily makes the springs feel heavier/softer, then restores.
+    System.Collections.IEnumerator CoSpringOverride(float duration)
+    {
+        // Cache originals
+        float pStiff0 = posStiffness, pDamp0 = posDamping, rStiff0 = rotStiffness, rDamp0 = rotDamping;
+
+        posStiffness = pStiff0 * staggerPosStiffnessScale;
+        posDamping = pDamp0 * staggerPosDampingScale;
+        rotStiffness = rStiff0 * staggerRotStiffnessScale;
+        rotDamping = rDamp0 * staggerRotDampingScale;
+
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        // Smoothly blend back to originals over a short fade
+        float fade = 0.08f;
+        float e = 0f;
+        while (e < fade)
+        {
+            e += Time.deltaTime;
+            float a = Mathf.Clamp01(e / fade);
+            posStiffness = Mathf.Lerp(posStiffness, pStiff0, a);
+            posDamping = Mathf.Lerp(posDamping, pDamp0, a);
+            rotStiffness = Mathf.Lerp(rotStiffness, rStiff0, a);
+            rotDamping = Mathf.Lerp(rotDamping, rDamp0, a);
+            yield return null;
+        }
+
+        // Ensure exact restore
+        posStiffness = pStiff0; posDamping = pDamp0;
+        rotStiffness = rStiff0; rotDamping = rDamp0;
+        _springOverrideRoutine = null;
+    }
+
 }

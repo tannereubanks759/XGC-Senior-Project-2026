@@ -1454,6 +1454,15 @@ MonoBehaviour:
   recoilForwardOvershoot: 0.02
   recoilDownOvershoot: 2
   adsRecoilScale: 0.6
+  staggerBackDistance: 1.19
+  staggerSideDistance: 1
+  staggerTiltDegrees: 62
+  staggerDelay: 0.05
+  staggerSettleTime: 0.18
+  staggerPosStiffnessScale: 0.85
+  staggerPosDampingScale: 1.25
+  staggerRotStiffnessScale: 0.85
+  staggerRotDampingScale: 1.25
 --- !u!114 &6230349697370413922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1485,6 +1494,11 @@ MonoBehaviour:
   blinkMaxAlpha: 1
   blinkFrequency: 1.5
   damageFadeTime: 0.6
+  isStaggered: 0
+  staggerUpwardBoost: 1
+  staggerLockTime: 0.5
+  staggerSpeedChange: 7.5
+  staggerLowFriction: {fileID: 13400000, guid: 67332d8f40c748f44bbb0466967e2a8c, type: 2}
 --- !u!114 &6143822364576284515
 MonoBehaviour:
   m_ObjectHideFlags: 0
