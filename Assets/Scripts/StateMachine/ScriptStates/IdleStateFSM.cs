@@ -42,8 +42,8 @@ public class IdleStateFSM : BaseState<EnemyState>
         // Ensure the enemy is not moving.
         _enemy.StopMoving();
 
-        // Reset idle time counter.
-        idleTime = 0f;
+        // Reset idle time 
+        idleTime = Time.time;
     }
 
     // Called once when leaving the Idle state.
@@ -60,10 +60,9 @@ public class IdleStateFSM : BaseState<EnemyState>
     }
 
     // Called every frame while in the Idle state.
-    // Simply counts how long the enemy has been idle.
     public override void UpdateState()
     {
-        idleTime += Time.deltaTime;
+        // Nothing to do
     }
 
     // Determines the next state based on current conditions.
@@ -78,7 +77,7 @@ public class IdleStateFSM : BaseState<EnemyState>
             return EnemyState.Chase;
 
         // If idle time has passed the patrol threshold, transition to Patrol.
-        else if (idleTime >= timeBeforPatrol)
+        else if ((Time.time - idleTime) >= timeBeforPatrol)
             return EnemyState.Patrol;
 
         // Otherwise, remain in Idle state.

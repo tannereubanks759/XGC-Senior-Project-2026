@@ -19,6 +19,16 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
     // Reference to the enemy AI using this state.
     private BaseEnemyAI _enemy;
 
+    // Time we entered into the backdodge & its length
+    private float enterTime;
+    private float backDodgeDuration = 1f; 
+
+    // Distance the backdode travels
+    private float backDodgeDistance = 4f;
+
+    // Speed based on distance / duration;
+    private float backDodgeSpeed;
+
     // Constructor — initializes the state with its key and a reference to the enemy AI.
     public BackDodgeStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
@@ -32,7 +42,7 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
         Debug.Log("Entered BackDodge State");
 
         // Stop movement and rotate to face the player.
-        _enemy.StopMoving();
+        _enemy.AgentUpdateOff();
         _enemy.RotateToPlayer();
 
         // Reset all animation triggers to avoid conflicts.
@@ -43,6 +53,9 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
 
         // Trigger the back-dodge animation.
         _enemy.Animator.SetTrigger("BackDodge");
+
+        // Calc the speed
+        backDodgeSpeed = backDodgeDistance / backDodgeDuration;
     }
 
     // Called once when leaving the BackDodge state.
@@ -50,35 +63,45 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
     public override void ExitState()
     {
         _enemy.ResetTriggers();
-        _enemy.ResumeMoving();
+        _enemy.AgentUpdateOn();
+        _enemy.isDodging = false;
     }
 
     // Called every frame while in the BackDodge state.
     public override void UpdateState()
     {
-        // TODO: Implement actual backward movement during dodge.
-        // Example: _enemy.transform.position -= _enemy.transform.forward * dodgeSpeed * Time.deltaTime;
+        float elapsed = Time.time - enterTime;
+        if (elapsed < backDodgeDuration)
+        {
+            Vector3 stepBack = -_enemy.transform.forward * backDodgeSpeed * Time.deltaTime;
+            _enemy.transform.position += stepBack;
+        }
     }
 
     // Determines the next state after the dodge is complete.
     public override EnemyState GetNextState()
     {
-        float dist = _enemy.DistanceToPlayer();
-
-        // If the player is within chase range and dodge is finished...
-        if (dist <= _enemy.ChaseRange && !_enemy.isDodging)
+        // If the dodge is finished (set in anim event)
+        if (!_enemy.isDodging)
         {
-            // If the player is within attack range, transition to Attack.
-            if (dist <= _enemy.AttackRange)
-            {
-                return EnemyState.Attack;
-            }
+            // The distance to the player
+            float dist = _enemy.DistanceToPlayer();
 
-            // Otherwise, transition to Chase.
-            return EnemyState.Chase;
+            // The enemy is dead
+            if (_enemy.currentHealth <= 0)
+                return EnemyState.Dead;
+            // Player in attack range
+            else if (dist <= _enemy.AttackRange)
+                return EnemyState.Attack;
+            // Player in chase range
+            else if (dist <= _enemy.ChaseRange)
+                return EnemyState.Chase;
+
+            // Idle if none
+            return EnemyState.Idle;
         }
 
-        // Otherwise, remain in BackDodge state.
+        // Stay in the dodge state
         return StateKey;
     }
 }

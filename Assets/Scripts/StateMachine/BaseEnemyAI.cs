@@ -90,6 +90,19 @@ public class BaseEnemyAI : StateManager<EnemyState>
         }
     }
 
+    // Tell the navmesh to not update the agents postion
+    public void AgentUpdateOff()
+    {
+        Agent.updatePosition = false;
+    }
+    
+    // Tell the navmesh to not update the agents postion
+    public void AgentUpdateOn()
+    {
+        Agent.transform.position = this.transform.position;
+        Agent.updatePosition = true;
+    }
+
     // Resume movement if it was previously stopped
     public void ResumeMoving()
     {
