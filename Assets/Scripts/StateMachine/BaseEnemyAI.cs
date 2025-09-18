@@ -177,6 +177,12 @@ public class BaseEnemyAI : StateManager<EnemyState>
         ResumeMoving();
     }
 
+    // Called via animation event at the end of the block
+    public void OnBlockEnd()
+    {
+        isBlocking = false;
+    }
+
     // Manually set the current attack state
     public void SetAttackState(AttackState newState)
     {

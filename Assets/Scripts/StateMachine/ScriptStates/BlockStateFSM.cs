@@ -19,21 +19,10 @@ public class BlockStateFSM : BaseState<EnemyState>
     // Reference to the enemy AI using this state.
     private BaseEnemyAI _enemy;
 
-    // Time when the enemy started blocking.
-    private float blockingTime;
-
-    // Animator controlling this enemy.
-    private Animator _animator;
-
-    // Holds information about the current animator state.
-    // Must be retrieved after triggering the animation.
-    private AnimatorStateInfo stateInfo;
-
     // Constructor — initializes the state with its key, enemy reference, and animator.
-    public BlockStateFSM(EnemyState key, BaseEnemyAI enemy, Animator animator) : base(key)
+    public BlockStateFSM(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
-        _animator = animator;
     }
 
     // Called once when entering the Block state.
@@ -50,12 +39,6 @@ public class BlockStateFSM : BaseState<EnemyState>
 
         // Trigger the block animation.
         _enemy.Animator.SetTrigger("Block");
-
-        // Get current animation state info after triggering animation.
-        stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-
-        // Record the time the block started.
-        blockingTime = Time.time;
 
         // Mark the enemy as currently blocking.
         _enemy.isBlocking = true;
@@ -86,7 +69,7 @@ public class BlockStateFSM : BaseState<EnemyState>
         float dist = _enemy.DistanceToPlayer();
 
         // Check if the block animation has finished.
-        if (Time.time - blockingTime >= stateInfo.length)
+        if (!_enemy.isBlocking)
         {
             // If the player is within chase range...
             if (dist <= _enemy.ChaseRange)
