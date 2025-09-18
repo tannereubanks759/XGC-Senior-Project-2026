@@ -175,49 +175,53 @@ public class CombatController : MonoBehaviour
         if (healthSlider != null)
             healthSlider.value = displayedHealth;
 
-        // --- Combat input ---
-        if (Input.GetKey(primaryAttack))
+        // --- Combat input ---Only when sword is active
+        if (swordAnim.gameObject.activeSelf)
         {
-            swinging = true;
-            swordAnim.SetBool("swinging", true);
-        }
-        else
-        {
-            swinging = false;
-            swordAnim.SetBool("swinging", false);
-        }
-
-        if (Input.GetKey(block_or_aim))
-        {
-            blocking = true;
-            swordAnim.SetBool("blocking", true);
-        }
-        else
-        {
-            blocking = false;
-            swordAnim.SetBool("blocking", false);
-        }
-
-        if (swinging && blocking) // heavy attack
-        {
-            swordAnim.SetBool("heavy", true);
-            controller.playerCanMove = false;
-        }
-        else
-        {
-            swordAnim.SetBool("heavy", false);
-            if(isStaggered == false)
+            if (Input.GetKey(primaryAttack))
             {
-                controller.playerCanMove = true;
+                swinging = true;
+                swordAnim.SetBool("swinging", true);
             }
-            
-        }
+            else
+            {
+                swinging = false;
+                swordAnim.SetBool("swinging", false);
+            }
 
-        if (blocking && !swinging && Input.GetKeyDown(dodge))
-        {
-            Vector3 direction = rb.linearVelocity.normalized;
-            dodgeScript.Dodge(direction);
+            if (Input.GetKey(block_or_aim))
+            {
+                blocking = true;
+                swordAnim.SetBool("blocking", true);
+            }
+            else
+            {
+                blocking = false;
+                swordAnim.SetBool("blocking", false);
+            }
+
+            if (swinging && blocking) // heavy attack
+            {
+                swordAnim.SetBool("heavy", true);
+                controller.playerCanMove = false;
+            }
+            else
+            {
+                swordAnim.SetBool("heavy", false);
+                if (isStaggered == false)
+                {
+                    controller.playerCanMove = true;
+                }
+
+            }
+
+            if (blocking && !swinging && Input.GetKeyDown(dodge))
+            {
+                Vector3 direction = rb.linearVelocity.normalized;
+                dodgeScript.Dodge(direction);
+            }
         }
+        
 
         if (Input.GetKeyDown(KeyCode.H)) // test damage
         {
@@ -234,7 +238,6 @@ public class CombatController : MonoBehaviour
         {
             Die();
         }
-        Debug.Log(health);
         if(health < 50)
         {
             healthVolume.weight = ((100-healthSlider.value)/100F);

@@ -17,7 +17,6 @@ public class WeaponsManager : MonoBehaviour
     {
         weaponIcons = GameObject.FindGameObjectsWithTag("WeaponIcon");
         Array.Reverse(weaponIcons);
-        Debug.Log(weaponIcons[0].name + " and " + weaponIcons[1].name);
         InitializeWeapons();
     }
 
