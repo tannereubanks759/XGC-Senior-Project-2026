@@ -72,14 +72,7 @@ public class HurtPostFXURP : MonoBehaviour
             field = profile.Add<T>(true);
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(testKey))
-        {
-            // FORCE: proves no other system can zero us out
-            ForceFlash(0.8f);
-        }
-    }
+    
 
     /// Call with a FLOAT: Pulse(damage / (float)maxHealth)
     public void Pulse(float severity01)
