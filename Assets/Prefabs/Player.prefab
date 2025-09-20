@@ -1168,6 +1168,7 @@ MonoBehaviour:
   anim: {fileID: 1359402192895646864}
   PelletHitEffect: {fileID: 7702016645961028260, guid: fb84710ed3eb1234d88246f99637d655, type: 3}
   MuzzleFlashParticle: {fileID: 2433334877477487246, guid: b7ef2de922497df41af7ef8763d87681, type: 3}
+  fxPool: {fileID: 0}
 --- !u!95 &1359402192895646864
 Animator:
   serializedVersion: 7
@@ -1371,9 +1372,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2259459058816825701}
   - component: {fileID: 7945717937085838674}
+  - component: {fileID: 3629823473797291533}
   - component: {fileID: 6007496857955723791}
   - component: {fileID: 6230349697370413922}
-  - component: {fileID: 6143822364576284515}
   m_Layer: 0
   m_Name: Weapons
   m_TagString: Untagged
@@ -1416,6 +1417,30 @@ MonoBehaviour:
   weapons:
   - {fileID: 7482587371532213724}
   - {fileID: 5484108582164116026}
+--- !u!114 &3629823473797291533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6199241630844518463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc50550367a3a094fbf9a4d17ca69c0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volume: {fileID: 0}
+  vignetteMax: 0.7
+  riseTime: 0.05
+  holdTime: 2
+  fallTime: 4
+  minFloor: 0.15
+  desaturateMax: 100
+  chromaMax: 1
+  driveDesat: 1
+  driveChroma: 1
+  debugLogs: 1
+  testKey: 104
 --- !u!114 &6007496857955723791
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1482,6 +1507,7 @@ MonoBehaviour:
   maxHealth: 100
   health: 100
   healthSlider: {fileID: 0}
+  hurtFX: {fileID: 0}
   healthSmoothTime: 0.18
   passiveHealing: 1
   regenDelay: 3
@@ -1499,23 +1525,6 @@ MonoBehaviour:
   staggerLockTime: 0.5
   staggerSpeedChange: 7.5
   staggerLowFriction: {fileID: 13400000, guid: 67332d8f40c748f44bbb0466967e2a8c, type: 2}
---- !u!114 &6143822364576284515
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6199241630844518463}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IsGlobal: 1
-  priority: 0
-  blendDistance: 0
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: 67b4ced10fcbf53448bb5260fa0e86d2, type: 2}
 --- !u!1 &6351160074191772888
 GameObject:
   m_ObjectHideFlags: 0

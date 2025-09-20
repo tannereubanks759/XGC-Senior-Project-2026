@@ -25,6 +25,7 @@ public class CombatController : MonoBehaviour
     public int maxHealth = 100;
     public int health = 100;                // "real" health (target)
     public Slider healthSlider;
+    public HurtPostFXURP hurtFX;
 
     // Smooth UI health (eases toward 'health')
     private float displayedHealth;          // what the slider shows
@@ -54,7 +55,6 @@ public class CombatController : MonoBehaviour
     private float damageAlpha = 0f;                  // 1 -> 0 after hit
     private float damageAlphaVel = 0f;               // SmoothDamp velocity
     private WeaponInertia wInertia;
-    private Volume healthVolume;
 
     [Header("Stagger Settings")]
     public bool isStaggered = false;
@@ -71,8 +71,7 @@ public class CombatController : MonoBehaviour
     void Start()
     {
         //rb.linearDamping = 0f; // tiny values like 0.02 are fine too
-
-        healthVolume = GetComponent<Volume>();
+        hurtFX = GetComponent<HurtPostFXURP>();
         health = Mathf.Clamp(health, 0, maxHealth);
         displayedHealth = health;           // start in sync
 
@@ -238,14 +237,7 @@ public class CombatController : MonoBehaviour
         {
             Die();
         }
-        if(health < 50)
-        {
-            healthVolume.weight = ((100-healthSlider.value)/100F);
-        }
-        else
-        {
-            healthVolume.weight = 0.01F;
-        }
+        
     }
 
     public void Die()
@@ -256,13 +248,24 @@ public class CombatController : MonoBehaviour
     {
         if(blocking == false)
         {
-            health = Mathf.Max(health - damage, 0);
+            //health = Mathf.Max(health - damage, 0);
             lastDamageTime = Time.time;   // reset regen cooldown
             regenAccumulator = 0f;        // reset regen tick build-up
 
             // Kick off damage flash
             damageAlpha = 1f;             // fully visible red
             damageAlphaVel = 0f;          // reset ease
+            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+            if (actuallyApplied <= 0) return;
+
+            int old = health;
+            health = Mathf.Max(0, health - actuallyApplied);
+
+            // --- HURT FX: make sure this always runs when damage is applied ---
+            Mathf.Clamp(old, 0, maxHealth);
+            float severity = actuallyApplied / (float)old;   // FLOAT division!
+            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+            hurtFX?.Pulse(severity);
         }
         else
         {
