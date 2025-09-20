@@ -265,13 +265,16 @@ public class BaseEnemyAI : StateManager<EnemyState>
         // Detect sword hits
         if (other.CompareTag("PlayerSword"))
         {
+            if (isBlocking)
+            {
+                Debug.Log("Stagger");
+                Player.gameObject.GetComponentInChildren<CombatController>().GetStaggeredFrom(this.transform, 1f); //Stagger player if enemy gets hit while blocking
+            }
+
             int damage = 10; // Can be retrieved from sword component if needed
             TakeDamage(damage);
 
-            if (isBlocking)
-            {
-                other.GetComponentInParent<CombatController>().GetStaggeredFrom(this.transform, 1f); //Stagger player if enemy gets hit while blocking
-            }
+            
         }
     }
     #endregion
