@@ -2726,6 +2726,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyPrototype
       objectReference: {fileID: 0}
+    - target: {fileID: 1504117519253490587, guid: 598471c930986484ebf268534d6a179d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2275551767623864609, guid: 598471c930986484ebf268534d6a179d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 12.2060175
@@ -4189,6 +4193,10 @@ PrefabInstance:
     - target: {fileID: 1504117519253490587, guid: 598471c930986484ebf268534d6a179d, type: 3}
       propertyPath: m_Name
       value: EnemyPrototype (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1504117519253490587, guid: 598471c930986484ebf268534d6a179d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2275551767623864609, guid: 598471c930986484ebf268534d6a179d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -13103,6 +13111,9 @@ MonoBehaviour:
   playerPref: {fileID: 6428402459396883477, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
   playerSpawnPos:
   - {fileID: 1172330324}
+  basicEnemies:
+  - {fileID: 1504117519253490587, guid: 598471c930986484ebf268534d6a179d, type: 3}
+  spawnRadius: 10
   common: 1
   rare: 0
   epic: 0

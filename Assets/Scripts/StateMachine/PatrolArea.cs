@@ -15,9 +15,9 @@ using UnityEngine.AI;
 public class PatrolArea : MonoBehaviour
 {
     [Header("Patrol Settings")]
-
+    [Tooltip("The radius which marks the borders of where enemies will patrol around")]
     // Radius of the patrol area around this GameObject's position.
-    public float patrolRadius = 5f;
+    [SerializeField] private float patrolRadius = 5f;
 
     // Returns a random point within the patrol radius that is valid on the NavMesh.
     public Vector3 GetRandomPoint()

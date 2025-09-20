@@ -55,10 +55,15 @@ public class ChaseStateFSM : BaseState<EnemyState>
     // Determines which state the enemy should transition to next.
     public override EnemyState GetNextState()
     {
+        // The distance to the player
         float dist = _enemy.DistanceToPlayer();
 
+        // Is the AI dead
+        if (_enemy.currentHealth <= 0)
+            return EnemyState.Dead;
+
         // If the player is close enough, transition to Attack.
-        if (dist < _enemy.AttackRange + 0.5f)
+        if (dist < _enemy.AttackRange)
             return EnemyState.Attack;
 
         // If the player is too far away, transition back to Idle.

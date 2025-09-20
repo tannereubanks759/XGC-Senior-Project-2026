@@ -9,35 +9,49 @@
  * By: Matthew Bolger
 */
 
+using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class BaseEnemyAI : StateManager<EnemyState>
 {
     [Header("References")]
+    [HideInInspector]
     public Transform Player;              // Reference to the player's transform
-    public NavMeshAgent Agent;            // NavMeshAgent for pathfinding/movement
-    public Animator Animator;             // Animator controlling enemy animations
+    public NavMeshAgent Agent { get; private set; }            // NavMeshAgent for pathfinding/movement
+    public Animator Animator { get; private set; }             // Animator controlling enemy animations
 
     [Header("Vision & Ranges")]
+    [Tooltip("The range in which this unit will spot the player")]
     public float ChaseRange = 10f;        // Distance at which enemy will start chasing
+    [Tooltip("The range in which this unit will start to attack the player (Auto braking is hard coded to stop the enemies 0.5 units into the attack range)")]
     public float AttackRange = 2f;        // Distance at which enemy will attack
 
     [Header("Health")]
-    public int maxHealth = 100;           // Maximum health
+    [Tooltip("The maximum amount of health this unit has")]
+    [SerializeField] private int maxHealth = 100;           // Maximum health
+    [Tooltip("The current amount of health the unit has")]
     public int currentHealth { get; private set; } // Current health
 
     [Header("Speeds")]
+    [Tooltip("The speed this unit will move at while walking")]
     public float WalkSpeed = 2f;          // Patrol speed
+    [Tooltip("The speed this unit will move at while running")]
     public float RunSpeed = 5f;           // Chase/attack speed
+    [Tooltip("The current speed of the unit")]
     public float CurrentSpeed { get; private set; } // Current movement speed
+    [Tooltip("Can this unit rotate? (Set to off for certain combat actions)")]
     public bool canRotate;                // Whether the enemy can rotate toward player
 
     [Header("Damage/Combat")]
-    public int Damage;                     // Base damage (used in attacks)
+    [Tooltip("The amount of damage that this unit will do to the player")]
+    public int Damage { get; private set; }                    // Base damage (used in attacks)
+    [Tooltip("Is this unit currently blocking?")]
     public bool isBlocking;               // Flag for blocking state
+    [Tooltip("Is this unit currently dodging?")]
     public bool isDodging;                // Flag for dodging state
-    private infoscript playerInfo;        // Reference to player's info (e.g., key count)
+    [Tooltip("Reference to the 'infoscript' which contains information about the keys to the chests")]
+    public infoscript playerInfo { get; private set; }        // Reference to player's info (e.g., key count)
 
     // Attack state enum to track attack animation progress
     public enum AttackState { None, InProgress, Finished }
@@ -49,6 +63,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     protected virtual void Awake()
     {
         Agent = GetComponent<NavMeshAgent>();
+        Agent.stoppingDistance = AttackRange - 0.5f;
         Animator = GetComponent<Animator>();
         playerInfo = GameObject.FindGameObjectWithTag("PlayerInfo").GetComponent<infoscript>();
         currentHealth = maxHealth;
@@ -93,7 +108,29 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Tell the navmesh to not update the agents postion
     public void AgentUpdateOff()
     {
+        Agent.SetDestination(this.transform.position);
+    }
+
+    // Helper to disable the agent
+    public void DisableAgent()
+    {
+        Agent.isStopped = true;
         Agent.updatePosition = false;
+        Agent.updateRotation = false;
+    }
+
+    // Helper to enable the agent
+    public void EnableAgent()
+    {
+        Agent.isStopped = false;
+        Agent.updatePosition = true;
+        Agent.updateRotation = true;
+    }
+
+    // Warp the agent to the enemies postion
+    public void WarpAgent()
+    {
+        Agent.Warp(transform.position);
     }
     
     // Tell the navmesh to not update the agents postion
