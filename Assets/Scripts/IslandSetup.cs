@@ -28,20 +28,16 @@ public class IslandSetup : MonoBehaviour
     public GameObject[] basicEnemies;
     [Tooltip("The radius in which the enemies will spawn around the chests")]
     public float spawnRadius = 10f;
-    private RaycastHit[] raycastHit;
-
+    [Tooltip("The amount of enemies that will spawn around each chest location")]
+    public int enemiesPerChest = 5;
 
     public bool common;
     public bool rare;
     public bool epic;
     void Start()
     {
-        // Sets the array instance
-        raycastHit = new RaycastHit[0];
-
         SpawnChests();
         SpawnObjects();
-        //ResetNavmesh(); //needs to be fixed
         SpawnPlayer();
     }
     private void Awake()
@@ -76,30 +72,17 @@ public class IslandSetup : MonoBehaviour
                 var chest = Instantiate(usableChests[random], hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
                 chest.AddComponent<PatrolArea>();
 
-                for (int j = 0; j < 5; j++)
+                for (int j = 0; j < enemiesPerChest; j++) //Spawn enemies for each chest
                 {
-                    GetRandSpawnPoint(hit);
-
+                    GetRandSpawnPoint(hit); 
                 }
             }
             else
             {
                 Debug.Log("Chest Unable to raycast at chest location " + i);
             }
-            
-            /*Array.Resize(ref raycastHit, raycastHit.Length + 1);
-            raycastHit[raycastHit.Length - 1] = hit;*/
         }
 
-        // Spawn 5 enemies around each chest
-        /*for (int i = 0; i < raycastHit.Length; i++)
-        {
-            GetRandSpawnPoint(raycastHit[i]);
-            GetRandSpawnPoint(raycastHit[i]);
-            GetRandSpawnPoint(raycastHit[i]);
-            GetRandSpawnPoint(raycastHit[i]);
-            GetRandSpawnPoint(raycastHit[i]);
-        }*/
     }
 
     // Spawn a random enemy from the list of enemies
@@ -159,22 +142,26 @@ public class IslandSetup : MonoBehaviour
         }
     }
 
-    void ResetNavmesh()
-    {
-        surface.BuildNavMesh();
-    }
     void SpawnPlayer()
     {
+        Vector3 spawnPos = Vector3.zero;
         int random = UnityEngine.Random.Range(0, playerSpawnPos.Length);
+        RaycastHit hit;
+        if (Physics.Raycast(playerSpawnPos[random].position, Vector3.down, out hit))
+        {
+            spawnPos = hit.point;
+        }
+
+        
         if (GameObject.FindGameObjectWithTag("Player"))
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
-            player.transform.position = playerSpawnPos[random].position;
+            player.transform.position = hit.point;
             Debug.Log("existing player spawned succesfully");
         }
         else
         {
-            Instantiate(playerPref, playerSpawnPos[random].position, Quaternion.identity);
+            Instantiate(playerPref, hit.point, Quaternion.identity);
         }
 
     }
