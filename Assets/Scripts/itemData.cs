@@ -9,12 +9,12 @@ public class ItemData : ScriptableObject
     public string type;
     //public bool isActive;
 
-    public virtual void OnEquip()
+    public virtual void OnEquip(GameObject player)
     {
 
     }
 
-    public virtual void OnUnEquip()
+    public virtual void OnUnEquip(GameObject player)
     {
 
     }

@@ -44,8 +44,9 @@ public class inventoryScript : MonoBehaviour
         
         //send to another script
         currentlyEquippingItemData = itemToAdd;
-        equip.equip(currentlyEquippingItemData);
-        Debug.Log("Sent call");
+        
+        equip.uiAdder(currentlyEquippingItemData);
+        //Debug.Log("Sent call");
 
     }
     public void removeInventory(ItemData itemToRemove) 

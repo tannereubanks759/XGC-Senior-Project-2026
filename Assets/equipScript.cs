@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 public class equipScript : MonoBehaviour
@@ -6,10 +7,12 @@ public class equipScript : MonoBehaviour
     public objectIdentifier objIdentifierRef;
     public GameObject midReferenceUISpot;
     public GameObject uiPrefab;
+    //public GameObject player;
+    public infoscript infoscriptRef;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        infoscriptRef =  FindAnyObjectByType<infoscript>();
     }
 
     // Update is called once per frame
@@ -17,12 +20,11 @@ public class equipScript : MonoBehaviour
     {
         
     }
-    public void equip(ItemData itemAdded) 
+    public void uiAdder(ItemData itemAdded)
     {
-        
         GameObject newUI = Instantiate(uiPrefab, midReferenceUISpot.transform);
 
-        
+
 
         objIdentifierRef = GetComponentInChildren<objectIdentifier>();
         Image uiImage = newUI.GetComponent<Image>();
@@ -30,9 +32,15 @@ public class equipScript : MonoBehaviour
         {
             uiImage.sprite = itemAdded.icon;
         }
-        //assigningSpotImage.sprite = itemAdded.icon;
         objIdentifierRef.updateInfo(itemAdded);
-        itemAdded.OnEquip();
+    }
+    public void equip(ItemData itemAdded) 
+    {
+        
+       
+        //assigningSpotImage.sprite = itemAdded.icon;
+        
+        itemAdded.OnEquip(infoscriptRef.player);
         //call function from itemAdded that applies. 
     }
 }

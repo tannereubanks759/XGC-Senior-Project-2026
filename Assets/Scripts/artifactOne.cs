@@ -2,15 +2,21 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Artifact Inherited", menuName = "Inventory/NewItem")]
 public class artifactOne : ItemData
 {
-    //GameObject PlayerController;
-    public override void OnEquip()
+    
+    public override void OnEquip(GameObject player)
     {
-        base.OnEquip();
-        Debug.Log("Applied artifact1 stuff");
+        //base.OnEquip();
+         FirstPersonController playercontrollerRef;
+        playercontrollerRef = player.GetComponent<FirstPersonController>();
+        playercontrollerRef.jumpPower = 15;
+         Debug.Log("Applied artifact1 stuff");
     }
-    public override void OnUnEquip()
+    public override void OnUnEquip(GameObject player)
     {
-        base.OnUnEquip();
+        FirstPersonController playercontrollerRef;
+        playercontrollerRef = player.GetComponent<FirstPersonController>();
+        playercontrollerRef.jumpPower = 5;
+        //base.OnUnEquip();
         Debug.Log("UNApplied artifact1 stuff");
     }
 }

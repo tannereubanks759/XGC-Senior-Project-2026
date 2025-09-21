@@ -4,7 +4,15 @@ public class inventorySlot : MonoBehaviour, IDropHandler
 {
     private objectIdentifier objectIdentifier;
     private objectIdentifier objectIdentifierN;
+    //public GameObject player;
     //public GameObject spawnPoint;
+    public infoscript infoscriptRef;
+    public equipScript equipS;
+    private void Start()
+    {
+        infoscriptRef = FindAnyObjectByType<infoscript>();
+        equipS = FindAnyObjectByType<equipScript>();
+    }
     public void OnDrop(PointerEventData eventData)
     {
         if(transform.CompareTag("UIDropArea"))
@@ -26,6 +34,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
             {
                 DragScript dragScript = dropped.GetComponent<DragScript>();
                 dragScript.parentAfterDrag = transform;
+                equipS.equip(objectIdentifierN.item);
             }
            else
             {
@@ -37,6 +46,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
     public void deleteAndDrop(GameObject obj)
     {
         objectIdentifier = obj.GetComponent<objectIdentifier>();
+        objectIdentifier.item.OnUnEquip(infoscriptRef.player);
         GameObject item = Instantiate(objectIdentifier.item.prefab, new Vector3(17.8579998f, 25.382f, 236.531006f), Quaternion.identity);
         //item.transform.localPosition = Vector3.zero;
         //item.transform.localRotation = Quaternion.identity;
