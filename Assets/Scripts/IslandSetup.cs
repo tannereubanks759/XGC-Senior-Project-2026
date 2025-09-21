@@ -75,31 +75,39 @@ public class IslandSetup : MonoBehaviour
                 
                 var chest = Instantiate(usableChests[random], hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
                 chest.AddComponent<PatrolArea>();
+
+                for (int j = 0; j < 5; j++)
+                {
+                    GetRandSpawnPoint(hit);
+
+                }
             }
             else
             {
                 Debug.Log("Chest Unable to raycast at chest location " + i);
             }
-
-            Array.Resize(ref raycastHit, raycastHit.Length + 1);
-            raycastHit[raycastHit.Length - 1] = hit;
+            
+            /*Array.Resize(ref raycastHit, raycastHit.Length + 1);
+            raycastHit[raycastHit.Length - 1] = hit;*/
         }
 
         // Spawn 5 enemies around each chest
-        for (int i = 0; i < raycastHit.Length; i++)
+        /*for (int i = 0; i < raycastHit.Length; i++)
         {
             GetRandSpawnPoint(raycastHit[i]);
             GetRandSpawnPoint(raycastHit[i]);
             GetRandSpawnPoint(raycastHit[i]);
             GetRandSpawnPoint(raycastHit[i]);
             GetRandSpawnPoint(raycastHit[i]);
-        }
+        }*/
     }
 
     // Spawn a random enemy from the list of enemies
     void SpawnEnemy(NavMeshHit hit, int rand)
     {
-        Instantiate(basicEnemies[rand], hit.position, Quaternion.identity);
+
+        GameObject enemy = Instantiate(basicEnemies[rand], hit.position, Quaternion.identity);
+        Debug.Log(hit.position);
     }
 
     // Get a random spawn point within a radius around the chest
@@ -109,10 +117,10 @@ public class IslandSetup : MonoBehaviour
         Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * spawnRadius;
 
         // Convert 2D circle to 3D world coordinates (Y stays the same as the object's position).
-        Vector3 randomPoint = _hit.transform.position + new Vector3(randomCircle.x, 0f, randomCircle.y);
+        Vector3 randomPoint = _hit.point + new Vector3(randomCircle.x, 0f, randomCircle.y);
 
         // Snap the random point to the NavMesh to ensure the enemy can reach it.
-        if (NavMesh.SamplePosition(randomPoint, out var hit, 1f, NavMesh.AllAreas))
+        if (NavMesh.SamplePosition(randomPoint, out var hit, 5f, NavMesh.AllAreas))
         {
             SpawnEnemy(hit, UnityEngine.Random.Range(0, basicEnemies.Length));
         }
