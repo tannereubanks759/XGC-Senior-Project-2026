@@ -6,16 +6,12 @@ using UnityEngine.AI;
 
 public class IslandSetup : MonoBehaviour
 {
-    public GameObject[] smallObjects;
-    public GameObject[] largeObjects;
     
     public GameObject[] commonChestObjects;
     public GameObject[] rareChestObjects;
     public GameObject[] epicChestObjects;
     private GameObject[] usableChests;
     
-    public Transform[] smallLocations;
-    public Transform[] largeLocations;
     public Transform[] chestLocations;
 
     public NavMeshSurface surface;
@@ -37,7 +33,6 @@ public class IslandSetup : MonoBehaviour
     void Start()
     {
         SpawnChests();
-        //SpawnObjects();
         SpawnPlayer();
     }
     private void Awake()
@@ -109,38 +104,7 @@ public class IslandSetup : MonoBehaviour
         }
     }
 
-    void SpawnObjects()
-    {
-        //Spawn Small Objects
-        for (int i = 0; i < smallLocations.Length; i++)
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(smallLocations[i].position, Vector3.down, out hit))
-            {
-                int random = UnityEngine.Random.Range(0, smallObjects.Length);
-                Instantiate(smallObjects[random], hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
-            }
-            else
-            {
-                Debug.Log("Unable to raycast small object at location " + i);
-            }
-        }
-        
-        //Spawn Large Objects
-        for (int i = 0; i < largeLocations.Length; i++)
-        {
-            RaycastHit hit;
-            if (Physics.Raycast(largeLocations[i].position, Vector3.down, out hit))
-            {
-                int random = UnityEngine.Random.Range(0, largeObjects.Length);
-                Instantiate(largeObjects[random], hit.point, Quaternion.FromToRotation(Vector3.up, hit.normal));
-            }
-            else
-            {
-                Debug.Log("Unable to raycast Large object at location " + i);
-            }
-        }
-    }
+    
 
     void SpawnPlayer()
     {

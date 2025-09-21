@@ -11,28 +11,44 @@ public class TerrainObjectSpawner : MonoBehaviour
 {
     [Header("Scene References")]
     public Terrain terrain;
-    public GameObject[] prefabs;
+
+    [Header("Object Arrays (3 passes)")]
+    public GameObject[] treePrefabs;   // pass 1 (upright, on Grass layer)
+    public GameObject[] grassPrefabs;  // pass 2 (align to normal, on Grass layer)
+    public GameObject[] prefabs;       // pass 3 (generic objects)
 
     [Header("Spawn Controls")]
-    [Min(0)] public int spawnCount = 200;
+    [Min(0)] public int treeCount = 100;
+    [Min(0)] public int grassCount = 300;
+    [Min(0)] public int objectCount = 200;
     [Min(1)] public int maxAttemptsPerObject = 80;
 
     [Tooltip("Press this key to spawn immediately (both in Play Mode and Edit Mode).")]
     public KeyCode spawnHotkey = KeyCode.F7;
     public bool autoSpawnOnPlay = false;
 
-    [Header("Placement Rules")]
+    [Header("Placement Rules (global)")]
     public float oceanLevelY = 0f;
     public bool enforceSlope = true;
     [Range(0f, 80f)] public float maxSlopeDegrees = 45f;
+
+    [Tooltip("Minimum distance away from any tree (terrain trees + spawned tree prefabs). Applies to trees and generic objects; IGNORED by grass.")]
     public float minDistanceToTrees = 5f;
+
+    [Tooltip("Minimum spacing between spawned objects across passes (trees & generic objects contribute). Grass ignores this and does not contribute.")]
     public float minSpacingBetweenObjects = 3f;
 
-    [Header("Path Layer Avoidance")]
-    public TerrainLayer pathLayer;            // drag the actual TerrainLayer asset from your Terrain
+    [Header("Terrain Layer Filters")]
+    [Tooltip("TerrainLayer that represents PATHS to AVOID anywhere.")]
+    public TerrainLayer pathLayer;
     [Range(0f, 1f)] public float pathWeightThreshold = 0.35f;
     public float pathPadding = 1.5f;
     public int pathPaddingSampleRingPoints = 6;
+
+    [Space(6)]
+    [Tooltip("TerrainLayer that represents GRASS. Trees & grass will ONLY spawn where this layer's weight >= threshold.")]
+    public TerrainLayer grassLayer;
+    [Range(0f, 1f)] public float grassWeightThreshold = 0.5f;
 
     [Header("Randomization")]
     public Vector2 uniformScaleRange = new Vector2(0.9f, 1.1f);
@@ -48,26 +64,36 @@ public class TerrainObjectSpawner : MonoBehaviour
     [Header("Debug")]
     public bool verboseLogs = true;
 
+    [Header("Orientation (for non-tree things)")]
+    [Tooltip("Align spawned objects' up-axis to the terrain surface normal (used for grass & generic objects).")]
+    public bool alignToGroundNormal = true;
+    [Range(0f, 1f)]
+    public float normalAlignStrength = 1f;
+
+    [Header("Grass Self-Spacing")]
+    [Tooltip("Optional minimal spacing among grass within the same pass only (does NOT consider trees or other passes). Set 0 to allow dense overlap.")]
+    public float grassSelfSpacing = 0f;
+
     // Internals
     int pathLayerIndex = -1;
+    int grassLayerIndex = -1;
+
     TerrainData tData;
     Vector3 tPos, tSize;
     int alphaW, alphaH;
     float[,,] alphaMaps;
-    readonly List<Vector2> treeXZ = new();
-    readonly List<Vector2> placedXZ = new();
+
+    readonly List<Vector2> terrainTreeXZ = new();   // baked terrain trees
+    readonly List<Vector2> spawnedTreeXZ = new();   // trees we spawn in pass 1
+    readonly List<Vector2> globalSpacingXZ = new(); // spacing blockers across passes (trees & objects only)
 
     // Rejection counters
-    int rejOcean, rejSlope, rejPath, rejPathPad, rejTree, rejSpacing, rejCollision, rejOutBounds;
+    int rejOcean, rejSlope, rejPath, rejPathPad, rejTree, rejSpacing, rejCollision, rejOutBounds, rejGrassLayer;
 
-    [Header("Orientation")]
-    [Tooltip("Align spawned objects' up-axis to the terrain surface normal.")]
-    public bool alignToGroundNormal = true;
-
-    [Range(0f, 1f)]
-    [Tooltip("0 = no tilt (upright), 1 = full align to terrain normal.")]
-    public float normalAlignStrength = 1f;
-
+    [Tooltip("Any trigger/collider volumes that mark keep-out zones (e.g., a BoxCollider over the fortress).")]
+    public List<Collider> noSpawnVolumes = new List<Collider>();
+    [Tooltip("Padding radius around the point when checking volumes.")]
+    public float noSpawnVolumePadding = 0.25f;
 
     void OnEnable()
     {
@@ -87,7 +113,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         if (Application.isPlaying && autoSpawnOnPlay)
         {
             Debug.Log("[Spawner] autoSpawnOnPlay = true → spawning now.");
-            SpawnObjects();
+            SpawnAllPasses();
         }
     }
 
@@ -96,17 +122,13 @@ public class TerrainObjectSpawner : MonoBehaviour
 #if UNITY_EDITOR
         if (!Application.isPlaying && !UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
         {
-            // Allow hotkey in Edit mode too.
-            if (spawnHotkey != KeyCode.None && Event.current == null)
-            {
-                // no event in edit update; use SceneView to catch hotkey instead
-            }
+            // Edit mode hotkey handled by SceneView; nothing to do here.
         }
 #endif
         if (spawnHotkey != KeyCode.None && Input.GetKeyDown(spawnHotkey))
         {
             Debug.Log($"[Spawner] Hotkey {spawnHotkey} pressed → spawning.");
-            SpawnObjects();
+            SpawnAllPasses();
         }
     }
 
@@ -128,33 +150,58 @@ public class TerrainObjectSpawner : MonoBehaviour
         alphaH = tData.alphamapHeight;
         alphaMaps = tData.GetAlphamaps(0, 0, alphaW, alphaH);
 
-        // Resolve path layer index
-        pathLayerIndex = -1;
-        if (pathLayer != null && tData.terrainLayers != null)
-        {
-            for (int i = 0; i < tData.terrainLayers.Length; i++)
-                if (tData.terrainLayers[i] == pathLayer) { pathLayerIndex = i; break; }
-        }
+        // Resolve layer indices
+        pathLayerIndex = ResolveLayerIndex(pathLayer, tData.terrainLayers);
+        grassLayerIndex = ResolveLayerIndex(grassLayer, tData.terrainLayers);
 
-        // Cache tree world XZ
-        CacheTreePositions();
+        // Cache baked terrain tree XZ
+        CacheTerrainTreePositions();
 
         if (verboseLogs)
         {
             Debug.Log(
                 $"[Spawner] Setup OK\n" +
                 $"  Terrain: {terrain.name}  size={tSize}\n" +
-                $"  Prefabs: {(prefabs == null ? 0 : prefabs.Length)}\n" +
-                $"  PathLayer: {(pathLayer ? pathLayer.name : "null")}  index={pathLayerIndex}\n" +
-                $"  Trees: {treeXZ.Count}  AlphaMap: {alphaW}x{alphaH}\n" +
-                $"  OceanY={oceanLevelY}  Slope? {enforceSlope}<= {maxSlopeDegrees}°  TreeDist={minDistanceToTrees}  Spacing={minSpacingBetweenObjects}"
+                $"  Arrays: trees={Len(treePrefabs)} grass={Len(grassPrefabs)} objects={Len(prefabs)}\n" +
+                $"  PathLayer: {(pathLayer ? pathLayer.name : "null")} idx={pathLayerIndex} thr={pathWeightThreshold}\n" +
+                $"  GrassLayer: {(grassLayer ? grassLayer.name : "null")} idx={grassLayerIndex} thr={grassWeightThreshold}\n" +
+                $"  Baked Trees: {terrainTreeXZ.Count}  AlphaMap: {alphaW}x{alphaH}\n" +
+                $"  OceanY={oceanLevelY}  Slope? {enforceSlope}<= {maxSlopeDegrees}°  TreeDist={minDistanceToTrees}  GlobalSpacing={minSpacingBetweenObjects}"
             );
         }
     }
 
-    void CacheTreePositions()
+    int Len(GameObject[] a) => a == null ? 0 : a.Length;
+
+    int ResolveLayerIndex(TerrainLayer layer, TerrainLayer[] layers)
     {
-        treeXZ.Clear();
+        if (layer == null || layers == null) return -1;
+        for (int i = 0; i < layers.Length; i++)
+            if (layers[i] == layer) return i;
+        return -1;
+    }
+
+    bool InsideNoSpawnVolume(Vector3 pos)
+    {
+        if (noSpawnVolumes == null || noSpawnVolumes.Count == 0) return false;
+        float r = Mathf.Max(0f, noSpawnVolumePadding);
+        for (int i = 0; i < noSpawnVolumes.Count; i++)
+        {
+            var col = noSpawnVolumes[i];
+            if (!col) continue;
+            // If the closest point is within r, we consider it inside/too close
+            Vector3 cp = col.ClosestPoint(pos);
+            if ((cp - pos).sqrMagnitude <= r * r) return true;
+        }
+        return false;
+    }
+
+    void CacheTerrainTreePositions()
+    {
+        terrainTreeXZ.Clear();
+        spawnedTreeXZ.Clear(); // clear runtime-added trees
+        globalSpacingXZ.Clear();
+
         if (tData == null) return;
         var trees = tData.treeInstances;
         for (int i = 0; i < trees.Length; i++)
@@ -164,74 +211,142 @@ public class TerrainObjectSpawner : MonoBehaviour
                 0f,
                 tPos.z + trees[i].position.z * tSize.z
             );
-            treeXZ.Add(new Vector2(world.x, world.z));
+            var p = new Vector2(world.x, world.z);
+            terrainTreeXZ.Add(p);
+            // baked trees also contribute to global spacing
+            if (minSpacingBetweenObjects > 0f) globalSpacingXZ.Add(p);
         }
     }
 
-    [ContextMenu("Spawn Objects Now")]
-    public void SpawnObjects()
+    [ContextMenu("Spawn All (Trees → Grass → Objects)")]
+    public void SpawnAllPasses()
     {
-        if (prefabs == null || prefabs.Length == 0) { Debug.LogError("[Spawner] No prefabs assigned."); return; }
         if (!terrain || tData == null || alphaMaps == null) { Debug.LogError("[Spawner] Terrain/alphamaps not ready."); return; }
 
-        placedXZ.Clear();
-        rejOcean = rejSlope = rejPath = rejPathPad = rejTree = rejSpacing = rejCollision = rejOutBounds = 0;
+        // Fresh counters (note: we keep baked-tree spacing in globalSpacingXZ)
+        rejOcean = rejSlope = rejPath = rejPathPad = rejTree = rejSpacing = rejCollision = rejOutBounds = rejGrassLayer = 0;
 
+        // PASS 1: TREES — only on grass layer; upright; contribute to tree set and global spacing
+        if (Len(treePrefabs) > 0 && treeCount > 0)
+        {
+            SpawnPass(
+                count: treeCount,
+                array: treePrefabs,                               // <-- fixed
+                requireLayerIndex: grassLayerIndex,
+                requireLayerThreshold: grassWeightThreshold,
+                alignToNormal: false,                             // trees upright
+                respectTreeClearance: true,                       // trees avoid other trees
+                useGlobalSpacingAgainstExisting: true,            // trees respect global spacing
+                contributeToGlobalSpacing: true,                  // trees block later objects
+                selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects), // trees vs trees
+                onPlaced: (pos) => { spawnedTreeXZ.Add(new Vector2(pos.x, pos.z)); }
+            );
+        }
+
+
+        // PASS 2: GRASS — only on grass layer; align to normal; ignore tree clearance & global spacing
+        if (Len(grassPrefabs) > 0 && grassCount > 0)
+        {
+            SpawnPass(
+                count: grassCount,
+                array: grassPrefabs,                 // <-- fixed
+                requireLayerIndex: grassLayerIndex,
+                requireLayerThreshold: grassWeightThreshold,
+                alignToNormal: true,                 // grass tilts with ground
+                respectTreeClearance: false,         // allow touching trees
+                useGlobalSpacingAgainstExisting: false, // do not let global spacing block grass
+                contributeToGlobalSpacing: false,    // grass should not block objects
+                selfSpacingOverride: Mathf.Max(0f, grassSelfSpacing),
+                onPlaced: null
+            );
+        }
+
+        // PASS 3: OBJECTS — regular objects; avoid trees, paths, ocean, slope; respect global spacing
+        if (Len(prefabs) > 0 && objectCount > 0)
+        {
+            SpawnPass(
+                count: objectCount,
+                array: prefabs,                      // <-- fixed
+                requireLayerIndex: -1,               // no grass-only requirement
+                requireLayerThreshold: 0f,
+                alignToNormal: alignToGroundNormal,
+                respectTreeClearance: true,          // avoid trees (baked + spawned)
+                useGlobalSpacingAgainstExisting: true,   // avoid previously placed blockers (trees & objects)
+                contributeToGlobalSpacing: true,     // objects block further objects
+                selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects),
+                onPlaced: null
+            );
+        }
+
+
+        Debug.Log(
+            $"[Spawner] Done.\n" +
+            $"Rejections — Ocean:{rejOcean}, Slope:{rejSlope}, Path:{rejPath}, PathPad:{rejPathPad}, Trees:{rejTree}, Spacing:{rejSpacing}, Overlap:{rejCollision}, OutBounds:{rejOutBounds}, NotGrass:{rejGrassLayer}"
+        );
+    }
+
+    void SpawnPass(
+        int count,
+        GameObject[] array,
+        int requireLayerIndex,
+        float requireLayerThreshold,
+        bool alignToNormal,
+        bool respectTreeClearance,
+        bool useGlobalSpacingAgainstExisting,
+        bool contributeToGlobalSpacing,
+        float selfSpacingOverride,
+        System.Action<Vector3> onPlaced
+    )
+    {
         int placed = 0;
         int attempts = 0;
-        int maxAttempts = Mathf.Max(1, spawnCount * maxAttemptsPerObject);
+        int maxAttempts = Mathf.Max(1, count * maxAttemptsPerObject);
 
-        while (placed < spawnCount && attempts < maxAttempts)
+        // spacing within THIS pass only (grass can use this to avoid itself a bit)
+        List<Vector2> passPlacedXZ = new();
+
+        while (placed < count && attempts < maxAttempts)
         {
             attempts++;
-
             float x = Random.Range(tPos.x, tPos.x + tSize.x);
             float z = Random.Range(tPos.z, tPos.z + tSize.z);
 
-            if (!TryPickValidLocation(x, z, out float y)) continue;
+            if (!TryPickValidLocation(
+                    x, z,
+                    requireLayerIndex, requireLayerThreshold,
+                    respectTreeClearance,
+                    useGlobalSpacingAgainstExisting ? minSpacingBetweenObjects : 0f,
+                    selfSpacingOverride,
+                    passPlacedXZ,
+                    out float y))
+                continue;
 
-            // Choose prefab & instantiate
-            GameObject prefab = prefabs[Random.Range(0, prefabs.Length)];
+            // Choose prefab & rotation
+            GameObject prefab = array[Random.Range(0, array.Length)];
             Vector3 pos = new Vector3(x, y, z);
 
-            // Base yaw (random spin) — about "up" at first
-            Quaternion yaw;
-            if (randomYRotation)
-                yaw = Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.up);
-            else
-                yaw = Quaternion.identity;
-
-            // If aligning to ground, tilt "up" toward the terrain normal, with optional strength
-            Quaternion rot;
-            if (alignToGroundNormal)
-            {
-                Vector3 n = GetTerrainNormal(x, z);
-
-                // Blend between straight-up and true normal
-                Vector3 blendedUp = Vector3.Slerp(Vector3.up, n, Mathf.Clamp01(normalAlignStrength)).normalized;
-
-                // Make a rotation whose up-axis matches blendedUp, and keep forward reasonable:
-                // Start with any forward (e.g., world forward), then orthonormalize to get a stable basis.
-                Vector3 fwd = Vector3.ProjectOnPlane(Vector3.forward, blendedUp);
-                if (fwd.sqrMagnitude < 1e-4f) fwd = Vector3.ProjectOnPlane(Vector3.right, blendedUp);
-                fwd.Normalize();
-
-                Quaternion tilt = Quaternion.LookRotation(fwd, blendedUp);
-
-                // Apply yaw *around the surface normal* so it spins naturally on slopes
-                Quaternion yawAroundNormal = Quaternion.AngleAxis(Random.Range(0f, 360f), blendedUp);
-                rot = (randomYRotation ? yawAroundNormal : Quaternion.identity) * tilt;
-            }
-            else
-            {
-                // Old behavior: upright + optional random yaw
-                rot = yaw;
-            }
-
-
+            // Collision bubble (optional)
             if (collisionMask.value != 0 && Physics.CheckSphere(pos, collisionRadius, collisionMask, QueryTriggerInteraction.Ignore))
             { rejCollision++; continue; }
 
+            Quaternion rot;
+            if (alignToNormal)
+            {
+                Vector3 n = GetTerrainNormal(x, z);
+                Vector3 blendedUp = Vector3.Slerp(Vector3.up, n, Mathf.Clamp01(normalAlignStrength)).normalized;
+                Vector3 fwd = Vector3.ProjectOnPlane(Vector3.forward, blendedUp);
+                if (fwd.sqrMagnitude < 1e-4f) fwd = Vector3.ProjectOnPlane(Vector3.right, blendedUp);
+                fwd.Normalize();
+                Quaternion tilt = Quaternion.LookRotation(fwd, blendedUp);
+                Quaternion yawAroundUp = randomYRotation ? Quaternion.AngleAxis(Random.Range(0f, 360f), blendedUp) : Quaternion.identity;
+                rot = yawAroundUp * tilt;
+            }
+            else
+            {
+                rot = randomYRotation ? Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.up) : Quaternion.identity;
+            }
+
+            // Instantiate
             Transform parent = parentForSpawned ? parentForSpawned : transform;
             var go = Instantiate(prefab, pos, rot, parent);
 
@@ -242,17 +357,31 @@ public class TerrainObjectSpawner : MonoBehaviour
                 go.transform.localScale = new Vector3(s, s, s);
             }
 
-            placedXZ.Add(new Vector2(x, z));
+            // Record:
+            passPlacedXZ.Add(new Vector2(x, z));
+            if (contributeToGlobalSpacing && minSpacingBetweenObjects > 0f)
+                globalSpacingXZ.Add(new Vector2(x, z));
+
+            // If this pass is TREES, add to tree set so later passes respect minDistanceToTrees
+            onPlaced?.Invoke(pos);
+
             placed++;
         }
 
-        Debug.Log(
-            $"[Spawner] Placed {placed}/{spawnCount} with {attempts} attempts.\n" +
-            $"Rejections — Ocean:{rejOcean}, Slope:{rejSlope}, Path:{rejPath}, PathPad:{rejPathPad}, Trees:{rejTree}, Spacing:{rejSpacing}, Overlap:{rejCollision}, OutBounds:{rejOutBounds}"
-        );
+        if (verboseLogs)
+            Debug.Log($"[Spawner] Pass done: placed {placed}/{count} for array '{(array.Length > 0 ? array[0].name : "empty")}' with attempts={attempts}.");
     }
 
-    bool TryPickValidLocation(float x, float z, out float yOut)
+    bool TryPickValidLocation(
+    float x, float z,
+    int requireLayerIndex,
+    float requireLayerThreshold,
+    bool respectTreeClearance,
+    float globalSpacingDist,
+    float selfSpacingDist,
+    List<Vector2> passPlacedXZ,
+    out float yOut
+)
     {
         yOut = 0f;
         if (!InsideTerrainBounds(x, z)) { rejOutBounds++; return false; }
@@ -270,9 +399,17 @@ public class TerrainObjectSpawner : MonoBehaviour
             if (slopeDeg > maxSlopeDegrees) { rejSlope++; return false; }
         }
 
+        // REQUIRE: Grass layer (for tree/grass passes)
+        if (requireLayerIndex >= 0)
+        {
+            float gw = LayerWeightAt(x, z, requireLayerIndex);
+            if (gw < requireLayerThreshold) { rejGrassLayer++; return false; }
+        }
+
+        // AVOID: Path layer
         if (pathLayerIndex >= 0)
         {
-            float w = PathWeightAt(x, z);
+            float w = LayerWeightAt(x, z, pathLayerIndex);
             if (w > pathWeightThreshold) { rejPath++; return false; }
 
             if (pathPadding > 0.01f && pathPaddingSampleRingPoints > 0)
@@ -284,34 +421,53 @@ public class TerrainObjectSpawner : MonoBehaviour
                     float sx = x + Mathf.Cos(ang) * pathPadding;
                     float sz = z + Mathf.Sin(ang) * pathPadding;
                     if (!InsideTerrainBounds(sx, sz)) continue;
-                    if (PathWeightAt(sx, sz) > pathWeightThreshold) { rejPathPad++; return false; }
+                    if (LayerWeightAt(sx, sz, pathLayerIndex) > pathWeightThreshold) { rejPathPad++; return false; }
                 }
             }
         }
 
-        if (minDistanceToTrees > 0.01f && treeXZ.Count > 0)
+        // >>> NO-SPAWN checks (FORTRESS etc.) — insert here <<<
+        // If you added the helpers IsOnNoSpawnLayer(...) and InsideNoSpawnVolume(...):
+        if (InsideNoSpawnVolume(new Vector3(x, y, z))) { rejPath++; return false; }
+        // <<< end no-spawn checks >>>
+
+        Vector2 p = new Vector2(x, z);
+
+        // Distance to trees (baked + newly spawned) — only if requested
+        if (respectTreeClearance && minDistanceToTrees > 0.01f && (terrainTreeXZ.Count > 0 || spawnedTreeXZ.Count > 0))
         {
-            Vector2 p = new Vector2(x, z);
-            float minSqr = minDistanceToTrees * minDistanceToTrees;
-            for (int i = 0; i < treeXZ.Count; i++)
-                if ((treeXZ[i] - p).sqrMagnitude < minSqr) { rejTree++; return false; }
+            float minTreeSqr = minDistanceToTrees * minDistanceToTrees;
+            for (int i = 0; i < terrainTreeXZ.Count; i++)
+                if ((terrainTreeXZ[i] - p).sqrMagnitude < minTreeSqr) { rejTree++; return false; }
+            for (int i = 0; i < spawnedTreeXZ.Count; i++)
+                if ((spawnedTreeXZ[i] - p).sqrMagnitude < minTreeSqr) { rejTree++; return false; }
         }
 
-        if (minSpacingBetweenObjects > 0.01f && placedXZ.Count > 0)
+        // Global spacing against previously placed blockers (trees & objects only)
+        if (globalSpacingDist > 0.01f && globalSpacingXZ.Count > 0)
         {
-            Vector2 p = new Vector2(x, z);
-            float minSqr = minSpacingBetweenObjects * minSpacingBetweenObjects;
-            for (int i = 0; i < placedXZ.Count; i++)
-                if ((placedXZ[i] - p).sqrMagnitude < minSqr) { rejSpacing++; return false; }
+            float minSqr = globalSpacingDist * globalSpacingDist;
+            for (int i = 0; i < globalSpacingXZ.Count; i++)
+                if ((globalSpacingXZ[i] - p).sqrMagnitude < minSqr) { rejSpacing++; return false; }
+        }
+
+        // Self spacing within current pass (e.g., for grass vs grass)
+        if (selfSpacingDist > 0.01f && passPlacedXZ.Count > 0)
+        {
+            float minSqr = selfSpacingDist * selfSpacingDist;
+            for (int i = 0; i < passPlacedXZ.Count; i++)
+                if ((passPlacedXZ[i] - p).sqrMagnitude < minSqr) { rejSpacing++; return false; }
         }
 
         yOut = y;
         return true;
     }
+
+
     Vector3 GetTerrainNormal(float worldX, float worldZ)
     {
-        float u = (worldX - tPos.x) / tSize.x;   // 0..1
-        float v = (worldZ - tPos.z) / tSize.z;   // 0..1
+        float u = (worldX - tPos.x) / tSize.x; // 0..1
+        float v = (worldZ - tPos.z) / tSize.z; // 0..1
         Vector3 n = tData.GetInterpolatedNormal(u, v);
         return n.sqrMagnitude > 0f ? n.normalized : Vector3.up;
     }
@@ -322,17 +478,18 @@ public class TerrainObjectSpawner : MonoBehaviour
                z >= tPos.z && z <= tPos.z + tSize.z;
     }
 
-    float PathWeightAt(float worldX, float worldZ)
+    float LayerWeightAt(float worldX, float worldZ, int layerIndex)
     {
+        if (layerIndex < 0) return 0f;
         float tx = Mathf.InverseLerp(tPos.x, tPos.x + tSize.x, worldX);
         float tz = Mathf.InverseLerp(tPos.z, tPos.z + tSize.z, worldZ);
         int ax = Mathf.Clamp(Mathf.RoundToInt(tx * (alphaW - 1)), 0, alphaW - 1);
         int az = Mathf.Clamp(Mathf.RoundToInt(tz * (alphaH - 1)), 0, alphaH - 1);
-        return alphaMaps[az, ax, pathLayerIndex];
+        return alphaMaps[az, ax, layerIndex];
     }
 
 #if UNITY_EDITOR
-    [MenuItem("Tools/Terrain Spawner/Spawn From Selected", priority = 0)]
+    [MenuItem("Tools/Terrain Spawner/Spawn All (Trees → Grass → Objects)", priority = 0)]
     static void SpawnFromSelected()
     {
         foreach (var obj in Selection.gameObjects)
@@ -340,8 +497,8 @@ public class TerrainObjectSpawner : MonoBehaviour
             var sp = obj.GetComponent<TerrainObjectSpawner>();
             if (sp != null)
             {
-                Debug.Log($"[Spawner] Menu → spawning from '{sp.name}'");
-                sp.SpawnObjects();
+                Debug.Log($"[Spawner] Menu → spawning all passes from '{sp.name}'");
+                sp.SpawnAllPasses();
             }
         }
     }
