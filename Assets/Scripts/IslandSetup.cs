@@ -1,8 +1,6 @@
-using System;
 using Unity.AI.Navigation;
-using Unity.VisualScripting;
-using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine;
 
 public class IslandSetup : MonoBehaviour
 {
@@ -60,7 +58,7 @@ public class IslandSetup : MonoBehaviour
         for (int i = 0; i < chestLocations.Length; i++)
         {
             RaycastHit hit;
-            int random = UnityEngine.Random.Range(0, usableChests.Length);
+            int random = Random.Range(0, usableChests.Length);
             if (Physics.Raycast(chestLocations[i].position, Vector3.down, out hit))
             {
                 
@@ -84,15 +82,14 @@ public class IslandSetup : MonoBehaviour
     void SpawnEnemy(NavMeshHit hit, int rand)
     {
 
-        GameObject enemy = Instantiate(basicEnemies[rand], hit.position, Quaternion.identity);
-        Debug.Log(hit.position);
+        Instantiate(basicEnemies[rand], hit.position, Quaternion.identity);
     }
 
     // Get a random spawn point within a radius around the chest
     void GetRandSpawnPoint(RaycastHit _hit)
     {
         // Pick a random point inside a unit circle and scale by radius.
-        Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * spawnRadius;
+        Vector2 randomCircle = Random.insideUnitCircle * spawnRadius;
 
         // Convert 2D circle to 3D world coordinates (Y stays the same as the object's position).
         Vector3 randomPoint = _hit.point + new Vector3(randomCircle.x, 0f, randomCircle.y);
@@ -100,7 +97,7 @@ public class IslandSetup : MonoBehaviour
         // Snap the random point to the NavMesh to ensure the enemy can reach it.
         if (NavMesh.SamplePosition(randomPoint, out var hit, 5f, NavMesh.AllAreas))
         {
-            SpawnEnemy(hit, UnityEngine.Random.Range(0, basicEnemies.Length));
+            SpawnEnemy(hit, Random.Range(0, basicEnemies.Length));
         }
     }
 
@@ -109,7 +106,7 @@ public class IslandSetup : MonoBehaviour
     void SpawnPlayer()
     {
         Vector3 spawnPos = Vector3.zero;
-        int random = UnityEngine.Random.Range(0, playerSpawnPos.Length);
+        int random = Random.Range(0, playerSpawnPos.Length);
         RaycastHit hit;
         if (Physics.Raycast(playerSpawnPos[random].position, Vector3.down, out hit))
         {

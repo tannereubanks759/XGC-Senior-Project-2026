@@ -51,7 +51,6 @@ public class PatrolStateFSM : BaseState<EnemyState>
     // Resets animator triggers to avoid conflicts.
     public override void ExitState()
     {
-        Debug.Log("Exiting Patrol");
 
         _enemy.ResetTriggers();
     }

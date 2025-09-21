@@ -14,6 +14,8 @@ public class AffectPlayer : MonoBehaviour
     private void Awake()
     {
         swordCollider = GetComponent<Collider>();
+        swordCollider.enabled = false;
+        Debug.Log("Has Sword Collider: " + swordCollider);
         //CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
     }
     
