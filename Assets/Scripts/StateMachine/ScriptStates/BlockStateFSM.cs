@@ -10,7 +10,6 @@
 */
 
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
 
 // Represents the Block state in the enemy's finite state machine.
 // In this state, the enemy defends against player attacks by blocking.

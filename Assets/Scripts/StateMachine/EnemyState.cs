@@ -14,5 +14,6 @@ public enum EnemyState
     Hit,
     Dead,
     Block,
+    BlockHit,
     BackDodge,
 }

@@ -75,6 +75,7 @@ public class PatrolStateFSM : BaseState<EnemyState>
     private void PickNewTarget()
     {
         _currentTarget = _patrolArea.GetRandomPoint();
+        Debug.Log("New Target: " + _currentTarget);
     }
 
     // Determines the next state based on current conditions.

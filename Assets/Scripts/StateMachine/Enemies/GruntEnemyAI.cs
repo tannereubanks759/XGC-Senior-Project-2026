@@ -35,6 +35,7 @@ public class GruntEnemyAI : BaseEnemyAI
         States[EnemyState.Dead] = new DeadStateFSM(EnemyState.Dead, this);
         States[EnemyState.Block] = new BlockStateFSM(EnemyState.Block, this);
         States[EnemyState.BackDodge] = new BackDodgeStateFSM(EnemyState.BackDodge, this);
+        States[EnemyState.BlockHit] = new BlockHitStateFSM(EnemyState.BlockHit, this);
 
         // Set the initial state to Patrol
         CurrentState = States[EnemyState.Patrol];

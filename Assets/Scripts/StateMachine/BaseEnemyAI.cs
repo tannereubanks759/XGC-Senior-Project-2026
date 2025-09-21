@@ -247,40 +247,37 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Apply damage to the enemy, factoring in blocking
     public void TakeDamage(int damage)
     {
+        int finalDamage = damage;
+
         if (isBlocking)
         {
-            TakeDamageBlocking(damage);
-        }
-        else
-        {
-            currentHealth -= damage;
+            // Halve incoming damage when blocking
+            finalDamage = Mathf.FloorToInt(damage / 2);
+            Debug.Log($"{name} blocked! Damage reduced to {finalDamage}.");
         }
 
+        // Apply damage
+        currentHealth -= finalDamage;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
-        Debug.Log($"{name} took {damage} damage. Health: {currentHealth}");
+        Debug.Log($"{name} took {finalDamage} damage. Health: {currentHealth}");
 
+        // Death check
         if (currentHealth <= 0)
         {
             Die();
         }
         else
         {
-            TransitionToState(EnemyState.Hit);
-        }
-    }
-
-    // Apply reduced damage and knockback when blocking
-    void TakeDamageBlocking(int damage)
-    {
-        currentHealth -= Mathf.FloorToInt(damage / 2);
-
-        Rigidbody playerRB = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Rigidbody>();
-
-        if (playerRB != null)
-        {
-            Vector3 knockbackVec = -Player.forward;
-            playerRB.AddForce(knockbackVec, ForceMode.Impulse);
+            // Pick correct reaction state
+            if (isBlocking)
+            {
+                TransitionToState(EnemyState.BlockHit);
+            }
+            else
+            {
+                TransitionToState(EnemyState.Hit);
+            }
         }
     }
 
