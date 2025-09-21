@@ -43,6 +43,19 @@ public class inventorySlot : MonoBehaviour, IDropHandler
                 Debug.Log("Wrong slot.");
             }
         }
+        /*else
+        {
+            GameObject dropped = eventData.pointerDrag;
+            objectIdentifierN = dropped.GetComponent<objectIdentifier>();
+            //objectIdentifierN.item.type
+            if (objectIdentifierN.item.type == transform.tag)
+            {
+
+                DragScript dragScript = dropped.GetComponent<DragScript>();
+                dragScript.parentAfterDrag = transform;
+                equipS.equip(objectIdentifierN.item);
+            }
+        }*/
         
     }
     public void deleteAndDrop(GameObject obj)

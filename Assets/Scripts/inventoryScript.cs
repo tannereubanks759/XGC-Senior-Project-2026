@@ -36,7 +36,7 @@ public class inventoryScript : MonoBehaviour
         setPauseLogic(!isOpen);
         isOpen = !isOpen;
     }
-    public void addToInventory(ItemData itemToAdd)
+    public void addToInventory(ItemData itemToAdd, GameObject artifact)
     {
         //Debug.Log("Adding", itemToAdd);
         items.Add(itemToAdd);
@@ -45,7 +45,7 @@ public class inventoryScript : MonoBehaviour
         //send to another script
         currentlyEquippingItemData = itemToAdd;
         
-        equip.uiAdder(currentlyEquippingItemData);
+        equip.uiAdder(currentlyEquippingItemData, artifact);
         //Debug.Log("Sent call");
 
     }
