@@ -9,7 +9,7 @@
  * By: Matthew Bolger
 */
 
-using UnityEditorInternal;
+//using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.AI;
 

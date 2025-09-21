@@ -2,7 +2,7 @@
 using UnityEngine;
 
 #if UNITY_EDITOR
-using UnityEditor;
+//using UnityEditor;
 #endif
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
@@ -487,7 +487,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         int az = Mathf.Clamp(Mathf.RoundToInt(tz * (alphaH - 1)), 0, alphaH - 1);
         return alphaMaps[az, ax, layerIndex];
     }
-
+/*
 #if UNITY_EDITOR
     [MenuItem("Tools/Terrain Spawner/Spawn All (Trees → Grass → Objects)", priority = 0)]
     static void SpawnFromSelected()
@@ -518,5 +518,5 @@ public class TerrainObjectSpawner : MonoBehaviour
         Vector3 s = new Vector3(data.size.x, 0.02f, data.size.z);
         Gizmos.DrawCube(c, s);
     }
-#endif
+#endif*/
 }
