@@ -89,8 +89,8 @@ public class interactScript : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E) && canInteract && currentArtifact != null)
         {
             
-            inventoryScript.addToInventory(currentArtifact);
-            Destroy(currentArtifactObj);
+            inventoryScript.addToInventory(currentArtifact, currentArtifactObj);
+            //Destroy(currentArtifactObj);
             //Debug.Log("Added to inventory: " + currentArtifact.itemName);
             //objIdentifierRef.updateInfo(currentArtifact);
             interactText.SetActive(false);

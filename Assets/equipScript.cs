@@ -1,4 +1,4 @@
-using System.Diagnostics;
+//using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 public class equipScript : MonoBehaviour
@@ -20,19 +20,27 @@ public class equipScript : MonoBehaviour
     {
         
     }
-    public void uiAdder(ItemData itemAdded)
+    public void uiAdder(ItemData itemAdded, GameObject artifact)
     {
-        GameObject newUI = Instantiate(uiPrefab, midReferenceUISpot.transform);
-
-
-
-        objIdentifierRef = GetComponentInChildren<objectIdentifier>();
-        Image uiImage = newUI.GetComponent<Image>();
-        if (uiImage != null)
+        if(midReferenceUISpot.transform.childCount == 0)
         {
-            uiImage.sprite = itemAdded.icon;
+            GameObject newUI = Instantiate(uiPrefab, midReferenceUISpot.transform);
+
+
+
+            objIdentifierRef = GetComponentInChildren<objectIdentifier>();
+            Image uiImage = newUI.GetComponent<Image>();
+            if (uiImage != null)
+            {
+                uiImage.sprite = itemAdded.icon;
+            }
+            objIdentifierRef.updateInfo(itemAdded);
+            Destroy(artifact);
         }
-        objIdentifierRef.updateInfo(itemAdded);
+        else
+        {
+            Debug.Log("Something already in assigner slot.");
+        }
     }
     public void equip(ItemData itemAdded) 
     {
