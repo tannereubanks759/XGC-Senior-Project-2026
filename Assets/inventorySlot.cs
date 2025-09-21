@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 public class inventorySlot : MonoBehaviour, IDropHandler
 {
     private objectIdentifier objectIdentifier;
-    
+    private objectIdentifier objectIdentifierN;
     //public GameObject spawnPoint;
     public void OnDrop(PointerEventData eventData)
     {
@@ -15,11 +15,22 @@ public class inventorySlot : MonoBehaviour, IDropHandler
             dragScript.parentAfterDrag = transform;
             deleteAndDrop(dropped);
         }
+       
         if (transform.childCount == 0)
         {
+            
             GameObject dropped = eventData.pointerDrag;
-            DragScript dragScript = dropped.GetComponent<DragScript>();
-            dragScript.parentAfterDrag = transform;
+            objectIdentifierN = dropped.GetComponent<objectIdentifier>();
+            //objectIdentifierN.item.type
+            if(objectIdentifierN.item.type == transform.tag)
+            {
+                DragScript dragScript = dropped.GetComponent<DragScript>();
+                dragScript.parentAfterDrag = transform;
+            }
+           else
+            {
+                Debug.Log("Wrong slot.");
+            }
         }
         
     }
