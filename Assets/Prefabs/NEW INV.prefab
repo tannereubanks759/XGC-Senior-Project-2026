@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1295409931613222602}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: SwordUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -61,7 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.5566038, b: 0.015783763, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -87,6 +87,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &8280694676440837906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,8 +161,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 40}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 197, y: 110}
-  m_SizeDelta: {x: 354.66, y: 42.16}
+  m_AnchoredPosition: {x: 198.24, y: 125.04}
+  m_SizeDelta: {x: 296.4864, y: 35.6222}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6135036189371197508
 CanvasRenderer:
@@ -462,7 +465,7 @@ GameObject:
   - component: {fileID: 9174009289493271980}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: GunUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -507,7 +510,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6886792, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -533,6 +536,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &7140566295485163287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -676,8 +682,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -41.784}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -201, y: 118.33}
-  m_SizeDelta: {x: 354.66, y: 42.16}
+  m_AnchoredPosition: {x: -192, y: 123}
+  m_SizeDelta: {x: 312.721, y: 39.712}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4853981533538612633
 CanvasRenderer:
@@ -967,7 +973,7 @@ GameObject:
   - component: {fileID: 3216989963123543323}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: SwordUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1012,7 +1018,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.5566038, b: 0.015783763, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1038,6 +1044,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &4695391077993582081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1091,7 +1100,7 @@ GameObject:
   - component: {fileID: 7857387958729093276}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: Passive
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1186,6 +1195,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &7857387958729093276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1313,6 +1325,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 0}
 --- !u!114 &8112652769911725217
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1329,6 +1344,7 @@ MonoBehaviour:
   objIdentifierRef: {fileID: 0}
   midReferenceUISpot: {fileID: 5536500105304378749}
   uiPrefab: {fileID: 452700993767431812, guid: 35d455f9bf95d2245ac791b6ca493f33, type: 3}
+  infoscriptRef: {fileID: 0}
 --- !u!1 &5571610472110653361
 GameObject:
   m_ObjectHideFlags: 0
@@ -1345,7 +1361,7 @@ GameObject:
   - component: {fileID: 2537105041587968747}
   m_Layer: 5
   m_Name: Circle8
-  m_TagString: Untagged
+  m_TagString: Passive
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1416,6 +1432,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &7808609806447348401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1469,7 +1488,7 @@ GameObject:
   - component: {fileID: 1967772041957708429}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: SwordUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1514,7 +1533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0.5566038, b: 0.015783763, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1540,6 +1559,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &3109126908409127199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1593,7 +1615,7 @@ GameObject:
   - component: {fileID: 3742584525323195573}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: GunUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1638,7 +1660,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6886792, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1664,6 +1686,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &9127173660994145877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1823,6 +1848,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 0}
 --- !u!114 &3757919693135283404
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1863,7 +1891,7 @@ GameObject:
   - component: {fileID: 8267842204630425810}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: GunUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1908,7 +1936,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6886792, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1934,6 +1962,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &6356995213086909902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2095,7 +2126,7 @@ GameObject:
   - component: {fileID: 3822404824534845722}
   m_Layer: 5
   m_Name: Circle
-  m_TagString: Untagged
+  m_TagString: Passive
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2166,6 +2197,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31e07537e44aa164eb1ac1744b812d01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  infoscriptRef: {fileID: 0}
+  equipS: {fileID: 0}
+  middleUIRef: {fileID: 5536500105304378749}
 --- !u!114 &9020158768500961194
 MonoBehaviour:
   m_ObjectHideFlags: 0

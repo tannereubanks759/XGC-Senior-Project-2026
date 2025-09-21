@@ -7,7 +7,7 @@ public class DragScript : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public Image image;
     public artifactStarter currentSlotChanged;
     private string nameOfArtifact;
-    private Transform originalParent;
+    public Transform originalParent;
     
     public void OnBeginDrag(PointerEventData eventData)
     {
