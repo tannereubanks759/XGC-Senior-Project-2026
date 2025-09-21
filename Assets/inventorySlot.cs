@@ -8,6 +8,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
     //public GameObject spawnPoint;
     public infoscript infoscriptRef;
     public equipScript equipS;
+   
     private void Start()
     {
         infoscriptRef = FindAnyObjectByType<infoscript>();
@@ -32,6 +33,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
             //objectIdentifierN.item.type
             if(objectIdentifierN.item.type == transform.tag)
             {
+               
                 DragScript dragScript = dropped.GetComponent<DragScript>();
                 dragScript.parentAfterDrag = transform;
                 equipS.equip(objectIdentifierN.item);
