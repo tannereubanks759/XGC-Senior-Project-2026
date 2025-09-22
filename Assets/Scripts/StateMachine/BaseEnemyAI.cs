@@ -44,14 +44,19 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public bool canRotate;                // Whether the enemy can rotate toward player
 
     [Header("Damage/Combat")]
-    [Tooltip("The amount of damage that this unit will do to the player")]
-    public int Damage { get; private set; }                    // Base damage (used in attacks)
     [Tooltip("Is this unit currently blocking?")]
     public bool isBlocking;               // Flag for blocking state
     [Tooltip("Is this unit currently dodging?")]
     public bool isDodging;                // Flag for dodging state
-    [Tooltip("Reference to the 'infoscript' which contains information about the keys to the chests")]
-    public infoscript playerInfo { get; private set; }        // Reference to player's info (e.g., key count)
+    [Tooltip("The amount of damage that this unit will do to the player")]
+    public int Damage { get; private set; }                    // Base damage (used in attacks)
+
+    [Header("Item System")]
+    [Tooltip("The item to be dropped")]
+    public GameObject item;
+    private GameObject _item;   // Private reference to the item being dropped/spawned
+    [Tooltip("Whether or not the enemy will drop an item on death or not")]
+    private bool hasItem;
 
     // Attack state enum to track attack animation progress
     public enum AttackState { None, InProgress, Finished }
@@ -62,15 +67,46 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Awake is called when the script instance is loaded
     protected virtual void Awake()
     {
+        RefInit();
+        VarInit();
+        ItemInit();
+    }
+
+    #region Init Methods
+    // Initialize references
+    private void RefInit()
+    {
+        // Get refrences
         Agent = GetComponent<NavMeshAgent>();
-        Agent.stoppingDistance = AttackRange - 0.5f;
         Animator = GetComponent<Animator>();
-        playerInfo = GameObject.FindGameObjectWithTag("PlayerInfo").GetComponent<infoscript>();
+    }
+
+    // Initialize variables
+    private void VarInit()
+    {
+        Agent.stoppingDistance = AttackRange - 0.5f;
         currentHealth = maxHealth;
         canRotate = true;
         isBlocking = false;
         isDodging = false;
     }
+
+    // Initialize an item system for the enemy
+    // As long as the item to be dropped is set,
+    // the item logic will run
+    private void ItemInit()
+    {
+        // Set the bool if the enemy has an item
+        hasItem = item != null ? true : false;
+
+        // Spawn a key if the enemy has one and turn it off.
+        if (hasItem)
+        {
+            _item = Instantiate(item, transform.parent);
+            _item.SetActive(false);
+        }
+    }
+    #endregion
 
     #region Movement Methods
     // Move the enemy toward a destination using NavMeshAgent
@@ -178,7 +214,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     }
     #endregion
 
-    #region Patrol Area
+    #region Patrol Area Methods
     // Find the closest PatrolArea in the scene
     public PatrolArea FindClosestPatrolArea()
     {
@@ -299,10 +335,17 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);
+        DropItem();
+    }
 
-        if (playerInfo.keyCount > 0)
+    // Drop an item if applicable
+    public void DropItem()
+    {
+        if (hasItem)
         {
-            // Optional: give player a key on death
+            _item.transform.position = this.transform.position;
+            _item.transform.rotation = this.transform.rotation;
+            _item.SetActive(true);
         }
     }
 
@@ -335,6 +378,10 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.ResetTrigger("Dead");
         Animator.ResetTrigger("Attack");
         Animator.ResetTrigger("Patrol");
+        Animator.ResetTrigger("Block");
+        Animator.ResetTrigger("BlockHit");
+        Animator.ResetTrigger("Hit");
+        Animator.ResetTrigger("BackDodge");
     }
 
     // Draw gizmos in editor to visualize ranges
