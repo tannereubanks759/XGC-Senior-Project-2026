@@ -8,7 +8,6 @@
  * By: Matthew Bolger
 */
 
-using UnityEditorInternal;
 using UnityEngine;
 
 // Represents the Hit (flinch) state during blocking in the enemy's finite state machine.

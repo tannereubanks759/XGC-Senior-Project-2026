@@ -1,4 +1,4 @@
-// =========================
+/*// =========================
 // File: Editors/SplinePathEditor.cs
 // Simple handles to move nodes and buttons to add nodes/generate
 // Place inside an Editor folder.
@@ -60,4 +60,4 @@ public class SplinePathEditor : Editor
     }
 }
 
-#endif
+#endif*/
