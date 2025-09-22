@@ -71,7 +71,7 @@ public class IslandTerrainGenerator : MonoBehaviour
 
     void Reset()
     {
-        terrain = FindObjectOfType<Terrain>();
+        terrain = FindFirstObjectByType<Terrain>();
     }
 
     [ContextMenu("Generate Island")]

@@ -32,8 +32,8 @@ public class HurtPostFXURP : MonoBehaviour
 
     // state
     Coroutine pulseCo;
-    float lastPulseTime = -999f; // debounce
-    const float debounce = 0.03f;
+    //float lastPulseTime = -999f; // debounce
+    //const float debounce = 0.03f;
 
     void Awake()
     {
