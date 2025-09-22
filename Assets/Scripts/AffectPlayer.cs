@@ -9,11 +9,10 @@ public class AffectPlayer : MonoBehaviour
     [SerializeField] private int damage;
 
     [Header("Collider")]
-    public Collider swordCollider {  get; private set; }
+    public Collider swordCollider;
 
     private void Awake()
     {
-        swordCollider = GetComponent<Collider>();
         swordCollider.enabled = false;
         Debug.Log("Has Sword Collider: " + swordCollider);
         //CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
