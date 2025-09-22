@@ -52,7 +52,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public int Damage { get; private set; }                    // Base damage (used in attacks)
 
     [Header("Item System")]
-    [Tooltip("The item to be dropped")]
+    [Tooltip("The item to be dropped (Leave empty if no item is to be spawned)")]
     public GameObject item;
     private GameObject _item;   // Private reference to the item being dropped/spawned
     [Tooltip("Whether or not the enemy will drop an item on death or not")]
@@ -64,6 +64,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("Attack Control")]
     public AttackState CurrentAttackState { get; private set; } = AttackState.None;
 
+    #region Monobehavior Methods
     // Awake is called when the script instance is loaded
     protected virtual void Awake()
     {
@@ -71,6 +72,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         VarInit();
         ItemInit();
     }
+    #endregion
 
     #region Init Methods
     // Initialize references
