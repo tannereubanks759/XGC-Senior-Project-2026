@@ -6,7 +6,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
     private objectIdentifier objectIdentifierN;
     private objectIdentifier objectIdentifierTwo;
     //public GameObject player;
-    //public GameObject spawnPoint;
+    public GameObject spawnPoint;
     public infoscript infoscriptRef;
     public equipScript equipS;
     public GameObject middleUIRef;
@@ -15,6 +15,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
         infoscriptRef = FindAnyObjectByType<infoscript>();
         equipS = FindAnyObjectByType<equipScript>();
         middleUIRef = GameObject.FindGameObjectWithTag("middleUI");
+        spawnPoint = GameObject.FindGameObjectWithTag("dropPoint");
     }
     public void OnDrop(PointerEventData eventData)
     {
@@ -81,7 +82,7 @@ public class inventorySlot : MonoBehaviour, IDropHandler
     {
         objectIdentifier = obj.GetComponent<objectIdentifier>();
         objectIdentifier.item.OnUnEquip(infoscriptRef.player);
-        GameObject item = Instantiate(objectIdentifier.item.prefab, new Vector3(17.8579998f, 25.382f, 236.531006f), Quaternion.identity);
+        GameObject item = Instantiate(objectIdentifier.item.prefab, spawnPoint.transform.position, Quaternion.identity);
         //item.transform.localPosition = Vector3.zero;
         //item.transform.localRotation = Quaternion.identity;
         //item.transform.localScale = Vector3.one;
