@@ -26,6 +26,7 @@ public class CombatController : MonoBehaviour
     public int health = 100;                // "real" health (target)
     public Slider healthSlider;
     public HurtPostFXURP hurtFX;
+    public CameraShake shake;
 
     // Smooth UI health (eases toward 'health')
     private float displayedHealth;          // what the slider shows
@@ -266,6 +267,38 @@ public class CombatController : MonoBehaviour
             float severity = actuallyApplied / (float)old;   // FLOAT division!
             if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
             hurtFX?.Pulse(severity);
+            shake.Shake(1);
+            
+        }
+        else
+        {
+            wInertia.ParryClash(1);
+        }
+    }
+    public void TakeDamage(int damage, Vector3 Dir)
+    {
+        if(blocking == false)
+        {
+            //health = Mathf.Max(health - damage, 0);
+            lastDamageTime = Time.time;   // reset regen cooldown
+            regenAccumulator = 0f;        // reset regen tick build-up
+
+            // Kick off damage flash
+            damageAlpha = 1f;             // fully visible red
+            damageAlphaVel = 0f;          // reset ease
+            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+            if (actuallyApplied <= 0) return;
+
+            int old = health;
+            health = Mathf.Max(0, health - actuallyApplied);
+
+            // --- HURT FX: make sure this always runs when damage is applied ---
+            Mathf.Clamp(old, 0, maxHealth);
+            float severity = actuallyApplied / (float)old;   // FLOAT division!
+            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+            hurtFX?.Pulse(severity);
+            shake.ShakeFromHit(Dir, 1);
+            
         }
         else
         {

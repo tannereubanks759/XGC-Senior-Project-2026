@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2730606842517178018}
   - component: {fileID: 469809846196776974}
   - component: {fileID: 747820038537369880}
+  - component: {fileID: 254001936909034640}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: MainCamera
@@ -180,6 +181,26 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.4701084, y: 0.80032945, z: 2.0636504}
   m_Center: {x: 0.36941206, y: -0.3729002, z: 1.3487803}
+--- !u!114 &254001936909034640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 40545766012789498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9981c7df01dac7c4b8b783a3b57a309e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  kickDegrees: 6
+  maxDegrees: 10
+  returnSmoothTime: 0.18
+  useUnscaledTime: 1
+  pitchWeight: 1
+  yawWeight: 0.6
+  rollWeight: 0.8
+  variance: 0.25
 --- !u!1 &527469061824096668
 GameObject:
   m_ObjectHideFlags: 0
@@ -1508,7 +1529,8 @@ MonoBehaviour:
   maxHealth: 100
   health: 100
   healthSlider: {fileID: 0}
-  hurtFX: {fileID: 0}
+  hurtFX: {fileID: 3629823473797291533}
+  shake: {fileID: 254001936909034640}
   healthSmoothTime: 0.18
   passiveHealing: 1
   regenDelay: 3

@@ -28,7 +28,7 @@ public class AffectPlayer : MonoBehaviour
             {
                 CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
             }
-            CombatController.TakeDamage(damage);
+            CombatController.TakeDamage(damage, this.gameObject.transform.position);
         }
     }
 
