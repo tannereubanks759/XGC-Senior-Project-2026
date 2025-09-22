@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
@@ -17,3 +18,4 @@ public class TunnelGeneratorEditor : Editor
         EditorGUILayout.HelpBox("To edit: Select SplinePath and move nodes in Scene view. Set per-node radius/oval/twist/roughness. Then click 'Rebuild Tunnel'. Use a triplanar rock material for best look.", MessageType.Info);
     }
 }
+#endif
