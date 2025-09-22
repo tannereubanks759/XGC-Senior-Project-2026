@@ -62,9 +62,21 @@ public class ChaseStateFSM : BaseState<EnemyState>
         if (_enemy.currentHealth <= 0)
             return EnemyState.Dead;
 
-        // If the player is close enough, transition to Attack.
+        // If the player is close enough, transition to Attack or block.
         if (dist < _enemy.AttackRange)
-            return EnemyState.Attack;
+        {
+            var weight = Random.Range(0, 2);
+
+            switch (weight)
+            {
+                // 50% chance to attack
+                case 0:
+                    return EnemyState.Attack;
+                // 50% chance to dodge
+                case 1:
+                    return EnemyState.Block;
+            }
+        }
 
         // If the player is too far away, transition back to Idle.
         // A buffer (+2f) is added to prevent constant flip-flopping

@@ -125,15 +125,18 @@ public class AttackStateFSM : BaseState<EnemyState>
 
             // Otherwise, randomly decide between staying in Attack,
             // blocking, or performing a back dodge.
-            int weight = Random.Range(1, 5);
+            var weight = Random.Range(1, 5);
 
             switch (weight)
             {
+                // 50% chance to attack
                 case 1:
                 case 2:
                     return StateKey; // Stay in Attack
+                // 25% to block
                 case 3:
                     return EnemyState.Block;
+                // 25% to dodge
                 case 4:
                     return EnemyState.BackDodge;
             }
