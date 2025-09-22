@@ -108,7 +108,23 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Tell the navmesh to not update the agents postion
     public void AgentUpdateOff()
     {
-        Agent.SetDestination(this.transform.position);
+        if (Agent == null)
+        {
+            Agent.isStopped = true;
+            Agent.updatePosition = false;
+            Agent.updateRotation = false;
+        }
+    }
+
+    // Turn the Agent back on
+    public void AgentUpdateOn()
+    {
+        if (Agent == null)
+        {
+            Agent.updateRotation = true;
+            Agent.updatePosition = true;
+            Agent.isStopped = false;
+        }
     }
 
     // Helper to disable the agent
@@ -132,13 +148,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Agent.Warp(transform.position);
     }
-    
-    // Tell the navmesh to not update the agents postion
-    public void AgentUpdateOn()
-    {
-        Agent.transform.position = this.transform.position;
-        Agent.updatePosition = true;
-    }
 
     // Resume movement if it was previously stopped
     public void ResumeMoving()
@@ -149,10 +158,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Allow the enemy to rotate toward the player
     public void RotateToPlayer()
     {
-        if (Agent != null)
-        {
-            Agent.updateRotation = true;
-        }
+        if (Player == null)
+            return;
+
+        Vector3 dir = (Player.position - transform.position).normalized;
+        dir.y = 0f;
+
+        if (dir.magnitude > 0.01f)
+            transform.rotation = Quaternion.LookRotation(dir);
     }
 
     // Calculate distance to the player

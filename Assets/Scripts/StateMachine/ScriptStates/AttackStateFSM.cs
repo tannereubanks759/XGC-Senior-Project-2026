@@ -36,7 +36,7 @@ public class AttackStateFSM : BaseState<EnemyState>
     // Called when the Attack state is first entered.
     public override void EnterState()
     {
-        Debug.Log("Entered Attack State");
+        //Debug.Log("Entered Attack State");
 
         // Enable sword collider so it can hit the player.
         swordCollider.enabled = true;
@@ -58,7 +58,7 @@ public class AttackStateFSM : BaseState<EnemyState>
     // Called once when leaving the Attack state.
     public override void ExitState()
     {
-        Debug.Log("Exiting Attack State");
+        //Debug.Log("Exiting Attack State");
 
         // Disable sword collider so it no longer deals damage.
         swordCollider.enabled = false;

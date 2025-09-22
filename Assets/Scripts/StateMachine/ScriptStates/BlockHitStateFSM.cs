@@ -31,7 +31,7 @@ public class BlockHitStateFSM : BaseState<EnemyState>
 
     public override void EnterState()
     {
-        Debug.Log("Entered Blocking Hit State");
+        //Debug.Log("Entered Blocking Hit State");
 
         // Reset animation triggers to avoid conflicts with other animations.
         _enemy.ResetTriggers();
@@ -45,7 +45,7 @@ public class BlockHitStateFSM : BaseState<EnemyState>
 
     public override void ExitState()
     {
-        Debug.Log("Exiting Blocking Hit State");
+        //Debug.Log("Exiting Blocking Hit State");
 
         // Reset animation triggers to avoid conflicts with other animations.
         _enemy.ResetTriggers();

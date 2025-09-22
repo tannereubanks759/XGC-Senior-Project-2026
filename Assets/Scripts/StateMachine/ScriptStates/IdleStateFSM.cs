@@ -34,7 +34,7 @@ public class IdleStateFSM : BaseState<EnemyState>
     // Sets the enemy to idle animation and stops its movement.
     public override void EnterState()
     {
-        Debug.Log("Entered Idle State");
+        //Debug.Log("Entered Idle State");
 
         // Trigger the idle animation.
         _enemy.Animator.SetTrigger("Idle");
@@ -50,7 +50,7 @@ public class IdleStateFSM : BaseState<EnemyState>
     // Resumes enemy movement and resets animator triggers.
     public override void ExitState()
     {
-        Debug.Log("Exiting Idle State");
+        //Debug.Log("Exiting Idle State");
 
         // Allow the enemy to move again (for patrol or chase).
         _enemy.ResumeMoving();

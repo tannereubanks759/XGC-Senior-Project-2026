@@ -24,7 +24,7 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
     private float backDodgeDuration = 1f; 
 
     // Distance the backdode travels
-    private float backDodgeDistance = 4f;
+    private float backDodgeDistance = 5f;
 
     // Speed based on distance / duration;
     private float backDodgeSpeed;
@@ -39,7 +39,7 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
     // Stops movement, rotates to face the player, triggers animation, and flags dodging.
     public override void EnterState()
     {
-        Debug.Log("Entered BackDodge State");
+        //Debug.Log("Entered BackDodge State");
 
         // Stop movement and rotate to face the player.
         _enemy.AgentUpdateOff();
@@ -54,6 +54,9 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
         // Trigger the back-dodge animation.
         _enemy.Animator.SetTrigger("BackDodge");
 
+        // Set the time of the dodge
+        enterTime = Time.time;
+
         // Calc the speed
         backDodgeSpeed = backDodgeDistance / backDodgeDuration;
     }
@@ -63,6 +66,10 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
     public override void ExitState()
     {
         _enemy.ResetTriggers();
+
+        // Warp the Agent to the enemies position
+        _enemy.Agent.Warp(_enemy.transform.position);
+
         _enemy.AgentUpdateOn();
         _enemy.isDodging = false;
     }
@@ -70,11 +77,15 @@ public class BackDodgeStateFSM : BaseState<EnemyState>
     // Called every frame while in the BackDodge state.
     public override void UpdateState()
     {
-        float elapsed = Time.time - enterTime;
-        if (elapsed < backDodgeDuration)
+        if (_enemy.isDodging)
         {
-            Vector3 stepBack = -_enemy.transform.forward * backDodgeSpeed * Time.deltaTime;
-            _enemy.transform.position += stepBack;
+            float elapsed = Time.time - enterTime;
+
+            if (elapsed < backDodgeDuration)
+            {
+                Vector3 stepBack = -_enemy.transform.forward * backDodgeSpeed * Time.deltaTime;
+                _enemy.transform.position += stepBack;
+            }
         }
     }
 

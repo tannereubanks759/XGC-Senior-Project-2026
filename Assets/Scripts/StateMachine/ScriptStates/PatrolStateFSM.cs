@@ -35,7 +35,7 @@ public class PatrolStateFSM : BaseState<EnemyState>
     // Sets animation, movement speed, and selects the first patrol target.
     public override void EnterState()
     {
-        Debug.Log("Entered Patrol State");
+        //Debug.Log("Entered Patrol State");
 
         // Trigger the patrol animation.
         _enemy.Animator.SetTrigger("Patrol");
@@ -74,7 +74,7 @@ public class PatrolStateFSM : BaseState<EnemyState>
     private void PickNewTarget()
     {
         _currentTarget = _patrolArea.GetRandomPoint();
-        Debug.Log("New Target: " + _currentTarget);
+        //Debug.Log("New Target: " + _currentTarget);
     }
 
     // Determines the next state based on current conditions.

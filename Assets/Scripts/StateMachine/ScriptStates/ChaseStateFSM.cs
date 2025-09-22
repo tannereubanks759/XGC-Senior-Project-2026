@@ -27,7 +27,7 @@ public class ChaseStateFSM : BaseState<EnemyState>
     // Called once when the enemy first enters the Chase state.
     public override void EnterState()
     {
-        Debug.Log("Entered Chase State");
+        //Debug.Log("Entered Chase State");
 
         // Trigger the chase animation.
         _enemy.Animator.SetTrigger("Chase");
@@ -39,7 +39,7 @@ public class ChaseStateFSM : BaseState<EnemyState>
     // Called once when the enemy leaves the Chase state.
     public override void ExitState()
     {
-        Debug.Log("Exiting Chase State");
+        //Debug.Log("Exiting Chase State");
 
         // Reset all animator triggers to prevent conflicts with the next state.
         _enemy.ResetTriggers();

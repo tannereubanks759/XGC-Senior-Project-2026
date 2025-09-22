@@ -34,7 +34,7 @@ public class HitStateFSM : BaseState<EnemyState>
     // Handles stopping movement, resetting attack states, and triggering the hit animation.
     public override void EnterState()
     {
-        Debug.Log("Entered Hit State");
+        //Debug.Log("Entered Hit State");
 
         // Stop movement so the enemy pauses during the hit reaction.
         _enemy.StopMoving();
@@ -56,7 +56,7 @@ public class HitStateFSM : BaseState<EnemyState>
     // Ensures the enemy can move again and resets animation triggers.
     public override void ExitState()
     {
-        Debug.Log("Exiting Hit State");
+        //Debug.Log("Exiting Hit State");
 
         // Reset any lingering animation triggers.
         _enemy.ResetTriggers();

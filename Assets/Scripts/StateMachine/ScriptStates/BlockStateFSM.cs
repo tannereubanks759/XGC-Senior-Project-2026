@@ -27,7 +27,7 @@ public class BlockStateFSM : BaseState<EnemyState>
     // Called once when entering the Block state.
     public override void EnterState()
     {
-        Debug.Log("Entered Block State");
+        //Debug.Log("Entered Block State");
 
         // Stop enemy movement and rotate to face the player.
         _enemy.StopMoving();
