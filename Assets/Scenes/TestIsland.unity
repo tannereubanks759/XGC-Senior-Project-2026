@@ -16880,7 +16880,7 @@ MonoBehaviour:
   terrain: {fileID: 1721343110}
   oceanLevelY: 0
   minHeightAboveSea: 1
-  minDistanceFromShore: 20
+  minDistanceFromShore: 40
   maxSlopeDegrees: 28
   forbiddenTriggers:
   - {fileID: 794018223}
@@ -17142,6 +17142,12 @@ MonoBehaviour:
   extraPathPoints:
   - {fileID: 509940967}
   extraPathPointObjects: []
+  rebuildNavMeshAfterSpawn: 1
+  navSurfaces:
+  - {fileID: 1904890783}
+  oceanRootsToToggle:
+  - {fileID: 1155084728}
+  autoFindOceanIfEmpty: 1
 --- !u!1 &1907343151
 GameObject:
   m_ObjectHideFlags: 0
