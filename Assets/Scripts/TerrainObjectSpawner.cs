@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
-using Unity.AI.Navigation;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 // using UnityEditor;
@@ -165,20 +164,6 @@ public class TerrainObjectSpawner : MonoBehaviour
     public Transform[] extraPathPoints;
     [Tooltip("You can also drop GameObjects here; their transforms are used.")]
     public GameObject[] extraPathPointObjects;
-
-    [Header("NavMesh Rebuild")]
-    [Tooltip("Rebuild the NavMesh after we finish spawning.")]
-    public bool rebuildNavMeshAfterSpawn = true;
-
-    [Tooltip("NavMeshSurface components to rebuild.")]
-    public NavMeshSurface[] navSurfaces;
-
-    [Tooltip("Ocean/Water roots to disable during navmesh bake (so they don't block it).")]
-    public GameObject[] oceanRootsToToggle;
-
-    // Optional: if none provided, try to auto-find by tag
-    [Tooltip("If true and oceanRootsToToggle is empty, try finding an object tagged 'Water' or 'Ocean'.")]
-    public bool autoFindOceanIfEmpty = true;
 
 
     // Backing refs
@@ -466,71 +451,12 @@ public class TerrainObjectSpawner : MonoBehaviour
         }
 
         Debug.Log(
-    $"[Spawner] Done.\n" +
-    $"Rejections — Ocean:{rejOcean}, Slope:{rejSlope}, Path:{rejPath}, PathPad:{rejPathPad}, Trees:{rejTree}, Spacing:{rejSpacing}, Overlap:{rejCollision}, OutBounds:{rejOutBounds}, NotGrass:{rejGrassLayer}"
-);
-
-        // Kick a navmesh rebuild now that objects are in place
-        if (rebuildNavMeshAfterSpawn) StartCoroutine(RebuildNavMeshAfterSpawn());
-
+            $"[Spawner] Done.\n" +
+            $"Rejections — Ocean:{rejOcean}, Slope:{rejSlope}, Path:{rejPath}, PathPad:{rejPathPad}, Trees:{rejTree}, Spacing:{rejSpacing}, Overlap:{rejCollision}, OutBounds:{rejOutBounds}, NotGrass:{rejGrassLayer}"
+        );
     }
 
     // ---------------- PATH PAINTING ----------------
-    System.Collections.IEnumerator RebuildNavMeshAfterSpawn()
-    {
-        // Ensure we have surfaces
-        if (navSurfaces == null || navSurfaces.Length == 0)
-        {
-            if (verboseLogs) Debug.LogWarning("[Spawner] No NavMeshSurface assigned; skipping navmesh rebuild.");
-            yield break;
-        }
-
-        // Resolve ocean roots
-        var oceans = ResolveOceanRoots();
-        // Turn ocean OFF
-        ToggleObjects(oceans, false);
-
-        // Give Unity a frame to actually disable renderers/colliders before baking
-        yield return null;
-
-        // Rebuild each surface (synchronous)
-        for (int i = 0; i < navSurfaces.Length; i++)
-        {
-            var s = navSurfaces[i];
-            if (!s) continue;
-
-            if (verboseLogs) Debug.Log($"[Spawner] Rebuilding NavMesh on '{s.name}'...");
-            s.BuildNavMesh();
-        }
-
-        // Turn ocean back ON
-        ToggleObjects(oceans, true);
-
-        if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuild complete. Ocean re-enabled.");
-    }
-
-    List<GameObject> ResolveOceanRoots()
-    {
-        var list = new List<GameObject>();
-        if (oceanRootsToToggle != null)
-            foreach (var go in oceanRootsToToggle)
-                if (go) list.Add(go);
-
-        if (list.Count == 0 && autoFindOceanIfEmpty)
-        {
-            var byWater = GameObject.FindGameObjectWithTag("Water");
-            if (byWater) list.Add(byWater);
-            var byOcean = GameObject.FindGameObjectWithTag("Ocean");
-            if (byOcean && !list.Contains(byOcean)) list.Add(byOcean);
-        }
-        return list;
-    }
-
-    void ToggleObjects(List<GameObject> objs, bool enabled)
-    {
-        if (objs == null) return;
-        foreach (var go in objs) if (go) go.SetActive(enabled);
-    }
 
     public void BakePathsFromChests()
     {
