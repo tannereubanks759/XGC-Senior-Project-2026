@@ -296,9 +296,13 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Damage and Death Methods
     // Apply damage to the enemy, factoring in blocking
+    
+
     public void TakeDamage(int damage)
     {
         int finalDamage = damage;
+        
+        
 
         if (isBlocking)
         {
@@ -362,8 +366,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 Debug.Log("Stagger");
                 Player.gameObject.GetComponentInChildren<CombatController>().GetStaggeredFrom(this.transform, 1f); //Stagger player if enemy gets hit while blocking
             }
-
-            int damage = 10; // Can be retrieved from sword component if needed
+            swordDamageDeterminer sd =other.GetComponent<swordDamageDeterminer>();
+            
+            int damage = sd.damage; // Can be retrieved from sword component if needed
             TakeDamage(damage);
 
             
