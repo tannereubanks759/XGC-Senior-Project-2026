@@ -366,8 +366,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 Debug.Log("Stagger");
                 Player.gameObject.GetComponentInChildren<CombatController>().GetStaggeredFrom(this.transform, 1f); //Stagger player if enemy gets hit while blocking
             }
-            swordDamageDeterminer sd =other.GetComponent<swordDamageDeterminer>();
-            
+            swordDamageDeterminer sd = other.transform.root.GetComponent<swordDamageDeterminer>();
+
             int damage = sd.damage; // Can be retrieved from sword component if needed
             TakeDamage(damage);
 
