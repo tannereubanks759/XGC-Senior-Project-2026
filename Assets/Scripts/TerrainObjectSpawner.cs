@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
-//using UnityEditor;
+// using UnityEditor;
 #endif
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
-[ExecuteAlways] // so context menu works in Edit mode too
+[ExecuteAlways]
+[DefaultExecutionOrder(+200)]
 public class TerrainObjectSpawner : MonoBehaviour
 {
     [Header("Scene References")]
@@ -74,6 +75,22 @@ public class TerrainObjectSpawner : MonoBehaviour
     [Tooltip("Optional minimal spacing among grass within the same pass only (does NOT consider trees or other passes). Set 0 to allow dense overlap.")]
     public float grassSelfSpacing = 0f;
 
+    [Header("Auto Path Bake From Chests")]
+    [Tooltip("If enabled, paints the PATH terrain layer around each chest anchor BEFORE spawning.")]
+    public bool autoBakePathsFromChests = true;
+    [Tooltip("Chest anchors to paint around (use the same array IslandSetup uses).")]
+    public Transform[] chestAnchors;
+    [Tooltip("Solid radius (meters) of the path around each chest.")]
+    public float chestPathRadius = 6f;
+    [Tooltip("Feather distance (meters) beyond the solid radius for a soft falloff.")]
+    public float chestPathFeather = 3f;
+    [Range(0f, 1f)]
+    [Tooltip("Max weight of the PATH layer at the center of each disc.")]
+    public float chestPathMaxWeight = 0.95f;
+
+    [Tooltip("When true, we set PATH weight to the max of current and painted weight (non-destructive). When false, we overwrite PATH weight where we paint.")]
+    public bool additivePathPaint = true;
+
     // Internals
     int pathLayerIndex = -1;
     int grassLayerIndex = -1;
@@ -94,6 +111,64 @@ public class TerrainObjectSpawner : MonoBehaviour
     public List<Collider> noSpawnVolumes = new List<Collider>();
     [Tooltip("Padding radius around the point when checking volumes.")]
     public float noSpawnVolumePadding = 0.25f;
+
+
+    [Header("Runtime Persistence")]
+    [Tooltip("Clone TerrainData in Play Mode so splat/height edits only affect the clone and revert on exit.")]
+    public bool cloneTerrainDataAtRuntime = true;
+
+    [Tooltip("Allow painting in Edit Mode (writes directly to the asset). Keep OFF to avoid accidental edits.")]
+    public bool allowEditModePainting = false;
+
+    [Header("Path Avoidance (footprint)")]
+    [Tooltip("World-space radius around the spawn point to ensure is NOT on path.")]
+    public float avoidPathFootprintRadius = 1.25f;   // tweak per prefab size
+    [Tooltip("How many concentric rings to sample (>=1). 1 = only edge ring.")]
+    [Min(1)] public int avoidPathSampleRings = 2;
+    [Tooltip("Samples placed around each ring (like a clock).")]
+    [Min(6)] public int avoidPathSamplesPerRing = 16;
+
+
+    [Header("Auto Path Network Between Chests")]
+    [Tooltip("Paint connections between chest anchors before object spawning.")]
+    public bool connectChestsWithPaths = true;
+
+    [Tooltip("How to connect chests.")]
+    public enum ChestConnectMode { AllPairs, NearestNeighbor, MST }
+    public ChestConnectMode chestConnectMode = ChestConnectMode.NearestNeighbor;
+
+    [Tooltip("Brush inner radius (m) for path strokes.")]
+    public float pathBrushRadius = 2.0f;
+    [Tooltip("Feather distance (m) outside brush radius.")]
+    public float pathBrushFeather = 2.0f;
+    [Range(0f, 1f)] public float pathBrushMaxWeight = 0.95f;
+
+    [Tooltip("Maximum allowed ground slope (deg) for the path search.")]
+    [Range(0f, 89f)] public float pathMaxSlopeDeg = 25f;
+
+    [Tooltip("If no route exists under current slope cap, relax it until a route is found.")]
+    public bool pathAutoRelaxSlope = true;
+    [Tooltip("Degrees to relax per attempt when no valid route is found.")]
+    [Range(1f, 20f)] public float pathRelaxStepDeg = 5f;
+    [Tooltip("Upper bound for relaxation.")]
+    [Range(0f, 89f)] public float pathRelaxMaxDeg = 60f;
+
+    [Tooltip("Grid resolution in meters used by the A* path search.")]
+    [Min(0.5f)] public float pathGridCellSize = 2f;
+
+    [Tooltip("How far (m) to expand the search bounds beyond chest AABB.")]
+    public float pathSearchPadding = 12f;
+
+    [Header("Extra Path Targets")]
+    [Tooltip("Extra points to connect into the path net (nearest chest).")]
+    public Transform[] extraPathPoints;
+    [Tooltip("You can also drop GameObjects here; their transforms are used.")]
+    public GameObject[] extraPathPointObjects;
+
+
+    // Backing refs
+    TerrainData originalTerrainData;   // asset reference
+    bool terrainDataIsRuntimeClone = false;
 
     void OnEnable()
     {
@@ -131,6 +206,27 @@ public class TerrainObjectSpawner : MonoBehaviour
             SpawnAllPasses();
         }
     }
+    void MaybeCloneTerrainDataForRuntime()
+    {
+        if (!Application.isPlaying || !cloneTerrainDataAtRuntime) return;
+        if (terrainDataIsRuntimeClone) return; // already cloned
+
+        // Keep a reference to the original asset
+        originalTerrainData = terrain.terrainData;
+
+        // Instantiate creates an in-memory duplicate (not saved as an asset)
+        var runtimeClone = Instantiate(originalTerrainData);
+        runtimeClone.name = originalTerrainData.name + " (RuntimeClone)";
+
+        // Assign to Terrain (and TerrainCollider so collisions stay correct)
+        terrain.terrainData = runtimeClone;
+        var tcol = terrain.GetComponent<TerrainCollider>();
+        if (tcol) tcol.terrainData = runtimeClone;
+
+        terrainDataIsRuntimeClone = true;
+
+        if (verboseLogs) Debug.Log($"[Spawner] Cloned TerrainData for runtime: {runtimeClone.name}");
+    }
 
     void EnsureSetup()
     {
@@ -140,12 +236,13 @@ public class TerrainObjectSpawner : MonoBehaviour
             Debug.LogWarning("[Spawner] No Terrain assigned/found. Assign the Terrain in the Inspector.");
             return;
         }
+        MaybeCloneTerrainDataForRuntime();
 
         tData = terrain.terrainData;
         tPos = terrain.transform.position;
         tSize = tData.size;
 
-        // Cache alphamaps
+        // Cache alphamaps AFTER any possible swap
         alphaW = tData.alphamapWidth;
         alphaH = tData.alphamapHeight;
         alphaMaps = tData.GetAlphamaps(0, 0, alphaW, alphaH);
@@ -189,17 +286,88 @@ public class TerrainObjectSpawner : MonoBehaviour
         {
             var col = noSpawnVolumes[i];
             if (!col) continue;
-            // If the closest point is within r, we consider it inside/too close
             Vector3 cp = col.ClosestPoint(pos);
             if ((cp - pos).sqrMagnitude <= r * r) return true;
         }
         return false;
     }
 
+    float LayerWeightAtBilinear(float worldX, float worldZ, int layerIndex)
+    {
+        if (layerIndex < 0) return 0f;
+        float tx = Mathf.InverseLerp(tPos.x, tPos.x + tSize.x, worldX) * (alphaW - 1);
+        float tz = Mathf.InverseLerp(tPos.z, tPos.z + tSize.z, worldZ) * (alphaH - 1);
+
+        int x0 = Mathf.Clamp(Mathf.FloorToInt(tx), 0, alphaW - 1);
+        int z0 = Mathf.Clamp(Mathf.FloorToInt(tz), 0, alphaH - 1);
+        int x1 = Mathf.Clamp(x0 + 1, 0, alphaW - 1);
+        int z1 = Mathf.Clamp(z0 + 1, 0, alphaH - 1);
+
+        float fx = tx - x0;
+        float fz = tz - z0;
+
+        float a = alphaMaps[z0, x0, layerIndex];
+        float b = alphaMaps[z0, x1, layerIndex];
+        float c = alphaMaps[z1, x0, layerIndex];
+        float d = alphaMaps[z1, x1, layerIndex];
+
+        float ab = Mathf.Lerp(a, b, fx);
+        float cd = Mathf.Lerp(c, d, fx);
+        return Mathf.Lerp(ab, cd, fz);
+    }
+
+    // area-based path test using rings + bilinear sampling
+    bool IsOnPathArea(float worldX, float worldZ)
+    {
+        if (pathLayerIndex < 0) return false;
+
+        // center check
+        if (LayerWeightAtBilinear(worldX, worldZ, pathLayerIndex) > pathWeightThreshold)
+            return true;
+
+        // padding ring (matches your TryPickValidLocation logic)
+        if (pathPadding > 0.01f && pathPaddingSampleRingPoints > 0)
+        {
+            float step = 360f / pathPaddingSampleRingPoints;
+            for (int i = 0; i < pathPaddingSampleRingPoints; i++)
+            {
+                float ang = step * i * Mathf.Deg2Rad;
+                float sx = worldX + Mathf.Cos(ang) * pathPadding;
+                float sz = worldZ + Mathf.Sin(ang) * pathPadding;
+                if (!InsideTerrainBounds(sx, sz)) continue;
+                if (LayerWeightAtBilinear(sx, sz, pathLayerIndex) > pathWeightThreshold)
+                    return true;
+            }
+        }
+
+        // footprint rings (keeps the mesh bounds off paths)
+        float R = Mathf.Max(0f, avoidPathFootprintRadius);
+        if (R <= 0f) return false;
+
+        int rings = Mathf.Max(1, avoidPathSampleRings);
+        int per = Mathf.Max(6, avoidPathSamplesPerRing);
+
+        for (int r = 1; r <= rings; r++)
+        {
+            float rad = (R * r) / rings;
+            for (int i = 0; i < per; i++)
+            {
+                float ang = (i / (float)per) * Mathf.PI * 2f;
+                float sx = worldX + Mathf.Cos(ang) * rad;
+                float sz = worldZ + Mathf.Sin(ang) * rad;
+                if (!InsideTerrainBounds(sx, sz)) continue;
+                if (LayerWeightAtBilinear(sx, sz, pathLayerIndex) > pathWeightThreshold)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
     void CacheTerrainTreePositions()
     {
         terrainTreeXZ.Clear();
-        spawnedTreeXZ.Clear(); // clear runtime-added trees
+        spawnedTreeXZ.Clear();
         globalSpacingXZ.Clear();
 
         if (tData == null) return;
@@ -213,7 +381,6 @@ public class TerrainObjectSpawner : MonoBehaviour
             );
             var p = new Vector2(world.x, world.z);
             terrainTreeXZ.Add(p);
-            // baked trees also contribute to global spacing
             if (minSpacingBetweenObjects > 0f) globalSpacingXZ.Add(p);
         }
     }
@@ -223,66 +390,239 @@ public class TerrainObjectSpawner : MonoBehaviour
     {
         if (!terrain || tData == null || alphaMaps == null) { Debug.LogError("[Spawner] Terrain/alphamaps not ready."); return; }
 
-        // Fresh counters (note: we keep baked-tree spacing in globalSpacingXZ)
+        // 0) *** FIRST: bake path layer from chest anchors (so spawns avoid it) ***
+        if (autoBakePathsFromChests)
+        {
+            BakePathsFromChests();
+        }
+
+        // Fresh counters
         rejOcean = rejSlope = rejPath = rejPathPad = rejTree = rejSpacing = rejCollision = rejOutBounds = rejGrassLayer = 0;
 
-        // PASS 1: TREES — only on grass layer; upright; contribute to tree set and global spacing
+        // PASS 1: TREES
         if (Len(treePrefabs) > 0 && treeCount > 0)
         {
             SpawnPass(
                 count: treeCount,
-                array: treePrefabs,                               // <-- fixed
+                array: treePrefabs,
                 requireLayerIndex: grassLayerIndex,
                 requireLayerThreshold: grassWeightThreshold,
-                alignToNormal: false,                             // trees upright
-                respectTreeClearance: true,                       // trees avoid other trees
-                useGlobalSpacingAgainstExisting: true,            // trees respect global spacing
-                contributeToGlobalSpacing: true,                  // trees block later objects
-                selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects), // trees vs trees
+                alignToNormal: false,
+                respectTreeClearance: true,
+                useGlobalSpacingAgainstExisting: true,
+                contributeToGlobalSpacing: true,
+                selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects),
                 onPlaced: (pos) => { spawnedTreeXZ.Add(new Vector2(pos.x, pos.z)); }
             );
         }
 
-
-        // PASS 2: GRASS — only on grass layer; align to normal; ignore tree clearance & global spacing
+        // PASS 2: GRASS
         if (Len(grassPrefabs) > 0 && grassCount > 0)
         {
             SpawnPass(
                 count: grassCount,
-                array: grassPrefabs,                 // <-- fixed
+                array: grassPrefabs,
                 requireLayerIndex: grassLayerIndex,
                 requireLayerThreshold: grassWeightThreshold,
-                alignToNormal: true,                 // grass tilts with ground
-                respectTreeClearance: false,         // allow touching trees
-                useGlobalSpacingAgainstExisting: false, // do not let global spacing block grass
-                contributeToGlobalSpacing: false,    // grass should not block objects
+                alignToNormal: true,
+                respectTreeClearance: false,
+                useGlobalSpacingAgainstExisting: false,
+                contributeToGlobalSpacing: false,
                 selfSpacingOverride: Mathf.Max(0f, grassSelfSpacing),
                 onPlaced: null
             );
         }
 
-        // PASS 3: OBJECTS — regular objects; avoid trees, paths, ocean, slope; respect global spacing
+        // PASS 3: OBJECTS
         if (Len(prefabs) > 0 && objectCount > 0)
         {
             SpawnPass(
                 count: objectCount,
-                array: prefabs,                      // <-- fixed
-                requireLayerIndex: -1,               // no grass-only requirement
+                array: prefabs,
+                requireLayerIndex: -1,
                 requireLayerThreshold: 0f,
                 alignToNormal: alignToGroundNormal,
-                respectTreeClearance: true,          // avoid trees (baked + spawned)
-                useGlobalSpacingAgainstExisting: true,   // avoid previously placed blockers (trees & objects)
-                contributeToGlobalSpacing: true,     // objects block further objects
+                respectTreeClearance: true,
+                useGlobalSpacingAgainstExisting: true,
+                contributeToGlobalSpacing: true,
                 selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects),
                 onPlaced: null
             );
         }
 
-
         Debug.Log(
             $"[Spawner] Done.\n" +
             $"Rejections — Ocean:{rejOcean}, Slope:{rejSlope}, Path:{rejPath}, PathPad:{rejPathPad}, Trees:{rejTree}, Spacing:{rejSpacing}, Overlap:{rejCollision}, OutBounds:{rejOutBounds}, NotGrass:{rejGrassLayer}"
         );
+    }
+
+    // ---------------- PATH PAINTING ----------------
+
+    public void BakePathsFromChests()
+    {
+        if (pathLayerIndex < 0)
+        {
+            if (verboseLogs) Debug.LogWarning("[Spawner] BakePathsFromChests: pathLayer is not assigned or not present on the Terrain.");
+            return;
+        }
+        if (chestAnchors == null || chestAnchors.Length == 0)
+        {
+            if (verboseLogs) Debug.LogWarning("[Spawner] BakePathsFromChests: no chestAnchors assigned.");
+            return;
+        }
+        if (tData == null || alphaMaps == null)
+        {
+            if (verboseLogs) Debug.LogWarning("[Spawner] BakePathsFromChests: alphamaps not ready.");
+            return;
+        }
+
+        // meters -> alphamap pixels
+        float pxPerMeterX = (alphaW - 1) / tSize.x;
+        float pxPerMeterZ = (alphaH - 1) / tSize.z;
+
+        int layers = tData.terrainLayers.Length;
+
+        int discsPainted = 0;
+        foreach (var anchor in chestAnchors)
+        {
+            if (!anchor) continue;
+
+            Vector3 c = anchor.position;
+            // Convert world to alpha indices
+            float tx = Mathf.InverseLerp(tPos.x, tPos.x + tSize.x, c.x);
+            float tz = Mathf.InverseLerp(tPos.z, tPos.z + tSize.z, c.z);
+            int cx = Mathf.Clamp(Mathf.RoundToInt(tx * (alphaW - 1)), 0, alphaW - 1);
+            int cz = Mathf.Clamp(Mathf.RoundToInt(tz * (alphaH - 1)), 0, alphaH - 1);
+
+            // Pixel radii
+            int rSolidX = Mathf.CeilToInt(chestPathRadius * pxPerMeterX);
+            int rSolidZ = Mathf.CeilToInt(chestPathRadius * pxPerMeterZ);
+            int rFeatherX = Mathf.CeilToInt((chestPathRadius + chestPathFeather) * pxPerMeterX);
+            int rFeatherZ = Mathf.CeilToInt((chestPathRadius + chestPathFeather) * pxPerMeterZ);
+
+            int minX = Mathf.Clamp(cx - rFeatherX, 0, alphaW - 1);
+            int maxX = Mathf.Clamp(cx + rFeatherX, 0, alphaW - 1);
+            int minZ = Mathf.Clamp(cz - rFeatherZ, 0, alphaH - 1);
+            int maxZ = Mathf.Clamp(cz + rFeatherZ, 0, alphaH - 1);
+
+            // Loop pixels in bounding box
+            for (int az = minZ; az <= maxZ; az++)
+            {
+                // Back to world Z of this alpha row
+                float wz = Mathf.Lerp(tPos.z, tPos.z + tSize.z, az / (float)(alphaH - 1));
+                float dzMetersZ = Mathf.Abs(wz - c.z);
+
+                for (int ax = minX; ax <= maxX; ax++)
+                {
+                    float wx = Mathf.Lerp(tPos.x, tPos.x + tSize.x, ax / (float)(alphaW - 1));
+                    float dxMetersX = Mathf.Abs(wx - c.x);
+
+                    // Elliptical distance using terrain scale in X/Z
+                    // Normalize so that chestPathRadius is the 1.0 threshold,
+                    // then feather to chestPathRadius + chestPathFeather.
+                    float dist = Mathf.Sqrt(
+                        (dxMetersX * dxMetersX) / (chestPathRadius * chestPathRadius + 1e-6f) +
+                        (dzMetersZ * dzMetersZ) / (chestPathRadius * chestPathRadius + 1e-6f)
+                    );
+
+                    float weightHere = 0f;
+                    if (dist <= 1f)
+                    {
+                        // Inside solid radius: full weight
+                        weightHere = chestPathMaxWeight;
+                    }
+                    else if (dist <= (chestPathRadius + chestPathFeather) / Mathf.Max(1e-6f, chestPathRadius))
+                    {
+                        // Feather: linear falloff to 0
+                        float dMeters = Mathf.Sqrt(dxMetersX * dxMetersX + dzMetersZ * dzMetersZ);
+                        float t = Mathf.InverseLerp(chestPathRadius + chestPathFeather, chestPathRadius, dMeters);
+                        weightHere = chestPathMaxWeight * Mathf.Clamp01(t);
+                    }
+                    else
+                    {
+                        continue; // outside influence
+                    }
+
+                    // Apply to path layer, then renormalize
+                    float oldPath = alphaMaps[az, ax, pathLayerIndex];
+                    float newPath = additivePathPaint ? Mathf.Max(oldPath, weightHere) : weightHere;
+
+                    // If no change, skip work
+                    if (Mathf.Approximately(newPath, oldPath)) continue;
+
+                    float totalOld = 0f;
+                    for (int li = 0; li < layers; li++) totalOld += alphaMaps[az, ax, li];
+                    if (totalOld <= 1e-5f) totalOld = 1f; // safety
+
+                    // Set path weight
+                    alphaMaps[az, ax, pathLayerIndex] = newPath;
+
+                    // Renormalize other layers to fill remaining 1 - newPath
+                    float sumOthersOld = totalOld - oldPath;
+                    float remain = Mathf.Clamp01(1f - newPath);
+
+                    if (sumOthersOld <= 1e-6f)
+                    {
+                        // Spread evenly among non-path layers
+                        float each = (layers > 1) ? remain / (layers - 1) : 0f;
+                        for (int li = 0; li < layers; li++)
+                            if (li != pathLayerIndex) alphaMaps[az, ax, li] = each;
+                    }
+                    else
+                    {
+                        // Scale proportionally
+                        for (int li = 0; li < layers; li++)
+                        {
+                            if (li == pathLayerIndex) continue;
+                            float old = alphaMaps[az, ax, li];
+                            alphaMaps[az, ax, li] = (old / sumOthersOld) * remain;
+                        }
+                    }
+                }
+            }
+
+            discsPainted++;
+        }
+
+        // ... inside BakePathsFromChests(), after all loops and discsPainted++ ...
+
+        // after discsPainted++, before SetAlphamaps
+        BakePathsBetweenChests();
+
+
+        // Push back to terrain
+        tData.SetAlphamaps(0, 0, alphaMaps);
+
+        // 🔄 Refresh cache so all path checks see the latest paint immediately
+        alphaMaps = tData.GetAlphamaps(0, 0, alphaW, alphaH);
+
+        if (verboseLogs)
+            Debug.Log($"[Spawner] BakePathsFromChests: Painted {discsPainted} chest path discs onto '{terrain.name}'.");
+
+
+    }
+
+    // ---------------- SPAWN PASSES (unchanged from your version, with minor wiring) ----------------
+    bool IsOnPath(float worldX, float worldZ)
+    {
+        if (pathLayerIndex < 0) return false;
+        float w = LayerWeightAt(worldX, worldZ, pathLayerIndex);
+        if (w > pathWeightThreshold) return true;
+
+        // Respect pathPadding ring exactly like TryPickValidLocation does
+        if (pathPadding > 0.01f && pathPaddingSampleRingPoints > 0)
+        {
+            float step = 360f / pathPaddingSampleRingPoints;
+            for (int i = 0; i < pathPaddingSampleRingPoints; i++)
+            {
+                float ang = step * i * Mathf.Deg2Rad;
+                float sx = worldX + Mathf.Cos(ang) * pathPadding;
+                float sz = worldZ + Mathf.Sin(ang) * pathPadding;
+                if (!InsideTerrainBounds(sx, sz)) continue;
+                if (LayerWeightAt(sx, sz, pathLayerIndex) > pathWeightThreshold) return true;
+            }
+        }
+        return false;
     }
 
     void SpawnPass(
@@ -302,7 +642,6 @@ public class TerrainObjectSpawner : MonoBehaviour
         int attempts = 0;
         int maxAttempts = Mathf.Max(1, count * maxAttemptsPerObject);
 
-        // spacing within THIS pass only (grass can use this to avoid itself a bit)
         List<Vector2> passPlacedXZ = new();
 
         while (placed < count && attempts < maxAttempts)
@@ -321,13 +660,14 @@ public class TerrainObjectSpawner : MonoBehaviour
                     out float y))
                 continue;
 
-            // Choose prefab & rotation
             GameObject prefab = array[Random.Range(0, array.Length)];
             Vector3 pos = new Vector3(x, y, z);
 
-            // Collision bubble (optional)
             if (collisionMask.value != 0 && Physics.CheckSphere(pos, collisionRadius, collisionMask, QueryTriggerInteraction.Ignore))
             { rejCollision++; continue; }
+
+            // Never spawn on/near paths (center, padding, and footprint rings)
+            if (IsOnPathArea(pos.x, pos.z)) { rejPath++; continue; }
 
             Quaternion rot;
             if (alignToNormal)
@@ -346,23 +686,24 @@ public class TerrainObjectSpawner : MonoBehaviour
                 rot = randomYRotation ? Quaternion.AngleAxis(Random.Range(0f, 360f), Vector3.up) : Quaternion.identity;
             }
 
-            // Instantiate
             Transform parent = parentForSpawned ? parentForSpawned : transform;
+
+            // Extra safety: never spawn on/near paths, even if something changed mid-frame
+            if (IsOnPath(pos.x, pos.z)) { rejPath++; continue; }
+
+
             var go = Instantiate(prefab, pos, rot, parent);
 
-            // Random uniform scale
             if (uniformScaleRange.x != 1f || uniformScaleRange.y != 1f)
             {
                 float s = Random.Range(uniformScaleRange.x, uniformScaleRange.y);
                 go.transform.localScale = new Vector3(s, s, s);
             }
 
-            // Record:
             passPlacedXZ.Add(new Vector2(x, z));
             if (contributeToGlobalSpacing && minSpacingBetweenObjects > 0f)
                 globalSpacingXZ.Add(new Vector2(x, z));
 
-            // If this pass is TREES, add to tree set so later passes respect minDistanceToTrees
             onPlaced?.Invoke(pos);
 
             placed++;
@@ -373,15 +714,15 @@ public class TerrainObjectSpawner : MonoBehaviour
     }
 
     bool TryPickValidLocation(
-    float x, float z,
-    int requireLayerIndex,
-    float requireLayerThreshold,
-    bool respectTreeClearance,
-    float globalSpacingDist,
-    float selfSpacingDist,
-    List<Vector2> passPlacedXZ,
-    out float yOut
-)
+        float x, float z,
+        int requireLayerIndex,
+        float requireLayerThreshold,
+        bool respectTreeClearance,
+        float globalSpacingDist,
+        float selfSpacingDist,
+        List<Vector2> passPlacedXZ,
+        out float yOut
+    )
     {
         yOut = 0f;
         if (!InsideTerrainBounds(x, z)) { rejOutBounds++; return false; }
@@ -426,14 +767,10 @@ public class TerrainObjectSpawner : MonoBehaviour
             }
         }
 
-        // >>> NO-SPAWN checks (FORTRESS etc.) — insert here <<<
-        // If you added the helpers IsOnNoSpawnLayer(...) and InsideNoSpawnVolume(...):
         if (InsideNoSpawnVolume(new Vector3(x, y, z))) { rejPath++; return false; }
-        // <<< end no-spawn checks >>>
 
         Vector2 p = new Vector2(x, z);
 
-        // Distance to trees (baked + newly spawned) — only if requested
         if (respectTreeClearance && minDistanceToTrees > 0.01f && (terrainTreeXZ.Count > 0 || spawnedTreeXZ.Count > 0))
         {
             float minTreeSqr = minDistanceToTrees * minDistanceToTrees;
@@ -443,7 +780,6 @@ public class TerrainObjectSpawner : MonoBehaviour
                 if ((spawnedTreeXZ[i] - p).sqrMagnitude < minTreeSqr) { rejTree++; return false; }
         }
 
-        // Global spacing against previously placed blockers (trees & objects only)
         if (globalSpacingDist > 0.01f && globalSpacingXZ.Count > 0)
         {
             float minSqr = globalSpacingDist * globalSpacingDist;
@@ -451,7 +787,6 @@ public class TerrainObjectSpawner : MonoBehaviour
                 if ((globalSpacingXZ[i] - p).sqrMagnitude < minSqr) { rejSpacing++; return false; }
         }
 
-        // Self spacing within current pass (e.g., for grass vs grass)
         if (selfSpacingDist > 0.01f && passPlacedXZ.Count > 0)
         {
             float minSqr = selfSpacingDist * selfSpacingDist;
@@ -462,7 +797,6 @@ public class TerrainObjectSpawner : MonoBehaviour
         yOut = y;
         return true;
     }
-
 
     Vector3 GetTerrainNormal(float worldX, float worldZ)
     {
@@ -487,36 +821,502 @@ public class TerrainObjectSpawner : MonoBehaviour
         int az = Mathf.Clamp(Mathf.RoundToInt(tz * (alphaH - 1)), 0, alphaH - 1);
         return alphaMaps[az, ax, layerIndex];
     }
-/*
-#if UNITY_EDITOR
-    [MenuItem("Tools/Terrain Spawner/Spawn All (Trees → Grass → Objects)", priority = 0)]
-    static void SpawnFromSelected()
+
+    struct GridBounds
     {
-        foreach (var obj in Selection.gameObjects)
+        public Vector3 min;   // world-space min (x,z used)
+        public Vector3 max;   // world-space max (x,z used)
+        public int nx, nz;    // grid dims
+    }
+    GridBounds MakeGridBoundsFromNetwork()
+    {
+        var bmin = new Vector3(float.PositiveInfinity, 0, float.PositiveInfinity);
+        var bmax = new Vector3(float.NegativeInfinity, 0, float.NegativeInfinity);
+
+        void Acc(Vector3 p)
         {
-            var sp = obj.GetComponent<TerrainObjectSpawner>();
-            if (sp != null)
+            bmin.x = Mathf.Min(bmin.x, p.x);
+            bmin.z = Mathf.Min(bmin.z, p.z);
+            bmax.x = Mathf.Max(bmax.x, p.x);
+            bmax.z = Mathf.Max(bmax.z, p.z);
+        }
+
+        // chests
+        if (chestAnchors != null)
+            foreach (var t in chestAnchors) if (t) Acc(t.position);
+
+        // extras (both arrays)
+        if (extraPathPoints != null)
+            foreach (var t in extraPathPoints) if (t) Acc(t.position);
+        if (extraPathPointObjects != null)
+            foreach (var go in extraPathPointObjects) if (go) Acc(go.transform.position);
+
+        // pad & clamp
+        bmin.x = Mathf.Max(tPos.x, bmin.x - pathSearchPadding);
+        bmin.z = Mathf.Max(tPos.z, bmin.z - pathSearchPadding);
+        bmax.x = Mathf.Min(tPos.x + tSize.x, bmax.x + pathSearchPadding);
+        bmax.z = Mathf.Min(tPos.z + tSize.z, bmax.z + pathSearchPadding);
+
+        int nx = Mathf.Max(2, Mathf.CeilToInt((bmax.x - bmin.x) / Mathf.Max(0.001f, pathGridCellSize)) + 1);
+        int nz = Mathf.Max(2, Mathf.CeilToInt((bmax.z - bmin.z) / Mathf.Max(0.001f, pathGridCellSize)) + 1);
+
+        return new GridBounds { min = bmin, max = bmax, nx = nx, nz = nz };
+    }
+
+
+    Vector3 GridToWorld(GridBounds gb, int gx, int gz)
+    {
+        float x = gb.min.x + gx * pathGridCellSize;
+        float z = gb.min.z + gz * pathGridCellSize;
+        float y = terrain.SampleHeight(new Vector3(x, 0, z)) + tPos.y;
+        return new Vector3(x, y, z);
+    }
+
+    void WorldToGrid(GridBounds gb, Vector3 w, out int gx, out int gz)
+    {
+        gx = Mathf.Clamp(Mathf.RoundToInt((w.x - gb.min.x) / pathGridCellSize), 0, gb.nx - 1);
+        gz = Mathf.Clamp(Mathf.RoundToInt((w.z - gb.min.z) / pathGridCellSize), 0, gb.nz - 1);
+    }
+
+    float SlopeAt(float worldX, float worldZ)
+    {
+        Vector3 n = tData.GetInterpolatedNormal(
+            Mathf.InverseLerp(tPos.x, tPos.x + tSize.x, worldX),
+            Mathf.InverseLerp(tPos.z, tPos.z + tSize.z, worldZ)
+        );
+        return Vector3.Angle(n, Vector3.up);
+    }
+
+    // paint a soft disc into path layer at world position
+    void PaintPathDisc(Vector3 c, float innerRadius, float feather, float maxWeight, bool additive)
+    {
+        if (pathLayerIndex < 0) return;
+
+        float pxPerMeterX = (alphaW - 1) / tSize.x;
+        float pxPerMeterZ = (alphaH - 1) / tSize.z;
+
+        int cx = Mathf.Clamp(Mathf.RoundToInt(Mathf.InverseLerp(tPos.x, tPos.x + tSize.x, c.x) * (alphaW - 1)), 0, alphaW - 1);
+        int cz = Mathf.Clamp(Mathf.RoundToInt(Mathf.InverseLerp(tPos.z, tPos.z + tSize.z, c.z) * (alphaH - 1)), 0, alphaH - 1);
+
+        int rFeatherX = Mathf.CeilToInt((innerRadius + feather) * pxPerMeterX);
+        int rFeatherZ = Mathf.CeilToInt((innerRadius + feather) * pxPerMeterZ);
+
+        int minX = Mathf.Clamp(cx - rFeatherX, 0, alphaW - 1);
+        int maxX = Mathf.Clamp(cx + rFeatherX, 0, alphaW - 1);
+        int minZ = Mathf.Clamp(cz - rFeatherZ, 0, alphaH - 1);
+        int maxZ = Mathf.Clamp(cz + rFeatherZ, 0, alphaH - 1);
+
+        int layers = tData.terrainLayers.Length;
+
+        for (int az = minZ; az <= maxZ; az++)
+        {
+            float wz = Mathf.Lerp(tPos.z, tPos.z + tSize.z, az / (float)(alphaH - 1));
+            float dz = Mathf.Abs(wz - c.z);
+            for (int ax = minX; ax <= maxX; ax++)
             {
-                Debug.Log($"[Spawner] Menu → spawning all passes from '{sp.name}'");
-                sp.SpawnAllPasses();
+                float wx = Mathf.Lerp(tPos.x, tPos.x + tSize.x, ax / (float)(alphaW - 1));
+                float dx = Mathf.Abs(wx - c.x);
+
+                float d = Mathf.Sqrt(dx * dx + dz * dz);
+
+                float w = 0f;
+                if (d <= innerRadius) w = maxWeight;
+                else if (d <= innerRadius + feather)
+                {
+                    float t = Mathf.InverseLerp(innerRadius + feather, innerRadius, d);
+                    w = maxWeight * t;
+                }
+                else continue;
+
+                float oldPath = alphaMaps[az, ax, pathLayerIndex];
+                float newPath = additive ? Mathf.Max(oldPath, w) : w;
+                if (Mathf.Approximately(newPath, oldPath)) continue;
+
+                // renormalize
+                float totalOld = 0f;
+                for (int li = 0; li < layers; li++) totalOld += alphaMaps[az, ax, li];
+                if (totalOld <= 1e-6f) totalOld = 1f;
+
+                alphaMaps[az, ax, pathLayerIndex] = newPath;
+
+                float sumOthersOld = totalOld - oldPath;
+                float remain = Mathf.Clamp01(1f - newPath);
+
+                if (sumOthersOld <= 1e-6f)
+                {
+                    float each = (layers > 1) ? remain / (layers - 1) : 0f;
+                    for (int li = 0; li < layers; li++)
+                        if (li != pathLayerIndex) alphaMaps[az, ax, li] = each;
+                }
+                else
+                {
+                    for (int li = 0; li < layers; li++)
+                    {
+                        if (li == pathLayerIndex) continue;
+                        float old = alphaMaps[az, ax, li];
+                        alphaMaps[az, ax, li] = (old / sumOthersOld) * remain;
+                    }
+                }
             }
         }
     }
-#endif
 
-#if UNITY_EDITOR
-    void OnDrawGizmosSelected()
+    // stroke a polyline with the path brush
+    void PaintPolyline(List<Vector3> pts)
     {
-        if (!terrain) return;
-        var data = terrain.terrainData;
-        var pos = terrain.transform.position;
-        Gizmos.color = new Color(0, 1, 0, 0.15f);
-        Gizmos.DrawCube(pos + data.size * 0.5f, data.size);
-
-        Gizmos.color = new Color(0, 0.5f, 1f, 0.2f);
-        Vector3 c = new Vector3(pos.x + data.size.x * 0.5f, oceanLevelY, pos.z + data.size.z * 0.5f);
-        Vector3 s = new Vector3(data.size.x, 0.02f, data.size.z);
-        Gizmos.DrawCube(c, s);
+        if (pts == null || pts.Count == 0) return;
+        float step = Mathf.Max(0.5f, pathGridCellSize * 0.5f);
+        for (int i = 0; i < pts.Count - 1; i++)
+        {
+            Vector3 a = pts[i], b = pts[i + 1];
+            float dist = Vector3.Distance(a, b);
+            int steps = Mathf.Max(1, Mathf.CeilToInt(dist / step));
+            for (int s = 0; s <= steps; s++)
+            {
+                Vector3 p = Vector3.Lerp(a, b, s / (float)steps);
+                PaintPathDisc(p, pathBrushRadius, pathBrushFeather, pathBrushMaxWeight, additivePathPaint);
+            }
+        }
     }
-#endif*/
+    void BakePathsBetweenChests()
+    {
+        if (!connectChestsWithPaths) return;
+        if (chestAnchors == null || chestAnchors.Length < 1) return;
+
+        // 1) Build node lists
+        List<Transform> chestNodes = new List<Transform>();
+        foreach (var t in chestAnchors) if (t) chestNodes.Add(t);
+        if (chestNodes.Count == 0) return;
+
+        List<Vector3> extraNodes = GetExtraPoints(); // can be empty
+
+        // 2) Initial edges among CHESTS according to mode (guarantees at least a spanning structure if MST)
+        List<(int a, int b, bool isChestChest)> chestEdges = new();
+
+        if (chestNodes.Count >= 2)
+        {
+            if (chestConnectMode == ChestConnectMode.AllPairs)
+            {
+                for (int i = 0; i < chestNodes.Count; i++)
+                    for (int j = i + 1; j < chestNodes.Count; j++)
+                        chestEdges.Add((i, j, true));
+            }
+            else if (chestConnectMode == ChestConnectMode.NearestNeighbor)
+            {
+                for (int i = 0; i < chestNodes.Count; i++)
+                {
+                    int bestJ = -1; float best = float.PositiveInfinity;
+                    for (int j = 0; j < chestNodes.Count; j++)
+                    {
+                        if (i == j) continue;
+                        float d = (chestNodes[i].position - chestNodes[j].position).sqrMagnitude;
+                        if (d < best) { best = d; bestJ = j; }
+                    }
+                    if (bestJ >= 0)
+                    {
+                        // avoid duplicates: only keep i<bestJ
+                        if (i < bestJ) chestEdges.Add((i, bestJ, true));
+                    }
+                }
+            }
+            else // MST (Prim) on chests
+            {
+                int n = chestNodes.Count;
+                bool[] inTree = new bool[n];
+                inTree[0] = true;
+                for (int k = 1; k < n; k++)
+                {
+                    float best = float.PositiveInfinity; int bi = -1, bj = -1;
+                    for (int i = 0; i < n; i++) if (inTree[i])
+                            for (int j = 0; j < n; j++) if (!inTree[j])
+                                {
+                                    float d = (chestNodes[i].position - chestNodes[j].position).sqrMagnitude;
+                                    if (d < best) { best = d; bi = i; bj = j; }
+                                }
+                    if (bi >= 0) { chestEdges.Add((bi, bj, true)); inTree[bj] = true; }
+                }
+            }
+        }
+
+        // 3) Edges from each EXTRA to its NEAREST CHEST (one edge each)
+        List<(int chestIndex, int extraIndex)> extraEdges = new();
+        for (int ei = 0; ei < extraNodes.Count; ei++)
+        {
+            int ci = NearestChestIndex(extraNodes[ei], chestNodes);
+            if (ci >= 0) extraEdges.Add((ci, ei));
+        }
+
+        // 4) Attempt to route and paint all planned edges; track which succeed
+        // Build a unified node index space: [0..C-1]=chests, [C..C+E-1]=extras
+        int C = chestNodes.Count, E = extraNodes.Count, N = C + E;
+        DSU dsu = new DSU(N);
+
+        int painted = 0, failed = 0;
+
+        // Try chest-chest
+        foreach (var e in chestEdges)
+        {
+            Vector3 a = chestNodes[e.a].position;
+            Vector3 b = chestNodes[e.b].position;
+            if (TryFindPathAutoRelax(a, b, out var route, out var used))
+            {
+                PaintPolyline(route);
+                painted++;
+                dsu.Union(e.a, e.b);
+                if (verboseLogs) Debug.Log($"[Spawner] Chest link {e.a}-{e.b} (≤{used:0.#}°) ok");
+            }
+            else { failed++; }
+        }
+
+        // Try extra->nearest chest
+        for (int k = 0; k < extraEdges.Count; k++)
+        {
+            int ci = extraEdges[k].chestIndex;
+            int ei = extraEdges[k].extraIndex;
+            Vector3 a = chestNodes[ci].position;
+            Vector3 b = extraNodes[ei];
+            if (TryFindPathAutoRelax(a, b, out var route, out var used))
+            {
+                PaintPolyline(route);
+                painted++;
+                dsu.Union(ci, C + ei);
+                if (verboseLogs) Debug.Log($"[Spawner] Extra {ei}→Chest {ci} (≤{used:0.#}°) ok");
+            }
+            else { failed++; }
+        }
+
+        // 5) If still not fully connected, auto-patch components by shortest pairwise bridges.
+        // Prefer bridging via CHESTS (more sensible roads); fall back to any nodes if needed.
+        if (dsu.CountRoots() > 1)
+        {
+            bool progress = true;
+            while (progress && dsu.CountRoots() > 1)
+            {
+                progress = false;
+                float best = float.PositiveInfinity;
+                int ai = -1, bi = -1; bool aIsExtra = false, bIsExtra = false;
+
+                // Try chest-chest shortest cross-component pair
+                for (int i = 0; i < C; i++)
+                    for (int j = i + 1; j < C; j++)
+                        if (dsu.Root(i) != dsu.Root(j))
+                        {
+                            float d = (chestNodes[i].position - chestNodes[j].position).sqrMagnitude;
+                            if (d < best) { best = d; ai = i; bi = j; aIsExtra = false; bIsExtra = false; }
+                        }
+
+                // If none found (degenerate cases), allow chest/extra or extra/extra bridging
+                if (ai < 0)
+                {
+                    // all nodes list
+                    System.Func<int, Vector3> NodePos = idx =>
+                        idx < C ? chestNodes[idx].position : extraNodes[idx - C];
+
+                    for (int i = 0; i < N; i++)
+                        for (int j = i + 1; j < N; j++)
+                            if (dsu.Root(i) != dsu.Root(j))
+                            {
+                                float d = (NodePos(i) - NodePos(j)).sqrMagnitude;
+                                if (d < best) { best = d; ai = i; bi = j; aIsExtra = i >= C; bIsExtra = j >= C; }
+                            }
+                }
+
+                if (ai >= 0)
+                {
+                    Vector3 a = (ai < C) ? chestNodes[ai].position : extraNodes[ai - C];
+                    Vector3 b = (bi < C) ? chestNodes[bi].position : extraNodes[bi - C];
+
+                    if (TryFindPathAutoRelax(a, b, out var route, out var used))
+                    {
+                        PaintPolyline(route);
+                        painted++;
+                        dsu.Union(ai, bi);
+                        progress = true;
+                        if (verboseLogs) Debug.Log($"[Spawner] Auto-bridged components ({ai}{(aIsExtra ? "*" : "")}↔{bi}{(bIsExtra ? "*" : "")}) (≤{used:0.#}°)");
+                    }
+                    else
+                    {
+                        // Couldn't bridge the closest pair; try next closest in next loop
+                        // (loop continues unless no progress made this pass)
+                    }
+                }
+            }
+        }
+
+        if (verboseLogs)
+            Debug.Log($"[Spawner] Chest network total: painted {painted}, failed {failed}, components now {dsu.CountRoots()}.");
+    }
+
+    // 8-connected neighbors
+    static readonly (int dx, int dz, float cost)[] NBRS = new (int, int, float)[]
+    {
+    (-1,  0, 1f), (1,  0, 1f), (0, -1, 1f), (0,  1, 1f),
+    (-1, -1, 1.4142f), (1, -1, 1.4142f), (-1, 1, 1.4142f), (1, 1, 1.4142f)
+    };
+
+    bool FindPathAStar(GridBounds gb, Vector3 startW, Vector3 goalW, float slopeLimitDeg, out List<Vector3> path)
+    {
+        path = null;
+        WorldToGrid(gb, startW, out int sx, out int sz);
+        WorldToGrid(gb, goalW, out int gx, out int gz);
+
+        int N = gb.nx * gb.nz;
+        float[] g = new float[N];
+        int[] came = new int[N];
+        bool[] closed = new bool[N];
+        for (int i = 0; i < N; i++) { g[i] = float.PositiveInfinity; came[i] = -1; closed[i] = false; }
+
+        int Idx(int x, int z) => z * gb.nx + x;
+
+        // heuristic: euclidean in grid cells
+        float Heu(int x, int z) => Vector2.Distance(new Vector2(x, z), new Vector2(gx, gz));
+
+        // walkable check by slope
+        bool Walkable(int x, int z)
+        {
+            Vector3 w = GridToWorld(gb, x, z);
+            if (w.y < oceanLevelY) return false;
+            float s = SlopeAt(w.x, w.z);
+            return s <= slopeLimitDeg;
+        }
+
+        // min-heap replacement: simple linear open list (ok for small grids)
+        List<int> open = new List<int>();
+        int sIdx = Idx(sx, sz);
+        g[sIdx] = 0f;
+        open.Add(sIdx);
+
+        while (open.Count > 0)
+        {
+            // pick node with lowest f = g + h
+            int bestI = 0;
+            float bestF = float.PositiveInfinity;
+            for (int i = 0; i < open.Count; i++)
+            {
+                int id = open[i];
+                int x = id % gb.nx, z = id / gb.nx;
+                float f = g[id] + Heu(x, z);
+                if (f < bestF) { bestF = f; bestI = i; }
+            }
+
+            int cur = open[bestI];
+            open.RemoveAt(bestI);
+            if (closed[cur]) continue;
+            closed[cur] = true;
+
+            int cx = cur % gb.nx, cz = cur / gb.nx;
+            if (cx == gx && cz == gz)
+            {
+                // reconstruct
+                List<Vector3> pts = new List<Vector3>();
+                int k = cur;
+                while (k != -1)
+                {
+                    int x = k % gb.nx, z = k / gb.nx;
+                    pts.Add(GridToWorld(gb, x, z));
+                    k = came[k];
+                }
+                pts.Reverse();
+                path = pts;
+                return true;
+            }
+
+            for (int n = 0; n < NBRS.Length; n++)
+            {
+                int nx = cx + NBRS[n].dx;
+                int nz = cz + NBRS[n].dz;
+                if (nx < 0 || nz < 0 || nx >= gb.nx || nz >= gb.nz) continue;
+
+                int nid = Idx(nx, nz);
+                if (closed[nid]) continue;
+                if (!Walkable(nx, nz)) continue;
+
+                float tentative = g[cur] + NBRS[n].cost;
+                if (tentative < g[nid])
+                {
+                    g[nid] = tentative;
+                    came[nid] = cur;
+                    if (!open.Contains(nid)) open.Add(nid);
+                }
+            }
+        }
+
+        return false; // no route
+    }
+
+    bool TryFindPathAutoRelax(Vector3 a, Vector3 b, out List<Vector3> pts, out float usedSlopeLimit)
+    {
+        float limit = pathMaxSlopeDeg;
+        pts = null;
+        usedSlopeLimit = limit;
+
+        GridBounds gb = MakeGridBoundsFromNetwork(); // bounds large enough for all pairs
+
+        while (true)
+        {
+            if (FindPathAStar(gb, a, b, limit, out pts))
+            {
+                usedSlopeLimit = limit;
+                return true;
+            }
+
+            if (!pathAutoRelaxSlope) return false;
+            if (limit >= pathRelaxMaxDeg) return false;
+
+            limit = Mathf.Min(limit + pathRelaxStepDeg, pathRelaxMaxDeg);
+            // loop and try again with a looser slope
+        }
+    }
+
+    // Union-Find (Disjoint Set) for connectivity checks
+    class DSU
+    {
+        int[] p; int[] r;
+        public DSU(int n) { p = new int[n]; r = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }
+
+        // keep the internal path-compressing find private
+        int Find(int x) => p[x] == x ? x : (p[x] = Find(p[x]));
+
+        // public accessor for comparisons outside this class
+        public int Root(int x) => Find(x);
+
+        public void Union(int a, int b)
+        {
+            a = Find(a); b = Find(b); if (a == b) return;
+            if (r[a] < r[b]) p[a] = b; else if (r[a] > r[b]) p[b] = a; else { p[b] = a; r[a]++; }
+        }
+
+        public int CountRoots()
+        {
+            var seen = new HashSet<int>();
+            for (int i = 0; i < p.Length; i++) seen.Add(Find(i));
+            return seen.Count;
+        }
+    }
+
+
+    // Gather extra points as world positions
+    List<Vector3> GetExtraPoints()
+    {
+        var list = new List<Vector3>();
+        if (extraPathPoints != null)
+            foreach (var t in extraPathPoints) if (t) list.Add(t.position);
+        if (extraPathPointObjects != null)
+            foreach (var go in extraPathPointObjects) if (go) list.Add(go.transform.position);
+        return list;
+    }
+
+    // Returns index of nearest chest to point p (world)
+    int NearestChestIndex(Vector3 p, List<Transform> chests)
+    {
+        int best = -1; float bestD = float.PositiveInfinity;
+        for (int i = 0; i < chests.Count; i++)
+        {
+            float d = (chests[i].position - p).sqrMagnitude;
+            if (d < bestD) { bestD = d; best = i; }
+        }
+        return best;
+    }
+
+
 }
