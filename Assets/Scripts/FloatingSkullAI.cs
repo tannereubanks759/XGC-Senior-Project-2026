@@ -45,6 +45,7 @@ public class FloatingSkullAI : MonoBehaviour
     public float impactExplodeRadius = 4.25f;
     public int impactDamage = 35;                  // Damage dealt on divebomb explosion
     public LayerMask damageTargets;                // Who should be damaged by the explosion (e.g., Player layer)
+    public LayerMask fireballDamageTargets;
 
     [Header("FX (optional)")]
     public GameObject explodeVFX;                  // Spawned on explode
@@ -79,6 +80,12 @@ public class FloatingSkullAI : MonoBehaviour
     [Header("Divebomb")]
     public float divebombFuse = 2.5f;   // seconds until auto-explode after dive starts
     float _divebombTimer;
+                      // for SmoothDamp on Y
+    [Range(0.03f, 0.35f)]
+    public float hoverSmoothTime = 0.12f;
+
+    
+    [Range(0f, 1f)] public float bankVelLerp = 0.2f;   // 0.2–0.35 feels good
 
 
     [Header("Debug")]
@@ -96,7 +103,8 @@ public class FloatingSkullAI : MonoBehaviour
     int _strafeDir = 1;  // +1 or -1 (left/right)
     Vector3 _prevPos;
     Vector3 _vel;
-
+    float _yVel;
+    Vector3 _velSmooth;
     Collider _col;
 
     void Reset()
@@ -125,10 +133,7 @@ public class FloatingSkullAI : MonoBehaviour
     {
         if (state == SkullState.Dead) return;
 
-        if (state != SkullState.Divebomb)
-            ClampAltitude();
-        // else: no altitude clamp while committing the dive
-
+        // 1) DO NOT clamp at the start; let the state move first
         switch (state)
         {
             case SkullState.Patrol: PatrolTick(); LookForPlayer(); break;
@@ -137,9 +142,17 @@ public class FloatingSkullAI : MonoBehaviour
             case SkullState.Divebomb: DivebombTick(); break;
         }
 
+        // 2) Now clamp altitude (skip during dive)
+        if (state != SkullState.Divebomb)
+            ClampAltitudeSmooth();   // <-- new method (below)
+
+        // 3) compute smoothed velocity for banking
         _vel = (transform.position - _prevPos) / Mathf.Max(Time.deltaTime, 1e-4f);
+        _velSmooth = Vector3.Lerp(_velSmooth, _vel, bankVelLerp);
+
         _prevPos = transform.position;
     }
+
 
 
     // ---------- STATE TICKS ----------
@@ -156,17 +169,19 @@ public class FloatingSkullAI : MonoBehaviour
     void ChaseTick()
     {
         if (!player) { state = SkullState.Patrol; return; }
-        FaceTowards(player.position, facePitchInChase, bankRollInChase);
 
         float dist = Vector3.Distance(transform.position, player.position);
         if (dist > loseAggroRange) { state = SkullState.Patrol; PickNewPatrolPoint(); return; }
+
         bool los = HasLineOfSight();
         if (los && dist <= attackRange) { state = SkullState.Attack; _fireCooldown = 0f; return; }
 
+        // This call will also do the facing; no extra FaceTowards() needed
         MoveTowards(player.position, los ? chaseSpeed : patrolSpeed, false, facePitchInChase, bankRollInChase);
 
         if (currentHealth <= divebombHealthThreshold) StartDivebomb();
     }
+
 
     void AttackTick()
     {
@@ -176,27 +191,31 @@ public class FloatingSkullAI : MonoBehaviour
         bool los = HasLineOfSight();
         if (!los || dist3D > attackRange + 1f) { state = SkullState.Chase; return; }
 
-        FaceTowards(player.position, facePitchInAttack, bankRollInAttack);
-
         float minDist = Mathf.Max(keepOutRadius, preferredAttackDistance - attackDistanceTolerance);
         float maxDist = preferredAttackDistance + attackDistanceTolerance;
 
         if (distXZ < minDist)
         {
             MoveAwayFromHorizontal(player.position,
-                       Mathf.Max(chaseSpeed * 0.5f, patrolSpeed),
-                       facePitchInAttack,
-                       bankRollInAttack);
-
+                                   Mathf.Max(chaseSpeed * 0.5f, patrolSpeed),
+                                   facePitchInAttack,
+                                   bankRollInAttack);
         }
         else if (distXZ > maxDist)
         {
-            MoveTowards(player.position, Mathf.Min(chaseSpeed * 0.6f, 4.5f), false, facePitchInAttack, bankRollInAttack); // close in a bit
+            // closes in AND faces via MoveTowards
+            MoveTowards(player.position,
+                        Mathf.Min(chaseSpeed * 0.6f, 4.5f),
+                        false,
+                        facePitchInAttack,
+                        bankRollInAttack);
         }
         else
         {
+            // inside band: strafe AND explicitly face the player
             Vector3 toPlayerFlat = Flat(player.position - transform.position);
             AttackStrafeTick(toPlayerFlat);
+            FaceTowards(player.position, facePitchInAttack, bankRollInAttack);
         }
 
         _fireCooldown -= Time.deltaTime;
@@ -204,6 +223,7 @@ public class FloatingSkullAI : MonoBehaviour
 
         if (currentHealth <= divebombHealthThreshold) StartDivebomb();
     }
+
 
     void DivebombTick()
     {
@@ -333,19 +353,17 @@ public class FloatingSkullAI : MonoBehaviour
         // Optional roll/bank based on lateral velocity
         if (allowBank)
         {
-            Vector3 lat = _vel; lat.y = 0f;
+            Vector3 lat = _velSmooth; lat.y = 0f;   // use smoothed vel
             float side = 0f;
             if (lat.sqrMagnitude > 1e-6f)
             {
-                // Positive when moving right relative to forward
-                Vector3 right = FaceTarget.right;
-                right.y = 0f; right.Normalize();
+                Vector3 right = FaceTarget.right; right.y = 0f; right.Normalize();
                 side = Vector3.Dot(lat.normalized, right);
             }
-            float targetRoll = -side * bankAmount; // lean into the turn
-                                                   // Apply roll on top of yaw/pitch
+            float targetRoll = -side * bankAmount;
             look = look * Quaternion.Euler(0f, 0f, targetRoll);
         }
+
 
         FaceTarget.rotation = Quaternion.Slerp(FaceTarget.rotation, look, turnSpeed * Time.deltaTime);
     }
@@ -357,21 +375,21 @@ public class FloatingSkullAI : MonoBehaviour
     }
 
 
-    void ClampAltitude()
+    void ClampAltitudeSmooth()
     {
-        float groundY = SampleGroundHeight(transform.position);
-        float currentAbove = transform.position.y - groundY;
+        // Cast from well above to avoid noise hitting small props
+        float groundY = SampleGroundHeight(transform.position + Vector3.up * 50f);
 
+        // Desired hover above ground, clamped to max
         float targetAbove = Mathf.Min(desiredHoverHeight, maxHeightAboveGround);
-        float clampedAbove = Mathf.Min(currentAbove, maxHeightAboveGround);
+        float targetY = groundY + Mathf.Clamp(targetAbove, 0.25f, maxHeightAboveGround);
 
-        // If above limit, bring down quickly; if below desired hover, rise gently
-        float newAbove = Mathf.MoveTowards(currentAbove, targetAbove, (currentAbove > targetAbove ? 12f : 4f) * Time.deltaTime);
-
-        Vector3 pos = transform.position;
-        pos.y = groundY + Mathf.Clamp(newAbove, 0.25f, maxHeightAboveGround);
-        transform.position = pos;
+        // SmoothDamp vertical only (prevents “sawing” jitter)
+        Vector3 p = transform.position;
+        p.y = Mathf.SmoothDamp(p.y, targetY, ref _yVel, hoverSmoothTime, Mathf.Infinity, Time.deltaTime);
+        transform.position = p;
     }
+
 
     float SampleGroundHeight(Vector3 from)
     {
@@ -403,7 +421,7 @@ public class FloatingSkullAI : MonoBehaviour
             proj.speed = fireballSpeed;
             proj.damage = 10;
             proj.lifeTime = 6f;
-            proj.hitLayers = damageTargets;
+            proj.hitLayers = fireballDamageTargets;
         }
 
         if (sfxSource && fireSFX) sfxSource.PlayOneShot(fireSFX);
@@ -519,27 +537,4 @@ public class FloatingSkullAI : MonoBehaviour
     }
 
 
-    // ---------- GIZMOS ----------
-    void OnDrawGizmosSelected()
-    {
-        if (!drawGizmos) return;
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(Application.isPlaying ? _spawnPos : transform.position, patrolRadius);
-
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, detectRange);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-
-        Gizmos.color = new Color(1f, 0.3f, 0f, 0.5f);
-        Gizmos.DrawWireSphere(transform.position, impactExplodeRadius);
-
-        // Visualize maxHeightAboveGround line
-        float groundY = Application.isPlaying ? SampleGroundHeight(transform.position) : transform.position.y - desiredHoverHeight;
-        Vector3 a = new Vector3(transform.position.x, groundY, transform.position.z);
-        Vector3 b = new Vector3(transform.position.x, groundY + maxHeightAboveGround, transform.position.z);
-        Gizmos.color = Color.white;
-        Gizmos.DrawLine(a, b);
-    }
 }
