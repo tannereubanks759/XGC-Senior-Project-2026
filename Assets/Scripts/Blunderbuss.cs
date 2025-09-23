@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -50,16 +50,23 @@ public class Blunderbuss : MonoBehaviour
         // Muzzle flash via pool (3s auto-return)
         if (fxPool && MuzzleFlashParticle)
             fxPool.Spawn(MuzzleFlashParticle, BulletPos.transform.position, BulletPos.transform.rotation, 3f);
-        else if (MuzzleFlashParticle) // fallback if pool not assigned
+        else if (MuzzleFlashParticle)
             Destroy(Instantiate(MuzzleFlashParticle, BulletPos.transform.position, BulletPos.transform.rotation), 3f);
 
         isLoaded = false;
         anim.SetBool("canShoot", false);
-        totalAmmo--;
 
+        if (totalAmmo > 0) totalAmmo--;
+
+        // ⚠ Using width/2 is usually better than anchoredPosition.x
+        // Keep your original if that’s intentional:
         bulletRadius = ret.GetComponent<RectTransform>().anchoredPosition.x / 10f;
 
-        var hitsByTarget = new Dictionary<GameObject, int>();
+        // Group by damageable component (prevents multi-collider dupes)
+        var skullHits = new Dictionary<FloatingSkullAI, int>();
+        var gruntHits = new Dictionary<GruntEnemyAI, int>();
+
+        int pelletsThatHitAnything = 0;
 
         for (int i = 0; i < PelletPerBullet; i++)
         {
@@ -70,56 +77,63 @@ public class Blunderbuss : MonoBehaviour
 
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layers))
             {
-                // Impact FX via pool (3s auto-return)
+                pelletsThatHitAnything++;
+
+                // Impact FX
                 if (fxPool && PelletHitEffect)
-                {
-                    fxPool.Spawn(
-                        PelletHitEffect,
-                        hit.point,
-                        Quaternion.FromToRotation(transform.up, hit.normal),
-                        3f
-                    );
-                }
-                else if (PelletHitEffect) // fallback if pool not assigned
-                {
+                    fxPool.Spawn(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal), 3f);
+                else if (PelletHitEffect)
                     Destroy(Instantiate(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal)), 3f);
-                }
 
-                GameObject targetGO = hit.rigidbody ? hit.rigidbody.gameObject : hit.transform.root.gameObject;
+                // Use collider's hierarchy, NOT root tag
+                Transform t = hit.collider.attachedRigidbody ? hit.collider.attachedRigidbody.transform : hit.transform;
 
-                if (targetGO.CompareTag("Enemy") || targetGO.CompareTag("Skull"))
+                // Prefer components over tags
+                var skull = t.GetComponentInParent<FloatingSkullAI>();
+                var grunt = t.GetComponentInParent<GruntEnemyAI>();
+
+                if (skull)
                 {
-                    if (hitsByTarget.TryGetValue(targetGO, out int count))
-                        hitsByTarget[targetGO] = count + 1;
-                    else
-                        hitsByTarget[targetGO] = 1;
+                    if (skullHits.TryGetValue(skull, out int c)) skullHits[skull] = c + 1;
+                    else skullHits[skull] = 1;
+                    // Debug
+                    Debug.Log($"Pellet hit SKULL: {skull.name} via {hit.collider.name}");
+                }
+                else if (grunt)
+                {
+                    if (gruntHits.TryGetValue(grunt, out int c)) gruntHits[grunt] = c + 1;
+                    else gruntHits[grunt] = 1;
+                    Debug.Log($"Pellet hit ENEMY: {grunt.name} via {hit.collider.name}");
+                }
+                else
+                {
+                    // Optional: Debug what we hit that isn’t damageable
+                    // Debug.Log($"Pellet hit non-damageable: {t.name} (layer {t.gameObject.layer})");
                 }
             }
         }
 
-        // Batch damage once per target
-        foreach (var kvp in hitsByTarget)
+        // Apply batched damage
+        foreach (var kvp in skullHits)
         {
-            GameObject target = kvp.Key;
-            int hits = kvp.Value;
-            int totalDamage = hits * DamagePerPellet;
-
-            if (target.CompareTag("Enemy"))
-            {
-                var grunt = target.GetComponentInParent<GruntEnemyAI>();
-                if (grunt != null) grunt.TakeDamage(totalDamage);
-            }
-            else if (target.CompareTag("Skull"))
-            {
-                var skull = target.GetComponentInParent<FloatingSkullAI>();
-                if (skull != null) skull.ApplyDamage(totalDamage);
-            }
+            int totalDamage = kvp.Value * DamagePerPellet;
+            // Your FloatingSkullAI.ApplyDamage must be public
+            kvp.Key.ApplyDamage(totalDamage);
+            Debug.Log($"Applied {totalDamage} dmg to SKULL {kvp.Key.name} (pellets {kvp.Value})");
         }
 
-        // Scale recoil by # of pellets connected (caps at 4)
+        foreach (var kvp in gruntHits)
+        {
+            int totalDamage = kvp.Value * DamagePerPellet;
+            kvp.Key.TakeDamage(totalDamage);
+            Debug.Log($"Applied {totalDamage} dmg to ENEMY {kvp.Key.name} (pellets {kvp.Value})");
+        }
+
+        // Scale recoil by pellets connected (caps at 4)
         if (wIntertia)
-            wIntertia.FireRecoil(Mathf.Clamp(hitsByTarget.Sum(kv => kv.Value), 1, 4));
+            wIntertia.FireRecoil(Mathf.Clamp(pelletsThatHitAnything, 1, 4));
     }
+
 
     void SetLoaded()
     {
@@ -127,7 +141,7 @@ public class Blunderbuss : MonoBehaviour
         anim.SetBool("canShoot", true);
     }
 
-    // (Optional) still using instantiate/destroy � consider pooling this too later.
+    // (Optional) still using instantiate/destroy — consider pooling this too later.
     void ShowShotLine(Vector3 start, Vector3 end)
     {
         GameObject lineObj = new GameObject("ShotTracer");

@@ -18,6 +18,10 @@ public class interactScript : MonoBehaviour
     public ChestScript chest;
     public objectIdentifier objIdentifierRef;
     private infoscript infoScriptRef;
+    private GameObject DungeonKey;
+    public bool treasureRoomUnlocked = false;
+    private GameObject dungeonDoor;
+    private GameObject dungeonLock;
     void Start()
     {
         interactText = GameObject.Find("interactText");
@@ -57,6 +61,22 @@ public class interactScript : MonoBehaviour
             chestInteract = true;   
             
         }
+        else if (other.CompareTag("DungeonKey"))
+        {
+            interactText.SetActive(true);
+            DungeonKey = other.gameObject;
+        }
+        else if (other.CompareTag("DungeonLock"))
+        {
+            if (interactText != null)
+                interactText.SetActive(true);
+            dungeonLock = other.gameObject;
+        }
+        if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
+        {
+            interactText.SetActive(true);
+            dungeonDoor = other.gameObject;
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -65,7 +85,6 @@ public class interactScript : MonoBehaviour
         {
             //currentArtifact = null;
             //currentArtifactObj = null;
-            interactText.SetActive(false);
             canInteract = false;
             Debug.Log("Left artifact");
         }
@@ -73,42 +92,73 @@ public class interactScript : MonoBehaviour
         {
             keyInteract = false;
             keyobj = null;
-            interactText.SetActive(false);
-            
         }
         else if (other.CompareTag("Chest"))
         {
-            
-            interactText.SetActive(false);
             chestInteract = false;
         }
+        else if (other.CompareTag("DungeonKey"))
+        {
+            DungeonKey = null;
+        }
+        else if (other.CompareTag("DungeonLock"))
+        {
+            dungeonLock = null;
+        }
+        if (other.CompareTag("DungeonDoor"))
+        {
+            dungeonDoor = null;
+        }
+        interactText.SetActive(false);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E) && canInteract && currentArtifact != null)
+        if (Input.GetKeyDown(KeyCode.E))
         {
+            if (canInteract && currentArtifact != null)
+            {
+
+                inventoryScript.addToInventory(currentArtifact, currentArtifactObj);
+                //Destroy(currentArtifactObj);
+                //Debug.Log("Added to inventory: " + currentArtifact.itemName);
+                //objIdentifierRef.updateInfo(currentArtifact);
+                
+                inventoryScript.toggleInv();
+                canInteract = false;
+            }
+            else if (keyInteract)
+            {
+                Destroy(keyobj);
+                infoScriptRef.keyCount++;
+                keyInteract = false;
+            }
+            else if (chestInteract)
+            {
+                chestInteract = false;
+                chest.chestOpen();
+            }
+            else if (dungeonLock != null)
+            {
+                GameObject.FindAnyObjectByType<TreasureRoomLockKey>().Unlock();
+                dungeonLock = null;
+            }
+            else if(DungeonKey != null)
+            {
+                DungeonKey.GetComponentInParent<TreasureRoomLockKey>().PickupKey();
+                DungeonKey = null;
+            }
+            else if(dungeonDoor != null && treasureRoomUnlocked)
+            {
+                Debug.Log("Open Door");
+                //put door open animator here
+                dungeonDoor.GetComponentInParent<Animator>().SetBool("DoorOpen", true);
+                dungeonDoor = null;
+            }
             
-            inventoryScript.addToInventory(currentArtifact, currentArtifactObj);
-            //Destroy(currentArtifactObj);
-            //Debug.Log("Added to inventory: " + currentArtifact.itemName);
-            //objIdentifierRef.updateInfo(currentArtifact);
-            interactText.SetActive(false);
-            inventoryScript.toggleInv();
-            canInteract = false;
-        }
-        else if (Input.GetKeyDown(KeyCode.E) && keyInteract) 
-        {
-            Destroy(keyobj);
-            infoScriptRef.keyCount++;
-            interactText.SetActive(false);
-            keyInteract = false;
-        }
-        else if (Input.GetKeyDown(KeyCode.E) && chestInteract)
-        {   
-            interactText.SetActive(false);
-            chestInteract = false;
-            chest.chestOpen();
+
+                interactText.SetActive(false);
+
         }
     }
 }
