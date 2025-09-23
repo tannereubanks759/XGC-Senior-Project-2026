@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using Unity.AI.Navigation; // <-- Add this
 
 #if UNITY_EDITOR
-//using UnityEditor;
+// using UnityEditor;
 #endif
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
@@ -11,6 +13,21 @@ public class TerrainObjectSpawner : MonoBehaviour
 {
     [Header("Scene References")]
     public Terrain terrain;
+
+    // ===== NEW: Ocean / NavMesh Settings =====
+    [Header("NavMesh Rebuild")]
+    [Tooltip("Disable these objects before baking so they don't block the NavMesh (e.g., your ocean/water).")]
+    public List<GameObject> waterObjects = new List<GameObject>();
+
+    [Tooltip("NavMesh surfaces to rebuild. If empty, the script will auto-find all NavMeshSurface components in the scene.")]
+    public List<NavMeshSurface> navSurfaces = new List<NavMeshSurface>();
+
+    [Tooltip("After SpawnAllPasses(), automatically rebuild NavMesh with ocean disabled.")]
+    public bool rebuildNavMeshAfterSpawn = true;
+
+    [Tooltip("Frames to wait in Play Mode after toggling water before rebuilding (lets Unity register active-state changes).")]
+    [Min(0)] public int playmodeDelayFrames = 1;
+    // =========================================
 
     [Header("Object Arrays (3 passes)")]
     public GameObject[] treePrefabs;   // pass 1 (upright, on Grass layer)
@@ -157,6 +174,15 @@ public class TerrainObjectSpawner : MonoBehaviour
         // Cache baked terrain tree XZ
         CacheTerrainTreePositions();
 
+        // ===== NEW: Auto-find NavMeshSurface if none assigned =====
+        if (navSurfaces == null || navSurfaces.Count == 0)
+        {
+            var found = FindObjectsByType<NavMeshSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (found != null && found.Length > 0)
+                navSurfaces.AddRange(found);
+        }
+        // ==========================================================
+
         if (verboseLogs)
         {
             Debug.Log(
@@ -166,7 +192,8 @@ public class TerrainObjectSpawner : MonoBehaviour
                 $"  PathLayer: {(pathLayer ? pathLayer.name : "null")} idx={pathLayerIndex} thr={pathWeightThreshold}\n" +
                 $"  GrassLayer: {(grassLayer ? grassLayer.name : "null")} idx={grassLayerIndex} thr={grassWeightThreshold}\n" +
                 $"  Baked Trees: {terrainTreeXZ.Count}  AlphaMap: {alphaW}x{alphaH}\n" +
-                $"  OceanY={oceanLevelY}  Slope? {enforceSlope}<= {maxSlopeDegrees}°  TreeDist={minDistanceToTrees}  GlobalSpacing={minSpacingBetweenObjects}"
+                $"  OceanY={oceanLevelY}  Slope? {enforceSlope}<= {maxSlopeDegrees}°  TreeDist={minDistanceToTrees}  GlobalSpacing={minSpacingBetweenObjects}\n" +
+                $"  NavSurfaces: {navSurfaces.Count}  WaterObjs: {waterObjects.Count}"
             );
         }
     }
@@ -179,21 +206,6 @@ public class TerrainObjectSpawner : MonoBehaviour
         for (int i = 0; i < layers.Length; i++)
             if (layers[i] == layer) return i;
         return -1;
-    }
-
-    bool InsideNoSpawnVolume(Vector3 pos)
-    {
-        if (noSpawnVolumes == null || noSpawnVolumes.Count == 0) return false;
-        float r = Mathf.Max(0f, noSpawnVolumePadding);
-        for (int i = 0; i < noSpawnVolumes.Count; i++)
-        {
-            var col = noSpawnVolumes[i];
-            if (!col) continue;
-            // If the closest point is within r, we consider it inside/too close
-            Vector3 cp = col.ClosestPoint(pos);
-            if ((cp - pos).sqrMagnitude <= r * r) return true;
-        }
-        return false;
     }
 
     void CacheTerrainTreePositions()
@@ -223,67 +235,149 @@ public class TerrainObjectSpawner : MonoBehaviour
     {
         if (!terrain || tData == null || alphaMaps == null) { Debug.LogError("[Spawner] Terrain/alphamaps not ready."); return; }
 
-        // Fresh counters (note: we keep baked-tree spacing in globalSpacingXZ)
+        // Fresh counters
         rejOcean = rejSlope = rejPath = rejPathPad = rejTree = rejSpacing = rejCollision = rejOutBounds = rejGrassLayer = 0;
 
-        // PASS 1: TREES — only on grass layer; upright; contribute to tree set and global spacing
+        // PASS 1: TREES
         if (Len(treePrefabs) > 0 && treeCount > 0)
         {
             SpawnPass(
                 count: treeCount,
-                array: treePrefabs,                               // <-- fixed
+                array: treePrefabs,
                 requireLayerIndex: grassLayerIndex,
                 requireLayerThreshold: grassWeightThreshold,
-                alignToNormal: false,                             // trees upright
-                respectTreeClearance: true,                       // trees avoid other trees
-                useGlobalSpacingAgainstExisting: true,            // trees respect global spacing
-                contributeToGlobalSpacing: true,                  // trees block later objects
-                selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects), // trees vs trees
+                alignToNormal: false,
+                respectTreeClearance: true,
+                useGlobalSpacingAgainstExisting: true,
+                contributeToGlobalSpacing: true,
+                selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects),
                 onPlaced: (pos) => { spawnedTreeXZ.Add(new Vector2(pos.x, pos.z)); }
             );
         }
 
-
-        // PASS 2: GRASS — only on grass layer; align to normal; ignore tree clearance & global spacing
+        // PASS 2: GRASS
         if (Len(grassPrefabs) > 0 && grassCount > 0)
         {
             SpawnPass(
                 count: grassCount,
-                array: grassPrefabs,                 // <-- fixed
+                array: grassPrefabs,
                 requireLayerIndex: grassLayerIndex,
                 requireLayerThreshold: grassWeightThreshold,
-                alignToNormal: true,                 // grass tilts with ground
-                respectTreeClearance: false,         // allow touching trees
-                useGlobalSpacingAgainstExisting: false, // do not let global spacing block grass
-                contributeToGlobalSpacing: false,    // grass should not block objects
+                alignToNormal: true,
+                respectTreeClearance: false,
+                useGlobalSpacingAgainstExisting: false,
+                contributeToGlobalSpacing: false,
                 selfSpacingOverride: Mathf.Max(0f, grassSelfSpacing),
                 onPlaced: null
             );
         }
 
-        // PASS 3: OBJECTS — regular objects; avoid trees, paths, ocean, slope; respect global spacing
+        // PASS 3: OBJECTS
         if (Len(prefabs) > 0 && objectCount > 0)
         {
             SpawnPass(
                 count: objectCount,
-                array: prefabs,                      // <-- fixed
-                requireLayerIndex: -1,               // no grass-only requirement
+                array: prefabs,
+                requireLayerIndex: -1,
                 requireLayerThreshold: 0f,
                 alignToNormal: alignToGroundNormal,
-                respectTreeClearance: true,          // avoid trees (baked + spawned)
-                useGlobalSpacingAgainstExisting: true,   // avoid previously placed blockers (trees & objects)
-                contributeToGlobalSpacing: true,     // objects block further objects
+                respectTreeClearance: true,
+                useGlobalSpacingAgainstExisting: true,
+                contributeToGlobalSpacing: true,
                 selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects),
                 onPlaced: null
             );
         }
 
-
         Debug.Log(
             $"[Spawner] Done.\n" +
             $"Rejections — Ocean:{rejOcean}, Slope:{rejSlope}, Path:{rejPath}, PathPad:{rejPathPad}, Trees:{rejTree}, Spacing:{rejSpacing}, Overlap:{rejCollision}, OutBounds:{rejOutBounds}, NotGrass:{rejGrassLayer}"
         );
+
+        // ===== NEW: Rebuild NavMesh with water toggled =====
+        if (rebuildNavMeshAfterSpawn)
+            RebuildNavMeshWithWaterToggle();
+        // ===================================================
     }
+
+    // ===== NEW: Public/context-menu entry points =====
+    [ContextMenu("Rebuild NavMesh (disable water)")]
+    public void RebuildNavMeshWithWaterToggle()
+    {
+        if (Application.isPlaying)
+        {
+            // In Play Mode use a short coroutine so SetActive takes effect before baking
+            StartCoroutine(RebuildNavMeshRoutine());
+        }
+        else
+        {
+            // In Edit Mode we do it synchronously
+            ToggleWater(false);
+            BuildAllSurfaces();
+            ToggleWater(true);
+            if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuilt (Edit Mode) with water disabled then re-enabled.");
+        }
+    }
+
+    IEnumerator RebuildNavMeshRoutine()
+    {
+        ToggleWater(false);
+
+        // Wait a few frames to ensure the deactivations propagate through culling/scene state
+        for (int i = 0; i < Mathf.Max(0, playmodeDelayFrames); i++)
+            yield return null;
+
+        BuildAllSurfaces();
+
+        // (Optional) one frame after bake before re-enabling; usually not required
+        yield return null;
+
+        ToggleWater(true);
+
+        if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuilt (Play Mode) with water disabled then re-enabled.");
+    }
+    // ================================================
+
+    // ===== NEW: Helpers =====
+    void ToggleWater(bool enabled)
+    {
+        if (waterObjects == null) return;
+
+        for (int i = 0; i < waterObjects.Count; i++)
+        {
+            var go = waterObjects[i];
+            if (!go) continue;
+            if (go.activeSelf != enabled) go.SetActive(enabled);
+        }
+    }
+
+    void BuildAllSurfaces()
+    {
+        // Auto-find if list empty or contains nulls
+        if (navSurfaces == null) navSurfaces = new List<NavMeshSurface>();
+        if (navSurfaces.Count == 0)
+        {
+            var found = FindObjectsByType<NavMeshSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (found != null && found.Length > 0) navSurfaces.AddRange(found);
+        }
+
+        int built = 0;
+        for (int i = 0; i < navSurfaces.Count; i++)
+        {
+            var s = navSurfaces[i];
+            if (!s) continue;
+            // Optional: ensure old data is cleared
+            s.RemoveData();
+            s.BuildNavMesh();
+            built++;
+        }
+
+        if (verboseLogs) Debug.Log($"[Spawner] Rebuilt {built} NavMeshSurface(s).");
+    }
+    // ========================
+
+    // ... (the rest of your existing code stays exactly the same below)
+    // TryPickValidLocation, SpawnPass, GetTerrainNormal, etc.
 
     void SpawnPass(
         int count,
@@ -370,6 +464,24 @@ public class TerrainObjectSpawner : MonoBehaviour
 
         if (verboseLogs)
             Debug.Log($"[Spawner] Pass done: placed {placed}/{count} for array '{(array.Length > 0 ? array[0].name : "empty")}' with attempts={attempts}.");
+    }
+    // Put this inside TerrainObjectSpawner (e.g., under ResolveLayerIndex)
+    bool InsideNoSpawnVolume(Vector3 pos)
+    {
+        if (noSpawnVolumes == null || noSpawnVolumes.Count == 0) return false;
+
+        float r = Mathf.Max(0f, noSpawnVolumePadding);
+        for (int i = 0; i < noSpawnVolumes.Count; i++)
+        {
+            var col = noSpawnVolumes[i];
+            if (!col) continue;
+
+            // If the closest point on the collider is within r of 'pos', we treat it as inside/too close
+            Vector3 cp = col.ClosestPoint(pos);
+            if ((cp - pos).sqrMagnitude <= r * r)
+                return true;
+        }
+        return false;
     }
 
     bool TryPickValidLocation(
