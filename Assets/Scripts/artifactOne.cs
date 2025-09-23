@@ -6,10 +6,13 @@ public class artifactOne : ItemData
     public override void OnEquip(GameObject player)
     {
         //base.OnEquip();
-         FirstPersonController playercontrollerRef;
+        FirstPersonController playercontrollerRef;
         playercontrollerRef = player.GetComponent<FirstPersonController>();
         playercontrollerRef.jumpPower = 15;
-         Debug.Log("Applied artifact1 stuff");
+        Debug.Log("Applied artifact1 stuff");
+        inventoryScript invScript;
+        invScript = player.GetComponentInChildren<inventoryScript>();
+        invScript.toggleInv();
     }
     public override void OnUnEquip(GameObject player)
     {

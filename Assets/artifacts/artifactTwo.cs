@@ -9,6 +9,9 @@ public class artifactTwo : ItemData
         playercontrollerRef = player.GetComponent<FirstPersonController>();
         playercontrollerRef.walkSpeed = 10;
         Debug.Log("Applied artifact2 stuff");
+        inventoryScript invScript;
+        invScript= player.GetComponentInChildren<inventoryScript>();
+        invScript.toggleInv();
     }
     public override void OnUnEquip(GameObject player)
     {

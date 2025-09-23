@@ -16877,22 +16877,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d2f4ea6098d5df44b0c80fdcbc5ccf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terrain: {fileID: 1721343110}
-  oceanLevelY: 0
-  minHeightAboveSea: 1
-  minDistanceFromShore: 40
-  maxSlopeDegrees: 28
-  forbiddenTriggers:
-  - {fileID: 794018223}
-  - {fileID: 652001159}
-  triggerPadding: 1
-  randomizeChestAnchors: 1
-  chestPlacementRadius: 10
-  maxAnchorAttempts: 50
-  minChestSeparation: 100
-  maxChestPlacementAttempts: 100
-  usableChests:
-  - {fileID: 7980346966883234540, guid: df5ab5122ac7ab147beb48013a300529, type: 3}
+  commonChestObjects: []
+  rareChestObjects: []
+  epicChestObjects: []
   chestLocations:
   - {fileID: 451929764}
   - {fileID: 1263536119}
@@ -16909,6 +16896,9 @@ MonoBehaviour:
   - {fileID: 1127636431640097158, guid: 73b4291918c22d74c84ea5e1dafa015e, type: 3}
   spawnRadius: 10
   enemiesPerChest: 5
+  common: 0
+  rare: 0
+  epic: 0
 --- !u!114 &1904890783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17106,16 +17096,6 @@ MonoBehaviour:
   alignToGroundNormal: 1
   normalAlignStrength: 1
   grassSelfSpacing: 0
-  autoBakePathsFromChests: 1
-  chestAnchors:
-  - {fileID: 451929764}
-  - {fileID: 1263536119}
-  - {fileID: 2088405117}
-  - {fileID: 923439208}
-  chestPathRadius: 15
-  chestPathFeather: 3
-  chestPathMaxWeight: 0.95
-  additivePathPaint: 1
   noSpawnVolumes:
   - {fileID: 339012972}
   - {fileID: 1834219179}
@@ -17123,31 +17103,6 @@ MonoBehaviour:
   - {fileID: 1747322968}
   - {fileID: 287113315}
   noSpawnVolumePadding: 0.25
-  cloneTerrainDataAtRuntime: 1
-  allowEditModePainting: 0
-  avoidPathFootprintRadius: 1.25
-  avoidPathSampleRings: 2
-  avoidPathSamplesPerRing: 16
-  connectChestsWithPaths: 1
-  chestConnectMode: 1
-  pathBrushRadius: 4
-  pathBrushFeather: 2
-  pathBrushMaxWeight: 0.95
-  pathMaxSlopeDeg: 25
-  pathAutoRelaxSlope: 1
-  pathRelaxStepDeg: 5
-  pathRelaxMaxDeg: 60
-  pathGridCellSize: 2
-  pathSearchPadding: 12
-  extraPathPoints:
-  - {fileID: 509940967}
-  extraPathPointObjects: []
-  rebuildNavMeshAfterSpawn: 1
-  navSurfaces:
-  - {fileID: 1904890783}
-  oceanRootsToToggle:
-  - {fileID: 1155084728}
-  autoFindOceanIfEmpty: 1
 --- !u!1 &1907343151
 GameObject:
   m_ObjectHideFlags: 0

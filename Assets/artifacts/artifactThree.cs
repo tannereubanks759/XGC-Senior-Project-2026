@@ -10,6 +10,9 @@ public class artifactThree : ItemData
         playercontrollerRef = player.GetComponent<FirstPersonController>();
         playercontrollerRef.unlimitedSprint = true;
         Debug.Log("Applied artifact3 stuff");
+        inventoryScript invScript;
+        invScript = player.GetComponentInChildren<inventoryScript>();
+        invScript.toggleInv();
     }
     public override void OnUnEquip(GameObject player)
     {
