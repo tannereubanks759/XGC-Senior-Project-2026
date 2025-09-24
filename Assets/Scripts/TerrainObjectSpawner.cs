@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.AI.Navigation; // <-- Add this
+using Unity.AI.Navigation; 
 
 #if UNITY_EDITOR
-// using UnityEditor;
 #endif
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
@@ -376,8 +375,6 @@ public class TerrainObjectSpawner : MonoBehaviour
     }
     // ========================
 
-    // ... (the rest of your existing code stays exactly the same below)
-    // TryPickValidLocation, SpawnPass, GetTerrainNormal, etc.
 
     void SpawnPass(
         int count,
@@ -465,7 +462,6 @@ public class TerrainObjectSpawner : MonoBehaviour
         if (verboseLogs)
             Debug.Log($"[Spawner] Pass done: placed {placed}/{count} for array '{(array.Length > 0 ? array[0].name : "empty")}' with attempts={attempts}.");
     }
-    // Put this inside TerrainObjectSpawner (e.g., under ResolveLayerIndex)
     bool InsideNoSpawnVolume(Vector3 pos)
     {
         if (noSpawnVolumes == null || noSpawnVolumes.Count == 0) return false;
@@ -476,7 +472,7 @@ public class TerrainObjectSpawner : MonoBehaviour
             var col = noSpawnVolumes[i];
             if (!col) continue;
 
-            // If the closest point on the collider is within r of 'pos', we treat it as inside/too close
+            // If the closest point on the collider is within r of 'pos', treat it as inside/too close
             Vector3 cp = col.ClosestPoint(pos);
             if ((cp - pos).sqrMagnitude <= r * r)
                 return true;
@@ -539,7 +535,6 @@ public class TerrainObjectSpawner : MonoBehaviour
         }
 
         // >>> NO-SPAWN checks (FORTRESS etc.) — insert here <<<
-        // If you added the helpers IsOnNoSpawnLayer(...) and InsideNoSpawnVolume(...):
         if (InsideNoSpawnVolume(new Vector3(x, y, z))) { rejPath++; return false; }
         // <<< end no-spawn checks >>>
 
