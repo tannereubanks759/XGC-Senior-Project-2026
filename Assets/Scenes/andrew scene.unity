@@ -11592,6 +11592,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1845550575}
     m_Modifications:
+    - target: {fileID: 413549431304303101, guid: 1083f87f08232f541942f4a22a00127e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.42
+      objectReference: {fileID: 0}
     - target: {fileID: 6200720779110778461, guid: 1083f87f08232f541942f4a22a00127e, type: 3}
       propertyPath: m_LocalPosition.x
       value: 96.219986
@@ -11636,6 +11640,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Animated PBR Chest _Wood_Demo
       objectReference: {fileID: 0}
+    - target: {fileID: 8215167109282911254, guid: 1083f87f08232f541942f4a22a00127e, type: 3}
+      propertyPath: center
+      value: 
+      objectReference: {fileID: 1500608897}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -12289,6 +12297,11 @@ Transform:
   - {fileID: 1275605763}
   m_Father: {fileID: 1878530394}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1500608897 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6200720779110778457, guid: 1083f87f08232f541942f4a22a00127e, type: 3}
+  m_PrefabInstance: {fileID: 1458277508}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1510569670
 PrefabInstance:
   m_ObjectHideFlags: 0
