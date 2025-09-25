@@ -19,6 +19,7 @@ public class SkullFireball : MonoBehaviour
     Rigidbody _rb;
     float _radius;
 
+    public AudioClip[] impactSFX;
     void Awake()
     {
         _rb = GetComponent<Rigidbody>();
@@ -34,6 +35,7 @@ public class SkullFireball : MonoBehaviour
 
     void Start()
     {
+
         Destroy(gameObject, lifeTime);
     }
 
@@ -63,6 +65,7 @@ public class SkullFireball : MonoBehaviour
 
     void HandleHit(Collider other)
     {
+        
         // Player
         if (other.CompareTag("Player"))
         {
@@ -96,7 +99,14 @@ public class SkullFireball : MonoBehaviour
 
     void SpawnVFXAndDestroy()
     {
-        if (hitVFX) Destroy(Instantiate(hitVFX, transform.position, Quaternion.identity), 3f);
+        if (hitVFX)
+        {
+            GameObject vfx = Instantiate(hitVFX, transform.position, Quaternion.identity);
+            AudioSource vfxAudio = vfx.GetComponent<AudioSource>();
+            vfxAudio.clip = impactSFX[Random.Range(0, impactSFX.Length)];
+            vfxAudio.Play();
+            Destroy(vfx, 3f);
+        }
         Destroy(gameObject);
     }
 }

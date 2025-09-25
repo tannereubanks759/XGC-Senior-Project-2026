@@ -7,35 +7,35 @@ public class FloatingSkullAI : MonoBehaviour
     public enum SkullState { Patrol, Chase, Attack, Divebomb, Dead }
 
     [Header("Refs")]
-    public Transform player;                       // If null, will try to FindWithTag("Player") on Start
-    public Transform firePoint;                    // Where fireballs spawn (front of the skull)
-    public GameObject fireballPrefab;              // Your fireball prefab
+    public Transform player;
+    public Transform firePoint;
+    public GameObject fireballPrefab;
 
     [Header("Ranges")]
-    public float patrolRadius = 12f;               // Max wander distance from spawn
-    public float detectRange = 18f;                // Begin chasing if within this range AND in LOS
-    public float attackRange = 10f;                // Stop and shoot when within this range AND in LOS
-    public float loseAggroRange = 24f;             // If player gets beyond this, return to patrol (unless divebombing)
+    public float patrolRadius = 12f;
+    public float detectRange = 18f;
+    public float attackRange = 10f;
+    public float loseAggroRange = 24f;
 
     [Header("Speeds")]
     public float patrolSpeed = 3f;
     public float chaseSpeed = 6.5f;
     public float divebombSpeed = 13f;
-    public float turnSpeed = 10f;                  // How fast we rotate to face movement / player
+    public float turnSpeed = 10f;
 
     [Header("Altitude")]
-    public float maxHeightAboveGround = 6f;        // Clamp skull to stay <= this above ground
-    public float desiredHoverHeight = 3.5f;        // Typical cruising altitude above ground
-    public LayerMask groundMask = ~0;              // Which layers count as "ground" for altitude raycast
+    public float maxHeightAboveGround = 6f;
+    public float desiredHoverHeight = 3.5f;
+    public LayerMask groundMask = ~0;
 
     [Header("Line of Sight")]
-    public LayerMask obstacleMask;                 // Obstacles that block vision (e.g., Default + Environment)
-    public float eyeOffset = 0.5f;                 // Raise ray origin slightly from center
+    public LayerMask obstacleMask;
+    public float eyeOffset = 0.5f;
 
     [Header("Attack")]
-    public float fireRate = 0.8f;                  // Shots per second while in Attack
-    public float fireballSpeed = 18f;              // Passed into projectile script
-    public float fireSpreadDegrees = 1.5f;         // Tiny inaccuracy for flavour
+    public float fireRate = 0.8f;
+    public float fireballSpeed = 18f;
+    public float fireSpreadDegrees = 1.5f;
 
     [Header("Health / Divebomb")]
     public int maxHealth = 60;
@@ -43,50 +43,56 @@ public class FloatingSkullAI : MonoBehaviour
     [Tooltip("When health <= this value, the skull commits to a divebomb on the player's current position.")]
     public int divebombHealthThreshold = 15;
     public float impactExplodeRadius = 4.25f;
-    public int impactDamage = 35;                  // Damage dealt on divebomb explosion
-    public LayerMask damageTargets;                // Who should be damaged by the explosion (e.g., Player layer)
+    public int impactDamage = 35;
+    public LayerMask damageTargets;
     public LayerMask fireballDamageTargets;
 
     [Header("FX (optional)")]
-    public GameObject explodeVFX;                  // Spawned on explode
+    public GameObject explodeVFX;
+
+    [Tooltip("One-shots & non-looping SFX (fires, hurt, death, explode). If null, one is added.")]
     public AudioSource sfxSource;
-    public AudioClip fireSFX;
-    public AudioClip explodeSFX;
+    [Tooltip("Looping propulsion/idle source. If null, one is added and set to 3D loop.")]
+    public AudioSource loopSource;
+
+    [Header("SFX Clips")]
+    public AudioClip fireSFX;       // each fireball
+    public AudioClip explodeSFX;    // divebomb impact only
+    public AudioClip deathSFX;      // normal death (non-divebomb)
+    public AudioClip hurtSFX;       // non-lethal damage
+    public AudioClip idleLoopSFX;   // propulsion loop (3D, looping)
+
+    [Header("Idle Loop Tuning")]
+    [Range(0.1f, 3f)] public float idleBasePitch = 1.0f;
+    [Range(0f, 2f)] public float chasePitchBoost = 0.12f;
+    [Range(0f, 2f)] public float attackPitchBoost = 0.18f;
+    [Range(0f, 2f)] public float divePitchBoost = 0.35f;
+    [Range(0.01f, 2f)] public float idlePitchLerp = 6f; // higher = snappier
 
     [Header("Attack Positioning")]
-    [Tooltip("Where the skull tries to hover while firing.")]
     public float preferredAttackDistance = 8f;
-
-    [Tooltip("How much wiggle room around the preferred distance.")]
-    public float attackDistanceTolerance = 1.0f;     // hover band: [pref - tol, pref + tol]
-
-    [Tooltip("Never get closer than this while attacking.")]
+    public float attackDistanceTolerance = 1.0f;
     public float keepOutRadius = 3f;
-
-    [Tooltip("Optional strafing while holding distance.")]
     public bool enableAttackStrafe = true;
     public float attackStrafeSpeed = 2.5f;
-    public Vector2 strafeDirFlipInterval = new Vector2(1.8f, 3.2f); // randomize cadence a bit
+    public Vector2 strafeDirFlipInterval = new Vector2(1.8f, 3.2f);
 
     [Header("Facing / Banking")]
-    public Transform modelTransform;          // Optional: rotate only the visible model
+    public Transform modelTransform;
     public bool facePitchInChase = true;
     public bool facePitchInAttack = true;
     public bool bankRollInChase = true;
     public bool bankRollInAttack = true;
-    [Range(0f, 45f)] public float bankAmount = 12f;     // degrees of roll when strafing/moving
-    public float bankSmoothing = 12f;                   // higher = snappier
+    [Range(0f, 45f)] public float bankAmount = 12f;
+    public float bankSmoothing = 12f;
 
     [Header("Divebomb")]
-    public float divebombFuse = 2.5f;   // seconds until auto-explode after dive starts
+    public float divebombFuse = 2.5f;
     float _divebombTimer;
-                      // for SmoothDamp on Y
+
     [Range(0.03f, 0.35f)]
     public float hoverSmoothTime = 0.12f;
-
-    
-    [Range(0f, 1f)] public float bankVelLerp = 0.2f;   // 0.2–0.35 feels good
-
+    [Range(0f, 1f)] public float bankVelLerp = 0.2f;
 
     [Header("Debug")]
     public SkullState state = SkullState.Patrol;
@@ -96,20 +102,19 @@ public class FloatingSkullAI : MonoBehaviour
     Vector3 _spawnPos;
     Vector3 _patrolTarget;
     float _fireCooldown;
-    Vector3 _diveLockedTarget;     // The position we lock onto at dive start
+    Vector3 _diveLockedTarget;
     bool _hasDiveTarget;
-    // --- Private (add with other privates) ---
     float _strafeTimer;
-    int _strafeDir = 1;  // +1 or -1 (left/right)
+    int _strafeDir = 1;
     Vector3 _prevPos;
     Vector3 _vel;
     float _yVel;
     Vector3 _velSmooth;
     Collider _col;
+    float _targetIdlePitch;
 
     void Reset()
     {
-        // Make the skull a trigger so it can "ghost" through while flying and still detect divebomb impact.
         var c = GetComponent<Collider>();
         c.isTrigger = true;
     }
@@ -118,6 +123,34 @@ public class FloatingSkullAI : MonoBehaviour
     {
         _col = GetComponent<Collider>();
         _col.isTrigger = true;
+
+        // Ensure audio sources exist & are configured
+        if (!sfxSource)
+        {
+            sfxSource = gameObject.AddComponent<AudioSource>();
+            sfxSource.playOnAwake = false;
+            sfxSource.spatialBlend = 1f;
+            sfxSource.rolloffMode = AudioRolloffMode.Linear;
+            sfxSource.minDistance = 2f;
+            sfxSource.maxDistance = 20f;
+        }
+        if (!loopSource)
+        {
+            loopSource = gameObject.AddComponent<AudioSource>();
+            loopSource.playOnAwake = false;
+            loopSource.loop = true;
+            loopSource.spatialBlend = 1f;
+            loopSource.rolloffMode = AudioRolloffMode.Linear;
+            loopSource.minDistance = 2f;
+            loopSource.maxDistance = 25f;
+        }
+        if (idleLoopSFX)
+        {
+            loopSource.clip = idleLoopSFX;
+            loopSource.pitch = idleBasePitch;
+            loopSource.volume = 1f;
+            loopSource.Play();
+        }
 
         _spawnPos = transform.position;
         PickNewPatrolPoint();
@@ -133,7 +166,6 @@ public class FloatingSkullAI : MonoBehaviour
     {
         if (state == SkullState.Dead) return;
 
-        // 1) DO NOT clamp at the start; let the state move first
         switch (state)
         {
             case SkullState.Patrol: PatrolTick(); LookForPlayer(); break;
@@ -142,27 +174,28 @@ public class FloatingSkullAI : MonoBehaviour
             case SkullState.Divebomb: DivebombTick(); break;
         }
 
-        // 2) Now clamp altitude (skip during dive)
         if (state != SkullState.Divebomb)
-            ClampAltitudeSmooth();   // <-- new method (below)
+            ClampAltitudeSmooth();
 
-        // 3) compute smoothed velocity for banking
         _vel = (transform.position - _prevPos) / Mathf.Max(Time.deltaTime, 1e-4f);
         _velSmooth = Vector3.Lerp(_velSmooth, _vel, bankVelLerp);
-
         _prevPos = transform.position;
+
+        // --- Idle loop pitch target by state ---
+        _targetIdlePitch = idleBasePitch;
+        if (state == SkullState.Chase) _targetIdlePitch += chasePitchBoost;
+        if (state == SkullState.Attack) _targetIdlePitch += attackPitchBoost;
+        if (state == SkullState.Divebomb) _targetIdlePitch += divePitchBoost;
+
+        if (loopSource && loopSource.isPlaying)
+            loopSource.pitch = Mathf.Lerp(loopSource.pitch, _targetIdlePitch, Time.deltaTime * idlePitchLerp);
     }
 
-
-
     // ---------- STATE TICKS ----------
-
     void PatrolTick()
     {
         MoveTowards(_patrolTarget, patrolSpeed);
-
-        float dist = Vector3.Distance(transform.position, _patrolTarget);
-        if (dist < 1.0f)
+        if (Vector3.Distance(transform.position, _patrolTarget) < 1.0f)
             PickNewPatrolPoint();
     }
 
@@ -176,12 +209,9 @@ public class FloatingSkullAI : MonoBehaviour
         bool los = HasLineOfSight();
         if (los && dist <= attackRange) { state = SkullState.Attack; _fireCooldown = 0f; return; }
 
-        // This call will also do the facing; no extra FaceTowards() needed
         MoveTowards(player.position, los ? chaseSpeed : patrolSpeed, false, facePitchInChase, bankRollInChase);
-
         if (currentHealth <= divebombHealthThreshold) StartDivebomb();
     }
-
 
     void AttackTick()
     {
@@ -196,23 +226,14 @@ public class FloatingSkullAI : MonoBehaviour
 
         if (distXZ < minDist)
         {
-            MoveAwayFromHorizontal(player.position,
-                                   Mathf.Max(chaseSpeed * 0.5f, patrolSpeed),
-                                   facePitchInAttack,
-                                   bankRollInAttack);
+            MoveAwayFromHorizontal(player.position, Mathf.Max(chaseSpeed * 0.5f, patrolSpeed), facePitchInAttack, bankRollInAttack);
         }
         else if (distXZ > maxDist)
         {
-            // closes in AND faces via MoveTowards
-            MoveTowards(player.position,
-                        Mathf.Min(chaseSpeed * 0.6f, 4.5f),
-                        false,
-                        facePitchInAttack,
-                        bankRollInAttack);
+            MoveTowards(player.position, Mathf.Min(chaseSpeed * 0.6f, 4.5f), false, facePitchInAttack, bankRollInAttack);
         }
         else
         {
-            // inside band: strafe AND explicitly face the player
             Vector3 toPlayerFlat = Flat(player.position - transform.position);
             AttackStrafeTick(toPlayerFlat);
             FaceTowards(player.position, facePitchInAttack, bankRollInAttack);
@@ -224,51 +245,38 @@ public class FloatingSkullAI : MonoBehaviour
         if (currentHealth <= divebombHealthThreshold) StartDivebomb();
     }
 
-
     void DivebombTick()
     {
         if (!_hasDiveTarget) { _diveLockedTarget = transform.position; _hasDiveTarget = true; }
-
-        // move straight to the locked point (3D)
         MoveTowards(_diveLockedTarget, divebombSpeed, true, true, false);
 
-        // explode if close enough
         if ((transform.position - _diveLockedTarget).sqrMagnitude < 0.35f * 0.35f)
         {
-            Explode();
+            ExplodeImpact();
             return;
         }
 
-        // or explode when the fuse runs out
         _divebombTimer -= Time.deltaTime;
         if (_divebombTimer <= 0f)
         {
-            Explode();
+            ExplodeImpact();
             return;
         }
     }
 
-
-
     // ---------- ACTIONS ----------
-
     void PickNewPatrolPoint()
     {
-        // Pick a random point on a disc around spawn, then set altitude to ground + desiredHoverHeight
         Vector2 rnd = Random.insideUnitCircle * patrolRadius;
         Vector3 candidate = _spawnPos + new Vector3(rnd.x, 0f, rnd.y);
-
-        // Set target height to desired hover at that horizontal location
         float groundY = SampleGroundHeight(candidate + Vector3.up * 50f);
         candidate.y = groundY + Mathf.Min(desiredHoverHeight, maxHeightAboveGround);
-
         _patrolTarget = candidate;
     }
 
     bool HasLineOfSight()
     {
         if (!player) return false;
-
         Vector3 origin = transform.position + Vector3.up * eyeOffset;
         Vector3 target = player.position + Vector3.up * 0.5f;
         Vector3 dir = target - origin;
@@ -276,38 +284,28 @@ public class FloatingSkullAI : MonoBehaviour
         if (dist < 0.001f) return true;
 
         if (Physics.Raycast(origin, dir.normalized, out RaycastHit hit, dist, obstacleMask, QueryTriggerInteraction.Ignore))
-        {
-            // Blocked by something
             return false;
-        }
+
         return true;
     }
 
     void LookForPlayer()
     {
         if (!player) return;
-
         float dist = Vector3.Distance(transform.position, player.position);
-
-        // If the player is within detection range AND we have line of sight, start chasing
         if (dist <= detectRange && HasLineOfSight())
         {
             state = SkullState.Chase;
             return;
         }
-
-        // Optional: if we're hurt while patrolling, commit to divebomb
         if (currentHealth <= divebombHealthThreshold)
             StartDivebomb();
     }
 
-    void MoveTowards(Vector3 target, float speed, bool faceExactly = false,
-                 bool allowPitch = true, bool allowBank = false)
+    void MoveTowards(Vector3 target, float speed, bool faceExactly = false, bool allowPitch = true, bool allowBank = false)
     {
         Vector3 pos = transform.position;
         Vector3 t = target;
-
-        // If not in divebomb (faceExactly==false), move only horizontally.
         if (!faceExactly) t.y = pos.y;
 
         Vector3 to = t - pos;
@@ -320,13 +318,11 @@ public class FloatingSkullAI : MonoBehaviour
         FaceDirection(faceDir, allowPitch, allowBank);
     }
 
-
-
     void HoldPositionNear(Vector3 target, float maxNudgeSpeed)
     {
         Vector3 delta = target - transform.position;
         float d = delta.magnitude;
-        if (d > 2.5f) // gently close in if we drift out while attacking
+        if (d > 2.5f)
         {
             Vector3 step = Vector3.ClampMagnitude(delta, maxNudgeSpeed * Time.deltaTime);
             transform.position += step;
@@ -339,21 +335,18 @@ public class FloatingSkullAI : MonoBehaviour
     {
         if (dirWorld.sqrMagnitude < 1e-6f) return;
 
-        // Desired look rotation (with pitch if allowed)
         Vector3 up = Vector3.up;
         Quaternion look = Quaternion.LookRotation(dirWorld.normalized, up);
 
         if (!allowPitch)
         {
-            // Extract yaw only: project forward onto XZ to remove pitch
             Vector3 f = dirWorld; f.y = 0f;
             if (f.sqrMagnitude > 1e-6f) look = Quaternion.LookRotation(f.normalized, up);
         }
 
-        // Optional roll/bank based on lateral velocity
         if (allowBank)
         {
-            Vector3 lat = _velSmooth; lat.y = 0f;   // use smoothed vel
+            Vector3 lat = _velSmooth; lat.y = 0f;
             float side = 0f;
             if (lat.sqrMagnitude > 1e-6f)
             {
@@ -364,7 +357,6 @@ public class FloatingSkullAI : MonoBehaviour
             look = look * Quaternion.Euler(0f, 0f, targetRoll);
         }
 
-
         FaceTarget.rotation = Quaternion.Slerp(FaceTarget.rotation, look, turnSpeed * Time.deltaTime);
     }
 
@@ -374,47 +366,35 @@ public class FloatingSkullAI : MonoBehaviour
         FaceDirection(to, allowPitch, allowBank);
     }
 
-
     void ClampAltitudeSmooth()
     {
-        // Cast from well above to avoid noise hitting small props
         float groundY = SampleGroundHeight(transform.position + Vector3.up * 50f);
-
-        // Desired hover above ground, clamped to max
         float targetAbove = Mathf.Min(desiredHoverHeight, maxHeightAboveGround);
         float targetY = groundY + Mathf.Clamp(targetAbove, 0.25f, maxHeightAboveGround);
-
-        // SmoothDamp vertical only (prevents “sawing” jitter)
         Vector3 p = transform.position;
         p.y = Mathf.SmoothDamp(p.y, targetY, ref _yVel, hoverSmoothTime, Mathf.Infinity, Time.deltaTime);
         transform.position = p;
     }
 
-
     float SampleGroundHeight(Vector3 from)
     {
-        // Cast down to find ground; default to current y if nothing is found
         if (Physics.Raycast(from, Vector3.down, out RaycastHit hit, 200f, groundMask, QueryTriggerInteraction.Ignore))
             return hit.point.y;
-
-        return transform.position.y - desiredHoverHeight; // fallback
+        return transform.position.y - desiredHoverHeight;
     }
 
     void ShootFireball()
     {
         if (!fireballPrefab || !firePoint) return;
 
-        // Tiny random spread
         Quaternion spread = Quaternion.Euler(
             Random.Range(-fireSpreadDegrees, fireSpreadDegrees),
             Random.Range(-fireSpreadDegrees, fireSpreadDegrees),
             0f
         );
-
         Quaternion rot = firePoint.rotation * spread;
         GameObject go = Instantiate(fireballPrefab, firePoint.position, rot);
 
-        // Try to pass basic parameters to the projectile
         var proj = go.GetComponent<SkullFireball>();
         if (proj)
         {
@@ -424,7 +404,7 @@ public class FloatingSkullAI : MonoBehaviour
             proj.hitLayers = fireballDamageTargets;
         }
 
-        if (sfxSource && fireSFX) sfxSource.PlayOneShot(fireSFX);
+        PlayOneShotSafe(fireSFX, 0.9f, 1.1f);
     }
 
     void StartDivebomb()
@@ -435,31 +415,43 @@ public class FloatingSkullAI : MonoBehaviour
         if (player)
         {
             var pc = player.GetComponent<Collider>();
-            if (pc) lockPos = pc.bounds.center; // better vertical aim
+            if (pc) lockPos = pc.bounds.center;
         }
 
         _diveLockedTarget = lockPos;
         _hasDiveTarget = true;
-        _divebombTimer = divebombFuse;   // start fuse (see next step)
+        _divebombTimer = divebombFuse;
         state = SkullState.Divebomb;
     }
 
-
-    void Explode()
+    // --- AUDIO-AWARE death/explode paths ---
+    void ExplodeImpact()
     {
+        // Divebomb AoE death (+ explode SFX)
         if (explodeVFX) Instantiate(explodeVFX, transform.position, Quaternion.identity);
-        if (sfxSource && explodeSFX) sfxSource.PlayOneShot(explodeSFX);
+        StopIdleLoop();
+        PlayOneShotSafe(explodeSFX);
 
-        // Damage everything in radius that matches damageTargets
         Collider[] hits = Physics.OverlapSphere(transform.position, impactExplodeRadius, damageTargets, QueryTriggerInteraction.Ignore);
         foreach (var h in hits)
         {
-            h.GetComponentInChildren<CombatController>().TakeDamage(impactDamage);
+            var cc = h.GetComponentInChildren<CombatController>();
+            if (cc) cc.TakeDamage(impactDamage);
         }
 
         state = SkullState.Dead;
-        Debug.Log("Skull is Dead");
         Destroy(gameObject, 0.02f);
+    }
+
+    void Die()
+    {
+        // Normal death (no AoE), plays deathSFX
+        if (explodeVFX) Instantiate(explodeVFX, transform.position, Quaternion.identity); // optional: keep VFX
+        StopIdleLoop();
+        PlayOneShotSafe(deathSFX);
+
+        state = SkullState.Dead;
+        Destroy(gameObject, deathSFX ? Mathf.Max(0.02f, deathSFX.length * 0.2f) : 0.02f);
     }
 
     // Optional: take damage entry point
@@ -467,31 +459,31 @@ public class FloatingSkullAI : MonoBehaviour
     {
         if (state == SkullState.Dead) return;
 
+        int prev = currentHealth;
         currentHealth -= Mathf.Max(0, amount);
+
         if (currentHealth <= 0)
         {
-            // Immediate explode if killed (you could separate death VFX if desired)
-            Explode();
+            // If we were divebombing, still explode; otherwise normal death
+            if (state == SkullState.Divebomb) ExplodeImpact();
+            else Die();
             return;
         }
 
-        // If low, commit to divebomb next tick
+        // Non-lethal: play hurt SFX (rate limited by clip length naturally)
+        if (amount > 0) PlayOneShotSafe(hurtSFX, 0.95f, 1.05f);
+
         if (currentHealth <= divebombHealthThreshold && state != SkullState.Divebomb)
             StartDivebomb();
     }
 
-    // Trigger explode on impact when divebombing (e.g., hit player or ground)
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log("Skull Touched Something");
         if (state != SkullState.Divebomb) return;
 
-        // Ignore minor triggers; explode on any solid things or designated target layers
+        // explode on any solid/target contact
         if (((1 << other.gameObject.layer) & (damageTargets)) != 0 || other.attachedRigidbody || !other.isTrigger)
-        {
-            Debug.Log("Skull Touched Damagable Target");
-            Explode();
-        }
+            ExplodeImpact();
     }
 
     Vector3 Flat(Vector3 v) { v.y = 0f; return v; }
@@ -503,22 +495,17 @@ public class FloatingSkullAI : MonoBehaviour
         return Vector3.Distance(a, b);
     }
 
-
-
     void MoveAwayFromHorizontal(Vector3 target, float speed, bool allowPitch, bool allowBank)
     {
         Vector3 pos = transform.position;
         Vector3 t = target; t.y = pos.y;
         Vector3 from = pos - t;
-        if (from.sqrMagnitude < 1e-6f) from = transform.right; // fallback
+        if (from.sqrMagnitude < 1e-6f) from = transform.right;
 
         Vector3 step = from.normalized * speed * Time.deltaTime;
         transform.position += step;
-
-        // Keep facing the target (player), not the retreat direction
         FaceTowards(target, allowPitch, allowBank);
     }
-
 
     void AttackStrafeTick(Vector3 toPlayerFlat)
     {
@@ -527,14 +514,26 @@ public class FloatingSkullAI : MonoBehaviour
         _strafeTimer -= Time.deltaTime;
         if (_strafeTimer <= 0f)
         {
-            _strafeDir = Random.value < 0.5f ? -_strafeDir : _strafeDir;   // sometimes flip, sometimes keep
+            _strafeDir = Random.value < 0.5f ? -_strafeDir : _strafeDir;
             _strafeTimer = Random.Range(strafeDirFlipInterval.x, strafeDirFlipInterval.y);
         }
 
-        // Perpendicular to player direction on the horizontal plane
         Vector3 strafe = Vector3.Cross(Vector3.up, toPlayerFlat.normalized) * _strafeDir;
         transform.position += strafe * attackStrafeSpeed * Time.deltaTime;
     }
 
+    // --- Audio helpers ---
+    void PlayOneShotSafe(AudioClip clip, float pitchMin = 1f, float pitchMax = 1f)
+    {
+        if (!clip || !sfxSource) return;
+        float oldPitch = sfxSource.pitch;
+        sfxSource.pitch = (pitchMin == pitchMax) ? pitchMin : Random.Range(pitchMin, pitchMax);
+        sfxSource.PlayOneShot(clip);
+        sfxSource.pitch = oldPitch;
+    }
 
+    void StopIdleLoop()
+    {
+        if (loopSource && loopSource.isPlaying) loopSource.Stop();
+    }
 }
