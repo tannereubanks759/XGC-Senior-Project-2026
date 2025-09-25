@@ -31,7 +31,6 @@ public class IslandSetup : MonoBehaviour
     void Start()
     {
         SpawnChests();
-        SpawnPlayer();
     }
     private void Awake()
     {
