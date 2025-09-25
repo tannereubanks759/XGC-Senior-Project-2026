@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.AI.Navigation; 
 
-
+#if UNITY_EDITOR
+#endif
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
 [ExecuteAlways] // so context menu works in Edit mode too
@@ -298,77 +299,25 @@ public class TerrainObjectSpawner : MonoBehaviour
         // ===================================================
     }
 
-    
-    // Add this field near the top:
-    private bool _isBaking;
-
-    // Replace your RebuildNavMeshWithWaterToggle() body with:
+    // ===== NEW: Public/context-menu entry points =====
     [ContextMenu("Rebuild NavMesh (disable water)")]
     public void RebuildNavMeshWithWaterToggle()
     {
-        if (_isBaking) { if (verboseLogs) Debug.Log("[Spawner] Bake already in progress; ignoring."); return; }
-
         if (Application.isPlaying)
         {
-            StartCoroutine(RebuildNavMeshRoutineAsync());
+            // In Play Mode use a short coroutine so SetActive takes effect before baking
+            StartCoroutine(RebuildNavMeshRoutine());
         }
-        /*else
+        else
         {
-            // Edit mode: still safer to use async-style where possible, but UpdateNavMesh returns null in edit mode.
+            // In Edit Mode we do it synchronously
             ToggleWater(false);
+            BuildAllSurfaces();
             ToggleWater(true);
             if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuilt (Edit Mode) with water disabled then re-enabled.");
-        }*/
-    }
-
-    // New async play-mode routine (uses UpdateNavMesh async under the hood)
-    private IEnumerator RebuildNavMeshRoutineAsync()
-    {
-        _isBaking = true;
-        ToggleWater(false);
-
-        try
-        {
-            for (int i = 0; i < Mathf.Max(0, playmodeDelayFrames); i++) yield return null;
-
-            if (navSurfaces == null) navSurfaces = new List<NavMeshSurface>();
-            if (navSurfaces.Count == 0)
-            {
-                var found = FindObjectsByType<NavMeshSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None);
-                if (found != null && found.Length > 0) navSurfaces.AddRange(found);
-            }
-
-            int built = 0;
-            foreach (var s in navSurfaces)
-            {
-                if (!s) continue;
-
-                if (s.navMeshData == null)
-                {
-                    s.navMeshData = new UnityEngine.AI.NavMeshData(s.agentTypeID);
-                    s.AddData(); // register once
-                }
-
-                var op = s.UpdateNavMesh(s.navMeshData); // async in play mode
-                if (op != null) { while (!op.isDone) yield return null; }
-                else { s.BuildNavMesh(); }     // rare fallback
-
-                built++;
-            }
-
-            yield return null;
-            if (verboseLogs) Debug.Log($"[Spawner] Async NavMesh rebuild complete. Surfaces updated: {built}.");
-        }
-        finally
-        {
-            ToggleWater(true);
-            _isBaking = false;
         }
     }
 
-
-
-/*
     IEnumerator RebuildNavMeshRoutine()
     {
         ToggleWater(false);
@@ -385,7 +334,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         ToggleWater(true);
 
         if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuilt (Play Mode) with water disabled then re-enabled.");
-    }*/
+    }
     // ================================================
 
     // ===== NEW: Helpers =====
@@ -401,7 +350,30 @@ public class TerrainObjectSpawner : MonoBehaviour
         }
     }
 
-    
+    void BuildAllSurfaces()
+    {
+        // Auto-find if list empty or contains nulls
+        if (navSurfaces == null) navSurfaces = new List<NavMeshSurface>();
+        if (navSurfaces.Count == 0)
+        {
+            var found = FindObjectsByType<NavMeshSurface>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            if (found != null && found.Length > 0) navSurfaces.AddRange(found);
+        }
+
+        int built = 0;
+        for (int i = 0; i < navSurfaces.Count; i++)
+        {
+            var s = navSurfaces[i];
+            if (!s) continue;
+            // Optional: ensure old data is cleared
+            s.RemoveData();
+            s.BuildNavMesh();
+            built++;
+        }
+
+        if (verboseLogs) Debug.Log($"[Spawner] Rebuilt {built} NavMeshSurface(s).");
+    }
+    // ========================
 
 
     void SpawnPass(
