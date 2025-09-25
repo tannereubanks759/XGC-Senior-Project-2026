@@ -16693,6 +16693,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   terrain: {fileID: 1721343110}
+  waterObjects: []
+  navSurfaces:
+  - {fileID: 1904890783}
+  rebuildNavMeshAfterSpawn: 1
+  playmodeDelayFrames: 1
   treePrefabs:
   - {fileID: 8928291132014703051, guid: f053abef340a50542bcc55bbd2810fc4, type: 3}
   - {fileID: 4122935611763316882, guid: d343c4e8deb2543449e9280f8ad530ed, type: 3}
