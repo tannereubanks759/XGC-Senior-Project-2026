@@ -319,7 +319,7 @@ public class FirstPersonController : MonoBehaviour
 
         #region Sprint
         // Cache input for both UI logic and physics step
-        cachedInput = new Vector3(Input.GetAxis("Horizontal"), 0f, Input.GetAxis("Vertical"));
+        cachedInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxis("Vertical"));
         cachedHasInput = cachedInput.sqrMagnitude > 0.0001f;
 
         #region Sprint
@@ -510,6 +510,14 @@ public class FirstPersonController : MonoBehaviour
 
         if (isGrounded)
         {
+            // Instant stop when no input
+            if (!hasInput)
+            {
+                Debug.Log("Stop Moving");
+                var v = rb.linearVelocity;
+                rb.linearVelocity = new Vector3(0f, v.y, 0f);
+                return; // done this tick
+            }
             // Grounded: match target velocity
             Vector3 targetVelH = wishDir * targetSpeed;
             Vector3 delta = targetVelH - velH;
@@ -535,23 +543,29 @@ public class FirstPersonController : MonoBehaviour
 
 
 
-    // Sets isGrounded based on a raycast sent straigth down from the player object
-    private void CheckGround()
-    {
-        Vector3 origin = new Vector3(transform.position.x, transform.position.y - (transform.localScale.y * .5f), transform.position.z);
-        Vector3 direction = transform.TransformDirection(Vector3.down);
-        float distance = .75f;
+    private float groundedBufferUntil; // coyote time
+    [SerializeField] float groundedSkin = 0.05f;
+    [SerializeField] float coyoteTime = 0.06f;
 
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, distance))
+    void CheckGround()
+    {
+        var col = GetComponent<CapsuleCollider>();
+        float radius = col ? Mathf.Max(0.01f, col.radius * 0.95f) : 0.3f;
+        Vector3 origin = transform.position + Vector3.up * (radius + 0.02f);
+        float castDist = (col ? (col.height * 0.5f) : 0.9f) + groundedSkin;
+
+        bool hit = Physics.SphereCast(origin, radius, Vector3.down, out _, castDist, ~0, QueryTriggerInteraction.Ignore);
+        if (hit)
         {
-            Debug.DrawRay(origin, direction * distance, Color.red);
             isGrounded = true;
+            groundedBufferUntil = Time.time + coyoteTime;
         }
         else
         {
-            isGrounded = false;
+            isGrounded = Time.time < groundedBufferUntil;
         }
     }
+
 
     private void Jump()
     {

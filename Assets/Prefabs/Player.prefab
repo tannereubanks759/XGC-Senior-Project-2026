@@ -1820,7 +1820,7 @@ MonoBehaviour:
   playerCanMove: 1
   walkSpeed: 5
   maxVelocityChange: 10
-  preserveAirMomentum: 1
+  preserveAirMomentum: 0
   airAcceleration: 2.5
   airMaxVelocityChange: 1.5
   enableSprint: 1
@@ -1845,11 +1845,13 @@ MonoBehaviour:
   holdToCrouch: 0
   crouchKey: 306
   crouchHeight: 0.75
-  speedReduction: 0.5
+  speedReduction: -2.73
   enableHeadBob: 1
   joint: {fileID: 2009457670137047055}
   bobSpeed: 10
   bobAmount: {x: 0, y: 0.05, z: 0}
+  groundedSkin: 0.05
+  coyoteTime: 0.06
 --- !u!114 &4017912767767730641
 MonoBehaviour:
   m_ObjectHideFlags: 0
