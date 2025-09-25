@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.AI.Navigation; 
-
+using UnityEngine;
+using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 #endif
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
-[ExecuteAlways] // so context menu works in Edit mode too
 public class TerrainObjectSpawner : MonoBehaviour
 {
     [Header("Scene References")]
@@ -111,6 +110,9 @@ public class TerrainObjectSpawner : MonoBehaviour
     [Tooltip("Padding radius around the point when checking volumes.")]
     public float noSpawnVolumePadding = 0.25f;
 
+    // Add at top-level
+    bool _hasQueuedRuntimeBake;
+
     void OnEnable()
     {
         if (verboseLogs) Debug.Log($"[Spawner] OnEnable on '{name}' (activeInHierarchy={gameObject.activeInHierarchy}, isPlaying={Application.isPlaying})");
@@ -123,31 +125,34 @@ public class TerrainObjectSpawner : MonoBehaviour
         EnsureSetup();
     }
 
+
+
+    // Replace your Start() body with:
     void Start()
     {
         if (verboseLogs) Debug.Log($"[Spawner] Start on '{name}'");
-        if (Application.isPlaying && autoSpawnOnPlay)
-        {
-            Debug.Log("[Spawner] autoSpawnOnPlay = true → spawning now.");
-            SpawnAllPasses();
-        }
+        if (!Application.isPlaying) return;
+
+        // Only run in the active scene to avoid cross-scene duplicates
+        if (gameObject.scene != SceneManager.GetActiveScene()) return;
+
+        // Defer heavy work a few frames after activation
+        StartCoroutine(DeferredSpawnAndBake());
     }
 
-    void Update()
+    IEnumerator DeferredSpawnAndBake()
     {
-#if UNITY_EDITOR
-        if (!Application.isPlaying && !UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+        // Let the scene settle (menu unload, lighting activation, etc.)
+        yield return null;           // 1 frame
+        yield return null;           // 2 frames
+        yield return new WaitForEndOfFrame(); // extra safety
+
+        if (autoSpawnOnPlay)
         {
-            // Edit mode hotkey handled by SceneView; nothing to do here.
-        }
-#endif
-        if (spawnHotkey != KeyCode.None && Input.GetKeyDown(spawnHotkey))
-        {
-            Debug.Log($"[Spawner] Hotkey {spawnHotkey} pressed → spawning.");
+            if (verboseLogs) Debug.Log("[Spawner] autoSpawnOnPlay → spawning now (deferred).");
             SpawnAllPasses();
         }
     }
-
     void EnsureSetup()
     {
         if (!terrain) terrain = FindFirstObjectByType<Terrain>();
@@ -232,8 +237,19 @@ public class TerrainObjectSpawner : MonoBehaviour
     [ContextMenu("Spawn All (Trees → Grass → Objects)")]
     public void SpawnAllPasses()
     {
-        if (!terrain || tData == null || alphaMaps == null) { Debug.LogError("[Spawner] Terrain/alphamaps not ready."); return; }
+        // Reacquire terrain data right before use (scene might have just activated)
+        if (!terrain) terrain = FindFirstObjectByType<Terrain>();
+        if (!terrain) { Debug.LogError("[Spawner] No Terrain found at spawn."); return; }
 
+        tData = terrain.terrainData;
+        tPos = terrain.transform.position;
+        tSize = tData.size;
+
+        alphaW = tData.alphamapWidth;
+        alphaH = tData.alphamapHeight;
+        alphaMaps = tData.GetAlphamaps(0, 0, alphaW, alphaH);
+
+        CacheTerrainTreePositions();
         // Fresh counters
         rejOcean = rejSlope = rejPath = rejPathPad = rejTree = rejSpacing = rejCollision = rejOutBounds = rejGrassLayer = 0;
 
@@ -295,46 +311,54 @@ public class TerrainObjectSpawner : MonoBehaviour
 
         // ===== NEW: Rebuild NavMesh with water toggled =====
         if (rebuildNavMeshAfterSpawn)
-            RebuildNavMeshWithWaterToggle();
+            StartCoroutine(RebuildNavMeshRoutine());
         // ===================================================
     }
 
-    // ===== NEW: Public/context-menu entry points =====
-    [ContextMenu("Rebuild NavMesh (disable water)")]
-    public void RebuildNavMeshWithWaterToggle()
-    {
-        if (Application.isPlaying)
-        {
-            // In Play Mode use a short coroutine so SetActive takes effect before baking
-            StartCoroutine(RebuildNavMeshRoutine());
-        }
-        else
-        {
-            // In Edit Mode we do it synchronously
-            ToggleWater(false);
-            BuildAllSurfaces();
-            ToggleWater(true);
-            if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuilt (Edit Mode) with water disabled then re-enabled.");
-        }
-    }
+
+    static bool _isBakingNavMesh;
 
     IEnumerator RebuildNavMeshRoutine()
     {
-        ToggleWater(false);
+        if (_isBakingNavMesh)
+        {
+            if (verboseLogs) Debug.LogWarning("[Spawner] Bake already in progress—skipping.");
+            yield break;
+        }
 
-        // Wait a few frames to ensure the deactivations propagate through culling/scene state
-        for (int i = 0; i < Mathf.Max(0, playmodeDelayFrames); i++)
+        _isBakingNavMesh = true;
+        try
+        {
+            ToggleWater(false);
+            for (int i = 0; i < Mathf.Max(0, playmodeDelayFrames); i++) yield return null;
+
+            // Optionally disable agents/obstacles during bake
+            SetAgentsEnabled(false);
+
+            BuildAllSurfaces();
+
             yield return null;
 
-        BuildAllSurfaces();
+            SetAgentsEnabled(true);
+            ToggleWater(true);
 
-        // (Optional) one frame after bake before re-enabling; usually not required
-        yield return null;
-
-        ToggleWater(true);
-
-        if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuilt (Play Mode) with water disabled then re-enabled.");
+            if (verboseLogs) Debug.Log("[Spawner] NavMesh rebuilt (Play Mode) with water disabled then re-enabled.");
+        }
+        finally
+        {
+            _isBakingNavMesh = false;
+        }
     }
+
+    void SetAgentsEnabled(bool enabled)
+    {
+        var agents = FindObjectsByType<UnityEngine.AI.NavMeshAgent>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < agents.Length; i++) agents[i].enabled = enabled;
+
+        var obstacles = FindObjectsByType<UnityEngine.AI.NavMeshObstacle>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < obstacles.Length; i++) obstacles[i].enabled = enabled;
+    }
+
     // ================================================
 
     // ===== NEW: Helpers =====
@@ -594,36 +618,4 @@ public class TerrainObjectSpawner : MonoBehaviour
         int az = Mathf.Clamp(Mathf.RoundToInt(tz * (alphaH - 1)), 0, alphaH - 1);
         return alphaMaps[az, ax, layerIndex];
     }
-/*
-#if UNITY_EDITOR
-    [MenuItem("Tools/Terrain Spawner/Spawn All (Trees → Grass → Objects)", priority = 0)]
-    static void SpawnFromSelected()
-    {
-        foreach (var obj in Selection.gameObjects)
-        {
-            var sp = obj.GetComponent<TerrainObjectSpawner>();
-            if (sp != null)
-            {
-                Debug.Log($"[Spawner] Menu → spawning all passes from '{sp.name}'");
-                sp.SpawnAllPasses();
-            }
-        }
-    }
-#endif
-
-#if UNITY_EDITOR
-    void OnDrawGizmosSelected()
-    {
-        if (!terrain) return;
-        var data = terrain.terrainData;
-        var pos = terrain.transform.position;
-        Gizmos.color = new Color(0, 1, 0, 0.15f);
-        Gizmos.DrawCube(pos + data.size * 0.5f, data.size);
-
-        Gizmos.color = new Color(0, 0.5f, 1f, 0.2f);
-        Vector3 c = new Vector3(pos.x + data.size.x * 0.5f, oceanLevelY, pos.z + data.size.z * 0.5f);
-        Vector3 s = new Vector3(data.size.x, 0.02f, data.size.z);
-        Gizmos.DrawCube(c, s);
-    }
-#endif*/
 }
