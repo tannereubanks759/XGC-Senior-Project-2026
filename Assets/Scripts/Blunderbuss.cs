@@ -73,7 +73,9 @@ public class Blunderbuss : MonoBehaviour
             float randomx = Random.Range(-bulletRadius, bulletRadius);
             float randomy = Random.Range(-bulletRadius, bulletRadius);
             Debug.Log(Input.mousePosition);
-            Vector3 screenPos = Input.mousePosition + (new Vector3(randomx, randomy, 0f));
+            //Vector3 screenPos = Input.mousePosition + (new Vector3(randomx, randomy, 0f));
+            Vector2 randomInsideaCircle = Random.insideUnitCircle;
+            Vector3 screenPos = Input.mousePosition + (new Vector3(randomInsideaCircle.x, randomInsideaCircle.y, 0f) * bulletRadius);
             Ray ray = Camera.main.ScreenPointToRay(screenPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layers))
