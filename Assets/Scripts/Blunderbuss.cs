@@ -8,7 +8,7 @@ public class Blunderbuss : MonoBehaviour
     public int totalAmmo = 40;
     public int DamagePerPellet = 25;
     public int PelletPerBullet = 4;
-    private float bulletRadius;
+    float bulletRadius;
     public LayerMask layers;
     public GameObject ret;
     public GameObject BulletPos;
@@ -60,8 +60,8 @@ public class Blunderbuss : MonoBehaviour
 
         // ⚠ Using width/2 is usually better than anchoredPosition.x
         // Keep your original if that’s intentional:
-        bulletRadius = ret.GetComponent<RectTransform>().anchoredPosition.x / 10f;
-
+        bulletRadius = ret.GetComponent<RectTransform>().anchoredPosition.x;
+        
         // Group by damageable component (prevents multi-collider dupes)
         var skullHits = new Dictionary<FloatingSkullAI, int>();
         var gruntHits = new Dictionary<GruntEnemyAI, int>();
@@ -72,7 +72,8 @@ public class Blunderbuss : MonoBehaviour
         {
             float randomx = Random.Range(-bulletRadius, bulletRadius);
             float randomy = Random.Range(-bulletRadius, bulletRadius);
-            Vector3 screenPos = Input.mousePosition + new Vector3(randomx, randomy, 0f);
+            Debug.Log(Input.mousePosition);
+            Vector3 screenPos = Input.mousePosition + (new Vector3(randomx, randomy, 0f));
             Ray ray = Camera.main.ScreenPointToRay(screenPos);
 
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layers))

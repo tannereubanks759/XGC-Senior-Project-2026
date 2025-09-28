@@ -513,7 +513,6 @@ public class FirstPersonController : MonoBehaviour
             // Instant stop when no input
             if (!hasInput)
             {
-                Debug.Log("Stop Moving");
                 var v = rb.linearVelocity;
                 rb.linearVelocity = new Vector3(0f, v.y, 0f);
                 return; // done this tick
