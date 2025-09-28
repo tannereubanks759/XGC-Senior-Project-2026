@@ -22,8 +22,11 @@ public class interactScript : MonoBehaviour
     public bool treasureRoomUnlocked = false;
     private GameObject dungeonDoor;
     private GameObject dungeonLock;
+    public List<int> keyIDs = new List<int>();
+    private static interactScript current;
     void Start()
     {
+        current = this;
         interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
         infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
@@ -129,14 +132,18 @@ public class interactScript : MonoBehaviour
             }
             else if (keyInteract)
             {
-                Destroy(keyobj);
+                keyobj.SetActive(false);
+                keyScript k = keyobj.GetComponent<keyScript>();
+                int id = k.keyID;
+                keyIDs.Add(id);
                 infoScriptRef.keyCount++;
+                k.chest.DisableSeal();
                 keyInteract = false;
             }
             else if (chestInteract)
             {
                 chestInteract = false;
-                chest.chestOpen();
+                chest.chestOpen(current);
             }
             else if (dungeonLock != null)
             {

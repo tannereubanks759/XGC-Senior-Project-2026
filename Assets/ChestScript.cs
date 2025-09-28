@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using NUnit.Framework;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ChestScript : MonoBehaviour
 {
@@ -13,34 +15,57 @@ public class ChestScript : MonoBehaviour
     public GameObject spawnLocation;
     public ItemData itemGenerated;
     public infoscript infoScriptRef;
-
+    public GameObject keyRef;
+    public GameObject lockedParticleEffect;
+    private static int nextId = 1;
+    public int keyID;
+    private void Awake()
+    {
+        if (keyID == 0)
+        {
+            keyID = nextId++;
+        }
+    }
     private void Start()
     {
         GameObject player = null;
-
+        
         player = GameObject.FindGameObjectWithTag("Player");
         interactScript = player.GetComponent<interactScript>();
         infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
     }
-
-    public void chestOpen()
+    // CALL this on miniboss death
+    public void spawnKey(Vector3 pos)
     {
-        if(infoScriptRef.keyCount > 0) 
+        GameObject spawnedKey = Instantiate(keyRef, pos, Quaternion.identity);
+        keyScript key = spawnedKey.GetComponent<keyScript>();
+        key.keyID = keyID;
+        key.chest = this;
+    }
+    public void chestOpen(interactScript player)
+    {
+        if (player.keyIDs.Contains(keyID))
         {
-            infoScriptRef.keyCount--;
-            Debug.Log("Chest opnened");
+            player.keyIDs.Remove(keyID); 
+            Debug.Log("Opened");
             generate();
-            //this.gameObject.SetActive(false);
         }
         else
         {
-            Debug.Log("Couldnt open do to keys: " + interactScript.keyCount);
+            Debug.Log("Doesnt have key.");
         }
     }
     // Update is called once per frame
     void Update()
     {
-        
+        if(Input.GetKeyDown(KeyCode.K))
+        {
+            spawnKey(spawnLocation.transform.position);
+        }
+    }
+    public void DisableSeal()
+    {
+        lockedParticleEffect.SetActive(false);
     }
     private void generate()
     {
@@ -53,5 +78,7 @@ public class ChestScript : MonoBehaviour
         itg.transform.localRotation = Quaternion.identity;
         itg.transform.localScale = Vector3.one;
         Debug.Log("Spawned");
+        
+        // later add open animation maybe
     }
 }
