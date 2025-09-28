@@ -10,13 +10,45 @@
 */
 
 //using UnityEditorInternal;
+using System;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class BaseEnemyAI : StateManager<EnemyState>
 {
+    // NEW VARIABLES
+    [Header("Vision System")]
+    [Tooltip("How far this unit can see the player (line of sight check included)")]
+    public float detectionRadius = 12f;
+
+    [Tooltip("Field of view angle in degrees")]
+    [Range(0, 360)]
+    public float fieldOfView = 120f;
+
+    [Tooltip("Which layers count as obstructions (e.g., walls, terrain)")]
+    public LayerMask obstructionMask;
+
+    [Tooltip("Which layers are considered players")]
+    public LayerMask playerMask;
+
+    [HideInInspector] public bool canSeePlayerNow { get; private set; }
+    [HideInInspector] public Vector3 lastKnownPlayerPos { get; private set; }
+
+    [Tooltip("Event for the player being spotted")]
+    public event Action OnPlayerSpotted;
+    [Tooltip("Event for the player being lost")]
+    public event Action OnPlayerLost;
+
+    [Header("Combat System")]
+    [Tooltip("Can the enemy run towards the player")]
+    [SerializeField] public bool canRunAtPlayer { get; private set; }
+    [Tooltip("The range in which the enemy will start to engage in combat")]
+    [SerializeField] public float combatRange {  get; private set; }
+
+
+
+    // OLD VARIABLES
     [Header("References")]
-    [HideInInspector]
     public Transform Player;              // Reference to the player's transform
     public NavMeshAgent Agent { get; private set; }            // NavMeshAgent for pathfinding/movement
     public Animator Animator { get; private set; }             // Animator controlling enemy animations
@@ -72,6 +104,15 @@ public class BaseEnemyAI : StateManager<EnemyState>
         VarInit();
         ItemInit();
     }
+
+    // Call the update of the parent so that state logic still runs
+    // Check to see if we can see the player
+    void Update()
+    {
+        base.Update();
+
+        CanSeePlayer();
+    }
     #endregion
 
     #region Init Methods
@@ -79,6 +120,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     private void RefInit()
     {
         // Get refrences
+        Player = GameObject.FindGameObjectWithTag("Player").transform;
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
     }
@@ -91,6 +133,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
         canRotate = true;
         isBlocking = false;
         isDodging = false;
+
+        canRunAtPlayer = false;
     }
 
     // Initialize an item system for the enemy
@@ -110,14 +154,103 @@ public class BaseEnemyAI : StateManager<EnemyState>
     }
     #endregion
 
+    #region Vision Methods
+    // Vision check
+    public bool CanSeePlayer()
+    {
+        bool wasSeeingPlayer = canSeePlayerNow;
+        canSeePlayerNow = false;
+
+        // Check if player exists
+        if (Player == null) return false;
+
+        // Step 1: Within detection radius?
+        float distance = Vector3.Distance(transform.position, Player.position);
+        if (distance > detectionRadius) return false;
+
+        // Step 2: Within FOV?
+        Vector3 dirToPlayer = (Player.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, dirToPlayer);
+
+        if (angle > fieldOfView / 2f) return false;
+
+        // Step 3: Line of sight (raycast)
+        if (!Physics.Raycast(transform.position + Vector3.up * 1.5f, dirToPlayer, distance, obstructionMask))
+        {
+            canSeePlayerNow = true;
+            lastKnownPlayerPos = Player.position;
+        }
+
+        // Fire events only if status changed
+        if (!wasSeeingPlayer && canSeePlayerNow)
+            OnPlayerSpotted?.Invoke();
+        else if (wasSeeingPlayer && !canSeePlayerNow)
+            OnPlayerLost?.Invoke();
+
+        Debug.Log("Distance to player: " + distance + ", angle: " + angle + ", can see player: " + (canSeePlayerNow ? "YES" : "NO"));
+
+        return canSeePlayerNow;
+    }
+
+    #endregion
+
     #region Movement Methods
     // Move the enemy toward a destination using NavMeshAgent
     public void MoveTo(Vector3 destination)
     {
         if (Agent == null) return;
 
+        Agent.isStopped = Agent.isStopped ? false : true;
+
         if (!Agent.isStopped)
             Agent.SetDestination(destination);
+    }
+
+    public void RunTowardsPlayer()
+    {
+        if (Player == null) return;
+
+        Vector3 direction = (Player.position - transform.position).normalized;
+
+        // Update blend tree movement parameters
+        SetMovementInput(new Vector3(direction.x, 0f, direction.z));
+
+        // Update speed
+        SetSpeed(RunSpeed);
+
+        // Optionally rotate smoothly
+        if (canRotate)
+            transform.rotation = Quaternion.LookRotation(direction);
+    }
+
+    public void CanRunAtPlayer()
+    {
+        canRunAtPlayer = !canRunAtPlayer;
+    }
+
+    // Called by states to drive movement animations
+    public void SetMovementInput(Vector3 worldDirection)
+    {
+        // If you’re using NavMeshAgent:
+        // Convert world direction into local space relative to enemy forward
+        Vector3 localDir = transform.InverseTransformDirection(worldDirection.normalized);
+
+        // Push into animator
+        Animator.SetFloat("xMov", localDir.x, 0.1f, Time.deltaTime); // smoothing with damp
+        Animator.SetFloat("zMov", localDir.z, 0.1f, Time.deltaTime);
+    }
+
+    //
+    public void DirectMove(Vector3 moveVector)
+    {
+        if (Agent != null && Agent.enabled)
+        {
+            // Temporarily disable path recalculation
+            Agent.ResetPath();
+
+            // Move directly while respecting NavMesh
+            Agent.Move(moveVector);
+        }
     }
 
     // Set the dodging flag to false (used after a dodge ends)
@@ -196,14 +329,16 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Allow the enemy to rotate toward the player
     public void RotateToPlayer()
     {
-        if (Player == null)
-            return;
+        if (Player == null) return;
 
         Vector3 dir = (Player.position - transform.position).normalized;
         dir.y = 0f;
 
-        if (dir.magnitude > 0.01f)
-            transform.rotation = Quaternion.LookRotation(dir);
+        if (dir.sqrMagnitude > 0.01f)
+        {
+            Quaternion lookRot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, 10f * Time.deltaTime);
+        }
     }
 
     // Calculate distance to the player
@@ -391,14 +526,61 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.ResetTrigger("BackDodge");
     }
 
-    // Draw gizmos in editor to visualize ranges
-    protected virtual void OnDrawGizmosSelected()
+    // Reset all the triggers, then set the correct one
+    public void SetResetTriggers(string trigger)
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, ChaseRange);
+        Animator.ResetTrigger("Idle");
+        Animator.ResetTrigger("Chase");
+        Animator.ResetTrigger("Dead");
+        Animator.ResetTrigger("Attack");
+        Animator.ResetTrigger("Patrol");
+        Animator.ResetTrigger("Block");
+        Animator.ResetTrigger("BlockHit");
+        Animator.ResetTrigger("Hit");
+        Animator.ResetTrigger("BackDodge");
+        Animator.ResetTrigger("Run");
+        Animator.ResetTrigger("Warcry");
+        Animator.SetTrigger(trigger);
+    }
 
+    float SnapZero(float value, float threshold = 0.01f)
+    {
+        return Mathf.Abs(value) < threshold ? 0f : value;
+    }
+
+    // Set the movement floats in the animator
+    public void SetAnimatorMovement(float x, float z)
+    {
+        Animator.SetFloat("xMov", SnapZero(x));
+        Animator.SetFloat("zMov", SnapZero(z));
+    }
+
+
+    // Draw gizmos in editor to visualize ranges
+    protected void OnDrawGizmosSelected()
+    {
+        // Draw detection radius
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
+
+        // Draw attack range
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, AttackRange);
+
+        // Draw vision cone
+        Vector3 fovLine1 = Quaternion.AngleAxis(fieldOfView / 2, Vector3.up) * transform.forward * detectionRadius;
+        Vector3 fovLine2 = Quaternion.AngleAxis(-fieldOfView / 2, Vector3.up) * transform.forward * detectionRadius;
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, fovLine1);
+        Gizmos.DrawRay(transform.position, fovLine2);
+
+        // If currently seeing the player, draw green line
+        if (canSeePlayerNow && Player != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(transform.position, Player.position);
+        }
     }
     #endregion
 }

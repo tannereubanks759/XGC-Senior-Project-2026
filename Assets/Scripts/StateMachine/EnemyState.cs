@@ -16,4 +16,7 @@ public enum EnemyState
     Block,
     BlockHit,
     BackDodge,
+    Run,
+    Investigate,
+    Combat
 }
