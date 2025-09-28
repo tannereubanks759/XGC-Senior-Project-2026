@@ -25,9 +25,9 @@ public class equipScript : MonoBehaviour
         if(midReferenceUISpot.transform.childCount == 0)
         {
             GameObject newUI = Instantiate(uiPrefab, midReferenceUISpot.transform);
-
-
-
+            tooltipTrigger ttt = newUI.GetComponent<tooltipTrigger>();
+            ttt.nameOf = itemAdded.itemName;
+            ttt.description = itemAdded.artifactDesciption;
             objIdentifierRef = GetComponentInChildren<objectIdentifier>();
             Image uiImage = newUI.GetComponent<Image>();
             if (uiImage != null)

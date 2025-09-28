@@ -7,6 +7,7 @@ public class ItemData : ScriptableObject
     public Sprite icon;
     public GameObject prefab;
     public string type;
+    public string artifactDesciption;
     //public bool isActive;
 
     public virtual void OnEquip(GameObject player)
