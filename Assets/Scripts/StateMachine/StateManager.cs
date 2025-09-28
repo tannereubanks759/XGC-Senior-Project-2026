@@ -35,7 +35,7 @@ public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
 
     // Unity lifecycle method, called every frame.
     // Handles updating the current state and checking for transitions.
-    void Update()
+    protected virtual void Update()
     {
         // Ask the current state what the next state should be.
         EState nextStateKey = CurrentState.GetNextState();
