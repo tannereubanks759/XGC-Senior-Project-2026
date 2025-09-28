@@ -112,6 +112,8 @@ public class FloatingSkullAI : MonoBehaviour
     Vector3 _velSmooth;
     Collider _col;
     float _targetIdlePitch;
+    // --- Private ---
+    Vector3 _diveDir;   // locked straight-line direction during dive
 
     void Reset()
     {
@@ -216,6 +218,7 @@ public class FloatingSkullAI : MonoBehaviour
     void AttackTick()
     {
         if (!player) { state = SkullState.Patrol; return; }
+
         float dist3D = Vector3.Distance(transform.position, player.position);
         float distXZ = HorizontalDistanceTo(player);
         bool los = HasLineOfSight();
@@ -224,45 +227,68 @@ public class FloatingSkullAI : MonoBehaviour
         float minDist = Mathf.Max(keepOutRadius, preferredAttackDistance - attackDistanceTolerance);
         float maxDist = preferredAttackDistance + attackDistanceTolerance;
 
+        // --- movement ---
         if (distXZ < minDist)
         {
-            MoveAwayFromHorizontal(player.position, Mathf.Max(chaseSpeed * 0.5f, patrolSpeed), facePitchInAttack, bankRollInAttack);
+            // back away on XZ
+            MoveAwayFromHorizontal(player.position, Mathf.Max(chaseSpeed * 0.5f, patrolSpeed), false, false);
         }
         else if (distXZ > maxDist)
         {
-            MoveTowards(player.position, Mathf.Min(chaseSpeed * 0.6f, 4.5f), false, facePitchInAttack, bankRollInAttack);
+            // move in on XZ
+            MoveTowards(player.position, Mathf.Min(chaseSpeed * 0.6f, 4.5f), false, false, false);
         }
         else
         {
+            // hold band and strafe
             Vector3 toPlayerFlat = Flat(player.position - transform.position);
             AttackStrafeTick(toPlayerFlat);
-            FaceTowards(player.position, facePitchInAttack, bankRollInAttack);
         }
 
-        _fireCooldown -= Time.deltaTime;
-        if (_fireCooldown <= 0f) { ShootFireball(); _fireCooldown = 1f / Mathf.Max(0.01f, fireRate); }
+        // --- ALWAYS face the player in Attack ---
+        FaceTowards(player.position, facePitchInAttack, bankRollInAttack);
 
+        // --- firing ---
+        _fireCooldown -= Time.deltaTime;
+        if (_fireCooldown <= 0f)
+        {
+            ShootFireball();
+            _fireCooldown = 1f / Mathf.Max(0.01f, fireRate);
+        }
+
+        // --- divebomb check ---
         if (currentHealth <= divebombHealthThreshold) StartDivebomb();
     }
 
+
     void DivebombTick()
     {
-        if (!_hasDiveTarget) { _diveLockedTarget = transform.position; _hasDiveTarget = true; }
-        MoveTowards(_diveLockedTarget, divebombSpeed, true, true, false);
-
-        if ((transform.position - _diveLockedTarget).sqrMagnitude < 0.35f * 0.35f)
+        if (!_hasDiveTarget)
         {
-            ExplodeImpact();
-            return;
+            _diveLockedTarget = transform.position + transform.forward * 2f;
+            _diveDir = transform.forward;
+            _hasDiveTarget = true;
         }
 
+        // Move strictly along the locked direction, ignoring proximity to the player.
+        transform.position += _diveDir * (divebombSpeed * Time.deltaTime);
+
+        // Optional: keep the model facing along the dive direction (no bank)
+        FaceDirection(_diveDir, true, false);
+
+        // Fuse check — only time-out can explode mid-air
         _divebombTimer -= Time.deltaTime;
         if (_divebombTimer <= 0f)
         {
             ExplodeImpact();
             return;
         }
+
+        // NOTE: Explosion on ground contact is handled by OnTriggerEnter/OnCollisionEnter
+        // where we check against groundMask. We do NOT explode due to proximity anymore.
     }
+
+
 
     // ---------- ACTIONS ----------
     void PickNewPatrolPoint()
@@ -411,7 +437,7 @@ public class FloatingSkullAI : MonoBehaviour
     {
         if (state == SkullState.Divebomb || state == SkullState.Dead) return;
 
-        Vector3 lockPos = player ? player.position : transform.position + transform.forward * 2f;
+        Vector3 lockPos = player ? player.position : transform.position + transform.forward * 3f;
         if (player)
         {
             var pc = player.GetComponent<Collider>();
@@ -421,14 +447,21 @@ public class FloatingSkullAI : MonoBehaviour
         _diveLockedTarget = lockPos;
         _hasDiveTarget = true;
         _divebombTimer = divebombFuse;
+
+        // Lock a straight direction from current position toward the locked target (once).
+        _diveDir = (_diveLockedTarget - transform.position);
+        if (_diveDir.sqrMagnitude < 1e-6f) _diveDir = transform.forward; // fallback
+        _diveDir.Normalize();
+
         state = SkullState.Divebomb;
     }
+
 
     // --- AUDIO-AWARE death/explode paths ---
     void ExplodeImpact()
     {
         // Divebomb AoE death (+ explode SFX)
-        if (explodeVFX) Instantiate(explodeVFX, transform.position, Quaternion.identity);
+        if (explodeVFX) Destroy(Instantiate(explodeVFX, transform.position, Quaternion.identity), 3f);
         StopIdleLoop();
         PlayOneShotSafe(explodeSFX);
 
@@ -481,9 +514,11 @@ public class FloatingSkullAI : MonoBehaviour
     {
         if (state != SkullState.Divebomb) return;
 
-        // explode on any solid/target contact
-        if (((1 << other.gameObject.layer) & (damageTargets)) != 0 || other.attachedRigidbody || !other.isTrigger)
+        // Only explode if we hit something on the groundMask
+        if (((1 << other.gameObject.layer) & groundMask) != 0)
+        {
             ExplodeImpact();
+        }
     }
 
     Vector3 Flat(Vector3 v) { v.y = 0f; return v; }
