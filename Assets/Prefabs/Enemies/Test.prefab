@@ -433,6 +433,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc97ffe13dcb79243b90a3d7e7df2638, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Player: {fileID: 0}
   detectionRadius: 12
   fieldOfView: 120
   obstructionMask:
@@ -441,16 +442,27 @@ MonoBehaviour:
   playerMask:
     serializedVersion: 2
     m_Bits: 128
-  Player: {fileID: 0}
-  ChaseRange: 10
+  canRunAtPlayer: 0
+  combatRange: 0
   AttackRange: 2
-  maxHealth: 100
+  threatRange: 4
+  CurrentAttackState: 0
+  canMoveWhileAttacking: 0
+  moveBackward: 0
+  attacks: []
+  currentAttack: {fileID: 0}
+  overrideAttack: 0
+  attackTime: 0
+  attackCooldown: 3
+  item: {fileID: 0}
   WalkSpeed: 2
   RunSpeed: 5
   canRotate: 0
+  combatSpeed: 4
+  maxHealth: 100
+  ChaseRange: 10
   isBlocking: 0
   isDodging: 0
-  item: {fileID: 0}
   minBlockTime: 2.5
   maxBlockTime: 3.5
 --- !u!1 &1288335918160595832
@@ -827,7 +839,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -4565884009001823619, guid: dab0b39ba916310408fcabc713f45572, type: 3}
+  - {fileID: 2100000, guid: 61cffe07318a79d4e8570dd3f5655c3a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
