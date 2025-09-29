@@ -23,7 +23,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public Transform Player;                                    // Reference to the player's transform
     public NavMeshAgent Agent { get; private set; }             // NavMeshAgent for pathfinding/movement
     public Animator Animator { get; private set; }              // Animator controlling enemy animations
+    private Collider swordCollider;                             // Reference to the collider attached to the weapon
     #endregion
+
     #region Vision System
     [Header("Vision System")]
     [Tooltip("How far this unit can see the player (line of sight check included)")]
@@ -47,6 +49,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     //[Tooltip("Event for the player being lost")]
     //public event Action OnPlayerLost;
     #endregion
+
     #region Combat System
     [Header("Combat System")]
     [Tooltip("Can the enemy run towards the player")]
@@ -64,7 +67,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Attack state enum to track attack animation progress
     public enum EAttackState { None, InProgress, Finished }
 
-    public EAttackState CurrentAttackState { get; private set; } = EAttackState.None;
+    [Tooltip("Enum that tells us what state the enemy attack is in." +
+        "\n(Set in anim events)")]
+    public EAttackState CurrentAttackState = EAttackState.None;
 
     [Tooltip("The amount of damage that this unit will do to the player")]
     public int Damage { get; private set; }                    // Base damage (used in attacks)
@@ -72,7 +77,24 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("Can this unit move toward the player while attacking?" +
         "\n(Decided based on the attack animation")]
     public bool canMoveWhileAttacking;
+    
+    [Tooltip("Will this unit move backward?" +
+        "\n(Decided based based on the attack animation)")]
+    public bool moveBackward;
+
+    [Tooltip("An array containing the attack data")]
+    public AttackData[] attacks;
+
+    [HideInInspector] public AttackData currentAttack;
+
+    [HideInInspector] public bool overrideAttack = false;
+
+    [HideInInspector] public float attackTime;              // The time that the enemy attacked
+
+    [Tooltip("The time in which the enemy must wait before attacking again")]
+    public float attackCooldown = 3f;
     #endregion
+
     #region Item System
     [Header("Item System")]
     [Tooltip("The item to be dropped (Leave empty if no item is to be spawned)")]
@@ -83,6 +105,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("Whether or not the enemy will drop an item on death or not")]
     private bool hasItem;
     #endregion
+
     #region Speed/Movement
     [Header("Speeds")]
     [Tooltip("The speed this unit will move at while walking")]
@@ -99,6 +122,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     public float combatSpeed = 4f; // slightly faster than walk, slower than run
     #endregion
+
     #region Health
     [Header("Health")]
     [Tooltip("The maximum amount of health this unit has")]
@@ -149,6 +173,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Player = GameObject.FindGameObjectWithTag("Player").transform;
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
+        swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
     }
 
     // Initialize variables
@@ -163,6 +188,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
         canRunAtPlayer = false;
         combatRange = 8f;
         canMoveWhileAttacking = false;
+        swordCollider.enabled = false;
+        moveBackward = false;
     }
 
     // Initialize an item system for the enemy
@@ -215,7 +242,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         //else if (wasSeeingPlayer && !canSeePlayerNow)
         //    OnPlayerLost?.Invoke();
 
-        Debug.Log("Distance to player: " + distance + ", angle: " + angle + ", can see player: " + (canSeePlayerNow ? "YES" : "NO"));
+        //Debug.Log("Distance to player: " + distance + ", angle: " + angle + ", can see player: " + (canSeePlayerNow ? "YES" : "NO"));
 
         return canSeePlayerNow;
     }
@@ -409,43 +436,56 @@ public class BaseEnemyAI : StateManager<EnemyState>
         return false;
     }
 
-    public bool CanMoveWhileAttacking()
+    public void StopMoveWhileAttacking()
     {
-        AnimatorClipInfo[] clipInfo = Animator.GetCurrentAnimatorClipInfo(0);
-
-        if (clipInfo[0].clip.name == "Attack 1H-360 Slash"
-            || clipInfo[0].clip.name == "Attack 1H-OverheadSpin")
-        {
-            return true;
-        }
-
-        return false;
+        canMoveWhileAttacking = false;
+        moveBackward = false;
     }
 
-    // Called via animation event at the start of the swing
-    public void StartAttack()
+    public void StartMoveWhileAttacking()
     {
-        Debug.Log("Enemy Attack Start!");
-        CurrentAttackState = EAttackState.InProgress;
+        canMoveWhileAttacking = true;
+    }
+
+    public void MoveBackwardWhileAttacking()
+    {
+        moveBackward = true;
+        canMoveWhileAttacking = true;
+    }    
+
+    // Called via animation event at the start of the swing
+    public void OnAttackStart()
+    {
+        SetAttackState(EAttackState.InProgress);
+        //Debug.Log(CurrentAttackState);
         StopMoving();
         RotateToPlayer();
+        swordCollider.enabled = true;
     }
 
     // Called via animation event at the apex of the swing
     public void OnAttackHit()
     {
-        Debug.Log("Enemy Attack Hit!");
-        Attack();        // Apply damage logic here
-        canRotate = false;
+        //Debug.Log("Enemy Attack Hit!");
+        //Attack();        // Apply damage logic here
+        //canRotate = false;
+
+        swordCollider.enabled = false;
+
+        // APPLY DAMAGE
     }
 
     // Called via animation event at the end of the swing
     public void OnAttackEnd()
     {
-        Debug.Log("Enemy Attack End!");
-        CurrentAttackState = EAttackState.Finished;
+        // Debug.Log("Enemy Attack End!");
+        SetAttackState(EAttackState.Finished);
+        //Debug.Log(CurrentAttackState);
         canRotate = true;
-        ResumeMoving();
+        swordCollider.enabled = false;
+        overrideAttack = false;
+
+        SetResetTriggers("AttackOver");
     }
 
     // Called via animation event at the end of the block
@@ -463,14 +503,34 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Virtual attack logic (override in subclasses)
     public virtual void Attack()
     {
+        Debug.Log("Can Override: " + overrideAttack);
         // Pick one of 5 slots in your blend tree
-        int attackIndex = Random.Range(0, 5);
+        int attackIndex = Random.Range(0, attacks.Length - 1);
+        currentAttack = attacks[attackIndex];
+
+        Debug.Log("Rand Index: " + attackIndex);
 
         // Set the parameter for the blend tree
-        Animator.SetFloat("aVer", attackIndex);
+        Animator.SetInteger("AttackIndex", attackIndex);
 
-        // Trigger the attack state in the animator
-        SetResetTriggers("Attack");
+        canMoveWhileAttacking = currentAttack.canMoveDuringAttack;
+        moveBackward = currentAttack.movesBackward;
+
+        if (overrideAttack) OverrideAttack();
+    }
+
+    // Override the attack selected in the attack state
+    public void OverrideAttack()
+    {
+        currentAttack = attacks[attacks.Length - 1];
+
+        Debug.Log("Override Index: " + (attacks.Length - 1));
+
+        // Set the parameter for the blend tree
+        Animator.SetInteger("AttackIndex", attacks.Length - 1);
+
+        canMoveWhileAttacking = currentAttack.canMoveDuringAttack;
+        moveBackward = currentAttack.movesBackward;
     }
 
     // Quick checks for attack states
@@ -587,16 +647,21 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public void SetResetTriggers(string trigger)
     {
         Animator.ResetTrigger("Idle");
-        Animator.ResetTrigger("Chase");
+        Animator.ResetTrigger("Patrol");
+        Animator.ResetTrigger("Warcry");
+        Animator.ResetTrigger("Run");
+        Animator.ResetTrigger("Emote1");
+        Animator.ResetTrigger("Emote2");
+        Animator.ResetTrigger("Emote3");
+        Animator.ResetTrigger("Combat");
+        Animator.ResetTrigger("Hit");
         Animator.ResetTrigger("Dead");
         Animator.ResetTrigger("Attack");
-        Animator.ResetTrigger("Patrol");
+        Animator.ResetTrigger("AttackOver");
+        Animator.ResetTrigger("Chase");
         Animator.ResetTrigger("Block");
         Animator.ResetTrigger("BlockHit");
-        Animator.ResetTrigger("Hit");
         Animator.ResetTrigger("BackDodge");
-        Animator.ResetTrigger("Run");
-        Animator.ResetTrigger("Warcry");
         Animator.SetTrigger(trigger);
     }
 

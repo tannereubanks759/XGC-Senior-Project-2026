@@ -58,14 +58,28 @@ public class CombatState : BaseState<EnemyState>
         if (_enemy.DistanceToPlayer() > _enemy.combatRange + 2f)
             return EnemyState.Run;
 
-        // If player is within attack range maybe attack
-        if (_enemy.DistanceToPlayer() <= _enemy.AttackRange)
+        if (Time.time - _enemy.attackTime >= _enemy.attackCooldown)
         {
-            // Example simple choice
-            float roll = Random.value;
-            if (roll < 0.6f) return EnemyState.Attack;
-            //if (roll < 0.8f) return EnemyState.Block;
-            //return EnemyState.BackDodge;
+            // If player is within attack range maybe attack
+            if (_enemy.DistanceToPlayer() <= _enemy.AttackRange)
+            {
+                // Example simple choice
+                float roll = Random.value;
+                if (roll < 0.6f) return EnemyState.Attack;
+                //if (roll < 0.8f) return EnemyState.Block;
+                //return EnemyState.BackDodge;
+
+                return EnemyState.Attack;
+            }
+
+            // Random chance to do the long range attack
+            Debug.Log("Override before: " + _enemy.overrideAttack);
+            float rollLongRange = Random.value;
+            if (rollLongRange < 0.1f && _enemy.overrideAttack == false)
+            {
+                _enemy.overrideAttack = true;
+                return EnemyState.Attack;
+            }
         }
 
         // Otherwise stay in combat

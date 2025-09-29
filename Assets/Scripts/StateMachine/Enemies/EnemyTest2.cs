@@ -21,6 +21,9 @@ public class EnemyTest2 : BaseEnemyAI
         States[EnemyState.Patrol] = new PatrolState(EnemyState.Patrol, this, area);
         States[EnemyState.Run] = new RunState(EnemyState.Run, this);
         States[EnemyState.Combat] = new CombatState(EnemyState.Combat, this);
+        States[EnemyState.Attack] = new AttackState(EnemyState.Attack, this);
+        States[EnemyState.Dead] = new DeadState(EnemyState.Dead, this);
+        States[EnemyState.Hit] = new HitState(EnemyState.Hit, this);
 
         CurrentState = States[EnemyState.Idle];
     }
