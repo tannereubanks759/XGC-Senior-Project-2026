@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class CombatController : MonoBehaviour
