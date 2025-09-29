@@ -449,7 +449,11 @@ MonoBehaviour:
   CurrentAttackState: 0
   canMoveWhileAttacking: 0
   moveBackward: 0
-  attacks: []
+  attacks:
+  - {fileID: 11400000, guid: e4ce869924e73064caa3aaf3dd520b8b, type: 2}
+  - {fileID: 11400000, guid: b57ccf236737e5947b2e2a1d8a52795e, type: 2}
+  - {fileID: 11400000, guid: 4e07cd7c5169c6f43821b8f4f038784e, type: 2}
+  - {fileID: 11400000, guid: 4cfa0aec0057c3242a26092eed557aef, type: 2}
   currentAttack: {fileID: 0}
   overrideAttack: 0
   attackTime: 0
