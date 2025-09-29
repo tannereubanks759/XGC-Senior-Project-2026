@@ -19,11 +19,12 @@ public class RunState : BaseState<EnemyState>
 
     public override void EnterState()
     {
+        _enemy.StopMoving();
+
         _enemy.SetResetTriggers("Warcry");
 
         isRunning = false;
-
-        _enemy.ResumeMoving();
+        _enemy.canRunAtPlayer = false;
     }
 
     public override void ExitState()
@@ -44,6 +45,7 @@ public class RunState : BaseState<EnemyState>
         {
             isRunning = true;
             _enemy.SetResetTriggers("Run");
+            _enemy.ResumeMoving();
             _enemy.SetSpeed(_enemy.RunSpeed);
         }
 

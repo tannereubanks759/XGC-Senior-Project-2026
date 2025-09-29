@@ -64,7 +64,7 @@ public class AttackStateFSM : BaseState<EnemyState>
         swordCollider.enabled = false;
 
         // Reset attack state on the enemy to "None."
-        _enemy.SetAttackState(BaseEnemyAI.AttackState.None);
+        _enemy.SetAttackState(BaseEnemyAI.EAttackState.None);
 
         // Reset animator triggers and resume navigation movement.
         _enemy.ResetTriggers();
@@ -95,7 +95,7 @@ public class AttackStateFSM : BaseState<EnemyState>
         if (_enemy.IsAttackFinished)
         {
             // Reset the attack state so another attack can be triggered later.
-            _enemy.SetAttackState(BaseEnemyAI.AttackState.None);
+            _enemy.SetAttackState(BaseEnemyAI.EAttackState.None);
 
             // If the player is still in range and the cooldown has expired,
             // the enemy could trigger another attack here.

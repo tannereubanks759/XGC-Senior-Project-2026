@@ -40,7 +40,7 @@ public class HitStateFSM : BaseState<EnemyState>
         _enemy.StopMoving();
 
         // Reset attack state so the enemy can’t attack while flinching.
-        _enemy.SetAttackState(BaseEnemyAI.AttackState.None);
+        _enemy.SetAttackState(BaseEnemyAI.EAttackState.None);
 
         // Reset animation triggers to avoid conflicts with other animations.
         _enemy.ResetTriggers();

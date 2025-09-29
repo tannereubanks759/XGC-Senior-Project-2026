@@ -66,7 +66,7 @@ public class PatrolState : BaseState<EnemyState>
 
     public override void UpdateState()
     {
-        if (_enemy.Agent.remainingDistance <= _reachedThreshold + 2.0f)
+        if (_enemy.Agent.remainingDistance <= _reachedThreshold + 2.0f && currentSpeed.z >= 0f)
         {
             currentSpeed.z -= 0.6f * Time.deltaTime;
 

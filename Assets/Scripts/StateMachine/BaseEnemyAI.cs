@@ -10,13 +10,21 @@
 */
 
 //using UnityEditorInternal;
-using System;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class BaseEnemyAI : StateManager<EnemyState>
 {
+    #region VARIABLES
+    #region References
     // NEW VARIABLES
+    [Header("References")]
+    [Tooltip("A reference to the player's position")]
+    public Transform Player;                                    // Reference to the player's transform
+    public NavMeshAgent Agent { get; private set; }             // NavMeshAgent for pathfinding/movement
+    public Animator Animator { get; private set; }              // Animator controlling enemy animations
+    #endregion
+    #region Vision System
     [Header("Vision System")]
     [Tooltip("How far this unit can see the player (line of sight check included)")]
     public float detectionRadius = 12f;
@@ -34,67 +42,85 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [HideInInspector] public bool canSeePlayerNow { get; private set; }
     [HideInInspector] public Vector3 lastKnownPlayerPos { get; private set; }
 
-    [Tooltip("Event for the player being spotted")]
-    public event Action OnPlayerSpotted;
-    [Tooltip("Event for the player being lost")]
-    public event Action OnPlayerLost;
-
+    //[Tooltip("Event for the player being spotted")]
+    //public event Action OnPlayerSpotted;
+    //[Tooltip("Event for the player being lost")]
+    //public event Action OnPlayerLost;
+    #endregion
+    #region Combat System
     [Header("Combat System")]
     [Tooltip("Can the enemy run towards the player")]
-    [SerializeField] public bool canRunAtPlayer { get; private set; }
+    public bool canRunAtPlayer;
+
     [Tooltip("The range in which the enemy will start to engage in combat")]
-    [SerializeField] public float combatRange {  get; private set; }
+    public float combatRange;
 
+    [Tooltip("The range in which this unit will start to attack the player (Auto braking is hard coded to stop the enemies 0.5 units into the attack range)")]
+    public float AttackRange = 2f;        // Distance at which enemy will attack
 
+    [Tooltip("The range in which the enemy will react to the player's attacks")]
+    public float threatRange = 4f;
+
+    // Attack state enum to track attack animation progress
+    public enum EAttackState { None, InProgress, Finished }
+
+    public EAttackState CurrentAttackState { get; private set; } = EAttackState.None;
+
+    [Tooltip("The amount of damage that this unit will do to the player")]
+    public int Damage { get; private set; }                    // Base damage (used in attacks)
+
+    [Tooltip("Can this unit move toward the player while attacking?" +
+        "\n(Decided based on the attack animation")]
+    public bool canMoveWhileAttacking;
+    #endregion
+    #region Item System
+    [Header("Item System")]
+    [Tooltip("The item to be dropped (Leave empty if no item is to be spawned)")]
+    public GameObject item;
+
+    private GameObject _item;   // Private reference to the item being dropped/spawned
+
+    [Tooltip("Whether or not the enemy will drop an item on death or not")]
+    private bool hasItem;
+    #endregion
+    #region Speed/Movement
+    [Header("Speeds")]
+    [Tooltip("The speed this unit will move at while walking")]
+    public float WalkSpeed = 2f;          // Patrol speed
+
+    [Tooltip("The speed this unit will move at while running")]
+    public float RunSpeed = 5f;           // Chase/attack speed
+
+    [Tooltip("The current speed of the unit")]
+    public float CurrentSpeed { get; private set; } // Current movement speed
+
+    [Tooltip("Can this unit rotate? (Set to off for certain combat actions)")]
+    public bool canRotate;                // Whether the enemy can rotate toward player
+
+    public float combatSpeed = 4f; // slightly faster than walk, slower than run
+    #endregion
+    #region Health
+    [Header("Health")]
+    [Tooltip("The maximum amount of health this unit has")]
+    [SerializeField] private int maxHealth = 100;           // Maximum health
+
+    [Tooltip("The current amount of health the unit has")]
+    public int currentHealth { get; private set; } // Current health
+    #endregion
 
     // OLD VARIABLES
-    [Header("References")]
-    public Transform Player;              // Reference to the player's transform
-    public NavMeshAgent Agent { get; private set; }            // NavMeshAgent for pathfinding/movement
-    public Animator Animator { get; private set; }             // Animator controlling enemy animations
 
     [Header("Vision & Ranges")]
     [Tooltip("The range in which this unit will spot the player")]
     public float ChaseRange = 10f;        // Distance at which enemy will start chasing
-    [Tooltip("The range in which this unit will start to attack the player (Auto braking is hard coded to stop the enemies 0.5 units into the attack range)")]
-    public float AttackRange = 2f;        // Distance at which enemy will attack
-
-    [Header("Health")]
-    [Tooltip("The maximum amount of health this unit has")]
-    [SerializeField] private int maxHealth = 100;           // Maximum health
-    [Tooltip("The current amount of health the unit has")]
-    public int currentHealth { get; private set; } // Current health
-
-    [Header("Speeds")]
-    [Tooltip("The speed this unit will move at while walking")]
-    public float WalkSpeed = 2f;          // Patrol speed
-    [Tooltip("The speed this unit will move at while running")]
-    public float RunSpeed = 5f;           // Chase/attack speed
-    [Tooltip("The current speed of the unit")]
-    public float CurrentSpeed { get; private set; } // Current movement speed
-    [Tooltip("Can this unit rotate? (Set to off for certain combat actions)")]
-    public bool canRotate;                // Whether the enemy can rotate toward player
 
     [Header("Damage/Combat")]
     [Tooltip("Is this unit currently blocking?")]
     public bool isBlocking;               // Flag for blocking state
     [Tooltip("Is this unit currently dodging?")]
     public bool isDodging;                // Flag for dodging state
-    [Tooltip("The amount of damage that this unit will do to the player")]
-    public int Damage { get; private set; }                    // Base damage (used in attacks)
-
-    [Header("Item System")]
-    [Tooltip("The item to be dropped (Leave empty if no item is to be spawned)")]
-    public GameObject item;
-    private GameObject _item;   // Private reference to the item being dropped/spawned
-    [Tooltip("Whether or not the enemy will drop an item on death or not")]
-    private bool hasItem;
-
-    // Attack state enum to track attack animation progress
-    public enum AttackState { None, InProgress, Finished }
-
-    [Header("Attack Control")]
-    public AttackState CurrentAttackState { get; private set; } = AttackState.None;
+    
+    #endregion
 
     #region Monobehavior Methods
     // Awake is called when the script instance is loaded
@@ -135,6 +161,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
         isDodging = false;
 
         canRunAtPlayer = false;
+        combatRange = 8f;
+        canMoveWhileAttacking = false;
     }
 
     // Initialize an item system for the enemy
@@ -182,10 +210,10 @@ public class BaseEnemyAI : StateManager<EnemyState>
         }
 
         // Fire events only if status changed
-        if (!wasSeeingPlayer && canSeePlayerNow)
-            OnPlayerSpotted?.Invoke();
-        else if (wasSeeingPlayer && !canSeePlayerNow)
-            OnPlayerLost?.Invoke();
+        //if (!wasSeeingPlayer && canSeePlayerNow)
+        //    OnPlayerSpotted?.Invoke();
+        //else if (wasSeeingPlayer && !canSeePlayerNow)
+        //    OnPlayerLost?.Invoke();
 
         Debug.Log("Distance to player: " + distance + ", angle: " + angle + ", can see player: " + (canSeePlayerNow ? "YES" : "NO"));
 
@@ -212,15 +240,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
         Vector3 direction = (Player.position - transform.position).normalized;
 
-        // Update blend tree movement parameters
-        SetMovementInput(new Vector3(direction.x, 0f, direction.z));
+        // Move manually
+        transform.position += direction * RunSpeed * Time.deltaTime;
 
-        // Update speed
-        SetSpeed(RunSpeed);
+        // Rotate toward player
+        if (canRotate) transform.rotation = Quaternion.LookRotation(direction);
 
-        // Optionally rotate smoothly
-        if (canRotate)
-            transform.rotation = Quaternion.LookRotation(direction);
+        // Play the run animation trigger if not already playing
+        if (!Animator.GetCurrentAnimatorStateInfo(0).IsName("Run")) SetResetTriggers("Run");
     }
 
     public void CanRunAtPlayer()
@@ -374,11 +401,32 @@ public class BaseEnemyAI : StateManager<EnemyState>
     #endregion
 
     #region Attack Methods
+    //
+    public bool PlayerIsAttacking()
+    {
+        if (Player == null) return false;
+
+        return false;
+    }
+
+    public bool CanMoveWhileAttacking()
+    {
+        AnimatorClipInfo[] clipInfo = Animator.GetCurrentAnimatorClipInfo(0);
+
+        if (clipInfo[0].clip.name == "Attack 1H-360 Slash"
+            || clipInfo[0].clip.name == "Attack 1H-OverheadSpin")
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     // Called via animation event at the start of the swing
     public void StartAttack()
     {
         Debug.Log("Enemy Attack Start!");
-        CurrentAttackState = AttackState.InProgress;
+        CurrentAttackState = EAttackState.InProgress;
         StopMoving();
         RotateToPlayer();
     }
@@ -395,7 +443,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public void OnAttackEnd()
     {
         Debug.Log("Enemy Attack End!");
-        CurrentAttackState = AttackState.Finished;
+        CurrentAttackState = EAttackState.Finished;
         canRotate = true;
         ResumeMoving();
     }
@@ -407,7 +455,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     }
 
     // Manually set the current attack state
-    public void SetAttackState(AttackState newState)
+    public void SetAttackState(EAttackState newState)
     {
         CurrentAttackState = newState;
     }
@@ -415,17 +463,26 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Virtual attack logic (override in subclasses)
     public virtual void Attack()
     {
-        Debug.Log($"{name} attacks!");
+        // Pick one of 5 slots in your blend tree
+        int attackIndex = Random.Range(0, 5);
+
+        // Set the parameter for the blend tree
+        Animator.SetFloat("aVer", attackIndex);
+
+        // Trigger the attack state in the animator
+        SetResetTriggers("Attack");
     }
 
     // Quick checks for attack states
-    public bool IsAttackInProgress => CurrentAttackState == AttackState.InProgress;
-    public bool IsAttackFinished => CurrentAttackState == AttackState.Finished;
+    public bool IsAttackInProgress => CurrentAttackState == EAttackState.InProgress;
+    public bool IsAttackFinished => CurrentAttackState == EAttackState.Finished;
+
+    public float ThreatRange { get; internal set; }
 
     // Reset attack state to none
     public void ResetAttackState()
     {
-        CurrentAttackState = AttackState.None;
+        CurrentAttackState = EAttackState.None;
     }
     #endregion
 

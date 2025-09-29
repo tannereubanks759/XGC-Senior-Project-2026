@@ -12,6 +12,9 @@ public class CombatState : BaseState<EnemyState>
     // reference to the enemy
     private BaseEnemyAI _enemy;
 
+    private float strafeDirection = 1f; // -1 = left, 1 = right
+    private float strafeTimer = 0f;
+
     //
     public CombatState(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
@@ -21,13 +24,23 @@ public class CombatState : BaseState<EnemyState>
     //
     public override void EnterState()
     {
-        throw new System.NotImplementedException();
+        // Change the FOV so that the player isn't lost as easily during combat
+        _enemy.fieldOfView = 360f;
+
+        _enemy.Agent.isStopped = true;
+        _enemy.Agent.ResetPath();
+
+        // Enter the first state of combat which is walking forward towards the player
+        _enemy.SetResetTriggers("Combat");
     }
 
     //
     public override void ExitState()
     {
-        throw new System.NotImplementedException();
+        // Reset the fov
+        _enemy.fieldOfView = 90f;
+
+        _enemy.Agent.isStopped = false;
     }
 
     //
@@ -39,10 +52,10 @@ public class CombatState : BaseState<EnemyState>
 
         // If we can’t see the player anymore
         if (!_enemy.canSeePlayerNow)
-            return EnemyState.Investigate;
+            // return EnemyState.Investigate;
 
         // If player is outside combat radius, go back to chase/run
-        if (_enemy.DistanceToPlayer() > _enemy.ChaseRange)
+        if (_enemy.DistanceToPlayer() > _enemy.combatRange + 2f)
             return EnemyState.Run;
 
         // If player is within attack range maybe attack
@@ -51,8 +64,8 @@ public class CombatState : BaseState<EnemyState>
             // Example simple choice
             float roll = Random.value;
             if (roll < 0.6f) return EnemyState.Attack;
-            if (roll < 0.8f) return EnemyState.Block;
-            return EnemyState.BackDodge;
+            //if (roll < 0.8f) return EnemyState.Block;
+            //return EnemyState.BackDodge;
         }
 
         // Otherwise stay in combat
@@ -66,20 +79,46 @@ public class CombatState : BaseState<EnemyState>
 
         float distance = _enemy.DistanceToPlayer();
 
+        // --- PLAYER ATTACK REACTION ---
+        if (_enemy.PlayerIsAttacking() && distance <= _enemy.threatRange)
+        {
+            float dodgeOrBlock = Random.value;
+            if (dodgeOrBlock < 0.5f)
+            {
+                // Back dodge
+                //_enemy.SetResetTriggers("BackDodge");
+            }
+            else
+            {
+                // Block
+                //_enemy.SetResetTriggers("Block");
+            }
+            //return; // skip other movement this frame
+        }
+
+        // --- MOVE TOWARDS PLAYER IF TOO FAR ---
         if (distance > _enemy.AttackRange)
         {
-            // Walk toward player
-            Vector3 move = _enemy.transform.forward * _enemy.WalkSpeed * Time.deltaTime;
-            _enemy.DirectMove(move);
-            _enemy.SetAnimatorMovement(0f, 1f); // zMov forward
+            Vector3 forwardMove = (_enemy.Player.position - _enemy.transform.position).normalized;
+            _enemy.DirectMove(forwardMove * _enemy.WalkSpeed * Time.deltaTime);
+            _enemy.SetAnimatorMovement(0f, 1f);
+            return;
         }
-        else
+
+        // --- ORBIT / STRAFE AROUND PLAYER ---
+        strafeTimer -= Time.deltaTime;
+        if (strafeTimer <= 0f)
         {
-            // Strafe inside combat range
-            float strafeDir = Random.value < 0.5f ? -1f : 1f;
-            Vector3 move = _enemy.transform.right * strafeDir * _enemy.WalkSpeed * Time.deltaTime;
-            _enemy.DirectMove(move);
-            _enemy.SetAnimatorMovement(strafeDir, 0f); // xMov left/right
+            strafeDirection = Random.value < 0.5f ? -1f : 1f;
+            strafeTimer = Random.Range(1.0f, 3.0f); // strafe for 1-3 seconds
         }
+
+        Vector3 strafe = _enemy.transform.right * strafeDirection;
+        Vector3 toPlayer = (_enemy.Player.position - _enemy.transform.position).normalized;
+
+        // Combine strafe + small forward movement to orbit naturally
+        Vector3 move = (strafe + toPlayer * 0.2f).normalized * _enemy.combatSpeed * Time.deltaTime;
+        _enemy.DirectMove(move);
+        _enemy.SetAnimatorMovement(strafeDirection, 0.2f); // x/z movement for animator
     }
 }
