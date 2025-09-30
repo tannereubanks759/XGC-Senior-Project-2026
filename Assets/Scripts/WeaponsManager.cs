@@ -10,6 +10,7 @@ public class WeaponsManager : MonoBehaviour
     private int currentWeapon = 0;
     public GameObject[] weapons;
     private GameObject[] weaponIcons;
+    private GameObject Crosshair;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -18,6 +19,8 @@ public class WeaponsManager : MonoBehaviour
         weaponIcons = GameObject.FindGameObjectsWithTag("WeaponIcon");
         Array.Reverse(weaponIcons);
         InitializeWeapons();
+        Crosshair = GameObject.FindGameObjectWithTag("crosshair");
+        EnableCrosshair(false);
     }
 
     // Update is called once per frame
@@ -56,6 +59,11 @@ public class WeaponsManager : MonoBehaviour
         {
             SwitchWeapon(1);
         }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            EnableCrosshair(!Crosshair.activeSelf);
+        }
     }
 
     void InitializeWeapons()
@@ -87,6 +95,14 @@ public class WeaponsManager : MonoBehaviour
         {
             EnlargeWeaponIcon(weaponIcons[currentWeapon].GetComponent<RawImage>());
         }
+        if(currentWeapon == 0)
+        {
+            EnableCrosshair(false);
+        }
+        else
+        {
+            EnableCrosshair(true);
+        }
     }
 
 
@@ -105,5 +121,10 @@ public class WeaponsManager : MonoBehaviour
     void ShrinkWeaponIcon(RawImage icon)
     {
         icon.gameObject.transform.localScale = Vector3.one / 2;
+    }
+
+    void EnableCrosshair(bool enabled)
+    {
+        Crosshair.SetActive(enabled);
     }
 }
