@@ -19,6 +19,7 @@ public class ChestScript : MonoBehaviour
     public GameObject lockedParticleEffect;
     private static int nextId = 1;
     public int keyID;
+    public Transform KeySpawn; //Added this to reference position of where key should spawn
     private void Awake()
     {
         if (keyID == 0)
@@ -33,6 +34,8 @@ public class ChestScript : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         interactScript = player.GetComponent<interactScript>();
         infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
+
+        spawnKey(KeySpawn.position); //Added this to spawn key at start
     }
     // CALL this on miniboss death
     public void spawnKey(Vector3 pos)
