@@ -14,7 +14,7 @@ public class Blunderbuss : MonoBehaviour
     public KeyCode shootKey = KeyCode.Mouse0;
     public KeyCode AimKey = KeyCode.Mouse1;
     public Animator anim;
-
+    private inventoryScript Inv;
     [Header("FX")]
     public GameObject PelletHitEffect;
     public GameObject MuzzleFlashParticle;
@@ -24,6 +24,7 @@ public class Blunderbuss : MonoBehaviour
 
     void Start()
     {
+        Inv = GameObject.FindAnyObjectByType<inventoryScript>();
         fxPool = GameObject.FindAnyObjectByType<FXPool>();
         wIntertia = GetComponentInParent<WeaponInertia>();
         isLoaded = true;
@@ -37,7 +38,8 @@ public class Blunderbuss : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(shootKey) && isLoaded)
+
+        if (Input.GetKeyDown(shootKey) && isLoaded && Inv.isOpen == false)
             anim.SetTrigger("Shoot");
 
         anim.SetBool("Aim", Input.GetKey(AimKey));
