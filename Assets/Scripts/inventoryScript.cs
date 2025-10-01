@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using NUnit.Framework.Interfaces;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem.Interactions;
 using UnityEngine.UI;
 
 public class inventoryScript : MonoBehaviour
@@ -12,14 +14,15 @@ public class inventoryScript : MonoBehaviour
     public List<ItemData> items = new List<ItemData>();
     public  ItemData currentlyEquippingItemData;
     public equipScript equip;
-    
+    public Transform middleInventorySlot;
+    public GameObject spawnPoint;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         inventoryUI = GameObject.Find("NEW INV");
         equip = inventoryUI.GetComponentInChildren<equipScript>();
         inventoryUI.SetActive(false);
-        
+        middleInventorySlot = inventoryUI.transform.Find("bg/AssigningSpot/assignImageBG");
     }
 
     // Update is called once per frame
@@ -32,6 +35,19 @@ public class inventoryScript : MonoBehaviour
     }
     public void toggleInv() 
     {
+        if(isOpen) 
+        {
+            //check if theres a child obj if so drop.
+            if(middleInventorySlot.childCount > 0) 
+            {
+                GameObject gameObject = middleInventorySlot.gameObject;
+                objectIdentifier OI = gameObject.GetComponentInChildren<objectIdentifier>();
+                Instantiate(OI.item.prefab, spawnPoint.transform.position, Quaternion.identity);
+                Debug.Log("DROPPED from closing inv");
+                Destroy(middleInventorySlot.GetChild(0).gameObject);
+                
+            }
+        }
         inventoryUI.SetActive(!isOpen);
         setPauseLogic(!isOpen);
         isOpen = !isOpen;
