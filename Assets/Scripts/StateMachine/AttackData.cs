@@ -13,4 +13,6 @@ public class AttackData : ScriptableObject
     public bool movesBackward;
     [Tooltip("The amount of damage that this attack does")]
     public int damage;
+    [Tooltip("The amount that the character movement is modified by")]
+    public float movModifier = 1f;
 }

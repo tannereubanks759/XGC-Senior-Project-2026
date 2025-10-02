@@ -24,6 +24,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public NavMeshAgent Agent { get; private set; }             // NavMeshAgent for pathfinding/movement
     public Animator Animator { get; private set; }              // Animator controlling enemy animations
     private Collider swordCollider;                             // Reference to the collider attached to the weapon
+    private CombatController playerController;
     #endregion
 
     #region Vision System
@@ -174,6 +175,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Agent = GetComponent<NavMeshAgent>();
         Animator = GetComponent<Animator>();
         swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
+        playerController = Player.GetComponentInChildren<CombatController>();
     }
 
     // Initialize variables
@@ -433,7 +435,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         if (Player == null) return false;
 
-        return false;
+        return playerController.swinging;
     }
 
     public void StopMoveWhileAttacking()
@@ -452,6 +454,35 @@ public class BaseEnemyAI : StateManager<EnemyState>
         moveBackward = true;
         canMoveWhileAttacking = true;
     }    
+
+    // Slowly stop the enemies movement to (0, 0, 0)
+    public void SlowStopMovement(float x, float z)
+    {
+        // Set vars
+        bool setAValue = false;
+
+        // The enemy is moving in the x direction
+        if (SnapZero(x) != 0)
+        {
+            x -= 0.06f * Time.deltaTime;
+
+            Animator.SetFloat("xMov", x);
+
+            setAValue = true;
+        }
+        if (SnapZero(z) != 0)
+        {
+            z -= 0.06f * Time.deltaTime;
+
+            Animator.SetFloat("zMov", z);
+
+            setAValue = true;
+        }
+        if (setAValue)
+        {
+            SlowStopMovement(x, z);
+        }
+    }
 
     // Called via animation event at the start of the swing
     public void OnAttackStart()
@@ -505,7 +536,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Debug.Log("Can Override: " + overrideAttack);
         // Pick one of 5 slots in your blend tree
-        int attackIndex = Random.Range(0, attacks.Length - 1);
+        int attackIndex = Random.Range(0, attacks.Length);
         currentAttack = attacks[attackIndex];
 
         Debug.Log("Rand Index: " + attackIndex);
@@ -516,7 +547,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         canMoveWhileAttacking = currentAttack.canMoveDuringAttack;
         moveBackward = currentAttack.movesBackward;
 
-        if (overrideAttack) OverrideAttack();
+        //if (overrideAttack) OverrideAttack();
     }
 
     // Override the attack selected in the attack state

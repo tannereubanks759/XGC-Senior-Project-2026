@@ -11,7 +11,7 @@ public class CombatController : MonoBehaviour
 
     [Header("Animation")]
     public Animator swordAnim;
-    private bool swinging;
+    public bool swinging;
     public bool blocking { get; private set; }
 
     // Private

@@ -13,7 +13,17 @@ public class CombatState : BaseState<EnemyState>
     private BaseEnemyAI _enemy;
 
     private float strafeDirection = 1f; // -1 = left, 1 = right
-    private float strafeTimer = 0f;
+
+    private float moveTimer = 0f;
+    private bool forward = true;
+
+    // These hold animator movement inputs
+    private float currentX = 0f;
+    private float currentZ = 0f;
+
+    private float dodgeMult = 5f;
+    private float dodgeTimer = 0f;
+    private float dodgeTransition = 0.75f;
 
     //
     public CombatState(EnemyState key, BaseEnemyAI enemy) : base(key)
@@ -32,6 +42,9 @@ public class CombatState : BaseState<EnemyState>
 
         // Enter the first state of combat which is walking forward towards the player
         _enemy.SetResetTriggers("Combat");
+
+        currentX = 0f;
+        currentZ = 0f;
     }
 
     //
@@ -58,35 +71,23 @@ public class CombatState : BaseState<EnemyState>
         if (_enemy.DistanceToPlayer() > _enemy.combatRange + 2f)
             return EnemyState.Run;
 
-        if (Time.time - _enemy.attackTime >= _enemy.attackCooldown)
+        // If player is within attack range maybe attack
+        if (_enemy.DistanceToPlayer() <= _enemy.AttackRange)
         {
-            // If player is within attack range maybe attack
-            if (_enemy.DistanceToPlayer() <= _enemy.AttackRange)
-            {
-                // Example simple choice
-                float roll = Random.value;
-                if (roll < 0.6f) return EnemyState.Attack;
-                //if (roll < 0.8f) return EnemyState.Block;
-                //return EnemyState.BackDodge;
+            // Example simple choice
+            float roll = Random.value;
+            if (roll < 0.6f) return EnemyState.Attack;
+            //if (roll < 0.8f) return EnemyState.Block;
+            //return EnemyState.BackDodge;
 
-                return EnemyState.Attack;
-            }
-
-            // Random chance to do the long range attack
-            Debug.Log("Override before: " + _enemy.overrideAttack);
-            float rollLongRange = Random.value;
-            if (rollLongRange < 0.1f && _enemy.overrideAttack == false)
-            {
-                _enemy.overrideAttack = true;
-                return EnemyState.Attack;
-            }
+            return EnemyState.Attack;
         }
 
         // Otherwise stay in combat
         return StateKey;
     }
 
-    //
+    // 
     public override void UpdateState()
     {
         _enemy.RotateToPlayer();
@@ -100,38 +101,64 @@ public class CombatState : BaseState<EnemyState>
             if (dodgeOrBlock < 0.5f)
             {
                 // Back dodge
-                //_enemy.SetResetTriggers("BackDodge");
+                Vector3 backMove = (_enemy.transform.position - _enemy.Player.position).normalized * dodgeMult;
+                _enemy.SetAnimatorMovement(0, -1f);
             }
             else
             {
                 // Block
                 //_enemy.SetResetTriggers("Block");
             }
-            //return; // skip other movement this frame
+            return; // skip other movement this frame
         }
 
-        // --- MOVE TOWARDS PLAYER IF TOO FAR ---
-        if (distance > _enemy.AttackRange)
+        moveTimer -= Time.deltaTime;
+        if (moveTimer <= 0)
         {
+            if (currentX != 0 || currentZ != 0) 
+            {
+                currentX = Mathf.Lerp(currentX, 0, 1f);
+                currentZ = Mathf.Lerp(currentZ, 0, 1f);
+            }
+
+            float roll = Random.value;
+
+            forward = roll < .8 ? true : false;
+
+            if (!forward)
+            {
+                strafeDirection = Random.value < 0.5f ? -1f : 1f;
+            }
+
+            currentX = 0.0f;
+            currentZ = 0.0f;
+
+            moveTimer = Random.Range(1.0f, 3.0f);
+        }
+
+        if (forward)
+        {
+            if (currentZ < _enemy.WalkSpeed)
+            {
+                currentZ += Time.deltaTime;
+            }
             Vector3 forwardMove = (_enemy.Player.position - _enemy.transform.position).normalized;
-            _enemy.DirectMove(forwardMove * _enemy.WalkSpeed * Time.deltaTime);
+            _enemy.DirectMove(forwardMove * currentZ * Time.deltaTime);
             _enemy.SetAnimatorMovement(0f, 1f);
             return;
         }
 
-        // --- ORBIT / STRAFE AROUND PLAYER ---
-        strafeTimer -= Time.deltaTime;
-        if (strafeTimer <= 0f)
+        if (currentX < _enemy.combatSpeed)
         {
-            strafeDirection = Random.value < 0.5f ? -1f : 1f;
-            strafeTimer = Random.Range(1.0f, 3.0f); // strafe for 1-3 seconds
+            currentX += Time.deltaTime;
         }
 
+        // --- ORBIT / STRAFE AROUND PLAYER ---
         Vector3 strafe = _enemy.transform.right * strafeDirection;
         Vector3 toPlayer = (_enemy.Player.position - _enemy.transform.position).normalized;
 
         // Combine strafe + small forward movement to orbit naturally
-        Vector3 move = (strafe + toPlayer * 0.2f).normalized * _enemy.combatSpeed * Time.deltaTime;
+        Vector3 move = (strafe + toPlayer * 0.2f).normalized * currentX * Time.deltaTime;
         _enemy.DirectMove(move);
         _enemy.SetAnimatorMovement(strafeDirection, 0.2f); // x/z movement for animator
     }

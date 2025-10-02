@@ -78,7 +78,7 @@ public class AttackState : BaseState<EnemyState>
             if (moveTowardsPlayer)
             {
                 Vector3 moveDir = _enemy.moveBackward ? -attackDirection : attackDirection;
-                _enemy.Agent.Move(moveDir * _enemy.combatSpeed * Time.deltaTime);
+                _enemy.Agent.Move(moveDir * _enemy.combatSpeed * Time.deltaTime * _enemy.currentAttack.movModifier);
             }
         }
 
