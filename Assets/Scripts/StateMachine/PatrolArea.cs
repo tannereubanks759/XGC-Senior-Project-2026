@@ -31,11 +31,11 @@ public class PatrolArea : MonoBehaviour
         // Snap the random point to the NavMesh to ensure the enemy can reach it.
         if (NavMesh.SamplePosition(randomPoint, out var hit, 1f, NavMesh.AllAreas))
         {
-            Debug.Log(hit.position);
+            //Debug.Log(hit.position);
             return hit.position;
         }
 
-        Debug.Log(transform.position);
+        //Debug.Log(transform.position);
         // If unable to find a valid NavMesh point, fallback to the patrol area's center.
         return transform.position;
     }
