@@ -9,7 +9,7 @@ TerrainLayer:
   m_Name: Layer_TAI_Terrain_Grass_1A
   m_DiffuseTexture: {fileID: 2800000, guid: 0a913955653540e4bbe050f89ea20665, type: 3}
   m_NormalMapTexture: {fileID: 2800000, guid: 4223cf198dfd83749a784dc1f9cdc3d0, type: 3}
-  m_MaskMapTexture: {fileID: 2800000, guid: 04a40b50e9e63ed43af8af28f2ba4f86, type: 3}
+  m_MaskMapTexture: {fileID: 0}
   m_TileSize: {x: 6, y: 6}
   m_TileOffset: {x: 0, y: 0}
   m_Specular: {r: 0, g: 0, b: 0, a: 0}
@@ -18,6 +18,6 @@ TerrainLayer:
   m_NormalScale: 1
   m_DiffuseRemapMin: {x: 0, y: 0, z: 0, w: 0}
   m_DiffuseRemapMax: {x: 1, y: 1, z: 1, w: 1}
-  m_MaskMapRemapMin: {x: 0, y: 0, z: 0, w: 0.86029404}
-  m_MaskMapRemapMax: {x: 0, y: 0.28676474, z: 1, w: 1}
+  m_MaskMapRemapMin: {x: 0, y: 0, z: 0, w: 0}
+  m_MaskMapRemapMax: {x: 0, y: 0, z: 1, w: 0}
   m_SmoothnessSource: 1

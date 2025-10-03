@@ -60,25 +60,19 @@ public class IslandSetup : MonoBehaviour
 
         if (usableChests == null || usableChests.Length == 0)
         {
-            Debug.LogWarning("No usable chests configured.");
+            Debug.LogWarning("No usable chests configured for the selected rarity.");
             return;
         }
 
         for (int i = 0; i < chestLocations.Length; i++)
         {
             var chestAnchor = chestLocations[i];
-
-            // Make sure we raycast far enough and against the right layers:
-            if (!Physics.Raycast(chestAnchor.position, Vector3.down, out var groundHit, 2000f, ~0))
+            if (!Physics.Raycast(chestAnchor.position, Vector3.down, out var groundHit))
             {
                 Debug.LogWarning($"Chest raycast failed at chest location index {i}.");
                 continue;
             }
 
-            // 1) Spawn enemies FIRST so the chest can't carve/block the NavMesh yet.
-            SpawnEnemiesAroundChest(groundHit);
-
-            // 2) THEN place the chest
             int rand = Random.Range(0, usableChests.Length);
             var chest = Instantiate(
                 usableChests[rand],
@@ -87,9 +81,11 @@ public class IslandSetup : MonoBehaviour
             );
 
             chest.AddComponent<PatrolArea>();
+
+            // === NEW: spawn enemies with a FRESH per-chest quota set ===
+            SpawnEnemiesAroundChest(groundHit);
         }
     }
-
 
     // --- Per-chest spawning using local quotas ---
     void SpawnEnemiesAroundChest(RaycastHit chestGroundHit)
