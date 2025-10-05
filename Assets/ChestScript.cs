@@ -69,6 +69,7 @@ public class ChestScript : MonoBehaviour
             Debug.Log("Opened");
             hingeAnimator.SetTrigger("openChest");
             generate();
+            chestOutline.enabled = false;
         }
         else
         {

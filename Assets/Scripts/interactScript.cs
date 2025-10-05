@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using NUnit.Framework;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 
 public class interactScript : MonoBehaviour
 {
@@ -23,16 +24,61 @@ public class interactScript : MonoBehaviour
     private GameObject dungeonDoor;
     private GameObject dungeonLock;
     public List<int> keyIDs = new List<int>();
-    private static interactScript current;
+    public static interactScript current; 
+    
+    public GameObject redKeyObj;
+    public GameObject blueKey;
+    public GameObject greenKey;
+    public GameObject goldKey;
     void Start()
     {
         current = this;
         interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
         infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
+        HideAllKeyIcons();
         //chest =  GameObject.Find("Animated PBR Chest _Wood_Demo").GetComponent<ChestScript>();
     }
+    private void Awake()
+    {
+        redKeyObj = GameObject.FindGameObjectWithTag("redKey");
+        blueKey = GameObject.FindGameObjectWithTag("blueKey");
+        greenKey = GameObject.FindGameObjectWithTag("greenKey");
+        goldKey = GameObject.FindGameObjectWithTag("goldKey");
+    }
+    private void colorIDChecker(int keyID, bool active)
+    {
+        int key = (keyID - 1) % 4;
+        switch (key)
+        {
+            case 0: 
+                if (redKeyObj) redKeyObj.SetActive(active); 
+                break;
+            case 1: 
+                if (greenKey) greenKey.SetActive(active); 
+                break;
+            case 2: 
+                if (blueKey) blueKey.SetActive(active); 
+                break;
+            case 3: if (goldKey) goldKey.SetActive(active); 
+                break;
+        }
+    }
+    public void RefreshKeyIcons()
+    {
+        
+       redKeyObj.SetActive(false);
+       greenKey.SetActive(false);
+       blueKey.SetActive(false);
+       goldKey.SetActive(false);
 
+        
+        foreach (int id in keyIDs)
+        {
+            colorIDChecker(id, true);
+        }
+            
+    }
     private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Artifact"))
@@ -139,12 +185,18 @@ public class interactScript : MonoBehaviour
                 infoScriptRef.keyCount++;
                 k.chest.DisableSeal();
                 k.chest.chestOutline.enabled = true;
+                if (inventoryScript.inventoryUI.activeSelf)
+                {
+                    colorIDChecker(id, true);
+                }
                 keyInteract = false;
             }
             else if (chestInteract)
             {
                 chestInteract = false;
                 chest.chestOpen(current);
+                int id = chest.keyID;
+                colorIDChecker(id, false);
             }
             else if (dungeonLock != null)
             {
@@ -168,5 +220,13 @@ public class interactScript : MonoBehaviour
                 interactText.SetActive(false);
 
         }
+    }
+    public void HideAllKeyIcons()
+    {
+        redKeyObj.SetActive(false);
+        greenKey.SetActive(false);
+        blueKey.SetActive(false);
+        goldKey.SetActive(false);
+
     }
 }

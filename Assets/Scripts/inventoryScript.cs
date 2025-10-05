@@ -47,8 +47,14 @@ public class inventoryScript : MonoBehaviour
                 Destroy(middleInventorySlot.GetChild(0).gameObject);
                 
             }
+            interactScript.current.HideAllKeyIcons();
+        }
+        if (!isOpen)
+        {
+            interactScript.current.RefreshKeyIcons();
         }
         inventoryUI.SetActive(!isOpen);
+
         setPauseLogic(!isOpen);
         isOpen = !isOpen;
     }
