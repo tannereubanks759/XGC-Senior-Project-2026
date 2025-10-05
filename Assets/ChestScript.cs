@@ -20,6 +20,7 @@ public class ChestScript : MonoBehaviour
     private static int nextId = 1;
     public int keyID;
     public Transform KeySpawn; //Added this to reference position of where key should spawn
+    public Animator hingeAnimator;
     private void Awake()
     {
         if (keyID == 0)
@@ -51,6 +52,7 @@ public class ChestScript : MonoBehaviour
         {
             player.keyIDs.Remove(keyID); 
             Debug.Log("Opened");
+            hingeAnimator.SetTrigger("openChest");
             generate();
         }
         else
@@ -61,10 +63,10 @@ public class ChestScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.K))
+        /*if(Input.GetKeyDown(KeyCode.K))
         {
             spawnKey(spawnLocation.transform.position);
-        }
+        }*/
     }
     public void DisableSeal()
     {
