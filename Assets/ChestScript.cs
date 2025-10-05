@@ -36,6 +36,11 @@ public class ChestScript : MonoBehaviour
             keyID = nextId++;
         }
         keyColor = palette[(keyID - 1) % palette.Length];
+        if (chestOutline != null)
+        {
+            chestOutline.OutlineColor = keyColor;
+            chestOutline.enabled = false; 
+        }
     }
     private void Start()
     {

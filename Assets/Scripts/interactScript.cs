@@ -138,6 +138,7 @@ public class interactScript : MonoBehaviour
                 keyIDs.Add(id);
                 infoScriptRef.keyCount++;
                 k.chest.DisableSeal();
+                k.chest.chestOutline.enabled = true;
                 keyInteract = false;
             }
             else if (chestInteract)
