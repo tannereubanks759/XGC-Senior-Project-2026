@@ -4,6 +4,7 @@ public class keyScript : MonoBehaviour
 {
     public int keyID;
     public ChestScript chest;
+    public Color keyColor;
     void Start()
     {
         

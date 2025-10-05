@@ -21,12 +21,21 @@ public class ChestScript : MonoBehaviour
     public int keyID;
     public Transform KeySpawn; //Added this to reference position of where key should spawn
     public Animator hingeAnimator;
+    public Outline chestOutline;
+    public Color keyColor; 
+    private Color[] palette = {
+        new Color(0.9f, 0.2f, 0.2f),   
+        new Color(0.2f, 0.7f, 0.25f),  
+        new Color(0.2f, 0.45f, 0.9f),  
+        new Color(0.95f, 0.8f, 0.2f)  
+    };
     private void Awake()
     {
         if (keyID == 0)
         {
             keyID = nextId++;
         }
+        keyColor = palette[(keyID - 1) % palette.Length];
     }
     private void Start()
     {
@@ -45,6 +54,7 @@ public class ChestScript : MonoBehaviour
         keyScript key = spawnedKey.GetComponent<keyScript>();
         key.keyID = keyID;
         key.chest = this;
+        key.keyColor = keyColor;
     }
     public void chestOpen(interactScript player)
     {

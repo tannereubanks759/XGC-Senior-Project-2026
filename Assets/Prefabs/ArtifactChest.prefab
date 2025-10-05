@@ -5074,6 +5074,7 @@ GameObject:
   - component: {fileID: 1403927293968752255}
   - component: {fileID: 6134430209567697166}
   - component: {fileID: 1509120468392016266}
+  - component: {fileID: 8708069469160057169}
   m_Layer: 0
   m_Name: NewChest
   m_TagString: Untagged
@@ -5099,7 +5100,6 @@ Transform:
   - {fileID: 1678687605600206036}
   - {fileID: 7220061848181154614}
   - {fileID: 4178029233089315404}
-  - {fileID: 8121235493957219037}
   - {fileID: 8128805568943130557}
   - {fileID: 5894230877856930753}
   - {fileID: 5962556930737028901}
@@ -5167,6 +5167,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.54517174, y: 0.38697782, z: 1.0996885}
   m_Center: {x: -0.0015573502, y: 0.1938004, z: 0.001557827}
+--- !u!114 &8708069469160057169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742911489352385733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 0
+  outlineColor: {r: 1, g: 0, b: 0, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!1 &2217824491530144767
 GameObject:
   m_ObjectHideFlags: 0
@@ -5279,9 +5297,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2415505741298704286}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0.3875265, y: 0.41887876, z: 0.0018644758}
-  m_LocalScale: {x: 0.12755097, y: 0.12755102, z: 0.12755097}
+  m_LocalRotation: {x: -0.000000067179414, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.004370553, y: 0.8399585, z: 0.7628957}
+  m_LocalScale: {x: 0.25510198, y: 0.255102, z: 0.25510198}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 461286509965407024}
@@ -5292,7 +5310,7 @@ Transform:
   - {fileID: 5726787896741463162}
   - {fileID: 40090172309301919}
   - {fileID: 7761921362542773316}
-  m_Father: {fileID: 1403927293968752255}
+  m_Father: {fileID: 9168872515636287359}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!198 &5500553361589516979
 ParticleSystem:
@@ -50310,6 +50328,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1198351653444953918}
+  - {fileID: 8121235493957219037}
   m_Father: {fileID: 1863735497728104666}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8831711157816922591
@@ -50393,6 +50412,8 @@ MonoBehaviour:
   keyID: 0
   KeySpawn: {fileID: 8128805568943130557}
   hingeAnimator: {fileID: 8278228173512836246}
+  chestOutline: {fileID: 8708069469160057169}
+  keyColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!208 &739482430296478398
 NavMeshObstacle:
   m_ObjectHideFlags: 0
