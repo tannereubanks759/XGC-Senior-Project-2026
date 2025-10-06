@@ -395,7 +395,7 @@ public class CombatController : MonoBehaviour
         if (wInertia != null)
         {
             Vector3 fromEnemyToPlayer = (transform.position - enemy.position).normalized;
-            wInertia.BlockStagger(fromEnemyToPlayer, intensity);
+            //wInertia.BlockStagger(fromEnemyToPlayer, intensity);
             isStaggered = true;
             swordAnim.SetTrigger("Stagger");
             StartCoroutine(CoApplyStaggerKnockback(fromEnemyToPlayer)); // push away from enemy
