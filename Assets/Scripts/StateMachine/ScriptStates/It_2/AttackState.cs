@@ -81,6 +81,5 @@ public class AttackState : BaseState<EnemyState>
                 _enemy.Agent.Move(moveDir * _enemy.combatSpeed * Time.deltaTime * _enemy.currentAttack.movModifier);
             }
         }
-
     }
 }

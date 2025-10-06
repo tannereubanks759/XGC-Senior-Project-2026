@@ -15,7 +15,7 @@ public class EnemyTest2 : BaseEnemyAI
 
         PatrolArea area = FindClosestPatrolArea();
 
-        Collider sowrd = GetComponentInChildren<AffectPlayer>().swordCollider;
+        Collider sword = GetComponentInChildren<AffectPlayer>().swordCollider;
 
         States[EnemyState.Idle] = new IdleState(EnemyState.Idle, this);
         States[EnemyState.Patrol] = new PatrolState(EnemyState.Patrol, this, area);

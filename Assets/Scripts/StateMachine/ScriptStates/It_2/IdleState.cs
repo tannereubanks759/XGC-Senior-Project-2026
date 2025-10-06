@@ -62,6 +62,8 @@ public class IdleState : BaseState<EnemyState>
         {
             changeStateInterval = 5f;
 
+            _enemy.SetResetTriggers("EmoteOver");
+
             float rand = Random.value;
 
             float emotePerc = 0.5f / 3;
@@ -85,7 +87,7 @@ public class IdleState : BaseState<EnemyState>
             }
             else if (rand <= 0.5 + (3 * emotePerc))
             {
-                _enemy.SetResetTriggers("Emote2");
+                _enemy.SetResetTriggers("Emote3");
                 idleTime = Time.time;
                 changeStateInterval = 8f;
                 return StateKey;

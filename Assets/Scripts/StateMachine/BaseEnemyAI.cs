@@ -56,11 +56,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("Can the enemy run towards the player")]
     public bool canRunAtPlayer;
 
+    [HideInInspector]
+    public bool hasSeenPlayerBefore = false;
+
     [Tooltip("The range in which the enemy will start to engage in combat")]
     public float combatRange;
 
     [Tooltip("The range in which this unit will start to attack the player (Auto braking is hard coded to stop the enemies 0.5 units into the attack range)")]
-    public float AttackRange = 2f;        // Distance at which enemy will attack
+    public float AttackRange = 2.5f;        // Distance at which enemy will attack
 
     [Tooltip("The range in which the enemy will react to the player's attacks")]
     public float threatRange = 4f;
@@ -313,6 +316,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public void SetIsDodgingFalse()
     {
         isDodging = false;
+        SetResetTriggers("Combat");
     }
 
     // Set movement speed for the NavMeshAgent
@@ -523,6 +527,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public void OnBlockEnd()
     {
         isBlocking = false;
+        SetResetTriggers("Combat");
     }
 
     // Manually set the current attack state
@@ -610,7 +615,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
             // Pick correct reaction state
             if (isBlocking)
             {
-                TransitionToState(EnemyState.BlockHit);
+                //TransitionToState(EnemyState.BlockHit);
+                SetResetTriggers("BlockHit");
             }
             else
             {
@@ -618,6 +624,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
             }
         }
     }
+
+    public void BlockHitOver()
+    {
+        Debug.Log("HitOver");
+        SetResetTriggers("BlockHitOver");
+    }
+
+
 
     // Handle death of the enemy
     public virtual void Die()
@@ -692,7 +706,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.ResetTrigger("Chase");
         Animator.ResetTrigger("Block");
         Animator.ResetTrigger("BlockHit");
+        Animator.ResetTrigger("BlockHitOver");
         Animator.ResetTrigger("BackDodge");
+        Animator.ResetTrigger("EmoteOver");
         Animator.SetTrigger(trigger);
     }
 

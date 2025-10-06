@@ -21,7 +21,7 @@ public class CombatState : BaseState<EnemyState>
     private float currentX = 0f;
     private float currentZ = 0f;
 
-    private float dodgeMult = 5f;
+    private float dodgeMult = 2.5f;
     private float dodgeTimer = 0f;
     private float dodgeTransition = 0.75f;
 
@@ -64,25 +64,35 @@ public class CombatState : BaseState<EnemyState>
             return EnemyState.Dead;
 
         // If we can’t see the player anymore
-        if (!_enemy.canSeePlayerNow)
+        //if (!_enemy.canSeePlayerNow)
             // return EnemyState.Investigate;
 
-        // If player is outside combat radius, go back to chase/run
-        if (_enemy.DistanceToPlayer() > _enemy.combatRange + 2f)
-            return EnemyState.Run;
-
-        // If player is within attack range maybe attack
-        if (_enemy.DistanceToPlayer() <= _enemy.AttackRange)
+        if (!_enemy.isDodging)
         {
-            // Example simple choice
-            float roll = Random.value;
-            if (roll < 0.6f) return EnemyState.Attack;
-            //if (roll < 0.8f) return EnemyState.Block;
-            //return EnemyState.BackDodge;
+            // If player is outside combat radius, go back to chase/run
+            if (_enemy.DistanceToPlayer() > _enemy.combatRange + 2f)
+                return EnemyState.Run;
 
-            return EnemyState.Attack;
+            // If player is within attack range maybe attack
+            if (_enemy.DistanceToPlayer() <= _enemy.AttackRange)
+            {
+                // Example simple choice
+                float roll = Random.value;
+                if (roll < 0.6f)
+                {
+                    return EnemyState.Attack;
+                }
+
+                if (roll < 0.8f)
+                {
+                    _enemy.isBlocking = true;
+                    _enemy.SetResetTriggers("Block");
+                }
+
+                return EnemyState.Attack;
+            }
         }
-
+        
         // Otherwise stay in combat
         return StateKey;
     }
@@ -94,72 +104,81 @@ public class CombatState : BaseState<EnemyState>
 
         float distance = _enemy.DistanceToPlayer();
 
-        // --- PLAYER ATTACK REACTION ---
-        if (_enemy.PlayerIsAttacking() && distance <= _enemy.threatRange)
+        if (!_enemy.isDodging && !_enemy.isBlocking)
         {
-            float dodgeOrBlock = Random.value;
-            if (dodgeOrBlock < 0.5f)
+            // --- PLAYER ATTACK REACTION ---
+            if (_enemy.PlayerIsAttacking() && distance <= _enemy.threatRange)
             {
-                // Back dodge
-                Vector3 backMove = (_enemy.transform.position - _enemy.Player.position).normalized * dodgeMult;
-                _enemy.SetAnimatorMovement(0, -1f);
+                float dodgeOrBlock = Random.value;
+                if (dodgeOrBlock < 0.2f)
+                {
+                    _enemy.isDodging = true;
+                    _enemy.SetResetTriggers("BackDodge");
+                }
+                else
+                {
+                    // Block
+                    _enemy.isBlocking = true;
+                    _enemy.SetResetTriggers("Block");
+                }
+                return; // skip other movement this frame
             }
-            else
-            {
-                // Block
-                //_enemy.SetResetTriggers("Block");
-            }
-            return; // skip other movement this frame
-        }
 
-        moveTimer -= Time.deltaTime;
-        if (moveTimer <= 0)
+            moveTimer -= Time.deltaTime;
+            if (moveTimer <= 0)
+            {
+                if (currentX != 0 || currentZ != 0)
+                {
+                    currentX = Mathf.Lerp(currentX, 0, 1f);
+                    currentZ = Mathf.Lerp(currentZ, 0, 1f);
+                }
+
+                float roll = Random.value;
+
+                forward = roll < .8 ? true : false;
+
+                if (!forward)
+                {
+                    strafeDirection = Random.value < 0.5f ? -1f : 1f;
+                }
+
+                currentX = 0.0f;
+                currentZ = 0.0f;
+
+                moveTimer = Random.Range(1.0f, 3.0f);
+            }
+
+            if (forward)
+            {
+                if (currentZ < _enemy.WalkSpeed)
+                {
+                    currentZ = Mathf.Lerp(currentZ, _enemy.WalkSpeed, 1f);
+                }
+                Vector3 forwardMove = (_enemy.Player.position - _enemy.transform.position).normalized;
+                _enemy.DirectMove(forwardMove * currentZ * Time.deltaTime);
+                _enemy.SetAnimatorMovement(0f, 1f);
+                return;
+            }
+
+            if (currentX < _enemy.combatSpeed)
+            {
+                currentX = Mathf.Lerp(currentX, _enemy.combatSpeed, 1f);
+            }
+
+            // --- ORBIT / STRAFE AROUND PLAYER ---
+            Vector3 strafe = _enemy.transform.right * strafeDirection;
+            Vector3 toPlayer = (_enemy.Player.position - _enemy.transform.position).normalized;
+
+            // Combine strafe + small forward movement to orbit naturally
+            Vector3 move = (strafe + toPlayer * 0.2f).normalized * currentX * Time.deltaTime;
+            _enemy.DirectMove(move);
+            _enemy.SetAnimatorMovement(strafeDirection, 0.2f); // x/z movement for animator
+        }
+        if (_enemy.isDodging)
         {
-            if (currentX != 0 || currentZ != 0) 
-            {
-                currentX = Mathf.Lerp(currentX, 0, 1f);
-                currentZ = Mathf.Lerp(currentZ, 0, 1f);
-            }
-
-            float roll = Random.value;
-
-            forward = roll < .8 ? true : false;
-
-            if (!forward)
-            {
-                strafeDirection = Random.value < 0.5f ? -1f : 1f;
-            }
-
-            currentX = 0.0f;
-            currentZ = 0.0f;
-
-            moveTimer = Random.Range(1.0f, 3.0f);
+            Vector3 awayFromPlayer = (_enemy.transform.position - _enemy.Player.position).normalized;
+            Vector3 move = awayFromPlayer * Time.deltaTime * dodgeMult;
+            _enemy.DirectMove(move);
         }
-
-        if (forward)
-        {
-            if (currentZ < _enemy.WalkSpeed)
-            {
-                currentZ += Time.deltaTime;
-            }
-            Vector3 forwardMove = (_enemy.Player.position - _enemy.transform.position).normalized;
-            _enemy.DirectMove(forwardMove * currentZ * Time.deltaTime);
-            _enemy.SetAnimatorMovement(0f, 1f);
-            return;
-        }
-
-        if (currentX < _enemy.combatSpeed)
-        {
-            currentX += Time.deltaTime;
-        }
-
-        // --- ORBIT / STRAFE AROUND PLAYER ---
-        Vector3 strafe = _enemy.transform.right * strafeDirection;
-        Vector3 toPlayer = (_enemy.Player.position - _enemy.transform.position).normalized;
-
-        // Combine strafe + small forward movement to orbit naturally
-        Vector3 move = (strafe + toPlayer * 0.2f).normalized * currentX * Time.deltaTime;
-        _enemy.DirectMove(move);
-        _enemy.SetAnimatorMovement(strafeDirection, 0.2f); // x/z movement for animator
     }
 }

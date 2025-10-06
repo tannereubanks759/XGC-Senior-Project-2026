@@ -21,10 +21,18 @@ public class RunState : BaseState<EnemyState>
     {
         _enemy.StopMoving();
 
-        _enemy.SetResetTriggers("Warcry");
-
-        isRunning = false;
-        _enemy.canRunAtPlayer = false;
+        if (!_enemy.hasSeenPlayerBefore)
+        {
+            _enemy.SetResetTriggers("Warcry");
+            isRunning = false;
+            _enemy.canRunAtPlayer = false;
+        }
+        else
+        {
+            isRunning = false;
+            _enemy.canRunAtPlayer = true;
+        }
+        
     }
 
     public override void ExitState()
@@ -44,6 +52,7 @@ public class RunState : BaseState<EnemyState>
         if (_enemy.canRunAtPlayer && !isRunning)
         {
             isRunning = true;
+            _enemy.hasSeenPlayerBefore = true;
             _enemy.SetResetTriggers("Run");
             _enemy.ResumeMoving();
             _enemy.SetSpeed(_enemy.RunSpeed);

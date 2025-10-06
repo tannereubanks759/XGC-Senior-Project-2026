@@ -82,6 +82,8 @@ public class IslandSetup : MonoBehaviour
 
             chest.AddComponent<PatrolArea>();
 
+            chest.GetComponent<PatrolArea>().patrolRadius = 25f;
+
             // === NEW: spawn enemies with a FRESH per-chest quota set ===
             SpawnEnemiesAroundChest(groundHit);
         }

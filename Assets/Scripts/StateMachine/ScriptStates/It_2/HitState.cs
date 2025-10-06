@@ -22,6 +22,8 @@ public class HitState : BaseState<EnemyState>
 
         _enemy.Animator.SetFloat("hitVer", Random.value);
 
+        _enemy.isDodging = false;
+
         hitTime = Time.time;
     }
 
