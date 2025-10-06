@@ -124,7 +124,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("Can this unit rotate? (Set to off for certain combat actions)")]
     public bool canRotate;                // Whether the enemy can rotate toward player
 
-    public float combatSpeed = 4f; // slightly faster than walk, slower than run
+    public float combatSpeed = 1f; // slightly faster than walk, slower than run
     #endregion
 
     #region Health
@@ -279,7 +279,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         if (canRotate) transform.rotation = Quaternion.LookRotation(direction);
 
         // Play the run animation trigger if not already playing
-        if (!Animator.GetCurrentAnimatorStateInfo(0).IsName("Run")) SetResetTriggers("Run");
+        if (!Animator.GetCurrentAnimatorStateInfo(0).IsName("_Run")) SetResetTriggers("Run");
     }
 
     public void CanRunAtPlayer()
@@ -535,6 +535,13 @@ public class BaseEnemyAI : StateManager<EnemyState>
         SetResetTriggers("Combat");
     }
 
+    public void BlockHitOver()
+    {
+        Debug.Log("HitOver");
+        isBlocking = false;
+        SetResetTriggers("BlockHitOver");
+    }
+
     // Manually set the current attack state
     public void SetAttackState(EAttackState newState)
     {
@@ -630,13 +637,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         }
     }
 
-    public void BlockHitOver()
-    {
-        Debug.Log("HitOver");
-        SetResetTriggers("BlockHitOver");
-    }
-
-
 
     // Handle death of the enemy
     public virtual void Die()
@@ -696,6 +696,15 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Reset all the triggers, then set the correct one
     public void SetResetTriggers(string trigger)
     {
+        foreach (var p in Animator.parameters)
+        {
+            if (p.type == AnimatorControllerParameterType.Trigger)
+            {
+                Animator.ResetTrigger(p.name);
+            }
+        }
+        Animator.SetTrigger(trigger);
+        /*
         Animator.ResetTrigger("Idle");
         Animator.ResetTrigger("Patrol");
         Animator.ResetTrigger("Warcry");
@@ -714,7 +723,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.ResetTrigger("BlockHitOver");
         Animator.ResetTrigger("BackDodge");
         Animator.ResetTrigger("EmoteOver");
-        Animator.SetTrigger(trigger);
+        */
+
     }
 
     float SnapZero(float value, float threshold = 0.01f)

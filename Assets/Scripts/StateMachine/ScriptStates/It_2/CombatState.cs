@@ -170,7 +170,7 @@ public class CombatState : BaseState<EnemyState>
             Vector3 toPlayer = (_enemy.Player.position - _enemy.transform.position).normalized;
 
             // Combine strafe + small forward movement to orbit naturally
-            Vector3 move = (strafe + toPlayer * 0.2f).normalized * currentX * Time.deltaTime;
+            Vector3 move = (strafe + toPlayer * 0.2f).normalized * currentX * Time.deltaTime / 2f;
             _enemy.DirectMove(move);
             _enemy.SetAnimatorMovement(strafeDirection, 0.2f); // x/z movement for animator
         }
