@@ -1,8 +1,5 @@
 using UnityEngine;
-using TMPro;
-using NUnit.Framework;
 using System.Collections.Generic;
-using UnityEditor.Experimental.GraphView;
 
 public class interactScript : MonoBehaviour
 {
