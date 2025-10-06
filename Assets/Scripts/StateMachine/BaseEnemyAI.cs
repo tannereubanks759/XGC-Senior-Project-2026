@@ -495,6 +495,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
         //Debug.Log(CurrentAttackState);
         StopMoving();
         RotateToPlayer();
+        //swordCollider.enabled = true;
+    }
+
+    public void EnableSwordCollider()
+    {
         swordCollider.enabled = true;
     }
 
