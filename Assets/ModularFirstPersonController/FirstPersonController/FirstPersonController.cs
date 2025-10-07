@@ -170,6 +170,27 @@ public class FirstPersonController : MonoBehaviour
 
 
     public static bool isPaused = false;
+
+    // --- Slope Limit ---
+    [Header("Slope Limit")]
+    public bool enableSlopeLimit = true;
+    [Range(0f, 89f)] public float slopeLimit = 45f;
+
+    [Tooltip("If true, you will slide down when standing on slopes steeper than the limit.")]
+    public bool slideOnSteep = true;
+
+    [Tooltip("Acceleration down the steep slope (m/s^2).")]
+    public float slideGravity = 10f;
+
+    [Tooltip("Multiplier on slide speed to tame runaway velocity (0 = none).")]
+    [Range(0f, 1f)] public float slideFriction = 0.15f;
+
+    // Internal (slope state)
+    private Vector3 groundNormal = Vector3.up;
+    private float groundAngle = 0f;
+    private Vector3 groundPoint;
+    private bool OnSteepSlope => enableSlopeLimit && (groundAngle > slopeLimit + 0.1f);
+
     #endregion
 
     private void Awake()
@@ -510,20 +531,78 @@ public class FirstPersonController : MonoBehaviour
 
         if (isGrounded)
         {
-            // Instant stop when no input
+            // Instant stop when no input -> zero out along-surface velocity, keep vertical
             if (!hasInput)
             {
-                var v = rb.linearVelocity;
-                rb.linearVelocity = new Vector3(0f, v.y, 0f);
-                return; // done this tick
+                // Remove velocity along the ground plane (but keep the normal component)
+                Vector3 v = rb.linearVelocity;
+                Vector3 vAlong = Vector3.ProjectOnPlane(v, groundNormal);
+                rb.linearVelocity = v - vAlong; // leaves only the component along groundNormal
+                                                // Optional: small slide if standing on steep slope
+                if (OnSteepSlope && slideOnSteep)
+                {
+                    Vector3 uphill = Vector3.ProjectOnPlane(Vector3.up, groundNormal).normalized;
+                    Vector3 downslope = -uphill;
+                    Vector3 slide = downslope * slideGravity * Time.fixedDeltaTime;
+                    rb.AddForce(slide, ForceMode.VelocityChange);
+                    // simple friction against slide
+                    rb.linearVelocity *= (1f - slideFriction * Time.fixedDeltaTime);
+                }
+                return;
             }
-            // Grounded: match target velocity
-            Vector3 targetVelH = wishDir * targetSpeed;
-            Vector3 delta = targetVelH - velH;
-            delta.x = Mathf.Clamp(delta.x, -maxVelocityChange, maxVelocityChange);
-            delta.z = Mathf.Clamp(delta.z, -maxVelocityChange, maxVelocityChange);
-            rb.AddForce(new Vector3(delta.x, 0f, delta.z), ForceMode.VelocityChange);
+
+            // --- Slope-aware desired direction ---
+            // Start with input in world space
+            Vector3 moveDirWorld = transform.TransformDirection(cachedInput).normalized;
+
+            // Project desired motion onto the ground plane so we 'stick' to the surface
+            Vector3 alongSurface = Vector3.ProjectOnPlane(moveDirWorld, groundNormal).normalized;
+
+            // If slope limit is exceeded, block uphill component (prevent walking up)
+            if (OnSteepSlope)
+            {
+                Vector3 uphill = Vector3.ProjectOnPlane(Vector3.up, groundNormal).normalized;   // steepest uphill
+                float uphillComp = Vector3.Dot(alongSurface, uphill);
+                if (uphillComp > 0f)
+                {
+                    // remove uphill component; leave sideways/downhill motion
+                    alongSurface -= uphill * uphillComp;
+                    if (alongSurface.sqrMagnitude > 1e-4f) alongSurface.Normalize();
+                    else alongSurface = Vector3.zero;
+                }
+
+                // Optional slide down when on steep slope
+                if (slideOnSteep)
+                {
+                    Vector3 downslope = -uphill;
+                    Vector3 slide = downslope * slideGravity * Time.fixedDeltaTime;
+                    rb.AddForce(slide, ForceMode.VelocityChange);
+                    rb.linearVelocity *= (1f - slideFriction * Time.fixedDeltaTime);
+                }
+            }
+
+            // Target velocity along the ground plane (respecting slope)
+            Vector3 targetVelAlong = alongSurface * targetSpeed;
+
+            // Current velocity along the ground plane
+            Vector3 velAlong = Vector3.ProjectOnPlane(rb.linearVelocity, groundNormal);
+
+            // Delta we want to apply (also along plane)
+            Vector3 delta = targetVelAlong - velAlong;
+
+            // Clamp the "impulse" magnitude per tick (VelocityChange is in m/s)
+            if (delta.sqrMagnitude > 0f)
+            {
+                // Clamp by your maxVelocityChange but along the surface
+                delta = Vector3.ClampMagnitude(delta, maxVelocityChange);
+
+                // Ensure we're not adding any component into the ground
+                delta = Vector3.ProjectOnPlane(delta, groundNormal);
+
+                rb.AddForce(delta, ForceMode.VelocityChange);
+            }
         }
+
         else
         {
             // Airborne: preserve momentum when no input; gentle steer when there is
@@ -553,17 +632,31 @@ public class FirstPersonController : MonoBehaviour
         Vector3 origin = transform.position + Vector3.up * (radius + 0.02f);
         float castDist = (col ? (col.height * 0.5f) : 0.9f) + groundedSkin;
 
-        bool hit = Physics.SphereCast(origin, radius, Vector3.down, out _, castDist, ~0, QueryTriggerInteraction.Ignore);
-        if (hit)
+        RaycastHit hit;
+        bool didHit = Physics.SphereCast(origin, radius, Vector3.down, out hit, castDist, ~0, QueryTriggerInteraction.Ignore);
+        if (didHit)
         {
             isGrounded = true;
             groundedBufferUntil = Time.time + coyoteTime;
+
+            groundNormal = hit.normal;
+            groundPoint = hit.point;
+            groundAngle = Vector3.Angle(groundNormal, Vector3.up);
         }
         else
         {
             isGrounded = Time.time < groundedBufferUntil;
+
+            // Keep last known normal when buffering; otherwise reset to up
+            if (!isGrounded)
+            {
+                groundNormal = Vector3.up;
+                groundAngle = 0f;
+                groundPoint = transform.position;
+            }
         }
     }
+
 
 
     private void Jump()
