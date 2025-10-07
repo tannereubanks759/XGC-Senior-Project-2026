@@ -1,12 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using Unity.AI.Navigation;
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.SceneManagement;
+#endif
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static UnityEngine.GraphicsBuffer;
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
 public class TerrainObjectSpawner : MonoBehaviour
 {
+    [Header("Editor Build Controls")]
+    public bool useSeed = true;
+    public int seed = 12345;
+
+    [Header("Editor")]
+    [Tooltip("In Edit Mode, read the splatmap directly each query so layer weights are always fresh.")]
+    public bool useLiveAlphamapSamplingInEditor = true;
+
+
+    [Tooltip("All spawned content gets parented under this container. If null, a child \"_SPAWNED\" will be auto-created under this spawner.")]
+    public Transform parentForSpawned;
+
+    // Internal unique ID to distinguish who spawned what
+    [HideInInspector] public string spawnerGuid;
+
     [Header("Scene References")]
     public Terrain terrain;
 
@@ -79,8 +99,7 @@ public class TerrainObjectSpawner : MonoBehaviour
     public LayerMask collisionMask = 0;
     public float collisionRadius = 0.25f;
 
-    [Header("Parenting")]
-    public Transform parentForSpawned;
+    
 
     [Header("Debug")]
     public bool verboseLogs = true;
@@ -121,10 +140,26 @@ public class TerrainObjectSpawner : MonoBehaviour
 
     void OnEnable()
     {
-        if (verboseLogs) Debug.Log($"[Spawner] OnEnable on '{name}' (activeInHierarchy={gameObject.activeInHierarchy}, isPlaying={Application.isPlaying})");
+        if (string.IsNullOrEmpty(spawnerGuid))
+            spawnerGuid = System.Guid.NewGuid().ToString();
+
+        EnsureSpawnParent();
         EnsureSetup();
     }
-
+    void EnsureSpawnParent()
+    {
+        if (parentForSpawned == null)
+        {
+            var t = transform.Find("_SPAWNED");
+            if (t == null)
+            {
+                var go = new GameObject("_SPAWNED");
+                go.transform.SetParent(transform, false);
+                parentForSpawned = go.transform;
+            }
+            else parentForSpawned = t;
+        }
+    }
     void Awake()
     {
         if (verboseLogs) Debug.Log($"[Spawner] Awake on '{name}'");
@@ -133,17 +168,17 @@ public class TerrainObjectSpawner : MonoBehaviour
 
     void Start()
     {
-        if (verboseLogs) Debug.Log($"[Spawner] Start on '{name}'");
+        /*if (verboseLogs) Debug.Log($"[Spawner] Start on '{name}'");
         if (!Application.isPlaying) return;
         if (gameObject.scene != SceneManager.GetActiveScene()) return;
 
         // Show level loading UI immediately
-        ShowLevelLoadingUI();
-
+        //ShowLevelLoadingUI();
+        //FadeOutAndHideLevelUI();
         // Defer heavy work a couple frames
-        StartCoroutine(DeferredSpawnAndBake());
+        //StartCoroutine(DeferredSpawnAndBake());
 
-        ChangeTagOfRocks();
+        //ChangeTagOfRocks();*/
     }
 
     IEnumerator DeferredSpawnAndBake()
@@ -234,13 +269,29 @@ public class TerrainObjectSpawner : MonoBehaviour
 
     int Len(GameObject[] a) => a == null ? 0 : a.Length;
 
-    int ResolveLayerIndex(TerrainLayer layer, TerrainLayer[] layers)
+    int ResolveLayerIndex(TerrainLayer target, TerrainLayer[] layers)
     {
-        if (layer == null || layers == null) return -1;
+        if (target == null || layers == null) return -1;
+
+        // 1) direct reference
         for (int i = 0; i < layers.Length; i++)
-            if (layers[i] == layer) return i;
+            if (layers[i] == target) return i;
+
+        // 2) name match
+        for (int i = 0; i < layers.Length; i++)
+            if (!string.IsNullOrEmpty(layers[i].name) && layers[i].name == target.name)
+                return i;
+
+        // 3) texture match (diffuse/albedo)
+        for (int i = 0; i < layers.Length; i++)
+        {
+            var a = layers[i].diffuseTexture; var b = target.diffuseTexture;
+            if (a != null && b != null && a == b) return i;
+        }
+
         return -1;
     }
+
 
     void CacheTerrainTreePositions()
     {
@@ -275,7 +326,18 @@ public class TerrainObjectSpawner : MonoBehaviour
 
         alphaW = tData.alphamapWidth;
         alphaH = tData.alphamapHeight;
-        alphaMaps = tData.GetAlphamaps(0, 0, alphaW, alphaH);
+
+        // Make sure layer indices reflect current TerrainData
+        pathLayerIndex = ResolveLayerIndex(pathLayer, tData.terrainLayers);
+        grassLayerIndex = ResolveLayerIndex(grassLayer, tData.terrainLayers);
+
+        // In Play Mode we keep a full cache; in Edit Mode we'll sample live (Patch 1)
+        alphaMaps = Application.isPlaying ? tData.GetAlphamaps(0, 0, alphaW, alphaH) : alphaMaps;
+
+
+        // Seed PRNG for deterministic builds (both Edit & Play)
+        if (useSeed) Random.InitState(seed);
+
 
         CacheTerrainTreePositions();
 
@@ -484,6 +546,14 @@ public class TerrainObjectSpawner : MonoBehaviour
             Transform parent = parentForSpawned ? parentForSpawned : transform;
             var go = Instantiate(prefab, pos, rot, parent);
 
+            // mark spawned
+            var marker = go.GetComponent<SpawnedBySpawner>();
+            if (marker == null) marker = go.AddComponent<SpawnedBySpawner>();
+            marker.spawnerId = spawnerGuid;
+
+            // (your existing scale / bookkeeping below)
+
+
             if (uniformScaleRange.x != 1f || uniformScaleRange.y != 1f)
             {
                 float s = Random.Range(uniformScaleRange.x, uniformScaleRange.y);
@@ -500,6 +570,36 @@ public class TerrainObjectSpawner : MonoBehaviour
 
         if (verboseLogs)
             Debug.Log($"[Spawner] Pass done: placed {placed}/{count} for array '{(array.Length > 0 ? array[0].name : "empty")}' with attempts={attempts}.");
+    }
+    [ContextMenu("Clear Spawned Objects")]
+    public void ClearSpawned()
+    {
+        EnsureSpawnParent();
+        if (!parentForSpawned) return;
+
+        // Only destroy things that this spawner created (via marker)
+        var markers = parentForSpawned.GetComponentsInChildren<SpawnedBySpawner>(true);
+        int count = 0;
+        foreach (var m in markers)
+        {
+            if (m && m.spawnerId == spawnerGuid)
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                    DestroyImmediate(m.gameObject);
+                else
+                    Destroy(m.gameObject);
+#else
+            Destroy(m.gameObject);
+#endif
+                count++;
+            }
+        }
+
+        // Clear bookkeeping lists so spacing doesn’t think items still exist
+        spawnedTreeXZ.Clear();
+        globalSpacingXZ.RemoveAll(_ => true); // flush
+        if (verboseLogs) Debug.Log($"[Spawner] Cleared {count} spawned objects.");
     }
 
     bool InsideNoSpawnVolume(Vector3 pos)
@@ -615,13 +715,31 @@ public class TerrainObjectSpawner : MonoBehaviour
 
     float LayerWeightAt(float worldX, float worldZ, int layerIndex)
     {
-        if (layerIndex < 0) return 0f;
+        if (layerIndex < 0 || tData == null) return 0f;
+
+        // uv -> alphamap pixel
         float tx = Mathf.InverseLerp(tPos.x, tPos.x + tSize.x, worldX);
         float tz = Mathf.InverseLerp(tPos.z, tPos.z + tSize.z, worldZ);
         int ax = Mathf.Clamp(Mathf.RoundToInt(tx * (alphaW - 1)), 0, alphaW - 1);
         int az = Mathf.Clamp(Mathf.RoundToInt(tz * (alphaH - 1)), 0, alphaH - 1);
+
+        // In Edit Mode, read fresh (avoids stale caches when painting terrain)
+        if (!Application.isPlaying && useLiveAlphamapSamplingInEditor)
+        {
+            var w = tData.GetAlphamaps(ax, az, 1, 1); // [y,x,layer] => [0,0,i]
+            int layers = w.GetLength(2);
+            if (layerIndex >= layers) return 0f;
+            return w[0, 0, layerIndex];
+        }
+
+        // Play Mode path: use cached big array (fast)
+        if (alphaMaps == null || alphaMaps.GetLength(0) != alphaH || alphaMaps.GetLength(1) != alphaW)
+            alphaMaps = tData.GetAlphamaps(0, 0, alphaW, alphaH);
+
+        if (layerIndex >= alphaMaps.GetLength(2)) return 0f;
         return alphaMaps[az, ax, layerIndex];
     }
+
 
     // ===== Level Loading UI helpers =====
     void ShowLevelLoadingUI()
@@ -664,3 +782,67 @@ public class TerrainObjectSpawner : MonoBehaviour
         levelLoadingUI.SetActive(false);
     }
 }
+#if UNITY_EDITOR
+[CustomEditor(typeof(TerrainObjectSpawner))]
+public class TerrainObjectSpawnerEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        var spawner = (TerrainObjectSpawner)target;
+
+        EditorGUILayout.Space(8);
+        EditorGUILayout.LabelField("Editor Build Tools", EditorStyles.boldLabel);
+
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Build (Trees → Grass → Objects)", GUILayout.Height(30)))
+            {
+                // Ensure parent exists before spawn
+                spawner.SendMessage("EnsureSpawnParent", SendMessageOptions.DontRequireReceiver);
+
+                // Make it undoable in Edit Mode
+                if (!Application.isPlaying)
+                    Undo.RegisterFullObjectHierarchyUndo(spawner.gameObject, "Spawn Objects");
+
+                spawner.SpawnAllPasses();
+
+                // Save scene state in edit mode for determinism
+                if (!Application.isPlaying)
+                    EditorSceneManager.MarkSceneDirty(spawner.gameObject.scene);
+            }
+
+            if (GUILayout.Button("Clear Objects", GUILayout.Height(30)))
+            {
+                if (!Application.isPlaying)
+                    Undo.RegisterFullObjectHierarchyUndo(spawner.gameObject, "Clear Spawned Objects");
+
+                spawner.ClearSpawned();
+
+                if (!Application.isPlaying)
+                    EditorSceneManager.MarkSceneDirty(spawner.gameObject.scene);
+            }
+        }
+
+        EditorGUILayout.Space(4);
+        using (new EditorGUILayout.HorizontalScope())
+        {
+            if (GUILayout.Button("Randomize Seed"))
+            {
+                spawner.seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+                EditorUtility.SetDirty(spawner);
+            }
+
+            if (GUILayout.Button("Build With New Seed"))
+            {
+                spawner.seed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
+                spawner.ClearSpawned();
+                spawner.SpawnAllPasses();
+                if (!Application.isPlaying)
+                    EditorSceneManager.MarkSceneDirty(spawner.gameObject.scene);
+            }
+        }
+    }
+}
+#endif
