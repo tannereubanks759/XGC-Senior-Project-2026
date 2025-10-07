@@ -1762,6 +1762,7 @@ GameObject:
   - component: {fileID: 2269966192252265701}
   - component: {fileID: 4017912767767730641}
   - component: {fileID: 8260418663489568274}
+  - component: {fileID: 8539350563619556498}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -1986,6 +1987,10 @@ MonoBehaviour:
   objIdentifierRef: {fileID: 0}
   treasureRoomUnlocked: 0
   keyIDs: 
+  redKeyObj: {fileID: 0}
+  blueKey: {fileID: 0}
+  greenKey: {fileID: 0}
+  goldKey: {fileID: 0}
 --- !u!114 &8260418663489568274
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1999,6 +2004,164 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
+--- !u!114 &8539350563619556498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428402459396883477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 240b7c4ea40b6b2479cdacf0c045225a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profiles:
+  - type: 1
+    objectTag: 
+    terrainTextureIndices: 00000000
+    clips:
+    - {fileID: 8300000, guid: 463b2127f899c4b48bc39c8bac7840a5, type: 3}
+    - {fileID: 8300000, guid: 9d594376bf4a44746b6f445808ee9bab, type: 3}
+    - {fileID: 8300000, guid: ef6e1ae0d5524684497d9e423a6b259f, type: 3}
+    - {fileID: 8300000, guid: 81687c50fdf848848b0673bd31ba15cf, type: 3}
+    - {fileID: 8300000, guid: 2ba4b8bd6f4d5a84fa3a7c29e9948f7d, type: 3}
+    - {fileID: 8300000, guid: b20e02f5523f4a245b6b9b642b00f155, type: 3}
+    - {fileID: 8300000, guid: f818d777854e3024b8b86f0551b8e30f, type: 3}
+    - {fileID: 8300000, guid: 8a222146de3f1b34bacfb45dafd0d741, type: 3}
+    - {fileID: 8300000, guid: a7127ea46cacdf44197506cd59e3cdb9, type: 3}
+    - {fileID: 8300000, guid: c11a4bf28d597f34f85c8b15690230ff, type: 3}
+    - {fileID: 8300000, guid: 4e46c0b7aecb34044ad3ae32282203f4, type: 3}
+    - {fileID: 8300000, guid: 99a2d16f08523c447a307be74643e9e3, type: 3}
+    - {fileID: 8300000, guid: aae98a6af65fed54ca1d1faa5de3007a, type: 3}
+    - {fileID: 8300000, guid: c7a4e179df180904daef4c4b913d6814, type: 3}
+    - {fileID: 8300000, guid: 4ac71c92cbe676345b024d1738eafb0e, type: 3}
+    - {fileID: 8300000, guid: a0599c5583f48a0499e28b48d2052a67, type: 3}
+    - {fileID: 8300000, guid: 55a345cc5970aa24984372822f0bbe48, type: 3}
+    - {fileID: 8300000, guid: aececb5a41d9dfe4597b473a2647f156, type: 3}
+    - {fileID: 8300000, guid: 6080f85449814964db0d8462f9efcbf7, type: 3}
+    - {fileID: 8300000, guid: 5b288d3aed9fa3e4398a92e3041a6290, type: 3}
+    landingClips: []
+    volumeMin: 0.8
+    volumeMax: 1
+    pitchMin: 0.95
+    pitchMax: 1.05
+  - type: 2
+    objectTag: 
+    terrainTextureIndices: 01000000
+    clips:
+    - {fileID: 8300000, guid: 07d6645c221c7a941a3395a67c1cde23, type: 3}
+    - {fileID: 8300000, guid: 7d082ccf904ca1c4e9ad93089a8f0af3, type: 3}
+    - {fileID: 8300000, guid: 9e17a59084f82eb4985f1a645d0ab2ef, type: 3}
+    - {fileID: 8300000, guid: 1a4a7876da79e2641b1fd48f45a37fc8, type: 3}
+    - {fileID: 8300000, guid: 17d7ea3ef2e2af146acad45ffe69548b, type: 3}
+    landingClips: []
+    volumeMin: 0.8
+    volumeMax: 1
+    pitchMin: 0.95
+    pitchMax: 1.05
+  - type: 3
+    objectTag: 
+    terrainTextureIndices: 02000000
+    clips:
+    - {fileID: 8300000, guid: a19403e7eb747144db013d46a9741d94, type: 3}
+    - {fileID: 8300000, guid: dd709a1aaa7f88d41bdaf95bed38c5ae, type: 3}
+    - {fileID: 8300000, guid: aa403e6559720f24aa75b46703b563bf, type: 3}
+    - {fileID: 8300000, guid: fe190fcde477fef4c89548ee787cbdbc, type: 3}
+    - {fileID: 8300000, guid: 273897012f54b434bac45a0bc862ebee, type: 3}
+    - {fileID: 8300000, guid: 2d3424c539fe7e24d85c933b78f6b32e, type: 3}
+    - {fileID: 8300000, guid: 19ee0f398452ec54e8c3aea9b5a1b8b2, type: 3}
+    - {fileID: 8300000, guid: 2f1ece07a2941644c939d7e437d012f9, type: 3}
+    - {fileID: 8300000, guid: 4e4f5decfa5334248b4fee35f511541b, type: 3}
+    - {fileID: 8300000, guid: 79f6748ff3130f04f8539225ebcdd3d6, type: 3}
+    - {fileID: 8300000, guid: 36cd50ba48a4a054288fc99e5172a1fd, type: 3}
+    - {fileID: 8300000, guid: 40fb911dab64dc44080cbe148b26fdc8, type: 3}
+    - {fileID: 8300000, guid: c3c5c1109feef09498751736c1148958, type: 3}
+    - {fileID: 8300000, guid: a55eb16232f329946a0eace1e143b124, type: 3}
+    - {fileID: 8300000, guid: 3d885849650e00a4e91c2008c2c4b916, type: 3}
+    - {fileID: 8300000, guid: ea170930ddde1cd428d4625f50250cf6, type: 3}
+    - {fileID: 8300000, guid: a6f0a902eaf18b441bb443b91172dd5c, type: 3}
+    - {fileID: 8300000, guid: f59762f1ec3be6e4ab05c1f0940b53e6, type: 3}
+    - {fileID: 8300000, guid: 3630a2f98de4e7844a54cb04249c4945, type: 3}
+    - {fileID: 8300000, guid: dae934232c2a9e34fb6bca5f780d2772, type: 3}
+    landingClips: []
+    volumeMin: 0.8
+    volumeMax: 1
+    pitchMin: 0.95
+    pitchMax: 1.05
+  - type: 4
+    objectTag: wood
+    terrainTextureIndices: 
+    clips:
+    - {fileID: 8300000, guid: 7fa32e763dcfcd847850dbc6fcf1e188, type: 3}
+    - {fileID: 8300000, guid: 3887b9f67be34fa46ba6eb9c38e4fab5, type: 3}
+    - {fileID: 8300000, guid: 78eb7d294f4eb9b4b84da0f68c2ae27b, type: 3}
+    - {fileID: 8300000, guid: f4bf33cf607ec884a9dd0215c8f1d4b2, type: 3}
+    - {fileID: 8300000, guid: 0a5aebdf58309a14c9ba7d69497d486b, type: 3}
+    - {fileID: 8300000, guid: 3fa53a7b47cce77418bbd97a650a2fcb, type: 3}
+    - {fileID: 8300000, guid: ab2f72d083de4374b9fa9f1ec62ab904, type: 3}
+    - {fileID: 8300000, guid: 066405e4c3c03504396e42a3ba010913, type: 3}
+    - {fileID: 8300000, guid: ffd30c5abd3ad0f4f8870227b79b4247, type: 3}
+    - {fileID: 8300000, guid: 1d721006ea95cc449a9f06f44c19aa0f, type: 3}
+    - {fileID: 8300000, guid: 55806f6d966bb5647a2d91c139c067c1, type: 3}
+    - {fileID: 8300000, guid: 579d9f900aa1e2b42be171ba5fd2d9a6, type: 3}
+    - {fileID: 8300000, guid: a35822410fc33a34cb2b0a5a63170ce2, type: 3}
+    - {fileID: 8300000, guid: 199230102c2363d469d232db3d0f8783, type: 3}
+    landingClips: []
+    volumeMin: 0.8
+    volumeMax: 1
+    pitchMin: 0.95
+    pitchMax: 1.05
+  - type: 0
+    objectTag: stone
+    terrainTextureIndices: 00000000
+    clips:
+    - {fileID: 8300000, guid: be184fdbb0d93794ba0e4b9bc3c05d26, type: 3}
+    - {fileID: 8300000, guid: 0d8b82c4261f36b4bb7d90407f5a1c98, type: 3}
+    - {fileID: 8300000, guid: 5ad0732cdca26904eafd89072269c659, type: 3}
+    - {fileID: 8300000, guid: 9e5401c5d3dba2441baf28cf376d61e1, type: 3}
+    - {fileID: 8300000, guid: 53840822f04278b4d8f38eb05af77335, type: 3}
+    - {fileID: 8300000, guid: b888b1c64162f234e8a92e0242d9b787, type: 3}
+    - {fileID: 8300000, guid: 5886168eeec0faa4e8763ca7752c6dcf, type: 3}
+    - {fileID: 8300000, guid: 70290dabd6d335741b6fa4f07f6d8dbf, type: 3}
+    - {fileID: 8300000, guid: bc12bcf38f39e404384a1d670864f2d8, type: 3}
+    - {fileID: 8300000, guid: 926b9013d647fb84d8732a22c951429f, type: 3}
+    landingClips: []
+    volumeMin: 0.8
+    volumeMax: 1
+    pitchMin: 0.95
+    pitchMax: 1.05
+  - type: 5
+    objectTag: 
+    terrainTextureIndices: 
+    clips: []
+    landingClips: []
+    volumeMin: 0.8
+    volumeMax: 1
+    pitchMin: 0.95
+    pitchMax: 1.05
+  defaultProfile:
+    type: 2
+    objectTag: 
+    terrainTextureIndices: 
+    clips: []
+    landingClips: []
+    volumeMin: 0.8
+    volumeMax: 1
+    pitchMin: 0.95
+    pitchMax: 1.05
+  walkInterval: 0.45
+  sprintIntervalMult: 0.75
+  crouchIntervalMult: 1.3
+  minMoveSpeed: 0.3
+  requireGrounded: 1
+  landingMinDownSpeed: 0.5
+  landingMinAirTime: 0.12
+  landingCooldown: 0.08
+  postLandingStepDelay: 0
+  audioSource: {fileID: 0}
+  showSphereCastGizmo: 0
+  gizmoColor: {r: 0.2, g: 0.8, b: 1, a: 0.35}
 --- !u!1 &7482587371532213724
 GameObject:
   m_ObjectHideFlags: 0

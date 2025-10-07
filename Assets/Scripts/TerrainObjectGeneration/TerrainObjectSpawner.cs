@@ -142,6 +142,8 @@ public class TerrainObjectSpawner : MonoBehaviour
 
         // Defer heavy work a couple frames
         StartCoroutine(DeferredSpawnAndBake());
+
+        ChangeTagOfRocks();
     }
 
     IEnumerator DeferredSpawnAndBake()
@@ -157,7 +159,7 @@ public class TerrainObjectSpawner : MonoBehaviour
             if (verboseLogs) Debug.Log("[Spawner] autoSpawnOnPlay → spawning now (deferred).");
             SpawnAllPasses(); // this will StartCoroutine(RebuildNavMeshRoutine()) if rebuildNavMeshAfterSpawn = true
         }
-
+        
         // If no bake was kicked by SpawnAllPasses, bake explicitly
         if (!willBakeViaSpawn)
             StartCoroutine(RebuildNavMeshRoutine());
@@ -175,6 +177,18 @@ public class TerrainObjectSpawner : MonoBehaviour
         }
     }
 
+    void ChangeTagOfRocks()
+    {
+        GameObject[] rocks = GameObject.FindGameObjectsWithTag("stone");
+        foreach (var rock in rocks)
+        {
+            MeshRenderer[] rockChildren = rock.gameObject.GetComponentsInChildren<MeshRenderer>();
+            foreach(var obj in rockChildren)
+            {
+                obj.gameObject.tag = "stone";
+            }
+        }
+    }
     void EnsureSetup()
     {
         if (!terrain) terrain = FindFirstObjectByType<Terrain>();
