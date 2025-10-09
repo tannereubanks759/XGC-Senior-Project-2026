@@ -73,6 +73,21 @@ public class TerrainObjectSpawner : MonoBehaviour
     public bool enforceSlope = true;
     [Range(0f, 80f)] public float maxSlopeDegrees = 45f;
 
+    [Header("Bushes & Flowers (on Grass only, any slope)")]
+    [Tooltip("Prefabs for bush pass. Spawned ONLY where grass layer >= threshold, ignores slope.")]
+    public GameObject[] bushPrefabs;
+    [Min(0)] public int bushCount = 150;
+    [Tooltip("Optional same-pass spacing just for bushes (does NOT consider trees or other passes). Set 0 for dense packing.")]
+    public float bushSelfSpacing = 0f;
+
+    [Space(4)]
+    [Tooltip("Prefabs for flower pass. Spawned ONLY where grass layer >= threshold, ignores slope.")]
+    public GameObject[] flowerPrefabs;
+    [Min(0)] public int flowerCount = 250;
+    [Tooltip("Optional same-pass spacing just for flowers (does NOT consider trees or other passes). Set 0 for dense packing.")]
+    public float flowerSelfSpacing = 0f;
+
+
     [Tooltip("Minimum distance away from any tree (terrain trees + spawned tree prefabs). Applies to trees and generic objects; IGNORED by grass.")]
     public float minDistanceToTrees = 5f;
 
@@ -343,6 +358,8 @@ public class TerrainObjectSpawner : MonoBehaviour
 
         rejOcean = rejSlope = rejPath = rejPathPad = rejTree = rejSpacing = rejCollision = rejOutBounds = rejGrassLayer = 0;
 
+        
+        // TREES (unchanged logic; obey slope)
         if (Len(treePrefabs) > 0 && treeCount > 0)
         {
             SpawnPass(
@@ -355,10 +372,12 @@ public class TerrainObjectSpawner : MonoBehaviour
                 useGlobalSpacingAgainstExisting: true,
                 contributeToGlobalSpacing: true,
                 selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects),
+                ignoreSlopeForThisPass: false, // obey slope
                 onPlaced: (pos) => { spawnedTreeXZ.Add(new Vector2(pos.x, pos.z)); }
             );
         }
 
+        // GRASS (your existing pass; obey slope)
         if (Len(grassPrefabs) > 0 && grassCount > 0)
         {
             SpawnPass(
@@ -371,10 +390,48 @@ public class TerrainObjectSpawner : MonoBehaviour
                 useGlobalSpacingAgainstExisting: false,
                 contributeToGlobalSpacing: false,
                 selfSpacingOverride: Mathf.Max(0f, grassSelfSpacing),
+                ignoreSlopeForThisPass: false, // obey slope (keep behavior)
                 onPlaced: null
             );
         }
 
+        // BUSHES (NEW) — on Grass only, IGNORE slope
+        if (Len(bushPrefabs) > 0 && bushCount > 0)
+        {
+            SpawnPass(
+                count: bushCount,
+                array: bushPrefabs,
+                requireLayerIndex: grassLayerIndex,
+                requireLayerThreshold: grassWeightThreshold,
+                alignToNormal: true,
+                respectTreeClearance: false,         // can tuck near trees; change to true if you prefer
+                useGlobalSpacingAgainstExisting: false,
+                contributeToGlobalSpacing: false,
+                selfSpacingOverride: Mathf.Max(0f, bushSelfSpacing),
+                ignoreSlopeForThisPass: true,        // <<< key: bypass slope restriction
+                onPlaced: null
+            );
+        }
+
+        // FLOWERS (NEW) — on Grass only, IGNORE slope
+        if (Len(flowerPrefabs) > 0 && flowerCount > 0)
+        {
+            SpawnPass(
+                count: flowerCount,
+                array: flowerPrefabs,
+                requireLayerIndex: grassLayerIndex,
+                requireLayerThreshold: grassWeightThreshold,
+                alignToNormal: true,
+                respectTreeClearance: false,
+                useGlobalSpacingAgainstExisting: false,
+                contributeToGlobalSpacing: false,
+                selfSpacingOverride: Mathf.Max(0f, flowerSelfSpacing),
+                ignoreSlopeForThisPass: true,        // <<< key: bypass slope restriction
+                onPlaced: null
+            );
+        }
+
+        // GENERIC OBJECTS (unchanged logic; obey slope)
         if (Len(prefabs) > 0 && objectCount > 0)
         {
             SpawnPass(
@@ -387,10 +444,10 @@ public class TerrainObjectSpawner : MonoBehaviour
                 useGlobalSpacingAgainstExisting: true,
                 contributeToGlobalSpacing: true,
                 selfSpacingOverride: Mathf.Max(0f, minSpacingBetweenObjects),
+                ignoreSlopeForThisPass: false, // obey slope
                 onPlaced: null
             );
         }
-
         Debug.Log(
             $"[Spawner] Done.\n" +
             $"Rejections — Ocean:{rejOcean}, Slope:{rejSlope}, Path:{rejPath}, PathPad:{rejPathPad}, Trees:{rejTree}, Spacing:{rejSpacing}, Overlap:{rejCollision}, OutBounds:{rejOutBounds}, NotGrass:{rejGrassLayer}"
@@ -485,7 +542,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         if (verboseLogs) Debug.Log($"[Spawner] Rebuilt {built} NavMeshSurface(s).");
     }
 
-    void SpawnPass(
+        void SpawnPass(
         int count,
         GameObject[] array,
         int requireLayerIndex,
@@ -495,6 +552,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         bool useGlobalSpacingAgainstExisting,
         bool contributeToGlobalSpacing,
         float selfSpacingOverride,
+        bool ignoreSlopeForThisPass,               // <<< NEW
         System.Action<Vector3> onPlaced
     )
     {
@@ -517,6 +575,7 @@ public class TerrainObjectSpawner : MonoBehaviour
                     useGlobalSpacingAgainstExisting ? minSpacingBetweenObjects : 0f,
                     selfSpacingOverride,
                     passPlacedXZ,
+                    ignoreSlopeForThisPass,           // <<< NEW
                     out float y))
                 continue;
 
@@ -546,13 +605,9 @@ public class TerrainObjectSpawner : MonoBehaviour
             Transform parent = parentForSpawned ? parentForSpawned : transform;
             var go = Instantiate(prefab, pos, rot, parent);
 
-            // mark spawned
             var marker = go.GetComponent<SpawnedBySpawner>();
             if (marker == null) marker = go.AddComponent<SpawnedBySpawner>();
             marker.spawnerId = spawnerGuid;
-
-            // (your existing scale / bookkeeping below)
-
 
             if (uniformScaleRange.x != 1f || uniformScaleRange.y != 1f)
             {
@@ -571,6 +626,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         if (verboseLogs)
             Debug.Log($"[Spawner] Pass done: placed {placed}/{count} for array '{(array.Length > 0 ? array[0].name : "empty")}' with attempts={attempts}.");
     }
+
     [ContextMenu("Clear Spawned Objects")]
     public void ClearSpawned()
     {
@@ -617,15 +673,16 @@ public class TerrainObjectSpawner : MonoBehaviour
     }
 
     bool TryPickValidLocation(
-        float x, float z,
-        int requireLayerIndex,
-        float requireLayerThreshold,
-        bool respectTreeClearance,
-        float globalSpacingDist,
-        float selfSpacingDist,
-        List<Vector2> passPlacedXZ,
-        out float yOut
-    )
+    float x, float z,
+    int requireLayerIndex,
+    float requireLayerThreshold,
+    bool respectTreeClearance,
+    float globalSpacingDist,
+    float selfSpacingDist,
+    List<Vector2> passPlacedXZ,
+    bool ignoreSlopeForThisPass,   // <<< NEW
+    out float yOut
+)
     {
         yOut = 0f;
         if (!InsideTerrainBounds(x, z)) { rejOutBounds++; return false; }
@@ -633,7 +690,9 @@ public class TerrainObjectSpawner : MonoBehaviour
         float y = terrain.SampleHeight(new Vector3(x, 0f, z)) + tPos.y;
         if (y < oceanLevelY) { rejOcean++; return false; }
 
-        if (enforceSlope && maxSlopeDegrees < 89f)
+        // Per-pass slope control:
+        bool enforceThisSlope = enforceSlope && !ignoreSlopeForThisPass;
+        if (enforceThisSlope && maxSlopeDegrees < 89f)
         {
             Vector3 n = tData.GetInterpolatedNormal(
                 (x - tPos.x) / tSize.x,
@@ -642,6 +701,7 @@ public class TerrainObjectSpawner : MonoBehaviour
             float slopeDeg = Vector3.Angle(n, Vector3.up);
             if (slopeDeg > maxSlopeDegrees) { rejSlope++; return false; }
         }
+
 
         if (requireLayerIndex >= 0)
         {

@@ -46,7 +46,7 @@ public class IslandSetup : MonoBehaviour
 
     void Start()
     {
-        SpawnChests();
+        //SpawnChests();
     }
 
     private void Awake()
@@ -204,10 +204,14 @@ public class IslandSetup : MonoBehaviour
         {
             existing.transform.position = hit.point;
             Debug.Log("Existing player moved to spawn.");
+            GameObject.FindAnyObjectByType<CompassUI>().headingSource = existing.GetComponentInChildren<Camera>().transform;
         }
         else
         {
-            Instantiate(playerPref, hit.point, Quaternion.identity);
+            GameObject player = Instantiate(playerPref, hit.point, Quaternion.identity);
+            GameObject.FindAnyObjectByType<CompassUI>().headingSource = player.GetComponentInChildren<Camera>().transform;
         }
+
+        
     }
 }
