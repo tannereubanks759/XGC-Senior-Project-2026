@@ -1284,6 +1284,135 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &5708586128349890575
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4538389206478740247}
+  - component: {fileID: 1177531451032852584}
+  m_Layer: 7
+  m_Name: FootstepSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4538389206478740247
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5708586128349890575}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5827558795891769500}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1177531451032852584
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5708586128349890575}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 24300002, guid: b61791a94be9d0a4981432967de21252, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.25
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &5831053937853378522
 GameObject:
   m_ObjectHideFlags: 0
@@ -1784,6 +1913,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2009457670137047055}
+  - {fileID: 4538389206478740247}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &839781596035667044
@@ -1963,6 +2093,16 @@ MonoBehaviour:
   joint: {fileID: 2009457670137047055}
   bobSpeed: 10
   bobAmount: {x: 0, y: 0.05, z: 0}
+  enableSlopeLimit: 1
+  slopeLimit: 45
+  slideOnSteep: 1
+  slideGravity: 10
+  slideFriction: 0.15
+  enableFallDamage: 1
+  minFallHeight: 3
+  lethalFallHeight: 18
+  damagePerExtraMeter: 10
+  crouchDamageReduction: 0.2
   groundedSkin: 0.05
   coyoteTime: 0.06
 --- !u!114 &4017912767767730641
@@ -2042,8 +2182,8 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 6080f85449814964db0d8462f9efcbf7, type: 3}
     - {fileID: 8300000, guid: 5b288d3aed9fa3e4398a92e3041a6290, type: 3}
     landingClips: []
-    volumeMin: 0.8
-    volumeMax: 1
+    volumeMin: 0.1
+    volumeMax: 0.2
     pitchMin: 0.95
     pitchMax: 1.05
   - type: 2
@@ -2056,8 +2196,8 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 1a4a7876da79e2641b1fd48f45a37fc8, type: 3}
     - {fileID: 8300000, guid: 17d7ea3ef2e2af146acad45ffe69548b, type: 3}
     landingClips: []
-    volumeMin: 0.8
-    volumeMax: 1
+    volumeMin: 0.1
+    volumeMax: 0.2
     pitchMin: 0.95
     pitchMax: 1.05
   - type: 3
@@ -2085,8 +2225,8 @@ MonoBehaviour:
     - {fileID: 8300000, guid: 3630a2f98de4e7844a54cb04249c4945, type: 3}
     - {fileID: 8300000, guid: dae934232c2a9e34fb6bca5f780d2772, type: 3}
     landingClips: []
-    volumeMin: 0.8
-    volumeMax: 1
+    volumeMin: 0.1
+    volumeMax: 0.2
     pitchMin: 0.95
     pitchMax: 1.05
   - type: 4
@@ -2108,8 +2248,8 @@ MonoBehaviour:
     - {fileID: 8300000, guid: a35822410fc33a34cb2b0a5a63170ce2, type: 3}
     - {fileID: 8300000, guid: 199230102c2363d469d232db3d0f8783, type: 3}
     landingClips: []
-    volumeMin: 0.8
-    volumeMax: 1
+    volumeMin: 0.1
+    volumeMax: 0.2
     pitchMin: 0.95
     pitchMax: 1.05
   - type: 0
@@ -2127,8 +2267,8 @@ MonoBehaviour:
     - {fileID: 8300000, guid: bc12bcf38f39e404384a1d670864f2d8, type: 3}
     - {fileID: 8300000, guid: 926b9013d647fb84d8732a22c951429f, type: 3}
     landingClips: []
-    volumeMin: 0.8
-    volumeMax: 1
+    volumeMin: 0.1
+    volumeMax: 0.2
     pitchMin: 0.95
     pitchMax: 1.05
   - type: 5
@@ -2136,8 +2276,8 @@ MonoBehaviour:
     terrainTextureIndices: 
     clips: []
     landingClips: []
-    volumeMin: 0.8
-    volumeMax: 1
+    volumeMin: 0.1
+    volumeMax: 0.2
     pitchMin: 0.95
     pitchMax: 1.05
   defaultProfile:
@@ -2159,7 +2299,7 @@ MonoBehaviour:
   landingMinAirTime: 0.12
   landingCooldown: 0.08
   postLandingStepDelay: 0
-  audioSource: {fileID: 0}
+  audioSource: {fileID: 1177531451032852584}
   showSphereCastGizmo: 0
   gizmoColor: {r: 0.2, g: 0.8, b: 1, a: 0.35}
 --- !u!1 &7482587371532213724
