@@ -501,8 +501,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         SetAttackState(EAttackState.InProgress);
         //Debug.Log(CurrentAttackState);
-        StopMoving();
-        RotateToPlayer();
+        //StopMoving();
+        //RotateToPlayer();
         //swordCollider.enabled = true;
     }
 
@@ -529,9 +529,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
         // Debug.Log("Enemy Attack End!");
         SetAttackState(EAttackState.Finished);
         //Debug.Log(CurrentAttackState);
-        canRotate = true;
+        //canRotate = true;
         swordCollider.enabled = false;
-        overrideAttack = false;
+        //overrideAttack = false;
 
         SetResetTriggers("AttackOver");
     }
@@ -757,7 +757,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     }
 
-    float SnapZero(float value, float threshold = 0.01f)
+    public float SnapZero(float value, float threshold = 0.01f)
     {
         return Mathf.Abs(value) < threshold ? 0f : value;
     }

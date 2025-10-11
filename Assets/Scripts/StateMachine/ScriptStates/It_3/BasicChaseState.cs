@@ -1,35 +1,33 @@
 using UnityEngine;
 
-public class BasicPatrolState : BaseState<EnemyState>
+public class BasicChaseState : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
-    private PatrolArea _area;
     private bool destinationReached;
-    public BasicPatrolState(EnemyState key, BaseEnemyAI enemy, PatrolArea area) : base(key)
+    public BasicChaseState(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
-        _area = area;
     }
 
     public override void EnterState()
     {
         destinationReached = false;
-        
-        _enemy.Agent.destination = _area.GetRandomPoint(10);
 
-        Debug.Log("Entered Patrol");
+        _enemy.SetResetTriggers("Chase");
+
+        _enemy.Agent.destination = _enemy.Player.position;
+
+        Debug.Log("Entered Chase");
     }
 
     public override void ExitState()
     {
-        Debug.Log("Exited Patrol");
+        Debug.Log("Exited Chase");
     }
 
     public override EnemyState GetNextState()
     {
-        if (_enemy.canSeePlayerNow) return EnemyState.Chase;
-        if (destinationReached) return EnemyState.Idle;
-
+        if (_enemy.DistanceToPlayer() <= _enemy.AttackRange) return EnemyState.Attack;
         return StateKey;
     }
 
@@ -49,13 +47,17 @@ public class BasicPatrolState : BaseState<EnemyState>
             {
                 _enemy.Agent.ResetPath();
             }
+            else
+            {
+                _enemy.Agent.destination = _enemy.Player.position;
+            }
         }
         else
         {
             _enemy.Animator.SetFloat("Speed", Mathf.Floor(0), .5f, Time.deltaTime);
         }
 
-        if (_enemy.Agent.remainingDistance <= _enemy.Agent.radius)
+        if (_enemy.Agent.remainingDistance <= _enemy.Agent.radius + 0.2f)
         {
             destinationReached = true;
         }
