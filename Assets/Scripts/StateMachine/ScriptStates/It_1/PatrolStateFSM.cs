@@ -73,7 +73,7 @@ public class PatrolStateFSM : BaseState<EnemyState>
     // Selects a new random target within the patrol area.
     private void PickNewTarget()
     {
-        _currentTarget = _patrolArea.GetRandomPoint();
+        _currentTarget = _patrolArea.GetRandomPoint(10);
         //Debug.Log("New Target: " + _currentTarget);
     }
 

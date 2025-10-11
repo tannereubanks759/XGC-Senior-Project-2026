@@ -118,6 +118,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("The speed this unit will move at while running")]
     public float RunSpeed = 5f;           // Chase/attack speed
 
+    [Tooltip("The speed this unit will patrol at")]
+    public float patrolSpeed = 3.5f;
+
     [Tooltip("The current speed of the unit")]
     public float CurrentSpeed { get; private set; } // Current movement speed
 
@@ -147,10 +150,17 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public bool isBlocking;               // Flag for blocking state
     [Tooltip("Is this unit currently dodging?")]
     public bool isDodging;                // Flag for dodging state
-    
+
     #endregion
 
     #region Monobehavior Methods
+    private void OnValidate()
+    {
+        if (!Agent) Agent = GetComponent<NavMeshAgent>();
+        if (!Animator) Animator = GetComponent<Animator>();
+        if (!swordCollider) swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
+    }
+
     // Awake is called when the script instance is loaded
     protected virtual void Awake()
     {
@@ -174,11 +184,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     private void RefInit()
     {
         // Get refrences
-        Player = GameObject.FindGameObjectWithTag("Player").transform;
-        Agent = GetComponent<NavMeshAgent>();
-        Animator = GetComponent<Animator>();
-        swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
-        playerController = Player.GetComponentInChildren<CombatController>();
+        if(!Player) Player = GameObject.FindGameObjectWithTag("Player").transform;
+        
+        if (!playerController) playerController = Player.GetComponentInChildren<CombatController>();
     }
 
     // Initialize variables
@@ -764,6 +772,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
         {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, Player.position);
+        }
+
+        if (Agent.hasPath)
+        {
+            for (var i = 0; i < Agent.path.corners.Length - 1; i++)
+            {
+                Debug.DrawLine(Agent.path.corners[i] , Agent.path.corners[i + 1], Color.blue);
+            }
         }
     }
     #endregion

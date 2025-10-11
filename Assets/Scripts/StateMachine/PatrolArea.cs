@@ -20,7 +20,7 @@ public class PatrolArea : MonoBehaviour
     public float patrolRadius = 5f;
 
     // Returns a random point within the patrol radius that is valid on the NavMesh.
-    public Vector3 GetRandomPoint()
+    public Vector3 GetRandomPoint(int recurIndex)
     {
         // Pick a random point inside a unit circle and scale by radius.
         Vector2 randomCircle = Random.insideUnitCircle * patrolRadius;
@@ -34,6 +34,8 @@ public class PatrolArea : MonoBehaviour
             //Debug.Log(hit.position);
             return hit.position;
         }
+
+        if (recurIndex > 0) return GetRandomPoint(recurIndex - 1);
 
         //Debug.Log(transform.position);
         // If unable to find a valid NavMesh point, fallback to the patrol area's center.

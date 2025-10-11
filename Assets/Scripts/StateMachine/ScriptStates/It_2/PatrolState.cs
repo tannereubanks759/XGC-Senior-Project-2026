@@ -36,7 +36,7 @@ public class PatrolState : BaseState<EnemyState>
 
         _enemy.SetSpeed(_enemy.WalkSpeed);
 
-        _currentTarget = _area.GetRandomPoint();
+        _currentTarget = _area.GetRandomPoint(10);
 
         _enemy.MoveTo(_currentTarget);
     }
