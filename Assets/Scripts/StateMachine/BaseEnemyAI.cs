@@ -664,7 +664,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
             _item.SetActive(true);
         }
     }
-
+   
     // Called when colliding with triggers
     public void OnTriggerEnter(Collider other)
     {
@@ -679,7 +679,29 @@ public class BaseEnemyAI : StateManager<EnemyState>
             swordDamageDeterminer sd = other.transform.root.GetComponent<swordDamageDeterminer>();
 
             int damage = sd.damage; // Can be retrieved from sword component if needed
-            TakeDamage(damage);
+            if(sd.isLighting) 
+            {
+                float radius = 10f;
+                float damageMultiplier = 0.5f;
+                Collider[] nearby = Physics.OverlapSphere(transform.position, radius);
+                foreach (Collider col in nearby)
+                {
+                    if (col.CompareTag("Enemy") && col.transform != this.transform)
+                    {
+                        BaseEnemyAI enemyAI = col.GetComponent<BaseEnemyAI>();
+                        if (enemyAI != null)
+                        {
+                            enemyAI.TakeDamage(Mathf.RoundToInt(sd.damage * damageMultiplier));
+                            Debug.Log("Lighting damage applied");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                TakeDamage(damage);
+            }
+            
 
             
         }
