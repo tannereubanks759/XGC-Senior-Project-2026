@@ -703,7 +703,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
             }
             
 
-            
+
         }
     }
     #endregion
