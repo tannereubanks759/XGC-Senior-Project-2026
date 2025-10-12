@@ -895,8 +895,10 @@ public class FirstPersonController : MonoBehaviour
         if (!enableLadders || isOnLadder) return;
         isOnLadder = true;
         currentLadder = ladderCol.transform;
-        // Do NOT change gravity, damping, or position.
-        // Do NOT zero velocity; let physics continue.
+
+        // Reset fall tracking on entry so we don't "carry" height into ladder time.
+        isFalling = false;
+        fallStartY = transform.position.y;
     }
 
     private void EndLadder()
@@ -904,8 +906,15 @@ public class FirstPersonController : MonoBehaviour
         if (!isOnLadder) return;
         isOnLadder = false;
         currentLadder = null;
-        // No restores needed (we didn't change physics state).
+
+        // Reset baseline on exit so the next landing only measures from this moment.
+        isFalling = false;
+        fallStartY = transform.position.y;
+
+        // Optional: a tiny coyote buffer helps if we instantly touch ground this frame.
+        groundedBufferUntil = Time.time + coyoteTime;
     }
+
 
 
 
