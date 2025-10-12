@@ -103,10 +103,19 @@ public class CombatController : MonoBehaviour
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
-        foreach (var enemy in enemies)
+        if(enemies.Length > 0)
         {
-            enemy.GetComponent<BaseEnemyAI>().Player = this.transform;
+            foreach (var enemy in enemies)
+            {
+                BaseEnemyAI ai = enemy.GetComponent<BaseEnemyAI>();
+                if (ai != null)
+                {
+                    ai.Player = this.transform;
+                }
+                
+            }
         }
+        
     }
 
 
