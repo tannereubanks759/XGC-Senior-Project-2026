@@ -216,6 +216,19 @@ public class FirstPersonController : MonoBehaviour
     private bool isFalling = false;
     private float fallStartY = 0f;
 
+    // --- Ladder Climbing (MC-style: no snapping/teleporting) ---
+    [Header("Ladders")]
+    public bool enableLadders = true;
+    [Tooltip("Up/down climb speed (m/s).")]
+    public float ladderClimbSpeed = 3.5f;
+    [Tooltip("Max downward slide when idle (m/s).")]
+    public float ladderIdleSlideSpeed = 1.25f;
+    [Tooltip("Optional: Space to jump off gives a tiny upward impulse.")]
+    public float ladderJumpUpImpulse = 3.5f;
+
+    private bool isOnLadder = false;
+    private Transform currentLadder = null;
+
 
     #endregion
 
@@ -439,10 +452,23 @@ public class FirstPersonController : MonoBehaviour
 
         // Gets input and calls jump method
         // Disable jump while swimming (Space is used to ascend)
-        if (!isSwimming && enableJump && Input.GetKeyDown(jumpKey) && isGrounded)
+        // Jump: swim uses Space for up; ladder uses jump to dismount
+        // Jump: swim uses Space for up; ladder uses jump to dismount upward a bit
+        if (enableJump && Input.GetKeyDown(jumpKey))
         {
-            Jump();
+            if (isOnLadder)
+            {
+                // small upward pop; no horizontal push
+                rb.AddForce(Vector3.up * ladderJumpUpImpulse, ForceMode.Impulse);
+                EndLadder();
+            }
+            else if (!isSwimming && isGrounded)
+            {
+                Jump();
+            }
         }
+
+
 
 
         #endregion
@@ -485,6 +511,46 @@ public class FirstPersonController : MonoBehaviour
     {
         if (isPaused) return;
         if (!playerCanMove) return;
+        // --- LADDER MOVEMENT ---
+        // --- LADDER MOVEMENT (MC-style: no position nudges, no XZ meddling) ---
+        if (enableLadders && isOnLadder && currentLadder != null)
+        {
+            // Use cached WASD
+            float v = cachedInput.z; // W/S
+            Vector3 vel1 = rb.linearVelocity;
+
+            // 1) Up/down:
+            //    - Holding W => climb up at constant speed
+            //    - Holding S => climb down at constant speed
+            //    - Idle => slide down slowly, but don't exceed -ladderIdleSlideSpeed
+            if (v > 0.01f)
+            {
+                vel1.y = ladderClimbSpeed;
+            }
+            else if (v < -0.01f)
+            {
+                vel1.y = -ladderClimbSpeed;
+            }
+            else
+            {
+                // Let gravity act but clamp maximum downward slide
+                if (vel1.y < -ladderIdleSlideSpeed)
+                    vel1.y = -ladderIdleSlideSpeed;
+                // If gravity is strong and pushes us up (rare), allow it—no teleporting or snapping.
+            }
+
+            // 2) Leave X/Z completely alone so player can walk into/within the collider naturally
+            //    (No projecting, no removing components, no sticking.)
+
+            rb.linearVelocity = vel1;
+
+            // Do NOT return unless you want to fully block other movement.
+            // We only set Y; letting your ground/air code run could fight it.
+            // So we stop here to avoid conflicts:
+            return;
+        }
+
+
 
         // --- SWIMMING (camera-relative; Space up, Q down) ---
         if (isSwimming && enableSwimming)
@@ -757,52 +823,40 @@ public class FirstPersonController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (enableLadders && other.CompareTag("ladder"))
+        {
+            BeginLadder(other);
+            return;
+        }
+
         if (!enableSwimming) return;
         if (other.CompareTag("Water") || ((waterLayer.value & (1 << other.gameObject.layer)) != 0))
         {
-            // Try to infer surface height from the collider you entered
             currentWaterSurfaceY = float.NaN;
             if (waterSurface == null)
-            {
-                // If the trigger is an axis-aligned BoxCollider: top face is bounds.max.y
-                if (other is BoxCollider)
-                {
-                    currentWaterSurfaceY = other.bounds.max.y;
-                }
-                else
-                {
-                    // Fallback: use object position (good if the water plane sits at its transform.y)
-                    currentWaterSurfaceY = other.transform.position.y;
-                }
-            }
-
+                currentWaterSurfaceY = (other is BoxCollider) ? other.bounds.max.y : other.transform.position.y;
             BeginSwim();
         }
-
-        /*if (other.CompareTag("EnemyWeapon"))
-        {
-            if (healthSystem != null)
-            {
-                other.GetComponent<Collider>().enabled = false;
-                healthSystem.TakeDamage(other.GetComponentInParent<GruntEnemyAI>().Damage);
-            }
-        }*/
     }
 
     private void OnTriggerExit(Collider other)
     {
+        if (enableLadders && other.CompareTag("ladder"))
+        {
+            if (currentLadder != null && other.transform == currentLadder)
+                EndLadder();
+            return;
+        }
+
         if (!enableSwimming) return;
         if (other.CompareTag("Water") || ((waterLayer.value & (1 << other.gameObject.layer)) != 0))
         {
             EndSwim();
             currentWaterSurfaceY = float.NaN;
         }
-
-        /*if (other.CompareTag("EnemyWeapon"))
-        {
-            other.enabled = true;
-        }*/
     }
+
+
 
 
     private void BeginSwim()
@@ -836,6 +890,25 @@ public class FirstPersonController : MonoBehaviour
         rb.linearDamping = storedDrag;           // RESTORE what you had before water
     }
 
+    private void BeginLadder(Collider ladderCol)
+    {
+        if (!enableLadders || isOnLadder) return;
+        isOnLadder = true;
+        currentLadder = ladderCol.transform;
+        // Do NOT change gravity, damping, or position.
+        // Do NOT zero velocity; let physics continue.
+    }
+
+    private void EndLadder()
+    {
+        if (!isOnLadder) return;
+        isOnLadder = false;
+        currentLadder = null;
+        // No restores needed (we didn't change physics state).
+    }
+
+
+
     /// <summary>
     /// Tracks airborne state and applies fall damage the frame we transition to grounded.
     /// Uses vertical distance from the highest point since leaving ground.
@@ -843,6 +916,15 @@ public class FirstPersonController : MonoBehaviour
     private void HandleFallDamage()
     {
         if (!enableFallDamage || healthSystem == null) { wasGrounded = isGrounded; return; }
+        if (isOnLadder)
+        {
+            // Treat ladder time as non-falling and continuously reset the baseline,
+            // so sliding down the ladder never accumulates fall distance.
+            isFalling = false;
+            fallStartY = transform.position.y;
+            wasGrounded = isGrounded; // keep this in sync for later transitions
+            return;
+        }
 
         // If we just left the ground, start tracking a new fall from our current height
         if (wasGrounded && !isGrounded)
