@@ -25,6 +25,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public Animator Animator { get; private set; }              // Animator controlling enemy animations
     private Collider swordCollider;                             // Reference to the collider attached to the weapon
     private CombatController playerController;
+    public CombatQueue combatQueue { get; private set; }
     #endregion
 
     #region Vision System
@@ -95,8 +96,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     [HideInInspector] public float attackTime;              // The time that the enemy attacked
 
-    [Tooltip("The time in which the enemy must wait before attacking again")]
-    public float attackCooldown = 3f;
+    public bool isInQueue = false;
     #endregion
 
     #region Item System
@@ -185,7 +185,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         // Get refrences
         if(!Player) Player = GameObject.FindGameObjectWithTag("Player").transform;
-        
+        if (!combatQueue) combatQueue = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatQueue>();
         if (!playerController) playerController = Player.GetComponentInChildren<CombatController>();
     }
 
@@ -539,8 +539,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Called via animation event at the end of the block
     public void OnBlockEnd()
     {
+        SetResetTriggers("BlockOver");
         isBlocking = false;
-        SetResetTriggers("Combat");
     }
 
     public void BlockHitOver()
@@ -615,7 +615,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         if (isBlocking)
         {
             // Halve incoming damage when blocking
-            finalDamage = Mathf.FloorToInt(damage / 2);
+            finalDamage = 0;
             Debug.Log($"{name} blocked! Damage reduced to {finalDamage}.");
         }
 
@@ -635,8 +635,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
             // Pick correct reaction state
             if (isBlocking)
             {
-                //TransitionToState(EnemyState.BlockHit);
-                SetResetTriggers("BlockHit");
             }
             else
             {

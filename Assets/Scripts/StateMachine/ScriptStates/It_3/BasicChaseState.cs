@@ -3,16 +3,16 @@ using UnityEngine;
 public class BasicChaseState : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
-    private bool destinationReached;
-    public BasicChaseState(EnemyState key, BaseEnemyAI enemy) : base(key)
+    private BasicSkeleton _skeleton;
+
+    public BasicChaseState(EnemyState key, BaseEnemyAI enemy, BasicSkeleton skeleton) : base(key)
     {
         _enemy = enemy;
+        _skeleton = skeleton;
     }
 
     public override void EnterState()
     {
-        destinationReached = false;
-
         _enemy.SetResetTriggers("Chase");
 
         _enemy.Agent.destination = _enemy.Player.position;
@@ -27,6 +27,17 @@ public class BasicChaseState : BaseState<EnemyState>
 
     public override EnemyState GetNextState()
     {
+        if (_enemy.currentHealth <= 0) return EnemyState.Dead;
+
+        // Runs on multiple frames so the % chance to block needs to be small so that it doesn't always block
+        var roll = Random.value;
+        if (_enemy.currentHealth < 100 
+            && _enemy.DistanceToPlayer() <= _enemy.threatRange 
+            && _enemy.PlayerIsAttacking()
+            && _skeleton.isShieldedEnemy
+            && roll <= .10) return EnemyState.Block;
+
+        //                                              ----&& !_enemy.isInQueue
         if (_enemy.DistanceToPlayer() <= _enemy.AttackRange) return EnemyState.Attack;
         return StateKey;
     }
@@ -47,7 +58,7 @@ public class BasicChaseState : BaseState<EnemyState>
             {
                 _enemy.Agent.ResetPath();
             }
-            else
+            else if (!_enemy.isInQueue)
             {
                 _enemy.Agent.destination = _enemy.Player.position;
             }
@@ -55,11 +66,6 @@ public class BasicChaseState : BaseState<EnemyState>
         else
         {
             _enemy.Animator.SetFloat("Speed", Mathf.Floor(0), .5f, Time.deltaTime);
-        }
-
-        if (_enemy.Agent.remainingDistance <= _enemy.Agent.radius + 0.2f)
-        {
-            destinationReached = true;
         }
     }
 }
