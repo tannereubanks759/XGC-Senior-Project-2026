@@ -32,6 +32,8 @@ public class BasicAttackState : BaseState<EnemyState>
 
     public override EnemyState GetNextState()
     {
+        if (_enemy.currentHealth <= 0) return EnemyState.Dead;
+
         if (_enemy.CurrentAttackState == BaseEnemyAI.EAttackState.None)
         {
             return EnemyState.Chase;

@@ -27,7 +27,10 @@ public class BasicPatrolState : BaseState<EnemyState>
 
     public override EnemyState GetNextState()
     {
+        if (_enemy.currentHealth <= 0) return EnemyState.Dead;
+
         if (_enemy.canSeePlayerNow) return EnemyState.Chase;
+
         if (destinationReached) return EnemyState.Idle;
 
         return StateKey;

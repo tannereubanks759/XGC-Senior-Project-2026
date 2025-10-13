@@ -17,6 +17,8 @@ public class BasicIdleState : BaseState<EnemyState>
 
         idleTime = Time.time;
 
+        idleInterval = Random.value * 5;
+
         Debug.Log("Entered Idle");
     }
 
@@ -27,6 +29,8 @@ public class BasicIdleState : BaseState<EnemyState>
 
     public override EnemyState GetNextState()
     {
+        if (_enemy.currentHealth <= 0) return EnemyState.Dead;
+
         if (Time.time - idleTime >= idleInterval)
         {
             return EnemyState.Patrol;
