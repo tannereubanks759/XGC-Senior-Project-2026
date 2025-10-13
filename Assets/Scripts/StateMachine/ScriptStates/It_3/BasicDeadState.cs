@@ -11,7 +11,7 @@ public class BasicDeadState : BaseState<EnemyState>
 
     public override void EnterState()
     {
-        Debug.Log("Entered Dead State");
+        //Debug.Log("Entered Dead State");
 
         var deathIndex = Random.Range(0, 2);
 

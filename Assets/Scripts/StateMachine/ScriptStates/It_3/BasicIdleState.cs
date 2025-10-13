@@ -13,18 +13,18 @@ public class BasicIdleState : BaseState<EnemyState>
 
     public override void EnterState()
     {
-        _enemy.Animator.SetFloat("Speed", Mathf.Floor(0f));
+        _enemy.Animator.SetFloat("Speed", _enemy.SnapZero(Mathf.Floor(0f)));
 
         idleTime = Time.time;
 
         idleInterval = Random.value * 5;
 
-        Debug.Log("Entered Idle");
+        //Debug.Log("Entered Idle");
     }
 
     public override void ExitState()
     {
-        Debug.Log("Exited Idle");
+        //Debug.Log("Exited Idle");
     }
 
     public override EnemyState GetNextState()

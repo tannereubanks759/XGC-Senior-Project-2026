@@ -10,6 +10,7 @@
 */
 
 //using UnityEditorInternal;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -171,7 +172,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Awake is called when the script instance is loaded
     protected virtual void Awake()
     {
-        RefInit();
+        StartCoroutine(Refs());
         VarInit();
         ItemInit();
     }
@@ -188,12 +189,26 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Init Methods
     // Initialize references
-    private void RefInit()
+    private void RefInit(GameObject p)
     {
         // Get refrences
-        if(!Player) Player = GameObject.FindGameObjectWithTag("Player").transform;
-        if (!combatQueue) combatQueue = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatQueue>();
-        if (!playerController) playerController = Player.GetComponentInChildren<CombatController>();
+        if(!Player) Player = p.transform;
+        if (!combatQueue) combatQueue = p.GetComponentInChildren<CombatQueue>();
+        if (!playerController) playerController = p.GetComponentInChildren<CombatController>();
+    }
+
+    IEnumerator Refs()
+    {
+        var p = GameObject.FindGameObjectWithTag("Player");
+        if (p != null)
+        {
+            RefInit(p);
+            yield return null;
+        }
+        else
+        {
+            yield return new WaitForSeconds(.1f);
+        }
     }
 
     // Initialize variables

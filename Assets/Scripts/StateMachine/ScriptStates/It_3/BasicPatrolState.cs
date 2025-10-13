@@ -17,12 +17,12 @@ public class BasicPatrolState : BaseState<EnemyState>
         
         _enemy.Agent.destination = _area.GetRandomPoint(10);
 
-        Debug.Log("Entered Patrol");
+        //Debug.Log("Entered Patrol");
     }
 
     public override void ExitState()
     {
-        Debug.Log("Exited Patrol");
+        //Debug.Log("Exited Patrol");
     }
 
     public override EnemyState GetNextState()

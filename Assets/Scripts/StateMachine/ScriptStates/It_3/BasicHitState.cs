@@ -11,14 +11,14 @@ public class BasicHitState : BaseState<EnemyState>
 
     public override void EnterState()
     {
-        Debug.Log("Entered Hit State");
+        //Debug.Log("Entered Hit State");
 
         hitTime = Time.time;
     }
 
     public override void ExitState()
     {
-        Debug.Log("Exited Hit State");
+        //Debug.Log("Exited Hit State");
     }
 
     public override EnemyState GetNextState()

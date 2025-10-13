@@ -11,7 +11,7 @@ public class BasicAttackState : BaseState<EnemyState>
 
     public override void EnterState()
     {
-        Debug.Log("Entered Attack");
+        //Debug.Log("Entered Attack");
 
         _enemy.SetAttackState(BaseEnemyAI.EAttackState.InProgress);
 
@@ -25,7 +25,7 @@ public class BasicAttackState : BaseState<EnemyState>
 
     public override void ExitState()
     {
-        Debug.Log("Exited Attack");
+        //Debug.Log("Exited Attack");
 
         _enemy.SetAttackState(BaseEnemyAI.EAttackState.None);
     }

@@ -17,12 +17,12 @@ public class BasicChaseState : BaseState<EnemyState>
 
         _enemy.Agent.destination = _enemy.Player.position;
 
-        Debug.Log("Entered Chase");
+        //Debug.Log("Entered Chase");
     }
 
     public override void ExitState()
     {
-        Debug.Log("Exited Chase");
+        //Debug.Log("Exited Chase");
     }
 
     public override EnemyState GetNextState()

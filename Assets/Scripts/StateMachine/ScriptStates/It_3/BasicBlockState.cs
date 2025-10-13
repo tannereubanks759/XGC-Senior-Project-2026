@@ -10,7 +10,7 @@ public class BasicBlockState : BaseState<EnemyState>
 
     public override void EnterState()
     {
-        Debug.Log("Entered Block State");
+        //Debug.Log("Entered Block State");
         _enemy.SetResetTriggers("Block");
 
         _enemy.isBlocking = true;
@@ -19,7 +19,7 @@ public class BasicBlockState : BaseState<EnemyState>
 
     public override void ExitState()
     {
-        Debug.Log("Exited Block State");        
+        //Debug.Log("Exited Block State");        
     }
 
     public override EnemyState GetNextState()
