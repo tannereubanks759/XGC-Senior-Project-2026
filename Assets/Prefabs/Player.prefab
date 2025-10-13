@@ -1892,6 +1892,7 @@ GameObject:
   - component: {fileID: 4017912767767730641}
   - component: {fileID: 8260418663489568274}
   - component: {fileID: 8539350563619556498}
+  - component: {fileID: 8329541187511738591}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -2103,6 +2104,10 @@ MonoBehaviour:
   lethalFallHeight: 18
   damagePerExtraMeter: 10
   crouchDamageReduction: 0.2
+  enableLadders: 1
+  ladderClimbSpeed: 3.5
+  ladderIdleSlideSpeed: 1.25
+  ladderJumpUpImpulse: 3.5
   groundedSkin: 0.05
   coyoteTime: 0.06
 --- !u!114 &4017912767767730641
@@ -2144,6 +2149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 10
+  isLighting: 0
 --- !u!114 &8539350563619556498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2302,6 +2308,19 @@ MonoBehaviour:
   audioSource: {fileID: 1177531451032852584}
   showSphereCastGizmo: 0
   gizmoColor: {r: 0.2, g: 0.8, b: 1, a: 0.35}
+--- !u!114 &8329541187511738591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428402459396883477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8296805cb0768d1499db4944e90154ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gold: 0
 --- !u!1 &7482587371532213724
 GameObject:
   m_ObjectHideFlags: 0
