@@ -109,6 +109,13 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("Whether or not the enemy will drop an item on death or not")]
     private bool hasItem;
     #endregion
+    #region Gold System
+    [Header("Gold System")]
+    [Tooltip("Array containing the possible gold piles")]
+    public GameObject[] piles;
+    [Tooltip("The amount of gold this enemy is to drop")]
+    public int gold;
+    #endregion
 
     #region Speed/Movement
     [Header("Speeds")]
@@ -203,6 +210,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
         canMoveWhileAttacking = false;
         swordCollider.enabled = false;
         moveBackward = false;
+
+        gold = Random.Range(0, 51);
     }
 
     // Initialize an item system for the enemy
@@ -210,6 +219,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // the item logic will run
     private void ItemInit()
     {
+        if (gold <= 10) item = piles[0];
+        else if (gold <= 30) item = piles[1];
+        else item = piles[2];
         // Set the bool if the enemy has an item
         hasItem = item != null ? true : false;
 
@@ -218,6 +230,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         {
             _item = Instantiate(item, transform.parent);
             _item.SetActive(false);
+            _item.GetComponent<GoldPile>().gold = gold;
         }
     }
     #endregion
@@ -641,6 +654,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 TransitionToState(EnemyState.Hit);
             }
         }
+    }
+
+    private void SpawnGold()
+    {
+
     }
 
 
