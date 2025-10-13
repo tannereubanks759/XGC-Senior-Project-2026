@@ -6,8 +6,6 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using static UnityEngine.GraphicsBuffer;
 
 [AddComponentMenu("Level/Terrain Object Spawner")]
 public class TerrainObjectSpawner : MonoBehaviour
@@ -842,6 +840,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         levelLoadingUI.SetActive(false);
     }
 }
+/*
 #if UNITY_EDITOR
 [CustomEditor(typeof(TerrainObjectSpawner))]
 public class TerrainObjectSpawnerEditor : Editor
@@ -905,4 +904,4 @@ public class TerrainObjectSpawnerEditor : Editor
         }
     }
 }
-#endif
+#endif*/
