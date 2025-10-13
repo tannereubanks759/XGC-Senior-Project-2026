@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using DigitalRuby.ThunderAndLightning;
 
 public class interactScript : MonoBehaviour
 {
@@ -21,12 +22,13 @@ public class interactScript : MonoBehaviour
     private GameObject dungeonDoor;
     private GameObject dungeonLock;
     public List<int> keyIDs = new List<int>();
-    public static interactScript current; 
-    
+    public static interactScript current;
+    private bool shopInteract = false;
     public GameObject redKeyObj;
     public GameObject blueKey;
     public GameObject greenKey;
     public GameObject goldKey;
+    private GameObject shop;
     void Start()
     {
         current = this;
@@ -118,6 +120,13 @@ public class interactScript : MonoBehaviour
                 interactText.SetActive(true);
             dungeonLock = other.gameObject;
         }
+        else if (other.CompareTag("shop"))
+        {
+            shopInteract = true;
+            interactText.SetActive(true);
+            shop = other.gameObject;
+            
+        }
         if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
         {
             interactText.SetActive(true);
@@ -146,6 +155,10 @@ public class interactScript : MonoBehaviour
         else if (other.CompareTag("DungeonKey"))
         {
             DungeonKey = null;
+        }
+        else if (other.CompareTag("shop"))
+        {
+            shopInteract = false;
         }
         else if (other.CompareTag("DungeonLock"))
         {
@@ -204,6 +217,11 @@ public class interactScript : MonoBehaviour
             {
                 DungeonKey.GetComponentInParent<TreasureRoomLockKey>().PickupKey();
                 DungeonKey = null;
+            }
+            else if (shopInteract)
+            {
+                var shopScript = shop.GetComponent<baseShop>();
+                
             }
             else if(dungeonDoor != null && treasureRoomUnlocked)
             {
