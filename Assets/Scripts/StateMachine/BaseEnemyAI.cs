@@ -25,7 +25,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public NavMeshAgent Agent { get; private set; }             // NavMeshAgent for pathfinding/movement
     public Animator Animator { get; private set; }              // Animator controlling enemy animations
     private Collider swordCollider;                             // Reference to the collider attached to the weapon
-    private CombatController playerController;
+    public CombatController playerController;
     public CombatQueue combatQueue { get; private set; }
     #endregion
 
@@ -172,7 +172,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Awake is called when the script instance is loaded
     protected virtual void Awake()
     {
-        StartCoroutine(Refs());
+        //StartCoroutine(Refs());
         VarInit();
         ItemInit();
     }
@@ -193,7 +193,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         // Get refrences
         if(!Player) Player = p.transform;
-        if (!combatQueue) combatQueue = p.GetComponentInChildren<CombatQueue>();
+        //if (!combatQueue) combatQueue = p.GetComponentInChildren<CombatQueue>();
         if (!playerController) playerController = p.GetComponentInChildren<CombatController>();
     }
 
@@ -669,11 +669,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 TransitionToState(EnemyState.Hit);
             }
         }
-    }
-
-    private void SpawnGold()
-    {
-
     }
 
 

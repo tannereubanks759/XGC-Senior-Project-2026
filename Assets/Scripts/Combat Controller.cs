@@ -111,6 +111,7 @@ public class CombatController : MonoBehaviour
                 if (ai != null)
                 {
                     ai.Player = this.transform;
+                    ai.playerController = this;
                 }
                 
             }
