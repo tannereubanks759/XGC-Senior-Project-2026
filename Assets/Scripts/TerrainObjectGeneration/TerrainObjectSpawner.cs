@@ -178,7 +178,7 @@ public class TerrainObjectSpawner : MonoBehaviour
     void Awake()
     {
         if (verboseLogs) Debug.Log($"[Spawner] Awake on '{name}'");
-        EnsureSetup();
+        //EnsureSetup();
     }
 
     void Start()
