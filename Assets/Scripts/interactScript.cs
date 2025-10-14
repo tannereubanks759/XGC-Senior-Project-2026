@@ -168,12 +168,16 @@ public class interactScript : MonoBehaviour
         {
             dungeonDoor = null;
         }
-        interactText.SetActive(false);
+        if(interactText != null)
+        {
+            interactText.SetActive(false);
+        }
+        
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) && interactText != null)
         {
             if (canInteract && currentArtifact != null)
             {

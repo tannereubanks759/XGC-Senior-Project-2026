@@ -14,7 +14,7 @@ public class UI : MonoBehaviour
     void Start()
     {
         Resume();
-        SceneCamera.gameObject.SetActive(false);
+        //SceneCamera.gameObject.SetActive(false);
         EnableCursor(false);
         DeathScreen.SetActive(false);
     }
