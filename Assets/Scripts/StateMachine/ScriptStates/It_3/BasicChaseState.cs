@@ -15,7 +15,11 @@ public class BasicChaseState : BaseState<EnemyState>
     {
         _enemy.SetResetTriggers("Chase");
 
-        _enemy.Agent.destination = _enemy.Player.position;
+        if(_enemy.Agent.enabled == true)
+        {
+            _enemy.Agent.destination = _enemy.Player.position;
+        }
+        
 
         //Debug.Log("Entered Chase");
     }

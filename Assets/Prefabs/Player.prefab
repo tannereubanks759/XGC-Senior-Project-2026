@@ -2334,6 +2334,7 @@ GameObject:
   - component: {fileID: 5597446599923421742}
   - component: {fileID: 8196703046278169767}
   - component: {fileID: 2762810941035145519}
+  - component: {fileID: 5230912486499667837}
   m_Layer: 0
   m_Name: Sword Parent
   m_TagString: Untagged
@@ -2424,6 +2425,39 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &5230912486499667837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7482587371532213724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3adf6059c6d8b645b54699fcf384b1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cam: {fileID: 7757571152264839969}
+  maxDistance: 2
+  hittableLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  knockbackForce: 15
+  knockbackDuration: 0.5
+  upAngleDeg: 10
+  extraGravity: 0
+  preferRigidbodyWhenAvailable: 1
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  fallGravity: 18
+  terminalFallSpeed: 14
+  settleSpeed: 6
+  groundProbeDistance: 6
+  landThreshold: 0.35
+  landingOffset: 0.03
+  maxAirTime: 1.25
+  agentFallbackReenableTime: 0.01
 --- !u!1 &7638729564069392685
 GameObject:
   m_ObjectHideFlags: 0
