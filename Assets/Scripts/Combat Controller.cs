@@ -188,11 +188,14 @@ public class CombatController : MonoBehaviour
         {
             if (Input.GetKey(primaryAttack))
             {
+                int random = Random.Range(1, 3);
                 swinging = true;
                 swordAnim.SetBool("swinging", true);
+                swordAnim.SetInteger("attackNum", random);
             }
             else
             {
+                swordAnim.SetInteger("attackNum", 0);
                 swinging = false;
                 swordAnim.SetBool("swinging", false);
             }
@@ -208,19 +211,13 @@ public class CombatController : MonoBehaviour
                 swordAnim.SetBool("blocking", false);
             }
 
-            if (swinging && blocking) // heavy attack
+            if (blocking && Input.GetKeyDown(primaryAttack))
             {
-                swordAnim.SetBool("heavy", true);
-                controller.playerCanMove = false;
+                swordAnim.SetTrigger("Knockback");
             }
             else
             {
-                swordAnim.SetBool("heavy", false);
-                if (isStaggered == false)
-                {
-                    controller.playerCanMove = true;
-                }
-
+                swordAnim.ResetTrigger("Knockback");
             }
 
             if (blocking && !swinging && Input.GetKeyDown(dodge))
@@ -248,7 +245,7 @@ public class CombatController : MonoBehaviour
         }
         
     }
-
+    
     public void Die()
     {
         GameObject.FindAnyObjectByType<UI>().ShowDeathScreen();
