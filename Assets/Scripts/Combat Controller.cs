@@ -188,7 +188,7 @@ public class CombatController : MonoBehaviour
         {
             if (Input.GetKey(primaryAttack))
             {
-                int random = Random.Range(1, 3);
+                int random = Random.Range(1, 4);
                 swinging = true;
                 swordAnim.SetBool("swinging", true);
                 swordAnim.SetInteger("attackNum", random);
