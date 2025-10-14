@@ -266,10 +266,20 @@ public class FirstPersonController : MonoBehaviour
         {
             crosshairObject.gameObject.SetActive(false);
         }
-        waterSurface = GameObject.FindGameObjectWithTag("Water").gameObject.transform;
-        #region Sprint Bar
+        GameObject waterObject = GameObject.FindGameObjectWithTag("Water");
+        if (waterObject != null)
+        {
+            waterSurface = waterObject.gameObject.transform;
+        }
+        else
+        {
+            waterSurface = this.gameObject.transform;
+        }
 
-        sprintBarCG = GetComponentInChildren<CanvasGroup>();
+
+            #region Sprint Bar
+
+            sprintBarCG = GetComponentInChildren<CanvasGroup>();
 
         if(useSprintBar)
         {
