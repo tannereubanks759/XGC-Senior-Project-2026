@@ -226,6 +226,7 @@ public class FirstPersonController : MonoBehaviour
     [Tooltip("Optional: Space to jump off gives a tiny upward impulse.")]
     public float ladderJumpUpImpulse = 3.5f;
 
+
     private bool isOnLadder = false;
     private Transform currentLadder = null;
 
@@ -847,10 +848,15 @@ public class FirstPersonController : MonoBehaviour
                 currentWaterSurfaceY = (other is BoxCollider) ? other.bounds.max.y : other.transform.position.y;
             BeginSwim();
         }
+        
     }
 
     private void OnTriggerExit(Collider other)
     {
+        if (other.CompareTag("ladderTop") && currentLadder != null)
+        {
+            currentLadder.GetComponent<BoxCollider>().isTrigger = false;
+        }
         if (enableLadders && other.CompareTag("ladder"))
         {
             if (currentLadder != null && other.transform == currentLadder)
@@ -864,6 +870,16 @@ public class FirstPersonController : MonoBehaviour
             EndSwim();
             currentWaterSurfaceY = float.NaN;
         }
+        
+
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("ladderTop") && currentLadder != null)
+        {
+            currentLadder.GetComponent<BoxCollider>().isTrigger = true;
+        }
+        
     }
 
 
