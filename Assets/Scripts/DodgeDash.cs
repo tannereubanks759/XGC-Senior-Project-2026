@@ -9,17 +9,24 @@ public class DodgeDash : MonoBehaviour
     public FirstPersonController controller;
 
     [Header("Tuning (Δspeed in m/s)")]
-    public float dashSpeedChange = 12f;     //desired delta-v along dash dir
-    public float dodgeSpeedChange = 8f;     //desired delta-v along dodge dir
-    public float lockDuration = 0.15f;      //how long to lock player input
-    public float maxHorizontalSpeed = 14f;  //hard cap on horizontal speed
+    public float dashSpeedChange = 12f;     // desired delta-v along dash dir
+    public float dodgeSpeedChange = 8f;     // desired delta-v along dodge dir
+    [Tooltip("Legacy lock time if you don't want to lock for full burst. Ignored when lockForFullBurst=true.")]
+    public float lockDuration = 0.15f;      // fallback lock duration
+    public float maxHorizontalSpeed = 14f;  // hard cap on horizontal speed
 
     [Header("Acceleration (timing & feel)")]
-    public float dashDuration = 0.18f;      //seconds to deliver dash Δv
-    public float dodgeDuration = 0.14f;     //seconds to deliver dodge Δv
+    public float dashDuration = 0.18f;      // seconds to deliver dash Δv
+    public float dodgeDuration = 0.14f;     // seconds to deliver dodge Δv
 
-    //Maps 0→1 time to 0→1 of the total Δv delivered. EaseInOut is a nice default.
+    // Maps 0→1 time to 0→1 of the total Δv delivered. EaseInOut is a nice default.
     public AnimationCurve speedCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+    [Header("Locking Options")]
+    [Tooltip("If true, player input is locked for the entire burst duration; otherwise uses lockDuration.")]
+    public bool lockForFullBurst = true;
+    [Tooltip("If true, clears horizontal velocity before applying the burst so the dodge has consistent speed.")]
+    public bool zeroHorizontalBeforeBurst = true;
 
     private Coroutine lockRoutine;
     private Coroutine burstRoutine;
@@ -44,12 +51,12 @@ public class DodgeDash : MonoBehaviour
         dir.Normalize();
 
         StartBurst(dir, dashSpeedChange, dashDuration);
-        LockController(lockDuration);
+        LockController(lockForFullBurst ? dashDuration : lockDuration);
     }
 
     public void Dodge(Vector3 direction)
     {
-        //ground-locked dodge (adjust if you want air dodges)
+        // ground-locked dodge (adjust if you want air dodges)
         if (controller != null && (!controller.isGrounded || GetVel().magnitude <= 0.1f))
             return;
 
@@ -59,12 +66,20 @@ public class DodgeDash : MonoBehaviour
         dir.Normalize();
 
         StartBurst(dir, dodgeSpeedChange, dodgeDuration);
-        LockController(lockDuration);
+        LockController(lockForFullBurst ? dodgeDuration : lockDuration);
     }
 
     void StartBurst(Vector3 dir, float speedChange, float duration)
     {
         if (burstRoutine != null) StopCoroutine(burstRoutine);
+
+        // Optionally clear horizontal velocity so the burst is pure
+        if (zeroHorizontalBeforeBurst)
+        {
+            Vector3 v = GetVel();
+            SetVel(new Vector3(0f, v.y, 0f));
+        }
+
         burstRoutine = StartCoroutine(AccelerateBurst(dir, speedChange, duration));
     }
 
@@ -73,7 +88,7 @@ public class DodgeDash : MonoBehaviour
         duration = Mathf.Max(0.0001f, duration);
         float t = 0f;
 
-        //Initial along-direction speed and target along-direction speed
+        // Initial along-direction speed and target along-direction speed
         Vector3 v0 = GetVel();
         Vector3 v0H = new Vector3(v0.x, 0f, v0.z);
         float startAlong = Vector3.Dot(v0H, dir);
@@ -87,11 +102,11 @@ public class DodgeDash : MonoBehaviour
             float dt = Time.fixedDeltaTime;
             t = Mathf.Min(t + dt, duration);
 
-            float k = speedCurve.Evaluate(t / duration);         //0→1 progress of total Δv
-            float desiredDeltaThisStep = (targetAlong - startAlong) * (k - prevK); //v for this tick
+            float k = speedCurve.Evaluate(t / duration); // 0→1 progress of total Δv
+            float desiredDeltaThisStep = (targetAlong - startAlong) * (k - prevK);
             prevK = k;
 
-            //Current along-speed may have changed due to other forces — clamp to avoid overshoot.
+            // Current along-speed may have changed due to other forces — clamp to avoid overshoot.
             Vector3 vCur = GetVel();
             Vector3 vCurH = new Vector3(vCur.x, 0f, vCur.z);
             float curAlong = Vector3.Dot(vCurH, dir);
@@ -101,20 +116,21 @@ public class DodgeDash : MonoBehaviour
             if (Mathf.Sign(desiredDeltaThisStep) == Mathf.Sign(remain))
                 stepDeltaV = Mathf.Clamp(desiredDeltaThisStep, -Mathf.Abs(remain), Mathf.Abs(remain));
 
-            //Convert Δv over dt to acceleration (m/s^2) and apply horizontally
+            // Convert Δv over dt to acceleration (m/s^2) and apply horizontally
             if (dt > 0f && stepDeltaV != 0f)
             {
                 Vector3 a = (dir * stepDeltaV) / dt; // a = Δv / Δt
-                //Only horizontal acceleration
                 a.y = 0f;
                 rb.AddForce(a, ForceMode.Acceleration);
             }
 
-            //Safety clamp for total horizontal speed
+            // Safety clamp for total horizontal speed
             LimitHorizontalSpeed();
         }
 
         burstRoutine = null;
+        // If you wanted to guarantee unlock at end regardless of timer (e.g., if the lock was interrupted), you could:
+        // if (lockForFullBurst && controller != null) controller.playerCanMove = true;
     }
 
     void LimitHorizontalSpeed()
@@ -140,22 +156,18 @@ public class DodgeDash : MonoBehaviour
     {
         bool prev = controller.playerCanMove;
         controller.playerCanMove = false;
+
         float t = 0f;
         while (t < seconds)
         {
             yield return new WaitForFixedUpdate();
             t += Time.fixedDeltaTime;
         }
+
         controller.playerCanMove = prev;
         lockRoutine = null;
     }
 
-    Vector3 GetVel()
-    {
-        return rb.linearVelocity;
-    }
-    void SetVel(Vector3 v)
-    {
-        rb.linearVelocity = v; 
-    }
+    Vector3 GetVel() => rb.linearVelocity;
+    void SetVel(Vector3 v) => rb.linearVelocity = v;
 }
