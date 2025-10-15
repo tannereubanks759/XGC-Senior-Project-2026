@@ -29,7 +29,7 @@ public class BasicSkeleton : BaseEnemyAI
 
         CurrentState = States[EnemyState.Idle];
 
-        SetArmor();
+        // SetArmor();
     }
 
     void SetArmor()
