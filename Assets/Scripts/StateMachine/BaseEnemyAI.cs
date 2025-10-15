@@ -164,19 +164,25 @@ public class BaseEnemyAI : StateManager<EnemyState>
     #region Monobehavior Methods
     private void OnValidate()
     {
-        if (!Agent) Agent = GetComponent<NavMeshAgent>();
+        /*if (!Agent) Agent = GetComponent<NavMeshAgent>();
         if (!Animator) Animator = GetComponent<Animator>();
-        if (!swordCollider) swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
+        if (!swordCollider) swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;*/
     }
 
     // Awake is called when the script instance is loaded
     protected virtual void Awake()
     {
         //StartCoroutine(Refs());
-        VarInit();
+        //VarInit();
         ItemInit();
     }
-
+    private void Start()
+    {
+        if (!Agent) Agent = GetComponent<NavMeshAgent>();
+        if (!Animator) Animator = GetComponent<Animator>();
+        if (!swordCollider) swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
+        VarInit();
+    }
     // Call the update of the parent so that state logic still runs
     // Check to see if we can see the player
     void Update()
