@@ -66,9 +66,12 @@ public class CombatController : MonoBehaviour
     [Tooltip("Assign a 0/0 friction PhysicMaterial (Combine: Minimum). Optional but recommended.")]
     public PhysicsMaterial staggerLowFriction;
 
-
+    [Header("Attacks")]
+    public int AmountOfAttacks = 4;
+    private int CachedAttack;
     void Start()
     {
+        CachedAttack = Random.Range(1, AmountOfAttacks + 1);
         //rb.linearDamping = 0f; // tiny values like 0.02 are fine too
         hurtFX = GetComponent<HurtPostFXURP>();
         health = Mathf.Clamp(health, 0, maxHealth);
@@ -188,7 +191,7 @@ public class CombatController : MonoBehaviour
         {
             if (Input.GetKey(primaryAttack))
             {
-                int random = Random.Range(1, 4);
+                int random = Random.Range(1, AmountOfAttacks + 1);
                 swinging = true;
                 swordAnim.SetBool("swinging", true);
                 swordAnim.SetInteger("attackNum", random);
