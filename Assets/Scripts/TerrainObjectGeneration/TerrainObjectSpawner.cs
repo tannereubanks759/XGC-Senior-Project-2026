@@ -156,8 +156,8 @@ public class TerrainObjectSpawner : MonoBehaviour
         if (string.IsNullOrEmpty(spawnerGuid))
             spawnerGuid = System.Guid.NewGuid().ToString();
 
-        EnsureSpawnParent();
-        EnsureSetup();
+        //EnsureSpawnParent();
+        //EnsureSetup();
     }
     void EnsureSpawnParent()
     {
@@ -213,17 +213,7 @@ public class TerrainObjectSpawner : MonoBehaviour
             StartCoroutine(RebuildNavMeshRoutine());
     }
 
-    void Update()
-    {
-#if UNITY_EDITOR
-        if (!Application.isPlaying && !UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode) { }
-#endif
-        if (spawnHotkey != KeyCode.None && Input.GetKeyDown(spawnHotkey))
-        {
-            Debug.Log($"[Spawner] Hotkey {spawnHotkey} pressed → spawning.");
-            SpawnAllPasses();
-        }
-    }
+    
 
     void ChangeTagOfRocks()
     {
