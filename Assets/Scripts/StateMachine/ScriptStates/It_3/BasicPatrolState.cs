@@ -48,7 +48,8 @@ public class BasicPatrolState : BaseState<EnemyState>
 
                 _enemy.transform.rotation = Quaternion.RotateTowards(_enemy.transform.rotation, Quaternion.LookRotation(dir), 180 * Time.deltaTime);
 
-                _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? animdir.z : Mathf.Floor(0), .75f, Time.deltaTime);
+                _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? Mathf.Clamp(animdir.z, 0f, 0.25f) : Mathf.Floor(0), .75f, Time.deltaTime);
+                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, 0.25f);
 
                 if (Vector3.Distance(_enemy.transform.position, _enemy.Agent.destination) < _enemy.Agent.radius)
                 {
