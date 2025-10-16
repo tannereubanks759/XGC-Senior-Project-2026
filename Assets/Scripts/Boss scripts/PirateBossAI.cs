@@ -18,33 +18,55 @@ public class PirateBossAI : MonoBehaviour
     public float turnSpeed = 360f;
     public float attackDuration = 1.2f;
     public float attackCooldown = 0.6f;
-
-    [Tooltip("How close the agent must be to consider itself 'arrived' for idle anims.")]
     public float stopEpsilon = 0.05f;
 
-    // NEW: locomotion thresholds so walk anim stops when agent slows to a creep
     [Header("Locomotion")]
-    [Tooltip("Minimum agent speed (m/s) to consider walking for the animation.")]
-    public float walkAnimMinSpeed = 0.15f;
+    [Tooltip("If speed is above this, we want walk anim ON.")]
+    public float walkEnterSpeed = 0.25f;
+    [Tooltip("If speed is below this AND we're close enough, we want walk anim OFF.")]
+    public float walkExitSpeed = 0.10f;
+    [Tooltip("Milliseconds to wait before allowing the next walk/idle flip.")]
+    public float walkToggleDebounce = 0.18f;
+    [Tooltip("LPF smoothing for agent speed (bigger = snappier).")]
+    public float speedSmoothing = 10f;
     [Tooltip("Extra buffer beyond attackRange to leave Attack state (prevents snap-flopping).")]
     public float rangeHysteresis = 0.5f;
 
     [Header("Health")]
     public int maxHealth = 300;
     public int currentHealth = 300;
+    [Header("Damage Intake")]
+    [Tooltip("Tag on the player's sword collider(s).")]
+    public string swordTag = "PlayerSword";
+
+    [Tooltip("Fallback damage if the sword has no DamageDealer component.")]
+    public int defaultSwordDamage = 20;
+
+    [Tooltip("Small invulnerability window after a hit to prevent multi-hit spam from continuous overlap.")]
+    public float hitInvulnerability = 0.12f;
+
+    [Tooltip("Log hits to the console for debugging.")]
+    public bool debugDamage = false;
+
+    float _nextDamageAllowedTime = 0f;
+
 
     [Header("Animator Parameters (match your controller)")]
     [SerializeField] string paramIsWalking = "isWalking";
     [SerializeField] string paramIsRunning = "isRunning";
-    [SerializeField] string paramIsAttackin = "isAttackin"; // your spelling
+    [SerializeField] string paramIsAttackin = "isAttackin";
     [SerializeField] string paramAttackIdx = "attack";     // int
     [SerializeField] string paramIsDead = "isDead";
     [SerializeField] string paramIsStunned = "isStunned";
 
-    // Attack selection
     [Header("Attack Selection")]
     [Min(1)] public int numAttackAnims = 5;
     public bool avoidImmediateRepeat = true;
+
+    // --- Death guards ---
+    bool _deathHandled = false;   // prevents re-entering death logic
+    int _deathHash;              // optional: cache state hash if you want CrossFade
+
 
     public BossState State { get; private set; } = BossState.Idle;
 
@@ -55,6 +77,11 @@ public class PirateBossAI : MonoBehaviour
     float _attackCooldownUntil;
     int _lastAttack = 0;
 
+    // NEW: locomotion smoothing
+    bool _walkState;                 // what we actually set on the Animator
+    float _nextWalkToggleTime;       // debounce timer
+    float _speedLPF;                 // smoothed agent speed
+
     void Reset()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -64,8 +91,6 @@ public class PirateBossAI : MonoBehaviour
     void Awake()
     {
         if (!agent) agent = GetComponent<NavMeshAgent>();
-
-        // Agent settings: let us control facing; stop just short of the player
         agent.updateRotation = false;
         agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
 
@@ -73,15 +98,18 @@ public class PirateBossAI : MonoBehaviour
         animator?.SetBool(paramIsWalking, false);
         animator?.SetBool(paramIsRunning, false);
         animator?.SetBool(paramIsAttackin, false);
-        animator?.SetBool(paramIsDead, false);
+        animator?.ResetTrigger(paramIsDead);
 
         RecalcRanges();
+        _deathHash = Animator.StringToHash("Base Layer.Death"); // replace with your exact layer/path
+
     }
 
     void OnValidate()
     {
         if (agent) agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
         if (numAttackAnims < 1) numAttackAnims = 1;
+        if (walkExitSpeed > walkEnterSpeed) walkExitSpeed = walkEnterSpeed * 0.6f; // ensure hysteresis
         RecalcRanges();
     }
 
@@ -103,6 +131,7 @@ public class PirateBossAI : MonoBehaviour
 
     void Update()
     {
+        Debug.Log(State);
         if (State == BossState.Dead) return;
 
         switch (State)
@@ -130,7 +159,7 @@ public class PirateBossAI : MonoBehaviour
     void TickIdle()
     {
         if (!agent.isStopped) agent.isStopped = true;
-        SetWalk(false);
+        SetWalk(false, force: true);
         animator.SetBool(paramIsAttackin, false);
     }
 
@@ -158,14 +187,39 @@ public class PirateBossAI : MonoBehaviour
         agent.SetDestination(player.position);
         FaceTarget();
 
-        // --- KEY FIX: drive walk anim from actual motion ---
-        bool shouldWalk =
-            agent.hasPath &&
-            !agent.pathPending &&
-            (agent.remainingDistance > agent.stoppingDistance + stopEpsilon ||
-             agent.velocity.sqrMagnitude > walkAnimMinSpeed * walkAnimMinSpeed);
+        // --- FIX: treat pathPending as 'moving' and debounce the toggle ---
+        float rawSpeed = agent.velocity.magnitude;
+        // LPF smoothing: factor ~ (1 - e^{-k dt})
+        float alpha = 1f - Mathf.Exp(-speedSmoothing * Time.deltaTime);
+        _speedLPF = Mathf.Lerp(_speedLPF, rawSpeed, alpha);
 
-        SetWalk(shouldWalk);
+        bool farFromStop = agent.remainingDistance > agent.stoppingDistance + stopEpsilon;
+        bool planning = agent.pathPending;                // re-pathing counts as 'moving'
+        bool hasIntent = agent.hasPath || planning || agent.desiredVelocity.sqrMagnitude > 0.01f;
+
+        // Hysteresis: higher threshold to enter walking, lower to exit
+        bool wantWalk =
+            hasIntent && (
+                planning ||                             // baking a path: keep walking anim on
+                farFromStop ||                          // still not near stop distance
+                _speedLPF > walkEnterSpeed              // moving fast enough
+            );
+
+        bool wantIdle =
+            !planning && !farFromStop && _speedLPF < walkExitSpeed;
+
+        // Debounce: only flip if enough time passed
+        if (Time.time >= _nextWalkToggleTime)
+        {
+            if (!_walkState && wantWalk)
+            {
+                SetWalk(true);
+            }
+            else if (_walkState && wantIdle)
+            {
+                SetWalk(false);
+            }
+        }
 
         // No running yet
         animator.SetBool(paramIsRunning, false);
@@ -174,21 +228,22 @@ public class PirateBossAI : MonoBehaviour
 
     void TickAttack()
     {
-        // Face player while attacking
         FaceTarget();
-
-        // If player moved far away (beyond hysteresis), go back to chase
         if (player)
         {
             float sqrDist = (player.position - transform.position).sqrMagnitude;
             if (sqrDist > _sqrAttackExit && !_attackBusy)
-            {
                 TransitionTo(BossState.Chase);
-            }
         }
     }
 
-    void SetWalk(bool value) => animator.SetBool(paramIsWalking, value);
+    void SetWalk(bool value, bool force = false)
+    {
+        if (!force && _walkState == value) return;
+        _walkState = value;
+        animator.SetBool(paramIsWalking, value);
+        _nextWalkToggleTime = Time.time + walkToggleDebounce; // debounce
+    }
 
     void FaceTarget()
     {
@@ -202,9 +257,14 @@ public class PirateBossAI : MonoBehaviour
 
     void TransitionTo(BossState next)
     {
-        if (State == next) return;
+        if (State == next)
+        {
+            // Special-case: if next == Dead and already dead, ignore further calls.
+            if (next == BossState.Dead) return;
+            return;
+        }
 
-        // exit hooks
+        // Exit hooks for current state
         if (State == BossState.Attack)
         {
             animator.SetBool(paramIsAttackin, false);
@@ -217,7 +277,7 @@ public class PirateBossAI : MonoBehaviour
         {
             case BossState.Idle:
                 agent.isStopped = true;
-                SetWalk(false);
+                SetWalk(false, force: true);
                 break;
 
             case BossState.Chase:
@@ -229,10 +289,26 @@ public class PirateBossAI : MonoBehaviour
                 break;
 
             case BossState.Dead:
+                if (_deathHandled) return;      // <-- guard
+                _deathHandled = true;
+
+                // Stop movement/AI & prevent further hits
+                agent.isStopped = true;
+                agent.updatePosition = false;
+                agent.updateRotation = false;
+
+                SetWalk(false, force: true);
+                animator.SetBool(paramIsAttackin, false);
+
+                // Optional: immediately disable colliders so sword can't retrigger anything
+                foreach (var col in GetComponentsInChildren<Collider>()) col.enabled = false;
+
+                // Start death routine ONCE
                 StartCoroutine(DieRoutine());
                 break;
         }
     }
+
 
     int PickAttackIndex()
     {
@@ -250,7 +326,7 @@ public class PirateBossAI : MonoBehaviour
     {
         _attackBusy = true;
         agent.isStopped = true;
-        SetWalk(false);
+        SetWalk(false, force: true);
 
         int idx = PickAttackIndex();
         _lastAttack = idx;
@@ -274,16 +350,62 @@ public class PirateBossAI : MonoBehaviour
 
     IEnumerator DieRoutine()
     {
-        agent.isStopped = true;
-        agent.updatePosition = false;
-        agent.updateRotation = false;
+        // Set the death flag ONCE (or use a trigger—see note below)
+        animator.SetTrigger(paramIsDead);
+        Collider[] cols = GetComponentsInChildren<Collider>();
+        foreach(var col in cols)
+        {
+            col.enabled = false;
+        }
+        // Optional: force crossfade instead of relying on transitions
+        // animator.CrossFadeInFixedTime(_deathHash, 0.12f); // if you cached a Death state hash
 
-        SetWalk(false);
-        animator.SetBool(paramIsAttackin, false);
-        animator.SetBool(paramIsDead, true);
+        // If your death clip has length ~X, either wait for it or for a fixed time:
+        // yield return new WaitForSeconds(X);
+        yield return new WaitForSeconds(.01f);
 
-        yield return new WaitForSeconds(3f);
+        // Optionally disable this component now that we're dead
+        enabled = false;
+
+        // Or despawn:
         // Destroy(gameObject);
+    }
+
+
+    // Try to read damage from a component on the sword; otherwise use default.
+    int ResolveDamageFrom(Collider other)
+    {
+        // Optional: if you have a component that specifies damage
+        var dealer = other.GetComponentInParent<swordDamageDeterminer>();
+        if (dealer != null) return Mathf.Max(1, dealer.damage);
+
+        return Mathf.Max(1, defaultSwordDamage);
+    }
+
+    // Called when a TRIGGER collider touches the boss
+    void OnTriggerEnter(Collider other)
+    {
+        if (!enabled || State == BossState.Dead) return;
+        if (other.CompareTag(swordTag))
+        {
+            if (Time.time < _nextDamageAllowedTime) return; // i-frames
+            int dmg = ResolveDamageFrom(other);
+            TakeDamage(dmg);
+            _nextDamageAllowedTime = Time.time + hitInvulnerability;
+        }
+    }
+
+    // Called when a NON-TRIGGER collider touches the boss
+    void OnCollisionEnter(Collision collision)
+    {
+        if (!enabled || State == BossState.Dead) return;
+        if (collision.collider.CompareTag(swordTag))
+        {
+            if (Time.time < _nextDamageAllowedTime) return; // i-frames
+            int dmg = ResolveDamageFrom(collision.collider);
+            TakeDamage(dmg);
+            _nextDamageAllowedTime = Time.time + hitInvulnerability;
+        }
     }
 
     void OnDrawGizmosSelected()

@@ -1013,6 +1013,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 56875784244541864}
+  - {fileID: 8902158784097442066}
   m_Father: {fileID: 94914407652990371}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2379668155196856498
@@ -1424,6 +1425,7 @@ GameObject:
   - component: {fileID: 2093273682608253604}
   - component: {fileID: 3806828027883814874}
   - component: {fileID: 8655571819451964888}
+  - component: {fileID: 5426568125850415191}
   m_Layer: 0
   m_Name: Anchor
   m_TagString: Untagged
@@ -1439,8 +1441,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2997295603815908784}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.6864633, y: 0.00000014708526, z: 0.00000024997476, w: 0.7271645}
-  m_LocalPosition: {x: 1.2690006, y: 2.077844, z: -0.5877822}
+  m_LocalRotation: {x: -0.6864633, y: 0.00000012854267, z: 0.0000001361641, w: 0.7271645}
+  m_LocalPosition: {x: 1.269, y: 2.0778434, z: -0.5877762}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1514,7 +1516,7 @@ MeshCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
@@ -1575,6 +1577,19 @@ ParentConstraint:
   m_Sources:
   - sourceTransform: {fileID: 8646558406402226401}
     weight: 1
+--- !u!114 &5426568125850415191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2997295603815908784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59d1a6e69c8b65b4e8921170dac6bd9e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AnchorDamage: 20
 --- !u!1 &3069815789068120321
 GameObject:
   m_ObjectHideFlags: 0
@@ -3460,6 +3475,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3142050396325101731}
   - component: {fileID: 3306201697714317191}
+  - component: {fileID: 7921061226892140344}
   m_Layer: 0
   m_Name: Anchor Boss
   m_TagString: Untagged
@@ -3487,7 +3503,6 @@ Transform:
   - {fileID: 94914407652990371}
   - {fileID: 4897617797032586911}
   - {fileID: 6373809769332409209}
-  - {fileID: 8902158784097442066}
   - {fileID: 5022405695860204083}
   m_Father: {fileID: 8141331738879649820}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3513,6 +3528,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7921061226892140344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6713586319191357598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8096e14203ec9324f8c1adc39b11168f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6741017300178874724
 GameObject:
   m_ObjectHideFlags: 0
@@ -3948,12 +3975,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7603446184509929693}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3540001, y: 1.6018988, z: -0.1128006}
+  m_LocalRotation: {x: 0.1714302, y: -0.00000007423911, z: 0.000000013695257, w: 0.9851963}
+  m_LocalPosition: {x: 0.35400012, y: -0.037529375, z: -0.07871737}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 3142050396325101731}
+  m_Father: {fileID: 2957969373291897000}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7655949025414707401
 GameObject:
@@ -4332,6 +4359,7 @@ GameObject:
   - component: {fileID: 8141331738879649820}
   - component: {fileID: 1201666963795393156}
   - component: {fileID: 624281540744868916}
+  - component: {fileID: 49201342487513634}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -4371,14 +4399,21 @@ MonoBehaviour:
   agent: {fileID: 624281540744868916}
   player: {fileID: 0}
   attackRange: 3.5
-  turnSpeed: 360
+  turnSpeed: 60
   attackDuration: 1.2
   attackCooldown: 0.6
   stopEpsilon: 0.05
-  walkAnimMinSpeed: 0.15
+  walkEnterSpeed: 0.25
+  walkExitSpeed: 0.1
+  walkToggleDebounce: 0.18
+  speedSmoothing: 10
   rangeHysteresis: 0.5
   maxHealth: 300
   currentHealth: 300
+  swordTag: PlayerSword
+  defaultSwordDamage: 20
+  hitInvulnerability: 0.12
+  debugDamage: 0
   paramIsWalking: isWalking
   paramIsRunning: isRunning
   paramIsAttackin: isAttack
@@ -4409,6 +4444,29 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &49201342487513634
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8120497829418520012}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Height: 3
+  m_Direction: 1
+  m_Center: {x: -0, y: 1.5, z: -0.2}
 --- !u!1 &8226670720077371566
 GameObject:
   m_ObjectHideFlags: 0

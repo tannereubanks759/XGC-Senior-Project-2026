@@ -1677,8 +1677,8 @@ MonoBehaviour:
   SwordKey: 49
   GunKey: 50
   weapons:
-  - {fileID: 7482587371532213724}
   - {fileID: 5484108582164116026}
+  - {fileID: 7482587371532213724}
 --- !u!114 &3629823473797291533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1789,6 +1789,7 @@ MonoBehaviour:
   staggerLockTime: 0.5
   staggerSpeedChange: 7.5
   staggerLowFriction: {fileID: 13400000, guid: 67332d8f40c748f44bbb0466967e2a8c, type: 2}
+  AmountOfAttacks: 4
 --- !u!1 &6351160074191772888
 GameObject:
   m_ObjectHideFlags: 0
@@ -2534,10 +2535,10 @@ MonoBehaviour:
   cam: {fileID: 7757571152264839969}
   controller: {fileID: 2269966192252265701}
   dashSpeedChange: 13
-  dodgeSpeedChange: 31
+  dodgeSpeedChange: 20
   lockDuration: 1
   maxHorizontalSpeed: 25
-  dashDuration: 0.18
+  dashDuration: 0.1
   dodgeDuration: 0.14
   speedCurve:
     serializedVersion: 2
@@ -2782,6 +2783,7 @@ GameObject:
   - component: {fileID: 9190579263966314903}
   - component: {fileID: 6372272836626282012}
   - component: {fileID: 3651523959833766474}
+  - component: {fileID: 414781114502182563}
   m_Layer: 0
   m_Name: Pirate_sword_optimized
   m_TagString: PlayerSword
@@ -2879,6 +2881,33 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.16343932, y: 0.6593732, z: 0.088371545}
   m_Center: {x: -0.0000029726766, y: 0.10229473, z: 0.0000004819491}
+--- !u!54 &414781114502182563
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7880519312847440154}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
 --- !u!1 &7899749670538968077
 GameObject:
   m_ObjectHideFlags: 0
