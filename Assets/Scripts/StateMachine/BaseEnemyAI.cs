@@ -10,7 +10,6 @@
 */
 
 //using UnityEditorInternal;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -26,7 +25,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public Animator Animator { get; private set; }              // Animator controlling enemy animations
     private Collider swordCollider;                             // Reference to the collider attached to the weapon
     public CombatController playerController;
-    public CombatQueue combatQueue { get; private set; }
+    //public CombatQueue combatQueue { get; private set; }
     #endregion
 
     #region Vision System
@@ -46,11 +45,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     [HideInInspector] public bool canSeePlayerNow { get; private set; }
     [HideInInspector] public Vector3 lastKnownPlayerPos { get; private set; }
-
-    //[Tooltip("Event for the player being spotted")]
-    //public event Action OnPlayerSpotted;
-    //[Tooltip("Event for the player being lost")]
-    //public event Action OnPlayerLost;
     #endregion
 
     #region Combat System
@@ -79,6 +73,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     [Tooltip("The amount of damage that this unit will do to the player")]
     public int Damage { get; private set; }                    // Base damage (used in attacks)
+
+    [Tooltip("Is this unit currently blocking?")]
+    public bool isBlocking;               // Flag for blocking state
 
     [Tooltip("Can this unit move toward the player while attacking?" +
         "\n(Decided based on the attack animation")]
@@ -110,6 +107,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("Whether or not the enemy will drop an item on death or not")]
     private bool hasItem;
     #endregion
+
     #region Gold System
     [Header("Gold System")]
     [Tooltip("Array containing the possible gold piles")]
@@ -146,29 +144,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("The current amount of health the unit has")]
     public int currentHealth { get; private set; } // Current health
     #endregion
-
-    // OLD VARIABLES
-
-    [Header("Vision & Ranges")]
-    [Tooltip("The range in which this unit will spot the player")]
-    public float ChaseRange = 10f;        // Distance at which enemy will start chasing
-
-    [Header("Damage/Combat")]
-    [Tooltip("Is this unit currently blocking?")]
-    public bool isBlocking;               // Flag for blocking state
-    [Tooltip("Is this unit currently dodging?")]
-    public bool isDodging;                // Flag for dodging state
-
     #endregion
 
     #region Monobehavior Methods
-    private void OnValidate()
-    {
-        /*if (!Agent) Agent = GetComponent<NavMeshAgent>();
-        if (!Animator) Animator = GetComponent<Animator>();
-        if (!swordCollider) swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;*/
-    }
-
     // Awake is called when the script instance is loaded
     protected virtual void Awake()
     {
@@ -203,20 +181,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         if (!playerController) playerController = p.GetComponentInChildren<CombatController>();
     }
 
-    IEnumerator Refs()
-    {
-        var p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null)
-        {
-            RefInit(p);
-            yield return null;
-        }
-        else
-        {
-            yield return new WaitForSeconds(.1f);
-        }
-    }
-
     // Initialize variables
     private void VarInit()
     {
@@ -224,7 +188,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         currentHealth = maxHealth;
         canRotate = true;
         isBlocking = false;
-        isDodging = false;
 
         canRunAtPlayer = false;
         combatRange = 8f;
@@ -283,83 +246,12 @@ public class BaseEnemyAI : StateManager<EnemyState>
             lastKnownPlayerPos = Player.position;
         }
 
-        // Fire events only if status changed
-        //if (!wasSeeingPlayer && canSeePlayerNow)
-        //    OnPlayerSpotted?.Invoke();
-        //else if (wasSeeingPlayer && !canSeePlayerNow)
-        //    OnPlayerLost?.Invoke();
-
-        //Debug.Log("Distance to player: " + distance + ", angle: " + angle + ", can see player: " + (canSeePlayerNow ? "YES" : "NO"));
-
         return canSeePlayerNow;
     }
 
     #endregion
 
     #region Movement Methods
-    // Move the enemy toward a destination using NavMeshAgent
-    public void MoveTo(Vector3 destination)
-    {
-        if (Agent == null) return;
-
-        Agent.isStopped = Agent.isStopped ? false : true;
-
-        if (!Agent.isStopped)
-            Agent.SetDestination(destination);
-    }
-
-    public void RunTowardsPlayer()
-    {
-        if (Player == null) return;
-
-        Vector3 direction = (Player.position - transform.position).normalized;
-
-        // Move manually
-        transform.position += direction * RunSpeed * Time.deltaTime;
-
-        // Rotate toward player
-        if (canRotate) transform.rotation = Quaternion.LookRotation(direction);
-
-        // Play the run animation trigger if not already playing
-        if (!Animator.GetCurrentAnimatorStateInfo(0).IsName("_Run")) SetResetTriggers("Run");
-    }
-
-    public void CanRunAtPlayer()
-    {
-        canRunAtPlayer = !canRunAtPlayer;
-    }
-
-    // Called by states to drive movement animations
-    public void SetMovementInput(Vector3 worldDirection)
-    {
-        // If you’re using NavMeshAgent:
-        // Convert world direction into local space relative to enemy forward
-        Vector3 localDir = transform.InverseTransformDirection(worldDirection.normalized);
-
-        // Push into animator
-        Animator.SetFloat("xMov", localDir.x, 0.1f, Time.deltaTime); // smoothing with damp
-        Animator.SetFloat("zMov", localDir.z, 0.1f, Time.deltaTime);
-    }
-
-    //
-    public void DirectMove(Vector3 moveVector)
-    {
-        if (Agent != null && Agent.enabled)
-        {
-            // Temporarily disable path recalculation
-            Agent.ResetPath();
-
-            // Move directly while respecting NavMesh
-            Agent.Move(moveVector);
-        }
-    }
-
-    // Set the dodging flag to false (used after a dodge ends)
-    public void SetIsDodgingFalse()
-    {
-        isDodging = false;
-        SetResetTriggers("Combat");
-    }
 
     // Set movement speed for the NavMeshAgent
     public void SetSpeed(float speed)
@@ -428,21 +320,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Agent.isStopped = false;
     }
 
-    // Allow the enemy to rotate toward the player
-    public void RotateToPlayer()
-    {
-        if (Player == null) return;
-
-        Vector3 dir = (Player.position - transform.position).normalized;
-        dir.y = 0f;
-
-        if (dir.sqrMagnitude > 0.01f)
-        {
-            Quaternion lookRot = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, 10f * Time.deltaTime);
-        }
-    }
-
     // Calculate distance to the player
     public float DistanceToPlayer()
     {
@@ -500,35 +377,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         moveBackward = true;
         canMoveWhileAttacking = true;
     }    
-
-    // Slowly stop the enemies movement to (0, 0, 0)
-    public void SlowStopMovement(float x, float z)
-    {
-        // Set vars
-        bool setAValue = false;
-
-        // The enemy is moving in the x direction
-        if (SnapZero(x) != 0)
-        {
-            x -= 0.06f * Time.deltaTime;
-
-            Animator.SetFloat("xMov", x);
-
-            setAValue = true;
-        }
-        if (SnapZero(z) != 0)
-        {
-            z -= 0.06f * Time.deltaTime;
-
-            Animator.SetFloat("zMov", z);
-
-            setAValue = true;
-        }
-        if (setAValue)
-        {
-            SlowStopMovement(x, z);
-        }
-    }
 
     // Called via animation event at the start of the swing
     public void OnAttackStart()
@@ -590,39 +438,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         CurrentAttackState = newState;
     }
 
-    // Virtual attack logic (override in subclasses)
-    public virtual void Attack()
-    {
-        Debug.Log("Can Override: " + overrideAttack);
-        // Pick one of 5 slots in your blend tree
-        int attackIndex = Random.Range(0, attacks.Length);
-        currentAttack = attacks[attackIndex];
-
-        Debug.Log("Rand Index: " + attackIndex);
-
-        // Set the parameter for the blend tree
-        Animator.SetInteger("AttackIndex", attackIndex);
-
-        canMoveWhileAttacking = currentAttack.canMoveDuringAttack;
-        moveBackward = currentAttack.movesBackward;
-
-        //if (overrideAttack) OverrideAttack();
-    }
-
-    // Override the attack selected in the attack state
-    public void OverrideAttack()
-    {
-        currentAttack = attacks[attacks.Length - 1];
-
-        Debug.Log("Override Index: " + (attacks.Length - 1));
-
-        // Set the parameter for the blend tree
-        Animator.SetInteger("AttackIndex", attacks.Length - 1);
-
-        canMoveWhileAttacking = currentAttack.canMoveDuringAttack;
-        moveBackward = currentAttack.movesBackward;
-    }
-
     // Quick checks for attack states
     public bool IsAttackInProgress => CurrentAttackState == EAttackState.InProgress;
     public bool IsAttackFinished => CurrentAttackState == EAttackState.Finished;
@@ -638,8 +453,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Damage and Death Methods
     // Apply damage to the enemy, factoring in blocking
-    
-
     public void TakeDamage(int damage)
     {
         int finalDamage = damage;
@@ -674,7 +487,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
             }
         }
     }
-
 
     // Handle death of the enemy
     public virtual void Die()
@@ -731,28 +543,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
             {
                 TakeDamage(damage);
             }
-            
-
-
         }
     }
     #endregion
 
     #region Triggers & Misc
-    // Reset all animator triggers
-    public void ResetTriggers()
-    {
-        Animator.ResetTrigger("Idle");
-        Animator.ResetTrigger("Chase");
-        Animator.ResetTrigger("Dead");
-        Animator.ResetTrigger("Attack");
-        Animator.ResetTrigger("Patrol");
-        Animator.ResetTrigger("Block");
-        Animator.ResetTrigger("BlockHit");
-        Animator.ResetTrigger("Hit");
-        Animator.ResetTrigger("BackDodge");
-    }
-
     // Reset all the triggers, then set the correct one
     public void SetResetTriggers(string trigger)
     {
@@ -764,27 +559,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
             }
         }
         Animator.SetTrigger(trigger);
-        /*
-        Animator.ResetTrigger("Idle");
-        Animator.ResetTrigger("Patrol");
-        Animator.ResetTrigger("Warcry");
-        Animator.ResetTrigger("Run");
-        Animator.ResetTrigger("Emote1");
-        Animator.ResetTrigger("Emote2");
-        Animator.ResetTrigger("Emote3");
-        Animator.ResetTrigger("Combat");
-        Animator.ResetTrigger("Hit");
-        Animator.ResetTrigger("Dead");
-        Animator.ResetTrigger("Attack");
-        Animator.ResetTrigger("AttackOver");
-        Animator.ResetTrigger("Chase");
-        Animator.ResetTrigger("Block");
-        Animator.ResetTrigger("BlockHit");
-        Animator.ResetTrigger("BlockHitOver");
-        Animator.ResetTrigger("BackDodge");
-        Animator.ResetTrigger("EmoteOver");
-        */
-
     }
 
     public float SnapZero(float value, float threshold = 0.01f)

@@ -65,7 +65,7 @@ public class Blunderbuss : MonoBehaviour
         
         // Group by damageable component (prevents multi-collider dupes)
         var skullHits = new Dictionary<FloatingSkullAI, int>();
-        var gruntHits = new Dictionary<EnemyTest2, int>();
+        //var gruntHits = new Dictionary<EnemyTest2, int>();
 
         int pelletsThatHitAnything = 0;
 
@@ -91,7 +91,7 @@ public class Blunderbuss : MonoBehaviour
 
                 // Use collider's hierarchy, NOT root tag
                 Transform t = hit.collider.attachedRigidbody ? hit.collider.attachedRigidbody.transform : hit.transform;
-
+                /*
                 // Prefer components over tags
                 var skull = t.GetComponentInParent<FloatingSkullAI>();
                 var grunt = t.GetComponentInParent<EnemyTest2>();
@@ -114,6 +114,7 @@ public class Blunderbuss : MonoBehaviour
                     // Optional: Debug what we hit that isn’t damageable
                     // Debug.Log($"Pellet hit non-damageable: {t.name} (layer {t.gameObject.layer})");
                 }
+                */
             }
         }
 
@@ -125,13 +126,14 @@ public class Blunderbuss : MonoBehaviour
             kvp.Key.ApplyDamage(totalDamage);
             Debug.Log($"Applied {totalDamage} dmg to SKULL {kvp.Key.name} (pellets {kvp.Value})");
         }
-
+        /*
         foreach (var kvp in gruntHits)
         {
             int totalDamage = kvp.Value * DamagePerPellet;
             kvp.Key.TakeDamage(totalDamage);
             Debug.Log($"Applied {totalDamage} dmg to ENEMY {kvp.Key.name} (pellets {kvp.Value})");
         }
+        */
 
         // Scale recoil by pellets connected (caps at 4)
         if (wIntertia)
