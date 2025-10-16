@@ -29,7 +29,7 @@ public class BasicSkeleton : BaseEnemyAI
 
         CurrentState = States[EnemyState.Idle];
 
-        // SetArmor();
+        SetArmor();
     }
 
     void SetArmor()
@@ -54,7 +54,7 @@ public class BasicSkeleton : BaseEnemyAI
                 }
             }
         }
-
+        /*
         var rollTwo = Random.value;
         Debug.Log(rollTwo);
         if (rollTwo <= .25)
@@ -62,5 +62,6 @@ public class BasicSkeleton : BaseEnemyAI
             shield.SetActive(true);
             isShieldedEnemy = true;
         }
+        */
     }
 }

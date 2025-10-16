@@ -643,8 +643,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public void TakeDamage(int damage)
     {
         int finalDamage = damage;
-        
-        
 
         if (isBlocking)
         {
@@ -828,6 +826,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
             Gizmos.DrawLine(transform.position, Player.position);
         }
 
+        /*
         if (Agent.hasPath)
         {
             for (var i = 0; i < Agent.path.corners.Length - 1; i++)
@@ -835,6 +834,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 Debug.DrawLine(Agent.path.corners[i] , Agent.path.corners[i + 1], Color.blue);
             }
         }
+        */
     }
     #endregion
 }

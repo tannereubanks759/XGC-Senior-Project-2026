@@ -4,7 +4,6 @@ public class DeathCull : MonoBehaviour
 {
     float deathTime;
     bool canCull;
-    BasicSkeleton[] enemies;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -12,7 +11,6 @@ public class DeathCull : MonoBehaviour
     {
         deathTime = Time.time;
         canCull = false;
-        enemies = GameObject.FindObjectsByType<BasicSkeleton>(sortMode: FindObjectsSortMode.None);
     }
 
     // Update is called once per frame
@@ -23,6 +21,6 @@ public class DeathCull : MonoBehaviour
 
     private void OnBecameInvisible()
     {
-        if (canCull) Destroy(this);
+        if (canCull) Destroy(this.gameObject);
     }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.VisualScripting;
 
 public class BasicDeadState : BaseState<EnemyState>
 {
@@ -19,10 +20,18 @@ public class BasicDeadState : BaseState<EnemyState>
 
         _enemy.SetResetTriggers("Dead");
 
-        _enemy.combatQueue.RemoveAttackingEnemy(_enemy.GetComponent<BasicSkeleton>());
+        _enemy.Animator.SetFloat("Speed", Mathf.Floor(0));
+
+        _enemy.Agent.ResetPath();
+
+        _enemy.Agent.enabled = false;
+
+        _enemy.GetComponent<Collider>().enabled = false;
+
+        //_enemy.combatQueue.RemoveAttackingEnemy(_enemy.GetComponent<BasicSkeleton>());
 
         // Needs work
-        //_enemy.AddComponent<DeathCull>();
+        _enemy.AddComponent<DeathCull>();
     }
 
     public override void ExitState()

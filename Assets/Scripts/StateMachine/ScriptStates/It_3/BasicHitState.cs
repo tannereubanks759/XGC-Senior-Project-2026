@@ -12,6 +12,9 @@ public class BasicHitState : BaseState<EnemyState>
     public override void EnterState()
     {
         //Debug.Log("Entered Hit State");
+        _enemy.SetResetTriggers("Hit");
+
+        _enemy.Animator.SetFloat("Speed", Mathf.Floor(0));
 
         hitTime = Time.time;
     }

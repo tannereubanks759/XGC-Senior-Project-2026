@@ -9,7 +9,7 @@ public class GoldPile : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             other.GetComponent<GoldBank>().AddGold(gold);
-            Destroy(this);
+            Destroy(this.gameObject);
         }
     }
 }

@@ -43,6 +43,18 @@ public class BasicAttackState : BaseState<EnemyState>
 
     public override void UpdateState()
     {
+        if (_enemy.Agent.hasPath)
+        {
+            var dir = (_enemy.Player.position - _enemy.transform.position).normalized;
+            var animdir = _enemy.transform.InverseTransformDirection(dir);
+            var isFacingPlayer = Vector3.Dot(dir, _enemy.transform.forward) > .25f;
+
+            _enemy.transform.rotation = Quaternion.RotateTowards(_enemy.transform.rotation, Quaternion.LookRotation(dir), 180 * Time.deltaTime);
+
+            _enemy.Animator.SetFloat("Speed", isFacingPlayer ? Mathf.Clamp(animdir.z, 0f, 0.125f) : Mathf.Floor(0), .75f, Time.deltaTime);
+            _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, 0.125f);
+        }
+
         if (_enemy.CurrentAttackState == BaseEnemyAI.EAttackState.Finished && attackTime == 0)
         {
             attackTime = Time.time;

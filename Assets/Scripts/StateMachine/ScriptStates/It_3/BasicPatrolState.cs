@@ -38,34 +38,41 @@ public class BasicPatrolState : BaseState<EnemyState>
 
     public override void UpdateState()
     {
-        if(_enemy.Agent.enabled == true)
+        if (!_enemy.Agent.enabled) return;
+
+        if (_enemy.Agent.hasPath)
         {
-            if (_enemy.Agent.hasPath)
+            var dir = (_enemy.Agent.steeringTarget - _enemy.transform.position).normalized;
+            var animdir = _enemy.transform.InverseTransformDirection(dir);
+            var isFacingMoveDirection = Vector3.Dot(dir, _enemy.transform.forward) > .25f;
+
+            _enemy.transform.rotation = Quaternion.RotateTowards(_enemy.transform.rotation, Quaternion.LookRotation(dir), 180 * Time.deltaTime);
+
+            if (_enemy.currentHealth < 35)
             {
-                var dir = (_enemy.Agent.steeringTarget - _enemy.transform.position).normalized;
-                var animdir = _enemy.transform.InverseTransformDirection(dir);
-                var isFacingMoveDirection = Vector3.Dot(dir, _enemy.transform.forward) > .5f;
-
-                _enemy.transform.rotation = Quaternion.RotateTowards(_enemy.transform.rotation, Quaternion.LookRotation(dir), 180 * Time.deltaTime);
-
-                _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? Mathf.Clamp(animdir.z, 0f, 0.25f) : Mathf.Floor(0), .75f, Time.deltaTime);
-                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, 0.25f);
-
-                if (Vector3.Distance(_enemy.transform.position, _enemy.Agent.destination) < _enemy.Agent.radius)
-                {
-                    _enemy.Agent.ResetPath();
-                }
+                _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? Mathf.Clamp(animdir.z, 0f, 0.125f) : Mathf.Floor(0), .75f, Time.deltaTime);
+                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, 0.125f);
             }
             else
             {
-                _enemy.Animator.SetFloat("Speed", Mathf.Floor(0), .5f, Time.deltaTime);
+                _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? Mathf.Clamp(animdir.z, 0f, 0.25f) : Mathf.Floor(0), .75f, Time.deltaTime);
+                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, 0.25f);
             }
 
-            if (_enemy.Agent.remainingDistance <= _enemy.Agent.radius)
+            if (Vector3.Distance(_enemy.transform.position, _enemy.Agent.destination) < _enemy.Agent.radius)
             {
-                destinationReached = true;
+                _enemy.Agent.ResetPath();
             }
         }
-        
+        else
+        {
+            _enemy.Animator.SetFloat("Speed", Mathf.Floor(0), .5f, Time.deltaTime);
+        }
+
+        if (_enemy.Agent.remainingDistance <= _enemy.Agent.radius)
+        {
+            destinationReached = true;
+        }
+
     }
 }
