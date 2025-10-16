@@ -688,15 +688,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -11.192657
+      value: 69.83429
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -65.00645
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.9586844
+      value: 132.94388
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -704,15 +704,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -865,6 +865,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Player: {fileID: 0}
   playerController: {fileID: 0}
+  lightingBoltPrefab: {fileID: 222523385688736188, guid: 312873be285086d4db0c8f29e38dc408, type: 3}
   detectionRadius: 12
   fieldOfView: 120
   obstructionMask:
@@ -873,12 +874,14 @@ MonoBehaviour:
   playerMask:
     serializedVersion: 2
     m_Bits: 128
+  radius: 5
   canRunAtPlayer: 0
   hasSeenPlayerBefore: 0
   combatRange: 0
   AttackRange: 2.5
   threatRange: 4
   CurrentAttackState: 0
+  isBlocking: 0
   canMoveWhileAttacking: 0
   moveBackward: 0
   attacks: []
@@ -898,9 +901,6 @@ MonoBehaviour:
   canRotate: 0
   combatSpeed: 1
   maxHealth: 30
-  ChaseRange: 10
-  isBlocking: 0
-  isDodging: 0
   armor:
   - {fileID: 2855602832369097646}
   - {fileID: 2855602832369097366}

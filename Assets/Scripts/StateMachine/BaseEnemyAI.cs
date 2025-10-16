@@ -25,6 +25,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public Animator Animator { get; private set; }              // Animator controlling enemy animations
     private Collider swordCollider;                             // Reference to the collider attached to the weapon
     public CombatController playerController;
+    public GameObject lightingBoltPrefab;
     //public CombatQueue combatQueue { get; private set; }
     #endregion
 
@@ -45,6 +46,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     [HideInInspector] public bool canSeePlayerNow { get; private set; }
     [HideInInspector] public Vector3 lastKnownPlayerPos { get; private set; }
+    #endregion
+
+    #region Lighting System
+    [Header("Lighting Variables")]
+    public float radius;
     #endregion
 
     #region Combat System
@@ -506,7 +512,22 @@ public class BaseEnemyAI : StateManager<EnemyState>
             _item.SetActive(true);
         }
     }
-   
+    private void SpawnLightningArc(Transform start, Transform end)
+    {
+        var lightning = Instantiate(lightingBoltPrefab);
+        MonoBehaviour bolt = null;
+        foreach (var scriptType in lightning.GetComponents<MonoBehaviour>())
+        {
+            if (scriptType.GetType().Name == "LightningBoltPrefabScript")
+            {
+                bolt = scriptType;
+                break;
+            }
+        }
+        var t = bolt.GetType();
+        var fSource = t.GetField("Source"); if (fSource != null) fSource.SetValue(bolt, start.gameObject);
+        var fDest = t.GetField("Destination"); if (fDest != null) fDest.SetValue(bolt, end.gameObject);
+    }
     // Called when colliding with triggers
     public void OnTriggerEnter(Collider other)
     {
@@ -518,25 +539,37 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 Debug.Log("Stagger");
                 Player.gameObject.GetComponentInChildren<CombatController>().GetStaggeredFrom(this.transform, 1f); //Stagger player if enemy gets hit while blocking
             }
-            swordDamageDeterminer sd = other.transform.root.GetComponent<swordDamageDeterminer>();
-
-            int damage = sd.damage; // Can be retrieved from sword component if needed
-            if(sd.isLighting) 
+            var sd = other.transform.root.GetComponent<swordDamageDeterminer>();
+            int damage = sd.damage;
+            if (sd.isLighting)
             {
-                float radius = 10f;
+                TakeDamage(damage);
+                //float radius = 10f;
                 float damageMultiplier = 0.5f;
-                Collider[] nearby = Physics.OverlapSphere(transform.position, radius);
-                foreach (Collider col in nearby)
+                Transform lastDamaged = this.transform;
+                Collider[] closeEnemies = Physics.OverlapSphere(transform.position, radius, ~0, QueryTriggerInteraction.Ignore);
+                foreach (Collider col in closeEnemies)
                 {
                     if (col.CompareTag("Enemy") && col.transform != this.transform)
                     {
-                        BaseEnemyAI enemyAI = col.GetComponent<BaseEnemyAI>();
-                        if (enemyAI != null)
+                        var enemyTestScript = col.GetComponent<BasicSkeleton>();
+                        if (enemyTestScript.currentHealth > 0)
                         {
-                            enemyAI.TakeDamage(Mathf.RoundToInt(sd.damage * damageMultiplier));
-                            Debug.Log("Lighting damage applied");
+                            //Debug.Log("Lighting damage transferred");
+                            Vector3 offset = Vector3.up * 1.3f;
+                            Transform enemyEnder = new GameObject("enemyEnderPoint").transform;
+                            Transform enemyLast = new GameObject("lastDamagedPoint").transform;
+                            enemyEnder.position = enemyTestScript.transform.position + offset;
+                            enemyLast.position = lastDamaged.transform.position + offset;
+                            //Vector3 offset = enemyTestScript.transform.position + Vector3.up;
+                            enemyTestScript.TakeDamage(Mathf.RoundToInt(damage * damageMultiplier));
+                            //SpawnLightningArc(lastDamaged, enemyTestScript.transform);
+                            SpawnLightningArc(enemyLast, enemyEnder);
+                            lastDamaged = enemyTestScript.transform;
                         }
+                        
                     }
+
                 }
             }
             else
