@@ -107,35 +107,35 @@ ModelImporter:
     - boneName: L.Knee
       humanName: LeftLowerLeg
       limit:
-        min: {x: -90, y: 0, z: -80}
-        max: {x: 90, y: 0, z: 80}
+        min: {x: 0, y: 0, z: -43.076923}
+        max: {x: 0, y: 0, z: 80}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: R.Knee
       humanName: RightLowerLeg
       limit:
-        min: {x: -90, y: 0, z: -80}
-        max: {x: 90, y: 0, z: 80}
+        min: {x: 0, y: 0, z: -39.3846}
+        max: {x: 0, y: 0, z: 80}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: L.Foot
       humanName: LeftFoot
       limit:
-        min: {x: 0, y: -30, z: -50}
-        max: {x: 0, y: 30, z: 50}
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: R.Foot
       humanName: RightFoot
       limit:
-        min: {x: 0, y: -30, z: -50}
-        max: {x: 0, y: 30, z: 50}
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 50}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: Spine
       humanName: Spine
       limit:
@@ -147,19 +147,19 @@ ModelImporter:
     - boneName: Neck
       humanName: Neck
       limit:
-        min: {x: -40, y: -40, z: -40}
-        max: {x: 40, y: 40, z: 40}
+        min: {x: -40, y: -15, z: 0}
+        max: {x: 40, y: 15, z: 0}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: Head
       humanName: Head
       limit:
-        min: {x: -40, y: -40, z: -40}
-        max: {x: 40, y: 40, z: 40}
+        min: {x: -40, y: -10.461567, z: 0}
+        max: {x: 40, y: 14.153816, z: 25.230785}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: L.Shoulder
       humanName: LeftShoulder
       limit:
