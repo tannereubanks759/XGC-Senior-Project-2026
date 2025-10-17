@@ -461,45 +461,50 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Apply damage to the enemy, factoring in blocking
     public void TakeDamage(int damage)
     {
-        int finalDamage = damage;
-
-        if (isBlocking)
+        if(currentHealth > 0)
         {
-            // Halve incoming damage when blocking
-            finalDamage = 0;
-            Debug.Log($"{name} blocked! Damage reduced to {finalDamage}.");
-        }
+            int finalDamage = damage;
 
-        // Apply damage
-        currentHealth -= finalDamage;
-        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-
-        Debug.Log($"{name} took {finalDamage} damage. Health: {currentHealth}");
-
-        // Death check
-        if (currentHealth <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            // Pick correct reaction state
             if (isBlocking)
             {
+                // Halve incoming damage when blocking
+                finalDamage = 0;
+                Debug.Log($"{name} blocked! Damage reduced to {finalDamage}.");
+            }
+
+            // Apply damage
+            currentHealth -= finalDamage;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
+            Debug.Log($"{name} took {finalDamage} damage. Health: {currentHealth}");
+
+            // Death check
+            if (currentHealth <= 0)
+            {
+                Die();
             }
             else
             {
-                TransitionToState(EnemyState.Hit);
+                // Pick correct reaction state
+                if (isBlocking)
+                {
+                }
+                else
+                {
+                    TransitionToState(EnemyState.Hit);
+                }
             }
         }
+        
     }
 
     // Handle death of the enemy
     public virtual void Die()
     {
+        DropItem();
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);
-        DropItem();
+        
     }
 
     // Drop an item if applicable
