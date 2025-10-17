@@ -10,6 +10,7 @@ public class UI : MonoBehaviour
     public bool isPaused = false;
     public GameObject PauseScreen;
     public GameObject DeathScreen;
+    public GameObject playerUI;
     public Camera SceneCamera;
     void Start()
     {
@@ -31,6 +32,17 @@ public class UI : MonoBehaviour
             else
             {
                 Pause();
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            if (playerUI.activeSelf)
+            {
+                playerUI.SetActive(false);
+            }
+            else
+            {
+                playerUI.SetActive(true);
             }
         }
     }

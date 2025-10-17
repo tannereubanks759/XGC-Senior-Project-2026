@@ -11,16 +11,18 @@ public class WeaponsManager : MonoBehaviour
     public GameObject[] weapons;
     private GameObject[] weaponIcons;
     private GameObject Crosshair;
+    public GameObject lamp;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         weaponIcons = GameObject.FindGameObjectsWithTag("WeaponIcon");
-        Array.Reverse(weaponIcons);
+        //Array.Reverse(weaponIcons);
         InitializeWeapons();
         Crosshair = GameObject.FindGameObjectWithTag("crosshair");
         EnableCrosshair(false);
+        lamp.SetActive(false);
     }
 
     // Update is called once per frame
@@ -63,6 +65,18 @@ public class WeaponsManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.C))
         {
             EnableCrosshair(!Crosshair.activeSelf);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            if (lamp.activeSelf)
+            {
+                lamp.SetActive(false);
+            }
+            else
+            {
+                lamp.SetActive(true);
+            }
         }
     }
 
@@ -127,4 +141,5 @@ public class WeaponsManager : MonoBehaviour
     {
         Crosshair.SetActive(enabled);
     }
+    
 }
