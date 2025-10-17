@@ -153,6 +153,7 @@ public class PirateBossAI : MonoBehaviour
     {
         if (State == BossState.Dead) return;
         currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(amount));
+        animator.SetTrigger("Impacted");
         if (currentHealth <= 0) TransitionTo(BossState.Dead);
     }
 

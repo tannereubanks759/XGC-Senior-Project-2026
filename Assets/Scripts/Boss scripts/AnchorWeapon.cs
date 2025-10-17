@@ -19,6 +19,8 @@ public class AnchorWeapon : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            Vector3 direction = (other.transform.position - this.GetComponentInParent<PirateBossAI>().transform.position).normalized;
+            other.GetComponent<BossKnockback>().KnockbackPlayer(direction);
             other.GetComponentInChildren<CombatController>().TakeDamage(20);
             EnableCollider(false);
         }
