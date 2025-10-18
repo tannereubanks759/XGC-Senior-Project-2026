@@ -33,6 +33,7 @@ public class BasicChaseState : BaseState<EnemyState>
     {
         if (_enemy.currentHealth <= 0) return EnemyState.Dead;
 
+        /*
         // Runs on multiple frames so the % chance to block needs to be small so that it doesn't always block
         var roll = Random.value;
         if (_enemy.currentHealth < 100 
@@ -40,6 +41,7 @@ public class BasicChaseState : BaseState<EnemyState>
             && _enemy.PlayerIsAttacking()
             && _skeleton.isShieldedEnemy
             && roll <= .10) return EnemyState.Block;
+        */
 
         //                                              ----&& !_enemy.isInQueue
         if (_enemy.DistanceToPlayer() <= _enemy.AttackRange) return EnemyState.Attack;

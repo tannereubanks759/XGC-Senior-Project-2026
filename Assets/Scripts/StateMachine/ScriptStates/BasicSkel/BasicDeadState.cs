@@ -43,8 +43,6 @@ public class BasicDeadState : BaseState<EnemyState>
         sword.layer = 12;
         sword.transform.parent = null;
         
-        // Needs work
-        //_enemy.AddComponent<DeathCull>();
         rf.Demolish();
         parent.gameObject.SetActive(false);
     }

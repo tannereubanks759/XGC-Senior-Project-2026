@@ -10,6 +10,7 @@
 */
 
 //using UnityEditorInternal;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -116,8 +117,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Gold System
     [Header("Gold System")]
-    [Tooltip("Array containing the possible gold piles")]
-    public GameObject[] piles;
+    [Tooltip("The particle system of gold that spawns when then enemy dies")]
+    [SerializeField] private ParticleSystem ps;
+    private ParticleSystem _ps;
     [Tooltip("The amount of gold this enemy is to drop")]
     public int gold;
     #endregion
@@ -159,6 +161,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         //StartCoroutine(Refs());
         //VarInit();
         ItemInit();
+        GoldInit();
     }
     private void Start()
     {
@@ -209,9 +212,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // the item logic will run
     private void ItemInit()
     {
-        if (gold <= 10) item = piles[0];
-        else if (gold <= 30) item = piles[1];
-        else item = piles[2];
         // Set the bool if the enemy has an item
         hasItem = item != null ? true : false;
 
@@ -220,8 +220,16 @@ public class BaseEnemyAI : StateManager<EnemyState>
         {
             _item = Instantiate(item, transform.parent);
             _item.SetActive(false);
-            _item.GetComponent<GoldPile>().gold = gold;
         }
+    }
+
+    // Initialize a particle system for the enemy
+    // Plays once when the enemy dies
+    private void GoldInit()
+    {
+        _ps = Instantiate(ps, transform.parent);
+        _ps.Stop();
+        _ps.GetComponent<AttractParticles>().goldCount = gold;
     }
     #endregion
 
@@ -502,6 +510,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public virtual void Die()
     {
         DropItem();
+        DropGold();
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);
         
@@ -517,6 +526,15 @@ public class BaseEnemyAI : StateManager<EnemyState>
             _item.SetActive(true);
         }
     }
+
+    // Drop gold
+    public void DropGold()
+    {
+        _ps.Clear();
+        _ps.transform.position = transform.Find("FootstepSource").position;
+        _ps.Play();
+    }
+
     private void SpawnLightningArc(Transform start, Transform end)
     {
         var lightning = Instantiate(lightingBoltPrefab);
