@@ -6,7 +6,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class PirateBossAI : MonoBehaviour
 {
-    public enum BossState { Idle, Chase, Attack, Dead }
+    public enum BossState { Idle, Chase, Attack, AnchorThrow, Dead }
+
 
     [Header("References")]
     public Animator animator;
@@ -57,16 +58,24 @@ public class PirateBossAI : MonoBehaviour
     [SerializeField] string paramIsAttackin = "isAttackin";
     [SerializeField] string paramAttackIdx = "attack";     // int
     [SerializeField] string paramIsDead = "isDead";
-    [SerializeField] string paramIsStunned = "isStunned";
 
     [Header("Attack Selection")]
     [Min(1)] public int numAttackAnims = 5;
     public bool avoidImmediateRepeat = true;
+    [Header("Anchor Throw")]
+    [Range(0f, 1f)] public float throwChance = 0.35f;
+    [Tooltip("Minimum distance from boss to consider attempting a throw (meters).")]
+    public float throwDistance = 8f;
+    [Tooltip("How long the boss stays in the AnchorThrow state (seconds).")]
+    public float throwTime = 1.2f;
+
+    [SerializeField] string paramThrowTrigger = "throw"; // Animator trigger name
 
     // --- Death guards ---
     bool _deathHandled = false;   // prevents re-entering death logic
     int _deathHash;              // optional: cache state hash if you want CrossFade
 
+    float _sqrThrowDist;
 
     public BossState State { get; private set; } = BossState.Idle;
 
@@ -105,6 +114,15 @@ public class PirateBossAI : MonoBehaviour
 
     }
 
+    void RecalcRanges()
+    {
+        _sqrAttackEnter = attackRange * attackRange;
+        float exitR = attackRange + Mathf.Max(0.05f, rangeHysteresis);
+        _sqrAttackExit = exitR * exitR;
+
+        _sqrThrowDist = Mathf.Max(0f, throwDistance) * Mathf.Max(0f, throwDistance);
+    }
+
     void OnValidate()
     {
         if (agent) agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
@@ -113,11 +131,6 @@ public class PirateBossAI : MonoBehaviour
         RecalcRanges();
     }
 
-    void RecalcRanges()
-    {
-        _sqrAttackEnter = attackRange * attackRange;
-        _sqrAttackExit = (attackRange + Mathf.Max(0.05f, rangeHysteresis)) * (attackRange + Mathf.Max(0.05f, rangeHysteresis));
-    }
 
     void Start()
     {
@@ -139,7 +152,9 @@ public class PirateBossAI : MonoBehaviour
             case BossState.Idle: TickIdle(); break;
             case BossState.Chase: TickChase(); break;
             case BossState.Attack: TickAttack(); break;
+            case BossState.AnchorThrow: /* handled by coroutine; keep idle here */ break;
         }
+
     }
 
     public void BeginEncounter(Transform playerTarget)
@@ -175,6 +190,16 @@ public class PirateBossAI : MonoBehaviour
 
         Vector3 toPlayer = player.position - transform.position;
         float sqrDist = toPlayer.sqrMagnitude;
+        // Consider AnchorThrow if player is at least throwDistance away
+        if (sqrDist >= _sqrThrowDist)
+        {
+            if (Random.value < throwChance)
+            {
+                TransitionTo(BossState.AnchorThrow);
+                return;
+            }
+        }
+
 
         // Ready to attack?
         if (Time.time >= _attackCooldownUntil && sqrDist <= _sqrAttackEnter)
@@ -256,11 +281,12 @@ public class PirateBossAI : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, turnSpeed * Time.deltaTime);
     }
 
+    Coroutine _throwCo;
+
     void TransitionTo(BossState next)
     {
         if (State == next)
         {
-            // Special-case: if next == Dead and already dead, ignore further calls.
             if (next == BossState.Dead) return;
             return;
         }
@@ -270,6 +296,11 @@ public class PirateBossAI : MonoBehaviour
         {
             animator.SetBool(paramIsAttackin, false);
             _attackBusy = false;
+        }
+        if (State == BossState.AnchorThrow && _throwCo != null)
+        {
+            StopCoroutine(_throwCo);
+            _throwCo = null;
         }
 
         State = next;
@@ -289,27 +320,53 @@ public class PirateBossAI : MonoBehaviour
                 if (!_attackBusy) StartCoroutine(AttackRoutine());
                 break;
 
-            case BossState.Dead:
-                if (_deathHandled) return;      // <-- guard
-                _deathHandled = true;
+            case BossState.AnchorThrow:
+                // Freeze locomotion & rotation influence while throwing
+                agent.isStopped = true;
+                SetWalk(false, force: true);
+                // Do NOT call FaceTarget here; we want rotation frozen during the throw
+                agent.velocity = Vector3.zero;
+                AnchorThrowSet();
+                break;
 
-                // Stop movement/AI & prevent further hits
+            case BossState.Dead:
+                if (_deathHandled) return;
+                _deathHandled = true;
                 agent.isStopped = true;
                 agent.updatePosition = false;
                 agent.updateRotation = false;
-
                 SetWalk(false, force: true);
                 animator.SetBool(paramIsAttackin, false);
-
-                // Optional: immediately disable colliders so sword can't retrigger anything
                 foreach (var col in GetComponentsInChildren<Collider>()) col.enabled = false;
-
-                // Start death routine ONCE
                 StartCoroutine(DieRoutine());
                 break;
         }
     }
 
+    public void AnchorThrowSet()
+    {
+        // Fire the throw animation
+        animator.ResetTrigger(paramThrowTrigger); // defensive
+        animator.SetTrigger(paramThrowTrigger);
+
+        /*float end = Time.time + Mathf.Max(0f, throwTime);
+        while (Time.time < end)
+        {
+            // Stay frozen: no movement, no FaceTarget
+            // (Optional) ensure agent has no stray velocity
+            agent.velocity = Vector3.zero;
+            yield return null;
+        }
+
+        _throwCo = null;*/
+        // Back to chasing after the windup/animation window
+        //TransitionTo(BossState.Chase);
+    }
+
+    public void AnchorThrowLeave()
+    {
+        TransitionTo(BossState.Chase);
+    }
 
     int PickAttackIndex()
     {

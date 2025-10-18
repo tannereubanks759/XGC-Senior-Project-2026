@@ -463,7 +463,7 @@ GameObject:
   - component: {fileID: 3244685405069358113}
   - component: {fileID: 3103738658057260301}
   - component: {fileID: 7761404813306630501}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Rope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1426,7 +1426,7 @@ GameObject:
   - component: {fileID: 3806828027883814874}
   - component: {fileID: 8655571819451964888}
   - component: {fileID: 5426568125850415191}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Anchor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1531,7 +1531,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2997295603815908784}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 9
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -1590,6 +1590,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AnchorDamage: 20
+  throwStrength: 100
+  rotationDegrees: 300
+  sourceIndex: 0
+  returnPosSmoothTime: 0.12
+  returnRotDegPerSec: 540
+  finishPosEpsilon: 0.01
+  finishRotEpsilonDeg: 0.5
 --- !u!1 &3069815789068120321
 GameObject:
   m_ObjectHideFlags: 0
@@ -4360,7 +4367,7 @@ GameObject:
   - component: {fileID: 1201666963795393156}
   - component: {fileID: 624281540744868916}
   - component: {fileID: 49201342487513634}
-  m_Layer: 0
+  m_Layer: 15
   m_Name: Boss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4419,9 +4426,12 @@ MonoBehaviour:
   paramIsAttackin: isAttack
   paramAttackIdx: attack
   paramIsDead: isDead
-  paramIsStunned: isStunned
   numAttackAnims: 2
   avoidImmediateRepeat: 1
+  throwChance: 0.05
+  throwDistance: 8
+  throwTime: 2
+  paramThrowTrigger: throw
 --- !u!195 &624281540744868916
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -4732,7 +4742,7 @@ GameObject:
   - component: {fileID: 7552514857667220195}
   - component: {fileID: 2698676513217423237}
   - component: {fileID: 88400109684838368}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: Chain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
