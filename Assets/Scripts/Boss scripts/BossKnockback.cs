@@ -24,6 +24,7 @@ public class BossKnockback : MonoBehaviour
     public bool lockForFullBurst = true;
     [Tooltip("If true, clears horizontal velocity before applying the burst so the dodge has consistent speed.")]
     public bool zeroHorizontalBeforeBurst = true;
+    public DodgeDash dodgeScript;
 
     private Coroutine lockRoutine;
     private Coroutine burstRoutine;
@@ -38,6 +39,8 @@ public class BossKnockback : MonoBehaviour
     void Start()
     {
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
+        dodgeScript = GetComponentInChildren<DodgeDash>();
+
     }
 
 
@@ -47,21 +50,25 @@ public class BossKnockback : MonoBehaviour
 
     public void KnockbackPlayer(Vector3 direction)
     {
-        // Start from the horizontal heading
-        Vector3 dir = direction;
-        dir.y = 0f;
-        if (dir.sqrMagnitude < 1e-6f) return;
-        dir.Normalize();
+        if(dodgeScript.isDodging == false)
+        {
+            // Start from the horizontal heading
+            Vector3 dir = direction;
+            dir.y = 0f;
+            if (dir.sqrMagnitude < 1e-6f) return;
+            dir.Normalize();
 
-        // Rotate that heading upward around its "right" axis
-        float angle = Mathf.Clamp(upAngleDeg, -89f, 89f);
-        Vector3 right = Vector3.Cross(Vector3.up, dir);
-        if (right.sqrMagnitude < 1e-6f) right = Vector3.right; // fallback if dir≈Up
+            // Rotate that heading upward around its "right" axis
+            float angle = Mathf.Clamp(upAngleDeg, -89f, 89f);
+            Vector3 right = Vector3.Cross(Vector3.up, dir);
+            if (right.sqrMagnitude < 1e-6f) right = Vector3.right; // fallback if dir≈Up
 
-        Vector3 tilted = (Quaternion.AngleAxis(angle, right) * dir).normalized;
+            Vector3 tilted = (Quaternion.AngleAxis(angle, right) * dir).normalized;
 
-        StartBurst(tilted, dodgeSpeedChange, dodgeDuration);
-        LockController(lockForFullBurst ? dodgeDuration : lockDuration);
+            StartBurst(tilted, dodgeSpeedChange, dodgeDuration);
+            LockController(lockForFullBurst ? dodgeDuration : lockDuration);
+        }
+        
     }
 
 

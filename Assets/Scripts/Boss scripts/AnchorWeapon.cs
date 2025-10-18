@@ -33,6 +33,8 @@ public class AnchorWeapon : MonoBehaviour
 
     private Vector3 _posVel;                     // SmoothDamp velocity
     private Coroutine _returnCo;
+    private Quaternion _throwTargetRot;
+    private bool _hasThrowTargetRot;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -52,43 +54,23 @@ public class AnchorWeapon : MonoBehaviour
         {
             Throw();
         }
-        if (isInAir == true)
+        if (isInAir == true && _hasThrowTargetRot)
         {
-            // Ensure we have a player reference
-            if (player == null)
+            float maxDegreesThisFrame = rotationDegrees * Time.deltaTime;
+
+            if (rb != null && !rb.isKinematic)
             {
-                var p = GameObject.FindGameObjectWithTag("Player");
-                if (p) player = p; else return; // no player found
+                Quaternion next = Quaternion.RotateTowards(rb.rotation, _throwTargetRot, maxDegreesThisFrame);
+                rb.MoveRotation(next);
             }
-
-            Vector3 toPlayer = player.transform.position - transform.position;
-            if (toPlayer.sqrMagnitude > 1e-6f)
+            else
             {
-                // We want transform.down to face the player
-                Vector3 desiredDown = toPlayer.normalized;
-
-                // Minimal rotation aligning current down to desiredDown
-                Quaternion alignDown = Quaternion.FromToRotation(-transform.up, desiredDown);
-                Quaternion targetRotation = alignDown * transform.rotation;
-
-                // Rotate gradually (rotationDegrees = degrees per second)
-                float maxDegreesThisFrame = rotationDegrees * Time.deltaTime;
-
-                if (rb != null && !rb.isKinematic)
-                {
-                    Quaternion next = Quaternion.RotateTowards(rb.rotation, targetRotation, maxDegreesThisFrame);
-                    rb.MoveRotation(next);
-                }
-                else
-                {
-                    transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, maxDegreesThisFrame);
-                }
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, _throwTargetRot, maxDegreesThisFrame);
             }
-
-            
         }
 
-        
+
+
 
 
     }
@@ -130,6 +112,16 @@ public class AnchorWeapon : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player");
         Vector3 direction = player.transform.position - transform.position;
         Vector3 force = direction.normalized * throwStrength;
+        // Fixed target rotation (align current DOWN to the player's position at throw start)
+        Vector3 playerPosAtThrow = player.transform.position;
+        Vector3 toPlayerAtThrow = (playerPosAtThrow - transform.position);
+        if (toPlayerAtThrow.sqrMagnitude > 1e-6f)
+        {
+            Vector3 desiredDown = toPlayerAtThrow.normalized;                // we want transform.down to face this
+            Quaternion alignDown = Quaternion.FromToRotation(-transform.up, desiredDown);
+            _throwTargetRot = alignDown * transform.rotation;                // FIXED TARGET ROTATION
+            _hasThrowTargetRot = true;
+        }
 
         rb.AddForce(force, ForceMode.Impulse);
         isInAir = true;
@@ -138,6 +130,8 @@ public class AnchorWeapon : MonoBehaviour
 
     public void ResetAnchor()
     {
+        _hasThrowTargetRot = false; // e.g., in ResetAnchor() or on ground hit
+
         // Stop airborne behavior, physics, and hits
         isInAir = false;
 
@@ -271,6 +265,8 @@ public class AnchorWeapon : MonoBehaviour
         } 
         else
         {
+            _hasThrowTargetRot = false; // e.g., in ResetAnchor() or on ground hit
+
             rb.isKinematic = true;
             EnableCollider(false);
             isInAir = false;

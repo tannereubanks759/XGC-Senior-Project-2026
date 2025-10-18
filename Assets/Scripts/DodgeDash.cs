@@ -30,7 +30,7 @@ public class DodgeDash : MonoBehaviour
 
     private Coroutine lockRoutine;
     private Coroutine burstRoutine;
-
+    public bool isDodging = false;
     void Reset()
     {
         rb = GetComponent<Rigidbody>();
@@ -64,7 +64,7 @@ public class DodgeDash : MonoBehaviour
         dir.y = 0f;
         if (dir.sqrMagnitude < 1e-4f) return;
         dir.Normalize();
-
+        isDodging = true;
         StartBurst(dir, dodgeSpeedChange, dodgeDuration);
         LockController(lockForFullBurst ? dodgeDuration : lockDuration);
     }
@@ -166,6 +166,7 @@ public class DodgeDash : MonoBehaviour
 
         controller.playerCanMove = prev;
         lockRoutine = null;
+        isDodging = false;
     }
 
     Vector3 GetVel() => rb.linearVelocity;
