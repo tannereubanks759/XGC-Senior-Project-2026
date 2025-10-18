@@ -511,7 +511,7 @@ MonoBehaviour:
   - x: 0.6563387
     y: 0.08062184
     z: -0.23128253
-  - x: 4.6216
+  - x: 6.9731836
     y: -1.2431488
     z: -0.72042847
   - x: 1.5788878
@@ -1590,7 +1590,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   AnchorDamage: 20
-  throwStrength: 100
+  throwStrength: 300
   rotationDegrees: 300
   sourceIndex: 0
   returnPosSmoothTime: 0.12
@@ -4428,9 +4428,10 @@ MonoBehaviour:
   paramIsDead: isDead
   numAttackAnims: 2
   avoidImmediateRepeat: 1
-  throwChance: 0.05
+  throwChance: 0.1
   throwDistance: 8
-  throwTime: 2
+  throwTime: 2.5
+  canRotate: 1
   paramThrowTrigger: throw
 --- !u!195 &624281540744868916
 NavMeshAgent:

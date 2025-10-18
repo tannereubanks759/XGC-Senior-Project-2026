@@ -68,7 +68,7 @@ public class PirateBossAI : MonoBehaviour
     public float throwDistance = 8f;
     [Tooltip("How long the boss stays in the AnchorThrow state (seconds).")]
     public float throwTime = 1.2f;
-
+    public bool canRotate = true;
     [SerializeField] string paramThrowTrigger = "throw"; // Animator trigger name
 
     // --- Death guards ---
@@ -152,7 +152,8 @@ public class PirateBossAI : MonoBehaviour
             case BossState.Idle: TickIdle(); break;
             case BossState.Chase: TickChase(); break;
             case BossState.Attack: TickAttack(); break;
-            case BossState.AnchorThrow: /* handled by coroutine; keep idle here */ break;
+            case BossState.AnchorThrow: TickAnchorThrow(); break;
+
         }
 
     }
@@ -361,6 +362,20 @@ public class PirateBossAI : MonoBehaviour
         _throwCo = null;*/
         // Back to chasing after the windup/animation window
         //TransitionTo(BossState.Chase);
+    }
+    void TickAnchorThrow()
+    {
+        // No translation: keep the agent stopped.
+        if (!agent.isStopped) agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+
+        // Allow rotation toward the player
+        if (canRotate)
+        {
+            FaceTarget();
+        }
+        
+
     }
 
     public void AnchorThrowLeave()

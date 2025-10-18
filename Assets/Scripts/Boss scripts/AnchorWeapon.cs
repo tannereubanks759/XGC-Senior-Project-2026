@@ -27,6 +27,7 @@ public class AnchorWeapon : MonoBehaviour
     public float finishPosEpsilon = 0.01f;       // meters
     public float finishRotEpsilonDeg = 0.5f;     // degrees
 
+    private PirateBossAI boss;
     // Add this field near your other privates
     private bool _isReturning = false;
 
@@ -36,6 +37,7 @@ public class AnchorWeapon : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        boss = GetComponentInParent<PirateBossAI>();
         isInAir = false;
         constraint = GetComponent<ParentConstraint>();
         rb = GetComponent<Rigidbody>();
@@ -97,6 +99,7 @@ public class AnchorWeapon : MonoBehaviour
 
     public void Throw()
     {
+        boss.canRotate = false;
         // --- NEW: cancel any in-progress homing ---
         if (_returnCo != null)
         {
@@ -245,10 +248,11 @@ public class AnchorWeapon : MonoBehaviour
     }
     public IEnumerator ResetAnchorAfterThrow()
     {
-        PirateBossAI boss = GetComponentInParent<PirateBossAI>();
+        
         yield return new WaitForSeconds(boss.throwTime);
         ResetAnchor();
         boss.AnchorThrowLeave();
+        boss.canRotate = true;
     }
 
 
