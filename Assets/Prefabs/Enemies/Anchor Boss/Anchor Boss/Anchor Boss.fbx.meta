@@ -91,48 +91,48 @@ ModelImporter:
     - boneName: L.Thigh
       humanName: LeftUpperLeg
       limit:
-        min: {x: -60, y: -60, z: -90}
-        max: {x: 60, y: 60, z: 50}
+        min: {x: -5.142864, y: -60, z: -90}
+        max: {x: 0, y: 60, z: 50}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: R.Thigh
       humanName: RightUpperLeg
       limit:
-        min: {x: -60, y: -60, z: -90}
-        max: {x: 60, y: 60, z: 50}
+        min: {x: -11.999985, y: -60, z: -90}
+        max: {x: 9.142803, y: 60, z: 50}
         value: {x: 0, y: 0, z: 0}
         length: 0
-        modified: 0
+        modified: 1
     - boneName: L.Knee
       humanName: LeftLowerLeg
       limit:
-        min: {x: 0, y: 0, z: -43.076923}
-        max: {x: 0, y: 0, z: 80}
+        min: {x: -29.714272, y: 0, z: -43.076923}
+        max: {x: 29.714272, y: 0, z: 80}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: R.Knee
       humanName: RightLowerLeg
       limit:
-        min: {x: 0, y: 0, z: -39.3846}
-        max: {x: 0, y: 0, z: 80}
+        min: {x: -38.857162, y: 0, z: -39.3846}
+        max: {x: 24.000034, y: 0, z: 80}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: L.Foot
       humanName: LeftFoot
       limit:
-        min: {x: 0, y: 0, z: 0}
-        max: {x: 0, y: 0, z: 0}
+        min: {x: 0, y: -54.857132, z: -20.57142}
+        max: {x: 0, y: 11.428574, z: 21.142889}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
     - boneName: R.Foot
       humanName: RightFoot
       limit:
-        min: {x: 0, y: 0, z: 0}
-        max: {x: 0, y: 0, z: 50}
+        min: {x: 0, y: -45.714287, z: -31.99995}
+        max: {x: 0, y: 22.85714, z: 22.571537}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
@@ -147,8 +147,8 @@ ModelImporter:
     - boneName: Neck
       humanName: Neck
       limit:
-        min: {x: -40, y: -15, z: 0}
-        max: {x: 40, y: 15, z: 0}
+        min: {x: -38.857075, y: -15, z: 0}
+        max: {x: 0, y: 15, z: 0}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
@@ -156,7 +156,7 @@ ModelImporter:
       humanName: Head
       limit:
         min: {x: -40, y: -10.461567, z: 0}
-        max: {x: 40, y: 14.153816, z: 25.230785}
+        max: {x: 3.4285622, y: 14.153816, z: 9.230768}
         value: {x: 0, y: 0, z: 0}
         length: 0
         modified: 1
@@ -1086,7 +1086,7 @@ ModelImporter:
     legTwist: 0.5
     armStretch: 0.05
     legStretch: 0.05
-    feetSpacing: 0
+    feetSpacing: 1
     globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
