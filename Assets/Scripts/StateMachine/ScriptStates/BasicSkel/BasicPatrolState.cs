@@ -51,7 +51,11 @@ public class BasicPatrolState : BaseState<EnemyState>
         if (_enemy.currentHealth <= 0) return EnemyState.Dead;
 
         // The enemy can see the player
-        if (_enemy.canSeePlayerNow) return EnemyState.Chase;
+        if (_enemy.canSeePlayerNow)
+        {
+            _area.PlayerSeen();
+            return EnemyState.Chase;
+        }
 
         // The enemy has reached its destination
         if (destinationReached) return EnemyState.Idle;

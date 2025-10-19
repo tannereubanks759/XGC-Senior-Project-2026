@@ -7,7 +7,7 @@
  * 
  * By: Matthew Bolger
 */
-
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -18,6 +18,12 @@ public class PatrolArea : MonoBehaviour
     [Tooltip("The radius which marks the borders of where enemies will patrol around")]
     // Radius of the patrol area around this GameObject's position.
     public float patrolRadius = 5f;
+    public List<GameObject> enemies = new();
+
+    private void Start()
+    {
+        enemies = GetNearby(this.transform.position, patrolRadius);
+    }
 
     // Returns a random point within the patrol radius that is valid on the NavMesh.
     public Vector3 GetRandomPoint(int recurIndex)
@@ -40,6 +46,36 @@ public class PatrolArea : MonoBehaviour
         //Debug.Log(transform.position);
         // If unable to find a valid NavMesh point, fallback to the patrol area's center.
         return transform.position;
+    }
+
+    public void PlayerSeen()
+    {
+        foreach (var e in enemies)
+        {
+            var beAI = e.GetComponent<BaseEnemyAI>();
+            beAI.usingLoS = false;
+
+            beAI.fieldOfView = 360f;
+            beAI.detectionRadius = 25f;
+        }
+    }
+
+    public List<GameObject> GetNearby(Vector3 origin, float radius)
+    {
+        Collider[] cols = Physics.OverlapSphere(transform.position, patrolRadius);
+        if (cols.Length > 0)
+        {
+            List<GameObject> nearby = new();
+            for (int i = 0; i < cols.Length; i++)
+            {
+                if (cols[i].GetComponent<BasicSkeleton>() != null)
+                {
+                    nearby.Add(cols[i].gameObject);
+                }
+            }
+            return nearby;
+        }
+        return null;
     }
 
     // Draws the patrol area in the editor for visualization.

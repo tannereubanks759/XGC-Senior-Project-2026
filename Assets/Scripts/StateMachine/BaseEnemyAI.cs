@@ -31,6 +31,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Vision System
     [Header("Vision System")]
+    [Tooltip("Is this enemy using Line of Sight detection? (If not, the default is omnitient prox detection)")]
+    public bool usingLoS;
     [Tooltip("How far this unit can see the player (line of sight check included)")]
     public float detectionRadius = 12f;
 
@@ -175,7 +177,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         base.Update();
 
-        CanSeePlayer();
+        if (usingLoS)
+        {
+            CanSeePlayer();
+        }
+        else
+        {
+            ProxCheck();
+        }
     }
     #endregion
 
@@ -259,6 +268,16 @@ public class BaseEnemyAI : StateManager<EnemyState>
             canSeePlayerNow = true;
             lastKnownPlayerPos = Player.position;
         }
+
+        return canSeePlayerNow;
+    }
+
+    bool ProxCheck()
+    {
+        if (Player == null) return false;
+
+        if (DistanceToPlayer() <= detectionRadius)
+            canSeePlayerNow = true;
 
         return canSeePlayerNow;
     }
