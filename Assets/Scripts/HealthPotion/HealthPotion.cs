@@ -28,7 +28,11 @@ public class HealthPotion : MonoBehaviour
 
         if (Input.GetKeyDown(HealKey))
         {
-            if(Quantity > 0)
+            if (healthController == null)//Allow it to find health controller
+            {
+                healthController = GameObject.FindAnyObjectByType<CombatController>();
+            }
+            if (Quantity > 0 && healthController != null && healthController.health < 100)
             {
                 if(anim != null)
                 {
@@ -61,7 +65,6 @@ public class HealthPotion : MonoBehaviour
         }
         if (healthController != null)
         {
-            ConsumeHealthPotion();
             healthController.Heal((int)GetHealAmount());
         }
     }
