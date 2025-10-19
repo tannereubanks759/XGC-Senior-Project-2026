@@ -5,13 +5,12 @@ public class AttractParticles : MonoBehaviour
 {
     private ParticleSystem ps;
     private List<ParticleSystem.Particle> inside;
-    private ParticleSystem.Burst burst;
     private Transform player;
 
     [Header("Attraction Settings")]
-    public float attractionStrength = 3f;   // How strongly they’re pulled in
-    public float maxSpeed = 6f;             // Limit so it looks smooth
-    public float stopDistance = 0.3f;       // When to consider “collected”
+    public float attractionStrength = 1000f;   // How strongly they’re pulled in
+    public float maxSpeed = 15f;             // Limit so it looks smooth
+    public float stopDistance = 1f;       // When to consider “collected”
 
     public int goldCount;
 
@@ -25,16 +24,25 @@ public class AttractParticles : MonoBehaviour
 
         var emission = ps.emission;
 
-        var burst = new ParticleSystem.Burst(0f, (short)goldCount);
+        // Create a single burst at time 0, emitting goldCount particles
+        var burst = new ParticleSystem.Burst(0f, (float)goldCount);
 
+        // Assign it to the emission module
         emission.SetBurst(0, burst);
+
+        var triggers = ps.trigger;
+
+        triggers.SetCollider(0, player.GetComponent<Collider>());
     }
+
+
     void OnParticleTrigger()
     {
         // Get all particles currently inside the trigger
         int numInside = ps.GetTriggerParticles(ParticleSystemTriggerEventType.Inside, inside);
 
         Vector3 playerPos = player.position;
+        Debug.Log(player.position);
 
         for (int i = 0; i < numInside; i++)
         {
@@ -46,7 +54,7 @@ public class AttractParticles : MonoBehaviour
             dir.Normalize();
 
             // Accelerate particle toward player
-            Vector3 velocity = p.velocity + dir * (attractionStrength * Time.deltaTime);
+            Vector3 velocity = p.velocity.normalized + dir * (attractionStrength * Time.deltaTime);
 
             // Clamp to max speed for smooth motion
             if (velocity.magnitude > maxSpeed)

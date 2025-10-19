@@ -58,7 +58,7 @@ public class BasicChaseState : BaseState<EnemyState>
 
             _enemy.transform.rotation = Quaternion.RotateTowards(_enemy.transform.rotation, Quaternion.LookRotation(dir), 180 * Time.deltaTime);
 
-            if (_enemy.currentHealth < 35)
+            if (_enemy.currentHealth < 15)
             {
                 _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? Mathf.Clamp(animdir.z, 0f, 0.125f) : Mathf.Floor(0), .75f, Time.deltaTime);
                 _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, 0.125f);

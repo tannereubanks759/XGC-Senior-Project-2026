@@ -161,7 +161,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         //StartCoroutine(Refs());
         //VarInit();
         ItemInit();
-        GoldInit();
     }
     private void Start()
     {
@@ -169,6 +168,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         if (!Animator) Animator = GetComponent<Animator>();
         if (!swordCollider) swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
         VarInit();
+        GoldInit();
     }
     // Call the update of the parent so that state logic still runs
     // Check to see if we can see the player
@@ -229,7 +229,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         _ps = Instantiate(ps, transform.parent);
         _ps.Stop();
-        _ps.GetComponent<AttractParticles>().goldCount = gold;
+        var ap = _ps.GetComponent<AttractParticles>();
+        ap.goldCount = gold;
     }
     #endregion
 
@@ -509,8 +510,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
     // Handle death of the enemy
     public virtual void Die()
     {
+        var tempTrans = this.transform;
         DropItem();
-        DropGold();
+        DropGold(tempTrans);
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);
         
@@ -528,10 +530,10 @@ public class BaseEnemyAI : StateManager<EnemyState>
     }
 
     // Drop gold
-    public void DropGold()
+    public void DropGold(Transform transform)
     {
         _ps.Clear();
-        _ps.transform.position = transform.Find("FootstepSource").position;
+        _ps.transform.position = transform.position;
         _ps.Play();
     }
 
