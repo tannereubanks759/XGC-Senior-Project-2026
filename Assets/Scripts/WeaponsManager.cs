@@ -12,7 +12,8 @@ public class WeaponsManager : MonoBehaviour
     private GameObject[] weaponIcons;
     private GameObject Crosshair;
     public GameObject lamp;
-
+    public GameObject healthPotion;
+    public bool healing = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -28,58 +29,77 @@ public class WeaponsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll > 0){ //mouse wheel up
-            if(currentWeapon != weapons.Length -1)
-            {
-                SwitchWeapon(currentWeapon + 1);
+        if(healing == false)
+        {
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (scroll > 0)
+            { //mouse wheel up
+                if (currentWeapon != weapons.Length - 1)
+                {
+                    SwitchWeapon(currentWeapon + 1);
+                }
+                else
+                {
+                    SwitchWeapon(0);
+                }
             }
-            else
+
+            if (scroll < 0) //mouse wheel down
+            {
+                if (currentWeapon != 0)
+                {
+                    SwitchWeapon(currentWeapon - 1);
+                }
+                else
+                {
+                    SwitchWeapon(weapons.Length - 1);
+                }
+            }
+
+
+            if (Input.GetKeyDown(SwordKey)) //pull out sword
             {
                 SwitchWeapon(0);
             }
-        }
-
-        if (scroll < 0) //mouse wheel down
-        {
-            if(currentWeapon != 0)
+            if (Input.GetKeyDown(GunKey)) //pull out gun
             {
-                SwitchWeapon(currentWeapon - 1);
+                SwitchWeapon(1);
             }
-            else
+
+            if (Input.GetKeyDown(KeyCode.C))
             {
-                SwitchWeapon(weapons.Length - 1);
+                EnableCrosshair(!Crosshair.activeSelf);
             }
-        }
 
-
-        if (Input.GetKeyDown(SwordKey)) //pull out sword
-        {
-            SwitchWeapon(0);
-        }
-        if (Input.GetKeyDown(GunKey)) //pull out gun
-        {
-            SwitchWeapon(1);
-        }
-
-        if (Input.GetKeyDown(KeyCode.C))
-        {
-            EnableCrosshair(!Crosshair.activeSelf);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            if (lamp.activeSelf)
+            if (Input.GetKeyDown(KeyCode.Alpha0))
             {
-                lamp.SetActive(false);
-            }
-            else
-            {
-                lamp.SetActive(true);
+                if (lamp.activeSelf)
+                {
+                    lamp.SetActive(false);
+                }
+                else
+                {
+                    lamp.SetActive(true);
+                }
             }
         }
     }
-
+    public void SetHealing(bool heal)
+    {
+        
+        if(heal == true)
+        {
+            weapons[currentWeapon].SetActive(false);
+            healthPotion.SetActive(true);
+            healing = true;
+        }
+        else
+        {
+            weapons[currentWeapon].SetActive(true);
+            healthPotion.SetActive(false);
+            healing = false;
+        }
+    }
     void InitializeWeapons()
     {
         for (int i = 0; i < weapons.Length; i++)
@@ -87,10 +107,10 @@ public class WeaponsManager : MonoBehaviour
             if (i == currentWeapon)
             {
                 weapons[i].SetActive(true);
-                if(weaponIcons.Length > 0)
+                /*if(weaponIcons.Length > 0)
                 {
                     EnlargeWeaponIcon(weaponIcons[i].GetComponent<RawImage>()); 
-                }
+                }*/
             }
             else
             {
@@ -105,10 +125,10 @@ public class WeaponsManager : MonoBehaviour
         currentWeapon = weaponSlot;
         weapons[weaponSlot].SetActive(true);
 
-        if (weaponIcons.Length > 0)
+        /*if (weaponIcons.Length > 0)
         {
             EnlargeWeaponIcon(weaponIcons[currentWeapon].GetComponent<RawImage>());
-        }
+        }*/
         if(currentWeapon == 0)
         {
             EnableCrosshair(false);

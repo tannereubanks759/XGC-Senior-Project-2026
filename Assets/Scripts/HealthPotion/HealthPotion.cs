@@ -10,6 +10,7 @@ public class HealthPotion : MonoBehaviour
     private TextMeshProUGUI text;
     private CombatController healthController;
     private Animator anim;
+    private WeaponsManager weaponsManager;
     void Start()
     {
         anim = FindAnyObjectByType<HealthPotionAnimEvents>().GetComponent<Animator>();
@@ -34,8 +35,16 @@ public class HealthPotion : MonoBehaviour
             }
             if (Quantity > 0 && healthController != null && healthController.health < 100)
             {
-                if(anim != null)
+                if(anim != null) //Consume a potion (start animation and disable weapons)
                 {
+                    if (weaponsManager == null)
+                    {
+                        weaponsManager = FindAnyObjectByType<WeaponsManager>();
+                    }
+                    if (weaponsManager != null)
+                    {
+                        weaponsManager.SetHealing(true);
+                    }
                     anim.SetTrigger("Drink");
                 }
                 else //if no health controllers exist in the scene
@@ -57,6 +66,14 @@ public class HealthPotion : MonoBehaviour
 
     public void ConsumeHealthPotion()
     {
+        if(weaponsManager == null)
+        {
+            weaponsManager = FindAnyObjectByType<WeaponsManager>();
+        }
+        if (weaponsManager != null)
+        {
+            weaponsManager.SetHealing(false);
+        }
         SetQuantity(Quantity -= 1);
         SetText(GetQuantity().ToString());
         if (healthController == null)//Allow it to find health controller
