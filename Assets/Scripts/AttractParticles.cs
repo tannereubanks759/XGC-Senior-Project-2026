@@ -1,3 +1,12 @@
+/*
+ * AttractParticles.cs
+ * 
+ * This script controls a burst of particles that fly toward the player.
+ * Each particle accelerates toward the player's position and disappears
+ * once it gets close enough, adding gold to the player's total.
+ * 
+ * By: Matthew Bolger
+ */
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,11 +17,12 @@ public class AttractParticles : MonoBehaviour
     private Transform player;
 
     [Header("Attraction Settings")]
-    public float attractionStrength = 1000f;   // How strongly they’re pulled in
-    public float maxSpeed = 15f;             // Limit so it looks smooth
+    public float attractionStrength = 10000f;   // How strongly they’re pulled in
+    public float maxSpeed = 30f;             // Limit so it looks smooth
     public float stopDistance = 1f;       // When to consider “collected”
 
-    public int goldCount;
+    [Header("Particle Setup")]
+    public int goldCount = 1;
 
     private void Start()
     {
@@ -33,6 +43,8 @@ public class AttractParticles : MonoBehaviour
         var triggers = ps.trigger;
 
         triggers.SetCollider(0, player.GetComponent<Collider>());
+
+        triggers.inside = ParticleSystemOverlapAction.Callback;
     }
 
 
@@ -42,7 +54,6 @@ public class AttractParticles : MonoBehaviour
         int numInside = ps.GetTriggerParticles(ParticleSystemTriggerEventType.Inside, inside);
 
         Vector3 playerPos = player.position;
-        Debug.Log(player.position);
 
         for (int i = 0; i < numInside; i++)
         {
@@ -63,9 +74,9 @@ public class AttractParticles : MonoBehaviour
             p.velocity = velocity;
 
             // Optional: snap or remove if it gets very close
-            if (dist < stopDistance)
+            if (dist <= stopDistance)
             {
-                p.remainingLifetime = 0; // kills particle (collected)
+                p.remainingLifetime = 0f; // kills particle (collected)
                 // Trigger gold gain
                 player.GetComponent<GoldBank>().AddGold(1);
             }
