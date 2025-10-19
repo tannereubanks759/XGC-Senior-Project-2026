@@ -231,16 +231,7 @@ public class CombatController : MonoBehaviour
         }
         
 
-        if (Input.GetKeyDown(KeyCode.H)) // test damage
-        {
-            TakeDamage(10);
-            Debug.Log("Current health " + health);
-        }
-        if (Input.GetKeyDown(KeyCode.J)) // test heal
-        {
-            Heal(10);
-            Debug.Log("Current health " + health);
-        }
+        
 
         if(health <= 0)
         {
