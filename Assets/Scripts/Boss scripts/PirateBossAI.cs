@@ -66,6 +66,7 @@ public class PirateBossAI : MonoBehaviour
     [Range(0f, 1f)] public float throwChance = 0.35f;
     [Tooltip("Minimum distance from boss to consider attempting a throw (meters).")]
     public float throwDistance = 8f;
+    public float maxThrowDistance = 16.5f;
     [Tooltip("How long the boss stays in the AnchorThrow state (seconds).")]
     public float throwTime = 1.2f;
     public bool canRotate = true;
@@ -192,7 +193,7 @@ public class PirateBossAI : MonoBehaviour
         Vector3 toPlayer = player.position - transform.position;
         float sqrDist = toPlayer.sqrMagnitude;
         // Consider AnchorThrow if player is at least throwDistance away
-        if (sqrDist >= _sqrThrowDist)
+        if (sqrDist >= _sqrThrowDist && toPlayer.magnitude <= maxThrowDistance)
         {
             if (Random.value < throwChance)
             {

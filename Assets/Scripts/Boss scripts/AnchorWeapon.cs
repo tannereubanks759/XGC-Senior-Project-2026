@@ -111,9 +111,15 @@ public class AnchorWeapon : MonoBehaviour
 
         player = GameObject.FindGameObjectWithTag("Player");
         Vector3 direction = player.transform.position - transform.position;
+        
         Vector3 force = direction.normalized * throwStrength;
         // Fixed target rotation (align current DOWN to the player's position at throw start)
         Vector3 playerPosAtThrow = player.transform.position;
+        RaycastHit hit;
+        if (Physics.Raycast(player.transform.position, Vector3.down, out hit))
+        {
+            playerPosAtThrow = hit.point;
+        }
         Vector3 toPlayerAtThrow = (playerPosAtThrow - transform.position);
         if (toPlayerAtThrow.sqrMagnitude > 1e-6f)
         {
