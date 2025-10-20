@@ -253,10 +253,14 @@ public class interactScript : MonoBehaviour
             {
                 if(goldRef.gold >= priceOfHealthPotion)
                 {
-                    HealthPotionScript.CollectHealthPotion();
-                    goldRef.RemoveGold(priceOfHealthPotion);
-                    Destroy(currentHealthPotion);
-                    currentHealthPotion = null;
+                    if(HealthPotionScript.GetQuantity()<=4)
+                    {
+                        HealthPotionScript.CollectHealthPotion();
+                        goldRef.RemoveGold(priceOfHealthPotion);
+                        Destroy(currentHealthPotion);
+                        currentHealthPotion = null;
+                    }
+                    
                 }
                 
             }
