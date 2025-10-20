@@ -8,12 +8,19 @@ public class DragScript : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
     public artifactStarter currentSlotChanged;
     private string nameOfArtifact;
     public Transform originalParent;
-    
+    private Canvas rootCanvas;
+    private Transform dragLayer;
+    private void Awake()
+    {
+        rootCanvas = GetComponentInParent<Canvas>();
+        dragLayer = rootCanvas.transform.Find("DragLayer");
+    }
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         originalParent = transform.parent;
         parentAfterDrag = transform.parent;
-        transform.SetParent(transform.root);
+        transform.SetParent(rootCanvas.transform);
         transform.SetAsLastSibling();
         image.raycastTarget = false;
     }
