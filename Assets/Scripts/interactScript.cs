@@ -8,6 +8,7 @@ public class interactScript : MonoBehaviour
     public GameObject interactText;
     private bool canInteract = false;
     public GameObject currentArtifactObj;
+    private GameObject currentHealthPotion;
     public ItemData currentArtifact;
     public inventoryScript inventoryScript;
     private bool keyInteract = false;
@@ -29,12 +30,18 @@ public class interactScript : MonoBehaviour
     public GameObject greenKey;
     public GameObject goldKey;
     private GameObject shop;
+    private bool healthPotionInteract = false;
+    private HealthPotion HealthPotionScript;
+    private GoldBank goldRef;
+    public int priceOfHealthPotion = 5;
     void Start()
     {
         current = this;
         interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
         infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
+        HealthPotionScript =GameObject.FindAnyObjectByType<HealthPotion>();
+        goldRef = current.GetComponent<GoldBank>();
         HideAllKeyIcons();
         //chest =  GameObject.Find("Animated PBR Chest _Wood_Demo").GetComponent<ChestScript>();
     }
@@ -127,6 +134,12 @@ public class interactScript : MonoBehaviour
             shop = other.gameObject;
             
         }
+        else if (other.CompareTag("healthPotion"))
+        {
+            healthPotionInteract = true;
+            interactText.SetActive(true);
+            currentHealthPotion = other.gameObject;
+        }
         if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
         {
             interactText.SetActive(true);
@@ -147,6 +160,11 @@ public class interactScript : MonoBehaviour
         {
             keyInteract = false;
             keyobj = null;
+        }
+        else if (other.CompareTag("Key"))
+        {
+            healthPotionInteract = false;
+            currentHealthPotion = null;
         }
         else if (other.CompareTag("Chest"))
         {
@@ -181,14 +199,18 @@ public class interactScript : MonoBehaviour
         {
             if (canInteract && currentArtifact != null)
             {
-
-                inventoryScript.addToInventory(currentArtifact, currentArtifactObj);
-                //Destroy(currentArtifactObj);
-                //Debug.Log("Added to inventory: " + currentArtifact.itemName);
-                //objIdentifierRef.updateInfo(currentArtifact);
+                var itemDataA = currentArtifactObj.GetComponent<itemDataAssigner>();
+                int cost = itemDataA != null ? itemDataA.CurrentPrice : currentArtifact.price;
                 
-                inventoryScript.toggleInv();
-                canInteract = false;
+                if (goldRef.gold >= cost)
+                {
+                    goldRef.RemoveGold(cost);
+                    if (itemDataA) itemDataA.wasOwned = true;
+                    inventoryScript.addToInventory(currentArtifact, currentArtifactObj);
+
+                    inventoryScript.toggleInv();
+                    canInteract = false;
+                }
             }
             else if (keyInteract)
             {
@@ -225,6 +247,17 @@ public class interactScript : MonoBehaviour
             else if (shopInteract)
             {
                 var shopScript = shop.GetComponent<baseShop>();
+                
+            }
+            else if (healthPotionInteract)
+            {
+                if(goldRef.gold >= priceOfHealthPotion)
+                {
+                    HealthPotionScript.CollectHealthPotion();
+                    goldRef.RemoveGold(priceOfHealthPotion);
+                    Destroy(currentHealthPotion);
+                    currentHealthPotion = null;
+                }
                 
             }
             else if(dungeonDoor != null && treasureRoomUnlocked)

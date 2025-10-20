@@ -9,10 +9,12 @@ public class equipScript : MonoBehaviour
     public GameObject uiPrefab;
     //public GameObject player;
     public infoscript infoscriptRef;
+    //private GoldBank goldRef;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         infoscriptRef =  FindAnyObjectByType<infoscript>();
+        //goldRef= FindAnyObjectByType<GoldBank>();
     }
 
     // Update is called once per frame
@@ -49,6 +51,7 @@ public class equipScript : MonoBehaviour
         //assigningSpotImage.sprite = itemAdded.icon;
         
         itemAdded.OnEquip(infoscriptRef.player);
+       
         //call function from itemAdded that applies. 
     }
 }

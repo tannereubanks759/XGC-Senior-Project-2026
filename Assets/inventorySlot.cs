@@ -83,6 +83,8 @@ public class inventorySlot : MonoBehaviour, IDropHandler
         objectIdentifier = obj.GetComponent<objectIdentifier>();
         objectIdentifier.item.OnUnEquip(infoscriptRef.player);
         GameObject item = Instantiate(objectIdentifier.item.prefab, spawnPoint.transform.position, Quaternion.identity);
+        var localItemData = item.GetComponent<itemDataAssigner>();
+        localItemData.wasOwned = true;
         //item.transform.localPosition = Vector3.zero;
         //item.transform.localRotation = Quaternion.identity;
         //item.transform.localScale = Vector3.one;

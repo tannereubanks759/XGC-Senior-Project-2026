@@ -8,6 +8,7 @@ public class ItemData : ScriptableObject
     public GameObject prefab;
     public string type;
     public string artifactDesciption;
+    public int price;
     //public bool isActive;
 
     public virtual void OnEquip(GameObject player)

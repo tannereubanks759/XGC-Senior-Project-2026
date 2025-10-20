@@ -16,6 +16,7 @@ public class baseShop : MonoBehaviour
     public ShopType shopType = ShopType.Base;
     void SpawnArtifactsAndMisc(int artifactCount, int miscCount)
     {
+        // ensures no repeate artifacts are spawned
         List<int> indices = new List<int>();
         for (int k = 0; k < (artifacts != null ? artifacts.Count : 0); k++) indices.Add(k);
         for (int k = 0; k < indices.Count; k++)
@@ -26,6 +27,7 @@ public class baseShop : MonoBehaviour
             indices[swapWith] = tmp;
         }
         last = 0;
+        // spawns random artifact from pool
         for (int i = 0; i < artifactCount; i++)
         {
             int idx = indices[i];
@@ -34,11 +36,13 @@ public class baseShop : MonoBehaviour
             floater.enabled = false;
             last = i + 1;
         }
-
+        // spawn misc 
         for (int i = last; i < last + miscCount && i < spawnPoints.Count; i++)
         {
             int ran2 = Random.Range(0, miscThings.Count);
-            Instantiate(miscThings[ran2], spawnPoints[i].transform.position, spawnPoints[i].transform.rotation);
+            var prefab = miscThings[ran2];
+            Instantiate(prefab, spawnPoints[i].transform.position, prefab.transform.rotation);
+            
         }
 }
     public void GenerateShop()
