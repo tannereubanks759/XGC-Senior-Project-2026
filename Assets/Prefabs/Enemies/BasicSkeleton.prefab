@@ -746,6 +746,10 @@ PrefabInstance:
       propertyPath: m_ApplyRootMotion
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 13700068, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 76557fcee883bf74a95d1c8e9a02354a, type: 2}
     - target: {fileID: 20500000, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -911,6 +915,7 @@ MonoBehaviour:
   Player: {fileID: 0}
   playerController: {fileID: 0}
   lightingBoltPrefab: {fileID: 222523385688736188, guid: 312873be285086d4db0c8f29e38dc408, type: 3}
+  usingLoS: 0
   detectionRadius: 12
   fieldOfView: 120
   obstructionMask:
