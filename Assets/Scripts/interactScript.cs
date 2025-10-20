@@ -1,11 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using DigitalRuby.ThunderAndLightning;
+using TMPro;
 
 public class interactScript : MonoBehaviour
 {
     
     public GameObject interactText;
+    private TextMeshProUGUI tmpro;
     private bool canInteract = false;
     public GameObject currentArtifactObj;
     private GameObject currentHealthPotion;
@@ -39,6 +41,7 @@ public class interactScript : MonoBehaviour
         current = this;
         interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
+        tmpro = interactText.GetComponent<TextMeshProUGUI>();
         infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
         HealthPotionScript =GameObject.FindAnyObjectByType<HealthPotion>();
         goldRef = current.GetComponent<GoldBank>();
@@ -90,14 +93,24 @@ public class interactScript : MonoBehaviour
         if (other.CompareTag("Artifact"))
         {
             itemDataAssigner artifact = other.GetComponent<itemDataAssigner>();
-            if (artifact != null)
+            if (artifact != null && artifact.wasOwned == true)
             {
                 currentArtifact = artifact.itemData;
                 currentArtifactObj = other.gameObject;
+                tmpro.text = "E to interact";
+                canInteract = true;
+                interactText.SetActive(true);
+            }
+            else if (artifact != null)
+            {
+
+                currentArtifact = artifact.itemData;
+                currentArtifactObj = other.gameObject;
+                tmpro.text = "E to interact. Price: " + currentArtifact.price.ToString();
                 canInteract = true;
 
-                if (interactText != null)
-                    interactText.SetActive(true);
+               
+                interactText.SetActive(true);    
 
                 Debug.Log("Touched artifact: " + currentArtifact.itemName);
             }
@@ -137,6 +150,7 @@ public class interactScript : MonoBehaviour
         else if (other.CompareTag("healthPotion"))
         {
             healthPotionInteract = true;
+            tmpro.text = "E to interact. Price: " + priceOfHealthPotion.ToString();
             interactText.SetActive(true);
             currentHealthPotion = other.gameObject;
         }
@@ -154,6 +168,7 @@ public class interactScript : MonoBehaviour
             //currentArtifact = null;
             //currentArtifactObj = null;
             canInteract = false;
+            interactText.GetComponent<TextMeshProUGUI>().text = "E to interact";
             Debug.Log("Left artifact");
         }
         else if (other.CompareTag("Key"))
@@ -161,9 +176,10 @@ public class interactScript : MonoBehaviour
             keyInteract = false;
             keyobj = null;
         }
-        else if (other.CompareTag("Key"))
+        else if (other.CompareTag("healthPotion"))
         {
             healthPotionInteract = false;
+            tmpro.text = "E to interact";
             currentHealthPotion = null;
         }
         else if (other.CompareTag("Chest"))
