@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class Blunderbuss : MonoBehaviour
 {
     private bool isLoaded;
-    public int totalAmmo = 40;
+    public int totalAmmo = 5;
     public int DamagePerPellet = 25;
     public int PelletPerBullet = 4;
     float bulletRadius;
@@ -19,11 +20,18 @@ public class Blunderbuss : MonoBehaviour
     public GameObject PelletHitEffect;
     public GameObject MuzzleFlashParticle;
     public FXPool fxPool; // <-- assign in Inspector
-
+    private TextMeshProUGUI ammoText;
     private WeaponInertia wIntertia;
 
     void Start()
     {
+        ammoText = GameObject.FindGameObjectWithTag("ammoText").GetComponent<TextMeshProUGUI>();
+        anim.SetInteger("ammo", totalAmmo);
+        isLoaded = true;
+        if(ammoText != null)
+        {
+            ammoText.text = "x" + totalAmmo;
+        }
         Inv = GameObject.FindAnyObjectByType<inventoryScript>();
         fxPool = GameObject.FindAnyObjectByType<FXPool>();
         wIntertia = GetComponentInParent<WeaponInertia>();
@@ -33,6 +41,7 @@ public class Blunderbuss : MonoBehaviour
 
     private void OnEnable()
     {
+        anim.SetInteger("ammo", totalAmmo);
         if (isLoaded) anim.SetBool("canShoot", true);
     }
 
@@ -42,9 +51,22 @@ public class Blunderbuss : MonoBehaviour
         if (Input.GetKeyDown(shootKey) && isLoaded && Inv.isOpen == false)
             anim.SetTrigger("Shoot");
 
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            AddAmmo(1);
+        }
+
         anim.SetBool("Aim", Input.GetKey(AimKey));
     }
-
+    public void AddAmmo(int amount)
+    {
+        totalAmmo += amount;
+        anim.SetInteger("ammo", totalAmmo);
+        if (ammoText != null)
+        {
+            ammoText.text = "x" + totalAmmo;
+        }
+    }
     // Called by animation event
     void Shoot()
     {
@@ -58,6 +80,11 @@ public class Blunderbuss : MonoBehaviour
         anim.SetBool("canShoot", false);
 
         if (totalAmmo > 0) totalAmmo--;
+        anim.SetInteger("ammo", totalAmmo);
+        if (ammoText != null)
+        {
+            ammoText.text = "x" + totalAmmo;
+        }
 
         // ⚠ Using width/2 is usually better than anchoredPosition.x
         // Keep your original if that’s intentional:
@@ -65,8 +92,8 @@ public class Blunderbuss : MonoBehaviour
         
         // Group by damageable component (prevents multi-collider dupes)
         var skullHits = new Dictionary<FloatingSkullAI, int>();
-        //var gruntHits = new Dictionary<EnemyTest2, int>();
-
+        var gruntHits = new Dictionary<BasicSkeleton, int>();
+        var bossHits = new Dictionary<PirateBossAI, int>();
         int pelletsThatHitAnything = 0;
 
         for (int i = 0; i < PelletPerBullet; i++)
@@ -91,11 +118,11 @@ public class Blunderbuss : MonoBehaviour
 
                 // Use collider's hierarchy, NOT root tag
                 Transform t = hit.collider.attachedRigidbody ? hit.collider.attachedRigidbody.transform : hit.transform;
-                /*
+                
                 // Prefer components over tags
                 var skull = t.GetComponentInParent<FloatingSkullAI>();
-                var grunt = t.GetComponentInParent<EnemyTest2>();
-
+                var grunt = t.GetComponentInParent<BasicSkeleton>();
+                var boss = t.GetComponentInParent<PirateBossAI>();
                 if (skull)
                 {
                     if (skullHits.TryGetValue(skull, out int c)) skullHits[skull] = c + 1;
@@ -109,12 +136,18 @@ public class Blunderbuss : MonoBehaviour
                     else gruntHits[grunt] = 1;
                     Debug.Log($"Pellet hit ENEMY: {grunt.name} via {hit.collider.name}");
                 }
+                else if (boss)
+                {
+                    if (bossHits.TryGetValue(boss, out int c)) bossHits[boss] = c + 1;
+                    else bossHits[boss] = 1;
+                    ///Debug.Log($"Pellet hit Boss: {grunt.name} via {hit.collider.name}");
+                }
                 else
                 {
                     // Optional: Debug what we hit that isn’t damageable
                     // Debug.Log($"Pellet hit non-damageable: {t.name} (layer {t.gameObject.layer})");
                 }
-                */
+                
             }
         }
 
@@ -126,14 +159,20 @@ public class Blunderbuss : MonoBehaviour
             kvp.Key.ApplyDamage(totalDamage);
             Debug.Log($"Applied {totalDamage} dmg to SKULL {kvp.Key.name} (pellets {kvp.Value})");
         }
-        /*
+        
         foreach (var kvp in gruntHits)
         {
             int totalDamage = kvp.Value * DamagePerPellet;
             kvp.Key.TakeDamage(totalDamage);
             Debug.Log($"Applied {totalDamage} dmg to ENEMY {kvp.Key.name} (pellets {kvp.Value})");
         }
-        */
+        foreach (var kvp in bossHits)
+        {
+            int totalDamage = kvp.Value * DamagePerPellet;
+            kvp.Key.TakeDamage(totalDamage);
+            Debug.Log($"Applied {totalDamage} dmg to ENEMY {kvp.Key.name} (pellets {kvp.Value})");
+        }
+        
 
         // Scale recoil by pellets connected (caps at 4)
         if (wIntertia)

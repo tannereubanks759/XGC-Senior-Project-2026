@@ -69,8 +69,10 @@ public class CombatController : MonoBehaviour
     [Header("Attacks")]
     public int AmountOfAttacks = 4;
     private int CachedAttack;
+    public GameObject crosshair;
     void Start()
     {
+        crosshair.SetActive(false);
         CachedAttack = Random.Range(1, AmountOfAttacks + 1);
         //rb.linearDamping = 0f; // tiny values like 0.02 are fine too
         hurtFX = GetComponent<HurtPostFXURP>();
@@ -96,7 +98,7 @@ public class CombatController : MonoBehaviour
             regenHeart.color = c;
         }
 
-        wInertia = GetComponent<WeaponInertia>();
+        wInertia = GetComponentInChildren<WeaponInertia>();
 
         Enemies();
 
@@ -185,7 +187,15 @@ public class CombatController : MonoBehaviour
 
         if (healthSlider != null)
             healthSlider.value = displayedHealth;
-
+        
+        if (Input.GetKey(block_or_aim))
+        {
+            crosshair.SetActive(true);
+        }
+        else
+        {
+            crosshair.SetActive(false);
+        }
         // --- Combat input ---Only when sword is active
         if (swordAnim.gameObject.activeSelf)
         {
@@ -222,6 +232,7 @@ public class CombatController : MonoBehaviour
             {
                 swordAnim.ResetTrigger("Knockback");
             }
+
 
             if (blocking && !swinging && Input.GetKeyDown(dodge))
             {

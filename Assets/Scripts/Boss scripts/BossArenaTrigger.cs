@@ -9,6 +9,7 @@ public class BossArenaTrigger : MonoBehaviour
     [Tooltip("If true, this trigger only fires once.")]
     public bool oneShot = true;
     bool _fired;
+    public Collider smokeCollider;
 
     void Reset()
     {
@@ -24,6 +25,7 @@ public class BossArenaTrigger : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             boss.BeginEncounter(other.transform);
+            smokeCollider.isTrigger = false;
             _fired = true;
         }
     }

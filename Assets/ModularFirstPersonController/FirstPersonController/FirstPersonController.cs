@@ -244,11 +244,20 @@ public class FirstPersonController : MonoBehaviour
         originalScale = transform.localScale;
         jointOriginalPos = joint.localPosition;
 
+        // In Awake()
         if (!unlimitedSprint)
         {
             sprintRemaining = sprintDuration;
             sprintCooldownReset = sprintCooldown;
         }
+        else
+        {
+            // Make sure the gating checks don't block sprint
+            sprintRemaining = sprintDuration;   // harmless placeholder
+            sprintCooldownReset = 0f;
+            isSprintCooldown = false;
+        }
+
     }
 
     void Start()
@@ -397,7 +406,13 @@ public class FirstPersonController : MonoBehaviour
         if (enableSprint)
         {
             // Decide sprint state here so FOV/UI respond immediately
-            bool wantsSprint = enableSprint && Input.GetKey(sprintKey) && sprintRemaining > 0f && !isSprintCooldown && cachedHasInput;
+            bool wantsSprint =
+    enableSprint &&
+    Input.GetKey(sprintKey) &&
+    cachedHasInput &&
+    !isSprintCooldown &&
+    (unlimitedSprint || sprintRemaining > 0f);
+
             isSprinting = wantsSprint;
 
             if (isSprinting)

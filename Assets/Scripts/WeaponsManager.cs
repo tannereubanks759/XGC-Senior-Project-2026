@@ -129,14 +129,14 @@ public class WeaponsManager : MonoBehaviour
         {
             EnlargeWeaponIcon(weaponIcons[currentWeapon].GetComponent<RawImage>());
         }*/
-        if(currentWeapon == 0)
+        /*if(currentWeapon == 0)
         {
             EnableCrosshair(false);
         }
         else
         {
             EnableCrosshair(true);
-        }
+        }*/
     }
 
 
