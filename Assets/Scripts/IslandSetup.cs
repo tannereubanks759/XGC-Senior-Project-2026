@@ -203,12 +203,13 @@ public class IslandSetup : MonoBehaviour
         if (existing)
         {
             existing.transform.position = hit.point;
+            existing.transform.rotation = playerSpawnPos[0].rotation;
             Debug.Log("Existing player moved to spawn.");
             GameObject.FindAnyObjectByType<CompassUI>().headingSource = existing.GetComponentInChildren<Camera>().transform;
         }
         else
         {
-            GameObject player = Instantiate(playerPref, hit.point, Quaternion.identity);
+            GameObject player = Instantiate(playerPref, hit.point, playerSpawnPos[0].transform.rotation);
             GameObject.FindAnyObjectByType<CompassUI>().headingSource = player.GetComponentInChildren<Camera>().transform;
         }
 
