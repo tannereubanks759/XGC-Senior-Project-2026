@@ -8,13 +8,17 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TAI_Water_01A
-  m_Shader: {fileID: 4800000, guid: ed8bc01f101111f4f95c19e6ac60ca3c, type: 3}
+  m_Shader: {fileID: 4800000, guid: 7e10a8475dfa9ab4ab2f4edca931c5b9, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _RECEIVE_SHADOWS_OFF
   - _WAVES_ON
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _LIGHTS_ON
+  - _MAINFOAMPOWER_ON
+  - _RECEIVESHADOWS_OFF
+  - _VERTEXOFFSET2_ON
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -119,4 +123,3 @@ Material:
     - _FresnelColor: {r: 0.0763617, g: 0.38158345, b: 0.49056602, a: 1}
     - _ShallowColor: {r: 0.27069238, g: 0.745283, b: 0.7262994, a: 1}
   m_BuildTextureStacks: []
-  m_AllowLocking: 1
