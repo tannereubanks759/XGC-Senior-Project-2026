@@ -8,7 +8,9 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TAI_Grass_3A
-  m_Shader: {fileID: 4800000, guid: 645ce1719fad8f145ad655d0d4b88f40, type: 3}
+  m_Shader: {fileID: 4800000, guid: b5607d7abeef3f04fbf3d7926a60b426, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _HIGHLIGHTS_ON
   m_InvalidKeywords: []
@@ -18,6 +20,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -118,3 +121,4 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
     - _HighlightColor: {r: 0.81010437, g: 0.8867924, b: 0.1966002, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
