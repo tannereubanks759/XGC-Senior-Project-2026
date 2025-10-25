@@ -169,7 +169,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         if (!Animator) Animator = GetComponent<Animator>();
         if (!swordCollider) swordCollider = GetComponentInChildren<AffectPlayer>().swordCollider;
         VarInit();
-        GoldInit();
     }
     // Call the update of the parent so that state logic still runs
     // Check to see if we can see the player
@@ -233,12 +232,12 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     // Initialize a particle system for the enemy
     // Plays once when the enemy dies
-    private void GoldInit()
+    public void GoldInit(int boneCount)
     {
         _ps = Instantiate(ps, transform.parent);
         _ps.Stop();
         var ap = _ps.GetComponent<AttractParticles>();
-        ap.goldCount = gold;
+        ap.goldCount = 20 + 5 * boneCount;
     }
     #endregion
 

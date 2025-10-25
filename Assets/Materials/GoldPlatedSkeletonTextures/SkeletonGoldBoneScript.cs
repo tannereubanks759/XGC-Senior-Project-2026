@@ -4,7 +4,7 @@ public class SkeletonGoldBoneScript : MonoBehaviour
 {
     private Renderer rend;
     private Material mat;
-    int goldBoneCount = 0;
+    public int goldBoneCount = 0;
     public Texture2D[] masks;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -21,6 +21,8 @@ public class SkeletonGoldBoneScript : MonoBehaviour
                 mat.SetTexture("mask" + i.ToString(), masks[Random.Range(0, masks.Length - 1)]);
             }
         }
+
+        GetComponentInParent<BaseEnemyAI>().GoldInit(goldBoneCount);
     }
 
     
