@@ -9,56 +9,79 @@ public class AnchorWeapon : MonoBehaviour
     public int AnchorDamage = 20;
     public float throwStrength = 10f;
     public float rotationDegrees = 1f;
-    private Collider col;
-    Rigidbody rb;
-    ParentConstraint constraint;
-    bool isInAir = false;
-    private GameObject player;
-    // ParentConstraint source index (0 if you have one source)
-    [SerializeField] private int sourceIndex = 0;
 
-    // Cached offsets so we can restore the original relative pose to the hand
-    private Vector3 _cachedTransOffset;
-    private Vector3 _cachedRotOffsetEuler; // rotation offset is Euler for constraints
-    private bool _haveCachedOffsets = false;
     [Header("Return Settings")]
     public float returnPosSmoothTime = 0.12f;    // lower = snappier
-    public float returnRotDegPerSec = 540f;      // max degrees/sec toward target
+    public float returnRotDegPerSec = 540f;      // max deg/sec toward boss hand
     public float finishPosEpsilon = 0.01f;       // meters
     public float finishRotEpsilonDeg = 0.5f;     // degrees
 
-    private PirateBossAI boss;
-    // Add this field near your other privates
-    private bool _isReturning = false;
+    [Header("Constraint")]
+    [SerializeField] private int sourceIndex = 0; // ParentConstraint source index (usually 0)
 
-    private Vector3 _posVel;                     // SmoothDamp velocity
+    private Collider col;
+    private Rigidbody rb;
+    private ParentConstraint constraint;
+    private PirateBossAI boss;
+
+    private GameObject player;
+    private bool isInAir = false;
+
+    // Pose of anchor in boss hand
+    private Vector3 _cachedTransOffset;
+    private Vector3 _cachedRotOffsetEuler;
+    private bool _haveCachedOffsets = false;
+
+    // Transform of the boss hand (original ParentConstraint source)
+    private Transform _cachedBossHand;
+
+    // homing / return
+    private bool _isReturning = false;
+    private Vector3 _posVel;
     private Coroutine _returnCo;
+
+    // rotation while in air
     private Quaternion _throwTargetRot;
     private bool _hasThrowTargetRot;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    // sticky state
+    private bool _stuckToPlayer = false;
+
+    // we cache this so we can yank them after recall
+    private BossKnockback _latchedKnockback;
+    private Transform _latchedTarget;
+
     void Start()
     {
         boss = GetComponentInParent<PirateBossAI>();
         isInAir = false;
+
         constraint = GetComponent<ParentConstraint>();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         EnableCollider(false);
 
+        // cache the original boss hand transform
+        if (constraint != null && constraint.sourceCount > sourceIndex)
+        {
+            ConstraintSource src = constraint.GetSource(sourceIndex);
+            _cachedBossHand = src.sourceTransform;
+        }
     }
 
-    private void Update()
+    void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Z)) //test anchor throw
+        if (Input.GetKeyDown(KeyCode.Z)) // debug throw
         {
             Throw();
         }
-        if (isInAir == true && _hasThrowTargetRot)
+
+        // spin toward the fixed throw target
+        if (isInAir && _hasThrowTargetRot)
         {
             float maxDegreesThisFrame = rotationDegrees * Time.deltaTime;
 
-            if (rb != null && !rb.isKinematic)
+            if (!rb.isKinematic)
             {
                 Quaternion next = Quaternion.RotateTowards(rb.rotation, _throwTargetRot, maxDegreesThisFrame);
                 rb.MoveRotation(next);
@@ -68,12 +91,8 @@ public class AnchorWeapon : MonoBehaviour
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, _throwTargetRot, maxDegreesThisFrame);
             }
         }
-
-
-
-
-
     }
+
     public void EnableCollider(bool boolean)
     {
         col.enabled = boolean;
@@ -82,7 +101,8 @@ public class AnchorWeapon : MonoBehaviour
     public void Throw()
     {
         boss.canRotate = false;
-        // --- NEW: cancel any in-progress homing ---
+
+        // stop any recall in progress
         if (_returnCo != null)
         {
             StopCoroutine(_returnCo);
@@ -90,76 +110,112 @@ public class AnchorWeapon : MonoBehaviour
         }
         _isReturning = false;
 
-        // If the constraint was left active by a prior reset, disable its influence now
+        // reset sticky state
+        _stuckToPlayer = false;
+        _latchedKnockback = null;
+        _latchedTarget = null;
+
+        // disable constraint influence so physics takes over
         if (constraint != null)
         {
             constraint.constraintActive = false;
-            constraint.weight = 0f;   // explicit: no blend influence
-                                      // leave constraint.locked as-is (it only affects offset editing)
+            constraint.weight = 0f;
         }
 
-        // (Re)cache offsets from current constrained pose if available
+        // recache anchor's "home" offset from the boss hand
         if (constraint != null && constraint.sourceCount > sourceIndex)
         {
             _cachedTransOffset = constraint.GetTranslationOffset(sourceIndex);
             _cachedRotOffsetEuler = constraint.GetRotationOffset(sourceIndex);
             _haveCachedOffsets = true;
+
+            ConstraintSource src = constraint.GetSource(sourceIndex);
+            _cachedBossHand = src.sourceTransform;
         }
 
         EnableCollider(true);
         rb.isKinematic = false;
 
         player = GameObject.FindGameObjectWithTag("Player");
+
+        // launch direction toward player
         Vector3 direction = player.transform.position - transform.position;
-        
         Vector3 force = direction.normalized * throwStrength;
-        // Fixed target rotation (align current DOWN to the player's position at throw start)
+
+        // lock the look target for spin
         Vector3 playerPosAtThrow = player.transform.position;
-        RaycastHit hit;
-        if (Physics.Raycast(player.transform.position, Vector3.down, out hit))
+
+        // prefer ground-under-player for visual correctness
+        if (Physics.Raycast(player.transform.position, Vector3.down, out RaycastHit hit))
         {
             playerPosAtThrow = hit.point;
         }
+
         Vector3 toPlayerAtThrow = (playerPosAtThrow - transform.position);
         if (toPlayerAtThrow.sqrMagnitude > 1e-6f)
         {
-            Vector3 desiredDown = toPlayerAtThrow.normalized;                // we want transform.down to face this
+            Vector3 desiredDown = toPlayerAtThrow.normalized;
             Quaternion alignDown = Quaternion.FromToRotation(-transform.up, desiredDown);
-            _throwTargetRot = alignDown * transform.rotation;                // FIXED TARGET ROTATION
+            _throwTargetRot = alignDown * transform.rotation;
             _hasThrowTargetRot = true;
         }
 
         rb.AddForce(force, ForceMode.Impulse);
+
         isInAir = true;
+
+        // after boss.throwTime, we recall
         StartCoroutine(ResetAnchorAfterThrow());
+    }
+
+    private IEnumerator ResetAnchorAfterThrow()
+    {
+        yield return new WaitForSeconds(boss.throwTime);
+
+        ResetAnchor();
+
+        boss.AnchorThrowLeave();
+        boss.canRotate = true;
     }
 
     public void ResetAnchor()
     {
-        _hasThrowTargetRot = false; // e.g., in ResetAnchor() or on ground hit
-
-        // Stop airborne behavior, physics, and hits
+        // we're not spinning anymore
         isInAir = false;
+        _hasThrowTargetRot = false;
 
-        // Cancel any previous homing just in case
+        // stop any previous recall
         if (_returnCo != null)
         {
             StopCoroutine(_returnCo);
             _returnCo = null;
         }
 
-        if (rb != null && rb.isKinematic == false)
+        // kill physics so we can move manually
+        if (!rb.isKinematic)
         {
-            rb.linearVelocity = Vector3.zero;          // use velocity in most Unity versions
+            rb.linearVelocity = Vector3.zero;        // FIX from linearVelocity
             rb.angularVelocity = Vector3.zero;
             rb.isKinematic = true;
         }
+
         EnableCollider(false);
 
-        if (constraint == null || constraint.sourceCount <= sourceIndex) return;
+        if (constraint == null || constraint.sourceCount <= sourceIndex)
+            return;
 
-        // Ensure original relative pose offsets are applied
-        constraint.locked = false;
+        // put ParentConstraint back to boss hand before returning
+        if (_cachedBossHand != null)
+        {
+            constraint.locked = false;
+
+            ConstraintSource bossSrc = constraint.GetSource(sourceIndex);
+            bossSrc.sourceTransform = _cachedBossHand;
+            bossSrc.weight = 1f;
+            constraint.SetSource(sourceIndex, bossSrc);
+        }
+
+        // restore original offsets relative to boss hand
         if (_haveCachedOffsets)
         {
             constraint.SetTranslationOffset(sourceIndex, _cachedTransOffset);
@@ -171,7 +227,7 @@ public class AnchorWeapon : MonoBehaviour
             constraint.SetRotationOffset(sourceIndex, Vector3.zero);
         }
 
-        // Keep constraint disabled during manual homing to avoid tug-of-war
+        // keep the constraint OFF while we animate the flyback
         constraint.constraintActive = false;
         constraint.weight = 0f;
         constraint.locked = true;
@@ -179,22 +235,49 @@ public class AnchorWeapon : MonoBehaviour
         _returnCo = StartCoroutine(CoHomeToOriginalRelativePose());
     }
 
-    private System.Collections.IEnumerator CoHomeToOriginalRelativePose()
+    private IEnumerator CoHomeToOriginalRelativePose()
     {
+        // YANK HERE
+        if (_stuckToPlayer && boss != null && _latchedKnockback != null && _latchedTarget != null)
+        {
+            Vector3 pullDir = (boss.transform.position - _latchedTarget.position).normalized;
+            Debug.Log("[AnchorWeapon] YANKING player back toward boss dir=" + pullDir);
+
+            _latchedKnockback.ForceKnockbackPlayer(pullDir);
+        }
+        else
+        {
+            Debug.LogWarning("[AnchorWeapon] YANK SKIPPED. Details => " +
+                             " stuck=" + _stuckToPlayer +
+                             " boss? " + (boss != null) +
+                             " latchedKnockback? " + (_latchedKnockback != null) +
+                             " latchedTarget? " + (_latchedTarget != null));
+        }
         _isReturning = true;
+        Debug.Log("[AnchorWeapon] RETURN START");
 
         ConstraintSource src = constraint.GetSource(sourceIndex);
         Transform hand = src.sourceTransform;
-        if (hand == null) { _isReturning = false; yield break; }
+        if (hand == null)
+        {
+            Debug.LogWarning("[AnchorWeapon] RETURN ABORT: hand == null");
+            _isReturning = false;
+            yield break;
+        }
 
         _posVel = Vector3.zero;
 
-        while (_isReturning)
+        // We'll track how long we've been trying to return so we don't get stuck forever
+        float hardTimeout = 1.5f; // seconds max to chase back before we just snap/yank anyway
+        float startTime = Time.time;
+
+        while (true)
         {
+            // live target from boss hand
             Vector3 targetPos = hand.TransformPoint(_cachedTransOffset);
             Quaternion targetRot = hand.rotation * Quaternion.Euler(_cachedRotOffsetEuler);
 
-            // Position homing
+            // move toward boss hand
             transform.position = Vector3.SmoothDamp(
                 transform.position,
                 targetPos,
@@ -202,80 +285,156 @@ public class AnchorWeapon : MonoBehaviour
                 returnPosSmoothTime
             );
 
-            // Rotation homing
+            // rotate toward boss hand
             float step = returnRotDegPerSec * Time.deltaTime;
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, step);
 
             bool posDone = (transform.position - targetPos).sqrMagnitude <= (finishPosEpsilon * finishPosEpsilon);
             bool rotDone = Quaternion.Angle(transform.rotation, targetRot) <= finishRotEpsilonDeg;
 
-            if (posDone && rotDone) break;
+            if (posDone && rotDone)
+            {
+                Debug.Log("[AnchorWeapon] RETURN LOOP BREAK: close enough to hand");
+                break;
+            }
+
+            // safety timeout in case boss hand is moving/animating and we never converge tight enough
+            if (Time.time - startTime >= hardTimeout)
+            {
+                Debug.LogWarning("[AnchorWeapon] RETURN LOOP TIMEOUT: snapping anyway");
+                break;
+            }
+
+            // if some other code bailed the recall (new throw), stop but still go to yank path below
+            if (_isReturning == false)
+            {
+                Debug.LogWarning("[AnchorWeapon] RETURN LOOP INTERRUPTED EARLY (_isReturning == false)");
+                break;
+            }
 
             yield return null;
         }
 
-        if (!_isReturning) yield break; // aborted by Throw()
+        // --- WE ARE NOW EXITING RETURN MOTION ---
+        // (no early yield break anymore, we ALWAYS continue through yank logic)
 
-        // Snap to final
-        transform.position = hand.TransformPoint(_cachedTransOffset);
-        transform.rotation = hand.rotation * Quaternion.Euler(_cachedRotOffsetEuler);
+        // snap cleanly into boss hand
+        Vector3 finalPos = hand.TransformPoint(_cachedTransOffset);
+        Quaternion finalRot = hand.rotation * Quaternion.Euler(_cachedRotOffsetEuler);
+        transform.position = finalPos;
+        transform.rotation = finalRot;
 
-        // Hand control back to the constraint (defensive full re-enable)
+        // fully restore constraint back on boss hand
         constraint.locked = false;
+        constraint.enabled = true;
+        constraint.weight = 1f;
 
-        // Make sure the component is enabled and has influence
-        constraint.enabled = true;          // component on
-        constraint.weight = 1f;             // overall blend weight
-
-        // Ensure the source itself contributes (per-source weight)
-        var src1 = constraint.GetSource(sourceIndex);
-        if (src1.weight <= 0f)
+        var bossSrcFinal = constraint.GetSource(sourceIndex);
+        if (bossSrcFinal.weight <= 0f)
         {
-            src1.weight = 1f;
-            constraint.SetSource(sourceIndex, src1);
+            bossSrcFinal.weight = 1f;
+            constraint.SetSource(sourceIndex, bossSrcFinal);
         }
 
-        // Reactivate constraint using the cached offsets we already applied
         constraint.constraintActive = true;
         constraint.locked = true;
 
-        _isReturning = false;
-        _returnCo = null;
+        Debug.Log("[AnchorWeapon] RETURN COMPLETE. About to YANK? stuck=" + _stuckToPlayer);
 
-
-        _isReturning = false;
-        _returnCo = null;
-    }
-    public IEnumerator ResetAnchorAfterThrow()
-    {
         
-        yield return new WaitForSeconds(boss.throwTime);
-        ResetAnchor();
-        boss.AnchorThrowLeave();
-        boss.canRotate = true;
+
+        // cleanup
+        _stuckToPlayer = false;
+        _latchedKnockback = null;
+        _latchedTarget = null;
+
+        _isReturning = false;
+        _returnCo = null;
     }
 
+
+    // Stick into player and ride along
+    private void StickToPlayer(Transform hitTransform, BossKnockback knockRef)
+    {
+        Debug.Log("[AnchorWeapon] StickToPlayer " + hitTransform.name);
+
+        isInAir = false;
+        _hasThrowTargetRot = false;
+
+        _stuckToPlayer = true;
+
+        // cache who to yank later
+        _latchedTarget = hitTransform;
+        _latchedKnockback = knockRef;
+
+        // stop physics
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+
+        // stop re-trigger spam
+        EnableCollider(false);
+
+        // re-wire constraint to follow THIS player transform in place
+        if (constraint != null && hitTransform != null && constraint.sourceCount > sourceIndex)
+        {
+            constraint.locked = false;
+
+            ConstraintSource playerSrc = constraint.GetSource(sourceIndex);
+            playerSrc.sourceTransform = hitTransform;
+            playerSrc.weight = 1f;
+            constraint.SetSource(sourceIndex, playerSrc);
+
+            // preserve the current hit position/orientation as offsets
+            Vector3 localPos = hitTransform.InverseTransformPoint(transform.position);
+            Quaternion localRot = Quaternion.Inverse(hitTransform.rotation) * transform.rotation;
+
+            constraint.SetTranslationOffset(sourceIndex, localPos);
+            constraint.SetRotationOffset(sourceIndex, localRot.eulerAngles);
+
+            // turn constraint ON so we visually attach to them
+            constraint.weight = 1f;
+            constraint.constraintActive = true;
+            constraint.locked = true;
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
+        // if we hit PLAYER
         if (other.CompareTag("Player"))
         {
-            Vector3 direction = (other.transform.position - this.GetComponentInParent<PirateBossAI>().transform.position).normalized;
-            other.GetComponent<BossKnockback>().KnockbackPlayer(direction);
-            other.GetComponentInChildren<CombatController>().TakeDamage(20);
-            if (isInAir == false)
-            {
-                EnableCollider(false);
-            }
-            
-        } 
-        else
-        {
-            _hasThrowTargetRot = false; // e.g., in ResetAnchor() or on ground hit
+            // push AWAY from boss now
+            Vector3 dirOut = (other.transform.position - boss.transform.position).normalized;
 
-            rb.isKinematic = true;
-            EnableCollider(false);
-            isInAir = false;
+            // IMPORTANT: get knockback from the hierarchy, not just this collider
+            BossKnockback knockNow = other.GetComponent<BossKnockback>();
+            if (knockNow != null)
+            {
+                knockNow.KnockbackPlayer(dirOut);
+            }
+
+            // apply damage to player
+            CombatController combat = other.GetComponentInChildren<CombatController>();
+            if (combat != null)
+            {
+                combat.TakeDamage(AnchorDamage);
+            }
+
+            // latch ONLY if we were mid-air throw
+            if (isInAir)
+            {
+                if (player == null) player = other.gameObject;
+                StickToPlayer(other.transform, knockNow);
+            }
+
+            return;
         }
+
+        // world hit (ground/wall/etc.)
+        _hasThrowTargetRot = false;
+        rb.isKinematic = true;
+        EnableCollider(false);
+        isInAir = false;
     }
 }
