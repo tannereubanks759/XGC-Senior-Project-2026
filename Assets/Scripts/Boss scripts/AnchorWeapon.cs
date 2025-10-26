@@ -418,7 +418,7 @@ public class AnchorWeapon : MonoBehaviour
             CombatController combat = other.GetComponentInChildren<CombatController>();
             if (combat != null)
             {
-                combat.TakeDamage(AnchorDamage);
+                combat.TakeDamageByBoss(AnchorDamage);
             }
 
             // latch ONLY if we were mid-air throw

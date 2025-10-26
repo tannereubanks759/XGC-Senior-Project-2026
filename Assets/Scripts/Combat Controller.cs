@@ -48,6 +48,7 @@ public class CombatController : MonoBehaviour
     [Range(0f, 1f)] public float blinkMinAlpha = 0.25f;
     [Range(0f, 1f)] public float blinkMaxAlpha = 1f;
     [Min(0.01f)] public float blinkFrequency = 1.5f; // cycles per second
+    public float blockEffectiveness = 50f;
 
     [Header("UI - Damage Flash")]
     [Min(0.02f)] public float damageFadeTime = 0.6f; // SmoothDamp time
@@ -331,6 +332,56 @@ public class CombatController : MonoBehaviour
         }
         else
         {
+            wInertia.ParryClash(1);
+        }
+    }
+    public void TakeDamageByBoss(int damage)
+    {
+        if (blocking == false)
+        {
+            //health = Mathf.Max(health - damage, 0);
+            lastDamageTime = Time.time;   // reset regen cooldown
+            regenAccumulator = 0f;        // reset regen tick build-up
+
+            // Kick off damage flash
+            damageAlpha = 1f;             // fully visible red
+            damageAlphaVel = 0f;          // reset ease
+            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+            if (actuallyApplied <= 0) return;
+
+            int old = health;
+            health = Mathf.Max(0, health - actuallyApplied);
+
+            // --- HURT FX: make sure this always runs when damage is applied ---
+            Mathf.Clamp(old, 0, maxHealth);
+            float severity = actuallyApplied / (float)old;   // FLOAT division!
+            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+            hurtFX?.Pulse(severity);
+            shake.Shake(1);
+
+        }
+        else
+        {
+            damage /= (int)(100f/blockEffectiveness);
+            //health = Mathf.Max(health - damage, 0);
+            lastDamageTime = Time.time;   // reset regen cooldown
+            regenAccumulator = 0f;        // reset regen tick build-up
+
+            // Kick off damage flash
+            damageAlpha = 1f;             // fully visible red
+            damageAlphaVel = 0f;          // reset ease
+            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+            if (actuallyApplied <= 0) return;
+
+            int old = health;
+            health = Mathf.Max(0, health - actuallyApplied);
+
+            // --- HURT FX: make sure this always runs when damage is applied ---
+            Mathf.Clamp(old, 0, maxHealth);
+            float severity = actuallyApplied / (float)old;   // FLOAT division!
+            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+            hurtFX?.Pulse(severity);
+            shake.Shake(1);
             wInertia.ParryClash(1);
         }
     }

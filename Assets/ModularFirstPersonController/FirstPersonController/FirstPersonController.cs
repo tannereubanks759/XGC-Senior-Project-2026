@@ -238,7 +238,7 @@ public class FirstPersonController : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-
+        loadingScreen.SetActive(false);
         crosshairObject = GetComponentInChildren<Image>();
 
         // Set internal variables
@@ -261,9 +261,14 @@ public class FirstPersonController : MonoBehaviour
         }
 
     }
-
+    private void OnLevelWasLoaded(int level)
+    {
+        loadingScreen.SetActive(false);
+    }
     void Start()
     {
+        DontDestroyOnLoad(gameObject);
+        loadingScreen.SetActive(false);
         if(lockCursor)
         {
             Cursor.lockState = CursorLockMode.Locked;
