@@ -126,23 +126,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
     #endregion
 
     #region Speed/Movement
-    [Header("Speeds")]
-    [Tooltip("The speed this unit will move at while walking")]
-    public float WalkSpeed = 2f;          // Patrol speed
-
-    [Tooltip("The speed this unit will move at while running")]
-    public float RunSpeed = 5f;           // Chase/attack speed
-
-    [Tooltip("The speed this unit will patrol at")]
-    public float patrolSpeed = 3.5f;
-
     [Tooltip("The current speed of the unit")]
     public float CurrentSpeed { get; private set; } // Current movement speed
-
-    [Tooltip("Can this unit rotate? (Set to off for certain combat actions)")]
-    public bool canRotate;                // Whether the enemy can rotate toward player
-
-    public float combatSpeed = 1f; // slightly faster than walk, slower than run
+    [Tooltip("The max speed of the unit")]
+    public float maxSpeed = .5f;
+    public float damagedSpeed {  get; private set; }
     #endregion
 
     #region Health
@@ -202,7 +190,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Agent.stoppingDistance = AttackRange - 0.5f;
         currentHealth = maxHealth;
-        canRotate = true;
         isBlocking = false;
 
         canRunAtPlayer = false;
@@ -210,6 +197,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         canMoveWhileAttacking = false;
         swordCollider.enabled = false;
         moveBackward = false;
+        damagedSpeed = maxSpeed / 2f;
 
         gold = Random.Range(0, 51);
     }

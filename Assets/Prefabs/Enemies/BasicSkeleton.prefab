@@ -696,7 +696,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.73
+      value: -13.25
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -704,7 +704,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.46
+      value: 3.6
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -945,11 +945,7 @@ MonoBehaviour:
   item: {fileID: 0}
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
   gold: 0
-  WalkSpeed: 2
-  RunSpeed: 5
-  patrolSpeed: 3.5
-  canRotate: 0
-  combatSpeed: 1
+  maxSpeed: 0.5
   maxHealth: 40
   armor:
   - {fileID: 2855602832369097646}
@@ -1246,6 +1242,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92008946b638b684bbdced2d864a8f46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  goldBoneCount: 0
   masks:
   - {fileID: 2800000, guid: c5018c625fee63e4e9fdcabde73b5b57, type: 3}
   - {fileID: 2800000, guid: f42f90598e79bbf4aa7a2e3c8c8dcaaa, type: 3}

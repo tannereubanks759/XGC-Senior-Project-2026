@@ -82,7 +82,7 @@ public class BasicPatrolState : BaseState<EnemyState>
             var isFacingMoveDirection = Vector3.Dot(dir, _enemy.transform.forward) > .25f;
 
             // Smoothly rotate towards the movement direction
-            _enemy.transform.rotation = Quaternion.RotateTowards(_enemy.transform.rotation, Quaternion.LookRotation(dir), 180 * Time.deltaTime);
+            _enemy.transform.rotation = Quaternion.RotateTowards(_enemy.transform.rotation, Quaternion.LookRotation(dir), 360 * Time.deltaTime);
 
             // Adjust to account for enemy offset
             float distance = _enemy.Agent.remainingDistance - .875f;
@@ -94,7 +94,7 @@ public class BasicPatrolState : BaseState<EnemyState>
             float distanceFactor = Mathf.Clamp01(distance / slowDownRadius);
 
             // Determine the base speed depending on health
-            float baseSpeed = (_enemy.currentHealth < 15) ? 0.125f : 0.25f;
+            float baseSpeed = (_enemy.currentHealth < 15) ? _enemy.damagedSpeed : _enemy.maxSpeed;
             
             // Final speed scales with how close we are to the destination
             float targetSpeed = baseSpeed * distanceFactor;
