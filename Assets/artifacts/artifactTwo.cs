@@ -12,7 +12,8 @@ public class artifactTwo : ItemData
          Debug.Log("Applied artifact2 stuff");*/
         //BaseEnemyAI enemyControllerRef;
         swordDamageDeterminer sd= player.GetComponent<swordDamageDeterminer>();
-        sd.damage = 50;
+        sd.bonusDamage = true;
+        //sd.damage = 20;
         
         inventoryScript invScript;
         invScript= player.GetComponentInChildren<inventoryScript>();
@@ -26,7 +27,8 @@ public class artifactTwo : ItemData
          playercontrollerRef.walkSpeed = 5;*/
 
         swordDamageDeterminer sd = player.GetComponent<swordDamageDeterminer>();
-        sd.damage = 10;
+        sd.bonusDamage = false;
+        //sd.damage = 10;
         Debug.Log("UNApplied artifact2 stuff");
     }
 }
