@@ -830,7 +830,7 @@ public class TerrainObjectSpawner : MonoBehaviour
         levelLoadingUI.SetActive(false);
     }
 }
-/*
+
 #if UNITY_EDITOR
 [CustomEditor(typeof(TerrainObjectSpawner))]
 public class TerrainObjectSpawnerEditor : Editor
@@ -894,4 +894,4 @@ public class TerrainObjectSpawnerEditor : Editor
         }
     }
 }
-#endif*/
+#endif
