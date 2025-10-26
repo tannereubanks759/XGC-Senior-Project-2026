@@ -11,7 +11,7 @@ public class artifactThree : ItemData
         swordDamageDeterminer sd = player.GetComponent<swordDamageDeterminer>();
         sd.isLighting = true;
         Debug.Log("Applied artifact3 stuff");
-
+        sd.lightningSwordEffect.SetActive(true);
 
         inventoryScript invScript;
         invScript = player.GetComponentInChildren<inventoryScript>();
@@ -23,7 +23,7 @@ public class artifactThree : ItemData
         
         swordDamageDeterminer sd = player.GetComponent<swordDamageDeterminer>();
         sd.isLighting = false;
-        
+        sd.lightningSwordEffect.SetActive(false);
         Debug.Log("UNApplied artifact3 stuff");
     }
 }

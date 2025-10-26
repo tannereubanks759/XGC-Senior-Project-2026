@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.72987515, y: 0.72987515, z: 0.72987497}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -70,8 +70,8 @@ MonoBehaviour:
   DestinationBlendMode: 1
   SourceBlendModeGlow: 5
   DestinationBlendModeGlow: 1
-  JitterMultiplier: 0.5
-  Turbulence: 0.05
+  JitterMultiplier: 0
+  Turbulence: 0
   TurbulenceVelocity: {x: 0, y: 0, z: 0}
   IntensityFlicker: {x: 0, y: 0}
   IntervalRange:
@@ -79,7 +79,7 @@ MonoBehaviour:
     Maximum: 0.1
   CountRange:
     Minimum: 1
-    Maximum: 4
+    Maximum: 1
   CountProbabilityModifier: 1
   DelayRange:
     Minimum: 0.02
@@ -95,15 +95,15 @@ MonoBehaviour:
   ChaosFactor: 0.2
   ChaosFactorForks: 0.095
   Intensity: 1
-  GlowIntensity: 1.2
-  GlowWidthMultiplier: 12
+  GlowIntensity: 0.71
+  GlowWidthMultiplier: 1.4
   FadePercent: 0.4
   FadeInMultiplier: 1
   FadeFullyLitMultiplier: 1
   FadeOutMultiplier: 1
   GrowthMultiplier: 0.4
   EndWidthMultiplier: 1
-  Forkedness: 0.25
+  Forkedness: 0.085
   ForkLengthMultiplier: 0.4
   ForkLengthVariance: 0.4
   ForkEndWidthMultiplier: 1
