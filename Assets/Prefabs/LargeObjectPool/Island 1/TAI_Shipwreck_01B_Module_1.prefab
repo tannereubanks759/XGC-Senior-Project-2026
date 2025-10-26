@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8338630826924979953}
   - component: {fileID: 2877724540369922809}
+  - component: {fileID: 3325771134591576564}
   m_Layer: 0
   m_Name: TAI_Shipwreck_01B_Module_1
   m_TagString: Untagged
@@ -68,6 +69,27 @@ LODGroup:
     renderers:
     - renderer: {fileID: 374929253234194398}
   m_Enabled: 1
+--- !u!65 &3325771134591576564
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 380463473091495779}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 7, y: 1, z: 8}
+  m_Center: {x: 0, y: 3.1, z: -1.69}
 --- !u!1 &1599866911946936970
 GameObject:
   m_ObjectHideFlags: 0
@@ -336,6 +358,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8060575596896988780}
   - component: {fileID: 1420498931959165686}
+  - component: {fileID: 4964928930301647642}
   m_Layer: 0
   m_Name: TAI_Shipwreck_01_Module_1_MeshCollider
   m_TagString: Untagged
@@ -351,13 +374,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5405829208971714857}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000000059604645, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.0057277526, y: 0.0419535, z: -0.124654144, w: 0.9912964}
+  m_LocalPosition: {x: -2.280002, y: 3.479999, z: -1.2899997}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8338630826924979953}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.051, y: 4.853, z: -14.337}
 --- !u!64 &1420498931959165686
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -375,11 +398,32 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -4096490044875020126, guid: 5818a5a981baa844eb9c70a8a22d260d, type: 3}
+--- !u!65 &4964928930301647642
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5405829208971714857}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3, y: 1, z: 8}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &7541158626909120124
 GameObject:
   m_ObjectHideFlags: 0
