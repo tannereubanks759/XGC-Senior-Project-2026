@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -48,8 +48,13 @@ public class RaycastKnockback : MonoBehaviour
     [Header("Safety")]
     [Tooltip("If, for any reason, the agent wasn't re-enabled by the end of the knockback, force-enable it after this many seconds.")]
     public float agentFallbackReenableTime = 1.5f;
-
-
+    [Header("Artifact KnockBack Settings")]
+    public bool upgradedKnockback = false; 
+    public float upgradedForceMultiplier = 1.75f;
+    public int knockBackDamage = 3;
+    public GameObject fxObject;
+    public GameObject fxSpawnPoint;
+    public Vector3 offset = new Vector3(90f, 0f, 0f);
     /// <summary>
     /// Casts a ray from the camera center and, if an enemy with a NavMeshAgent is hit,
     /// pushes it away from the camera, slightly upward.
@@ -61,38 +66,47 @@ public class RaycastKnockback : MonoBehaviour
             cam = Camera.main;
             if (cam == null) { Debug.LogWarning("RaycastKnockback: No Camera assigned."); return; }
         }
-
+        if (upgradedKnockback)
+        {
+            Quaternion baseRot = Quaternion.LookRotation(cam.transform.forward, Vector3.up);
+            Quaternion fxRot = baseRot * Quaternion.Euler(offset);
+            GameObject objToDelete = Instantiate(fxObject, fxSpawnPoint.transform.position, fxRot);
+            Destroy(objToDelete, 2f);
+        }
+            
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, hittableLayers, QueryTriggerInteraction.Ignore))
         {
-            // Find a NavMeshAgent on the hit object or its parents
             NavMeshAgent agent = hit.collider.GetComponentInParent<NavMeshAgent>();
+
+            
+            if (upgradedKnockback)
+            {
+                var health = hit.collider.GetComponentInParent<BaseEnemyAI>();
+                health.TakeDamage(knockBackDamage);
+            }
+
             if (agent == null || agent.enabled == false)
                 return;
 
-            // Compute push direction: camera-forward flattened on XZ, then add an explicit upward component
             Vector3 flatForward = cam.transform.forward;
             flatForward.y = 0f;
             if (flatForward.sqrMagnitude < 0.0001f)
-                flatForward = cam.transform.forward; // rare fallback
+                flatForward = cam.transform.forward;
             flatForward.Normalize();
 
-            // Upward tilt using trig so y is always positive
             float rad = Mathf.Deg2Rad * Mathf.Clamp(upAngleDeg, 0f, 89f);
-            // Forward is scaled by cos, vertical by sin
             Vector3 pushDir = (flatForward * Mathf.Cos(rad) + Vector3.up * Mathf.Sin(rad)).normalized;
 
+            float finalForce = knockbackForce;
+            if (upgradedKnockback)
+                finalForce *= upgradedForceMultiplier;
 
-            // Prefer Rigidbody impulse when available
             Rigidbody rb = agent.GetComponent<Rigidbody>();
             if (preferRigidbodyWhenAvailable && rb != null && !rb.isKinematic)
-            {
-                StartCoroutine(ApplyRigidbodyKnockback(agent, rb, pushDir));
-            }
+                StartCoroutine(ApplyRigidbodyKnockback(agent, rb, pushDir, finalForce));
             else
-            {
-                StartCoroutine(ApplyNavmeshKnockback(agent, pushDir));
-            }
+                StartCoroutine(ApplyNavmeshKnockback(agent, pushDir, finalForce));
 
 #if UNITY_EDITOR
             Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.cyan, 0.5f);
@@ -101,13 +115,15 @@ public class RaycastKnockback : MonoBehaviour
         }
     }
 
-    private IEnumerator ApplyNavmeshKnockback(NavMeshAgent agent, Vector3 pushDir)
+
+    private IEnumerator ApplyNavmeshKnockback(NavMeshAgent agent, Vector3 pushDir, float appliedForce)
     {
         bool wasEnabled = agent.enabled;
         bool prevStopped = agent.isStopped;
 
         float dur = Mathf.Max(0.05f, knockbackDuration);
-        float v0 = Mathf.Max(0f, knockbackForce);
+        float v0 = Mathf.Max(0f, appliedForce);
+
 
         // Disable so we can move the transform freely
         if (wasEnabled)
@@ -191,14 +207,14 @@ public class RaycastKnockback : MonoBehaviour
 
 
 
-private IEnumerator ApplyRigidbodyKnockback(NavMeshAgent agent, Rigidbody rb, Vector3 pushDir)
+    private IEnumerator ApplyRigidbodyKnockback(NavMeshAgent agent, Rigidbody rb, Vector3 pushDir, float appliedForce)
     {
         // Briefly stop the agent so it doesn't fight physics
         bool prevStopped = agent.isStopped;
         agent.isStopped = true;
 
         // Convert our "force" (speed) into a velocity change impulse
-        Vector3 initialVel = pushDir * Mathf.Max(0f, knockbackForce);
+        Vector3 initialVel = pushDir * Mathf.Max(0f, appliedForce);
         rb.AddForce(initialVel, ForceMode.VelocityChange);
 
         float t = 0f;
