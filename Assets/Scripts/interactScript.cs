@@ -20,10 +20,10 @@ public class interactScript : MonoBehaviour
     public ChestScript chest;
     public objectIdentifier objIdentifierRef;
     private infoscript infoScriptRef;
-    private GameObject DungeonKey;
-    public bool treasureRoomUnlocked = false;
-    private GameObject dungeonDoor;
-    private GameObject dungeonLock;
+    //private GameObject DungeonKey;
+    //public bool treasureRoomUnlocked = false;
+    //private GameObject dungeonDoor;
+    //private GameObject dungeonLock;
     public List<int> keyIDs = new List<int>();
     public static interactScript current;
     private bool shopInteract = false;
@@ -129,7 +129,7 @@ public class interactScript : MonoBehaviour
             chestInteract = true;   
             
         }
-        else if (other.CompareTag("DungeonKey"))
+        /*else if (other.CompareTag("DungeonKey"))
         {
             interactText.SetActive(true);
             DungeonKey = other.gameObject;
@@ -139,7 +139,7 @@ public class interactScript : MonoBehaviour
             if (interactText != null)
                 interactText.SetActive(true);
             dungeonLock = other.gameObject;
-        }
+        }*/
         else if (other.CompareTag("shop"))
         {
             shopInteract = true;
@@ -154,11 +154,11 @@ public class interactScript : MonoBehaviour
             interactText.SetActive(true);
             currentHealthPotion = other.gameObject;
         }
-        if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
+        /*if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
         {
             interactText.SetActive(true);
             dungeonDoor = other.gameObject;
-        }
+        }*/
     }
 
     private void OnTriggerExit(Collider other)
@@ -186,22 +186,22 @@ public class interactScript : MonoBehaviour
         {
             chestInteract = false;
         }
-        else if (other.CompareTag("DungeonKey"))
+        /*else if (other.CompareTag("DungeonKey"))
         {
             DungeonKey = null;
-        }
+        }*/
         else if (other.CompareTag("shop"))
         {
             shopInteract = false;
         }
-        else if (other.CompareTag("DungeonLock"))
+        /*else if (other.CompareTag("DungeonLock"))
         {
             dungeonLock = null;
         }
         if (other.CompareTag("DungeonDoor"))
         {
             dungeonDoor = null;
-        }
+        }*/
         if(interactText != null)
         {
             interactText.SetActive(false);
@@ -250,7 +250,7 @@ public class interactScript : MonoBehaviour
                 int id = chest.keyID;
                 colorIDChecker(id, false);
             }
-            else if (dungeonLock != null)
+            /*else if (dungeonLock != null)
             {
                 GameObject.FindAnyObjectByType<TreasureRoomLockKey>().Unlock();
                 dungeonLock = null;
@@ -259,7 +259,7 @@ public class interactScript : MonoBehaviour
             {
                 DungeonKey.GetComponentInParent<TreasureRoomLockKey>().PickupKey();
                 DungeonKey = null;
-            }
+            }*/
             else if (shopInteract)
             {
                 var shopScript = shop.GetComponent<baseShop>();
@@ -280,16 +280,16 @@ public class interactScript : MonoBehaviour
                 }
                 
             }
-            else if(dungeonDoor != null && treasureRoomUnlocked)
+            /*else if(dungeonDoor != null && treasureRoomUnlocked)
             {
                 Debug.Log("Open Door");
                 //put door open animator here
                 dungeonDoor.GetComponentInParent<Animator>().SetBool("DoorOpen", true);
                 dungeonDoor = null;
-            }
+            }*/
             
 
-                interactText.SetActive(false);
+            interactText.SetActive(false);
 
         }
     }

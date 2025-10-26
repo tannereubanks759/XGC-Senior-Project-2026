@@ -17,7 +17,7 @@ public class TreasureRoomLockKey : MonoBehaviour
             interactScript x = GameObject.FindAnyObjectByType<interactScript>();
             if (x != null) //Can find interact script
             {
-                x.treasureRoomUnlocked = true;
+                //x.treasureRoomUnlocked = true;
             }
         }
     }
