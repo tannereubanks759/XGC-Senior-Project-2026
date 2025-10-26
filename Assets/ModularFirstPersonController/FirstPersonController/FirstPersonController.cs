@@ -226,6 +226,8 @@ public class FirstPersonController : MonoBehaviour
     [Tooltip("Optional: Space to jump off gives a tiny upward impulse.")]
     public float ladderJumpUpImpulse = 3.5f;
 
+    [Header("Loading Screen")]
+    public GameObject loadingScreen;
 
     private bool isOnLadder = false;
     private Transform currentLadder = null;
