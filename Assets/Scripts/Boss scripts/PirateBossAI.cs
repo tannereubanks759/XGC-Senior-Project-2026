@@ -333,6 +333,11 @@ public class PirateBossAI : MonoBehaviour
 
             case BossState.Dead:
                 if (_deathHandled) return;
+                IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>().GetComponent<IslandTeleporter>();
+                if (tel != null)
+                {
+                    tel.OpenDoor();
+                }
                 _deathHandled = true;
                 agent.isStopped = true;
                 agent.updatePosition = false;

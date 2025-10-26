@@ -36,8 +36,11 @@ public class interactScript : MonoBehaviour
     private HealthPotion HealthPotionScript;
     private GoldBank goldRef;
     public int priceOfHealthPotion = 5;
+
+    public bool TeleporterInteract = false;
     void Start()
     {
+        TeleporterInteract = false;
         current = this;
         interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
@@ -154,6 +157,12 @@ public class interactScript : MonoBehaviour
             interactText.SetActive(true);
             currentHealthPotion = other.gameObject;
         }
+        else if (other.CompareTag("Teleporter"))
+        {
+            TeleporterInteract = true;
+            tmpro.text = "Teleport To The Next Island";
+            interactText.SetActive(true);
+        }
         /*if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
         {
             interactText.SetActive(true);
@@ -190,6 +199,10 @@ public class interactScript : MonoBehaviour
         {
             DungeonKey = null;
         }*/
+        else if (other.CompareTag("Teleporter"))
+        {
+            TeleporterInteract = false;
+        }
         else if (other.CompareTag("shop"))
         {
             shopInteract = false;
@@ -227,6 +240,11 @@ public class interactScript : MonoBehaviour
                     inventoryScript.toggleInv();
                     canInteract = false;
                 }
+            }
+            else if (TeleporterInteract)
+            {
+                GameObject.FindAnyObjectByType<IslandTeleporter>().Teleport();
+                TeleporterInteract = false;
             }
             else if (keyInteract)
             {
@@ -280,16 +298,17 @@ public class interactScript : MonoBehaviour
                 }
                 
             }
-            /*else if(dungeonDoor != null && treasureRoomUnlocked)
-            {
-                Debug.Log("Open Door");
-                //put door open animator here
-                dungeonDoor.GetComponentInParent<Animator>().SetBool("DoorOpen", true);
-                dungeonDoor = null;
-            }*/
             
+                /*else if(dungeonDoor != null && treasureRoomUnlocked)
+                {
+                    Debug.Log("Open Door");
+                    //put door open animator here
+                    dungeonDoor.GetComponentInParent<Animator>().SetBool("DoorOpen", true);
+                    dungeonDoor = null;
+                }*/
 
-            interactText.SetActive(false);
+
+                interactText.SetActive(false);
 
         }
     }
