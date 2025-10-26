@@ -414,7 +414,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -467,7 +467,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -520,7 +520,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationX:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -573,7 +573,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -4872,7 +4872,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 156d2f3f97f64924d96f63be1455380d, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5243,7 +5242,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -5296,7 +5295,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -5349,7 +5348,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationX:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -5402,7 +5401,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -9701,7 +9700,6 @@ ParticleSystemRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: c7a64a091e4e42942a19c09ef4a8bf2b, type: 2}
-  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9836,10 +9834,10 @@ MonoBehaviour:
   SpellStart: {fileID: 148916}
   SpellEnd: {fileID: 167066}
   Direction: {x: 0, y: 0, z: 0}
-  MaxDistance: 15
+  MaxDistance: 2
   CollisionIsExplosion: 0
-  CollisionRadius: 1
-  CollisionForce: 10
+  CollisionRadius: 0
+  CollisionForce: 0
   CollisionForceMode: 1
   CollisionParticleSystem: {fileID: 19870358}
   CollisionMask:
@@ -9852,7 +9850,7 @@ MonoBehaviour:
     Maximum: 0.6
   Duration: 0
   Cooldown: 0
-  EmissionSound: {fileID: 8204460}
+  EmissionSound: {fileID: 0}
   EmissionParticleSystem: {fileID: 19812354}
   EmissionLight: {fileID: 0}
   LightningPathScript: {fileID: 11454398}
@@ -9984,7 +9982,7 @@ MonoBehaviour:
     FadeFullyLitMultiplier: 1
     FadeOutMultiplier: 1
   MaximumLightsPerBatch: 1
-  ManualMode: 1
+  ManualMode: 0
   AutomaticModeSeconds: 0
   CustomTransformHandler:
     m_PersistentCalls:

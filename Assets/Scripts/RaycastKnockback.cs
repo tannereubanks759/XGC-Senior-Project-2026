@@ -66,13 +66,7 @@ public class RaycastKnockback : MonoBehaviour
             cam = Camera.main;
             if (cam == null) { Debug.LogWarning("RaycastKnockback: No Camera assigned."); return; }
         }
-        if (upgradedKnockback)
-        {
-            Quaternion baseRot = Quaternion.LookRotation(cam.transform.forward, Vector3.up);
-            Quaternion fxRot = baseRot * Quaternion.Euler(offset);
-            GameObject objToDelete = Instantiate(fxObject, fxSpawnPoint.transform.position, fxRot);
-            Destroy(objToDelete, 2f);
-        }
+        
             
         Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
         if (Physics.Raycast(ray, out RaycastHit hit, maxDistance, hittableLayers, QueryTriggerInteraction.Ignore))
@@ -83,6 +77,10 @@ public class RaycastKnockback : MonoBehaviour
             if (upgradedKnockback)
             {
                 var health = hit.collider.GetComponentInParent<BaseEnemyAI>();
+                Quaternion baseRot = Quaternion.LookRotation(cam.transform.forward, Vector3.up);
+                Quaternion fxRot = baseRot * Quaternion.Euler(offset);
+                GameObject objToDelete = Instantiate(fxObject, fxSpawnPoint.transform.position, fxRot, fxSpawnPoint.transform);
+                Destroy(objToDelete, .15f);
                 health.TakeDamage(knockBackDamage);
             }
 
