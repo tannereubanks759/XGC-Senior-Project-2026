@@ -70,8 +70,13 @@ public class CombatController : MonoBehaviour
     public int AmountOfAttacks = 4;
     private int CachedAttack;
     public GameObject crosshair;
+    public GameObject player;
+    private swordDamageDeterminer sd;
     void Start()
     {
+        player = GameObject.FindGameObjectWithTag("Player");
+        sd = player.GetComponent<swordDamageDeterminer>();
+        
         crosshair.SetActive(false);
         CachedAttack = Random.Range(1, AmountOfAttacks + 1);
         //rb.linearDamping = 0f; // tiny values like 0.02 are fine too
@@ -242,7 +247,21 @@ public class CombatController : MonoBehaviour
         }
         
 
-        
+        if(health<=20)
+        {
+            if(sd.bonusDamage)
+            {
+                sd.damage = 20;
+            }
+            else
+            {
+                sd.damage = 10;
+            }
+        }
+        else
+        {
+            sd.damage = 10;
+        }
 
         if(health <= 0)
         {
