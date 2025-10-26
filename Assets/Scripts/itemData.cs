@@ -9,6 +9,7 @@ public class ItemData : ScriptableObject
     public string type;
     public string artifactDesciption;
     public int price;
+    public bool isRare;
     //public bool isActive;
 
     public virtual void OnEquip(GameObject player)
