@@ -505,7 +505,10 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 }
                 else
                 {
-                    TransitionToState(EnemyState.Hit);
+                    //TransitionToState(EnemyState.Hit);
+
+                    Animator.SetLayerWeight(1, 1f);
+                    SetResetTriggers("HitLayer");
                 }
             }
         }
@@ -607,6 +610,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 TakeDamage(damage);
             }
         }
+    }
+
+    public void EndHitAnim()
+    {
+        Animator.SetLayerWeight(1, 0f);
     }
     #endregion
 
