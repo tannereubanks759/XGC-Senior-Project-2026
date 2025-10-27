@@ -25,7 +25,7 @@ public class WeaponsManager : MonoBehaviour
         EnableCrosshair(false);
         lamp.SetActive(false);
     }
-
+    //
     // Update is called once per frame
     void Update()
     {
@@ -73,15 +73,19 @@ public class WeaponsManager : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.Alpha0))
             {
-                if (lamp.activeSelf)
-                {
-                    lamp.SetActive(false);
-                }
-                else
-                {
-                    lamp.SetActive(true);
-                }
+                swapLantern();      
             }
+        }
+    }
+    public void swapLantern()
+    {
+        if (lamp.activeSelf)
+        {
+            lamp.SetActive(false);
+        }
+        else
+        {
+            lamp.SetActive(true);
         }
     }
     public void SetHealing(bool heal)

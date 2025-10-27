@@ -97,9 +97,10 @@ GameObject:
   - component: {fileID: 4532300887074143127}
   - component: {fileID: 8700928150302051558}
   - component: {fileID: 9220087965060300104}
+  - component: {fileID: 4704908381500064190}
   m_Layer: 0
   m_Name: TAI_Lamp_02A
-  m_TagString: Untagged
+  m_TagString: Artifact
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -123,6 +124,7 @@ Transform:
   - {fileID: 3973712193520211627}
   - {fileID: 820996096733387442}
   - {fileID: 1230212996332392325}
+  - {fileID: 9020970237748555075}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!205 &8700928150302051558
@@ -179,6 +181,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.35, y: 0.6584244, z: 0.35}
   m_Center: {x: 0, y: 0.3292122, z: 0}
+--- !u!114 &4704908381500064190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3868072046874173741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3735d304210a7504c8772b2b4714c33c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemData: {fileID: 11400000, guid: 89e7e31a135c7e74395ad51f7d35f56c, type: 2}
 --- !u!1 &4930609002891572164
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,6 +585,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TAI_Fire_Quad_01B
       objectReference: {fileID: 0}
+    - target: {fileID: 1396586953909646260, guid: 9fa9c6f87d68c564da3cc0a19eaf535f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1573885568265958215, guid: 9fa9c6f87d68c564da3cc0a19eaf535f, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.9401809
@@ -631,4 +650,66 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 1573885568265958215, guid: 9fa9c6f87d68c564da3cc0a19eaf535f, type: 3}
   m_PrefabInstance: {fileID: 2212203154154301941}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &4855583158705057898
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4532300887074143127}
+    m_Modifications:
+    - target: {fileID: 4099594458289790426, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_Name
+      value: TAI_Fire_Quad_01A
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.508
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+--- !u!4 &9020970237748555075 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4490814003410656553, guid: 0bd33c610a0912f4488f23bf0c24209b, type: 3}
+  m_PrefabInstance: {fileID: 4855583158705057898}
   m_PrefabAsset: {fileID: 0}

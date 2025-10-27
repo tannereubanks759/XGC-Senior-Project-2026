@@ -604,10 +604,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
                     }
 
                 }
+                var lantern = FindFirstObjectByType<chargeOffHandLatern>();
+                lantern.hitRegistered();
             }
             else
             {
                 TakeDamage(damage);
+                var lantern = FindFirstObjectByType<chargeOffHandLatern>();
+                lantern.hitRegistered();
             }
         }
     }

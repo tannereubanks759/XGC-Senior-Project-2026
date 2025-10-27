@@ -2229,6 +2229,7 @@ MonoBehaviour:
   blinkMinAlpha: 0.25
   blinkMaxAlpha: 1
   blinkFrequency: 1.5
+  blockEffectiveness: 50
   damageFadeTime: 0.6
   isStaggered: 0
   staggerUpwardBoost: 1
@@ -2257,6 +2258,7 @@ GameObject:
   - component: {fileID: 8539350563619556498}
   - component: {fileID: 8329541187511738591}
   - component: {fileID: 4298105130201558956}
+  - component: {fileID: 2174788210189082112}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -2740,6 +2742,19 @@ MonoBehaviour:
   upAngleDeg: 40
   returnYankMultiplier: 2.5
   extraLockOnYank: 0.1
+--- !u!114 &2174788210189082112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428402459396883477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 802c2a154398391448ac9e8e60c13d54, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WeaponsManager: {fileID: 0}
 --- !u!1 &6477989230758600513
 GameObject:
   m_ObjectHideFlags: 0
@@ -4481,6 +4496,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4532300887074143127, guid: 618357c48bd79114ea395019610c2eee, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5975698345509858974, guid: 618357c48bd79114ea395019610c2eee, type: 3}
+      propertyPath: m_Convex
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5975698345509858974, guid: 618357c48bd79114ea395019610c2eee, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
