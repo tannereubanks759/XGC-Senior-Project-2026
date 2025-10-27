@@ -91,11 +91,20 @@ public class UI : MonoBehaviour
 
     public void LoadScene(string name)
     {
-        SceneManager.LoadScene(name);
+        if(name != "MainMenu")
+        {
+            SceneManager.LoadScene(name);
+        }
+        else
+        {
+            Destroy(this.GetComponentInParent<FirstPersonController>().gameObject);
+            SceneManager.LoadScene(name);
+        }
+        
     }
     public void RestartScene()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        LoadScene(SceneManager.GetActiveScene().name);
     }
 
 }

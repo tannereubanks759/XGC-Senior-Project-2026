@@ -13,8 +13,9 @@ public class MainMenu : MonoBehaviour
         Time.timeScale = 1f;
         EnableCursor(true);
         loadingScreen.SetActive(false);
+        
     }
-
+    
     void EnableCursor(bool enabled)
     {
         if (enabled)
