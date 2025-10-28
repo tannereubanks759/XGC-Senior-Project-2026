@@ -576,6 +576,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
             int damage = sd.damage;
             if (sd.isLighting)
             {
+                Destroy(Instantiate(other.GetComponentInParent<DodgeDash>().boneChips, other.ClosestPoint(this.transform.position), Quaternion.identity), 3);
                 TakeDamage(damage);
                 //float radius = 10f;
                 float damageMultiplier = 0.5f;
@@ -609,6 +610,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
             }
             else
             {
+                Destroy(Instantiate(other.GetComponentInParent<DodgeDash>().boneChips, other.ClosestPoint(this.transform.position), Quaternion.identity), 3);
                 TakeDamage(damage);
                 var lantern = FindFirstObjectByType<chargeOffHandLatern>();
                 lantern.hitRegistered();
