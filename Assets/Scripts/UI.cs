@@ -91,7 +91,7 @@ public class UI : MonoBehaviour
 
     public void LoadScene(string name)
     {
-        if(name != "MainMenu")
+        if(name != "MainMenu" && name != SceneManager.GetActiveScene().name)
         {
             SceneManager.LoadScene(name);
         }
