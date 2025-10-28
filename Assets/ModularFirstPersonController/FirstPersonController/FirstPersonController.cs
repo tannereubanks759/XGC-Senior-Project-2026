@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
+
 
 
 #if UNITY_EDITOR
@@ -237,6 +239,7 @@ public class FirstPersonController : MonoBehaviour
 
     private void Awake()
     {
+        SceneManager.sceneLoaded += SceneLoaded;
         rb = GetComponent<Rigidbody>();
         loadingScreen.SetActive(false);
         crosshairObject = GetComponentInChildren<Image>();
@@ -261,9 +264,13 @@ public class FirstPersonController : MonoBehaviour
         }
 
     }
-    private void OnLevelWasLoaded(int level)
+    private void SceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        loadingScreen.SetActive(false);
+        if(this.gameObject != null)
+        {
+            loadingScreen.SetActive(false);
+        }
+        
     }
     void Start()
     {
@@ -334,6 +341,8 @@ public class FirstPersonController : MonoBehaviour
 
     private void Update()
     {
+        
+        
         #region Camera
         if (isPaused) return;
         // Control camera movement
@@ -965,7 +974,10 @@ public class FirstPersonController : MonoBehaviour
 
 
 
-
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= SceneLoaded;
+    }
     /// <summary>
     /// Tracks airborne state and applies fall damage the frame we transition to grounded.
     /// Uses vertical distance from the highest point since leaving ground.
