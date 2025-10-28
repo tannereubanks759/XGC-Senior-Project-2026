@@ -795,6 +795,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100016, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       insertIndex: -1
       addedObject: {fileID: 699287109260944163}
+    - targetCorrespondingSourceObject: {fileID: 100016, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8329191275135825814}
   m_SourcePrefab: {fileID: 100100000, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
 --- !u!4 &2855602832368862832 stripped
 Transform:
@@ -1251,6 +1254,83 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 6b0528d1537e88544b3e483676835f5f, type: 3}
   - {fileID: 2800000, guid: aed711706c94ea94081c8d15407829b3, type: 3}
   - {fileID: 2800000, guid: 3b0069915ea374c4d9b652a92a1b9bad, type: 3}
+--- !u!114 &8329191275135825814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2855602832369097642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f5e79b13bbb1d74e8a4fe76b5c902d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  onDemolition: 1
+  onActivation: 0
+  onImpact: 1
+  opacity: 0.25
+  dustMaterial: {fileID: 2100000, guid: 4e968ed639b0f194fa6e1e19e721b4a7, type: 2}
+  dustMaterials:
+  - {fileID: 2100000, guid: 4e968ed639b0f194fa6e1e19e721b4a7, type: 2}
+  - {fileID: 2100000, guid: 766f926b1c8bc954d88b7428f6d4a280, type: 2}
+  - {fileID: 2100000, guid: 4a40f952e235d5d44b5f644bc9301567, type: 2}
+  emissionMaterial: {fileID: 0}
+  pool:
+    id: 0
+    enable: 0
+    warmup: 1
+    cap: 10
+    rate: 1
+    skip: 0
+    reuse: 1
+    over: 5
+  emission:
+    burstType: 2
+    burstAmount: 10
+    burstVar: 5
+    distanceRate: 1
+    duration: 4
+    lifeMin: 1
+    lifeMax: 3
+    sizeMin: 0.5
+    sizeMax: 2.5
+    rotation: 360
+  dynamic:
+    speedMin: 0.5
+    speedMax: 1
+    rotation: 0.5
+    gravityMin: 0.01
+    gravityMax: 0.6
+  noise:
+    enabled: 0
+    quality: 2
+    strengthMin: 0.3
+    strengthMax: 0.6
+    frequency: 0.3
+    scrollSpeed: 0.7
+    damping: 1
+  collision:
+    collidesWith:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    quality: 0
+    radiusScale: 1
+  limitations:
+    minParticles: 3
+    maxParticles: 20
+    visible: 0
+    percentage: 80
+    sizeThreshold: 0.2
+  rendering:
+    castShadows: 1
+    receiveShadows: 1
+    motionVectors: 1
+    lightProbes: 0
+    l: 0
+    layer: 0
+    t: 0
+    tag: 
 --- !u!1 &2855602832369097644 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100022, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
