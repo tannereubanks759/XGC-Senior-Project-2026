@@ -2862,7 +2862,7 @@ Transform:
   m_GameObject: {fileID: 6571996813643557488}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.033, y: 0.268, z: -0}
+  m_LocalPosition: {x: -0.074, y: 0.428, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3871,6 +3871,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1527060686931502706, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527060686931502706, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527060686931502706, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527060686931502706, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1593321826870437394, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4107,6 +4123,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6234454944411048177, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6234454944411048177, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6234454944411048177, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6234454944411048177, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6303753729595371608, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_LocalRotation.w
       value: -0.7071068
@@ -4279,6 +4311,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9058137779907105884, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9058137779907105884, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9058137779907105884, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -4333,10 +4377,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: LightningMeshSurfacePrefab
       objectReference: {fileID: 0}
-    - target: {fileID: 132508, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 417948, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -4378,77 +4418,9 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: Spline
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
       propertyPath: MeshFilter
       value: 
       objectReference: {fileID: 9190579263966314903}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: Turbulence
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: ChaosFactor
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: ChaosFactorForks
-      value: 0.03
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: JitterMultiplier
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: DelayRange.Maximum
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: DelayRange.Minimum
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: MaximumPathDistance
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: IntervalRange.Maximum
-      value: 0.4
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: IntervalRange.Minimum
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: MeshOffsetRange.Maximum
-      value: 0.006
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: MeshOffsetRange.Minimum
-      value: 0.002
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: PathLengthCount.Maximum
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: TrunkWidthRange.Maximum
-      value: 0.012
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: TrunkWidthRange.Minimum
-      value: 0.005
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: MinimumPathDistanceRange.Maximum
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 11401034, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
-      propertyPath: MinimumPathDistanceRange.Minimum
-      value: 0.08
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

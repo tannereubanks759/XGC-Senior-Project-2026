@@ -1,0 +1,11 @@
+- This font is already FULL VERSION and free for PERSONAL and COMMERCIAL USE
+
+- Any donations are very appreciated. Paypal account for donation: paypal.me/hermansyah
+
+Please visit our store for more amazing fonts :
+https://getstud.io/
+https://www.creativefabrica.com/designer/getstudio/ref/235978/
+
+Follow our Instagram for update: @get_studio
+
+Thank you.

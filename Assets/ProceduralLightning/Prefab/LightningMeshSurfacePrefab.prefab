@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &417948
 Transform:
   m_ObjectHideFlags: 0
@@ -71,33 +71,33 @@ MonoBehaviour:
   SourceBlendModeGlow: 5
   DestinationBlendModeGlow: 1
   JitterMultiplier: 0
-  Turbulence: 0
+  Turbulence: 0.15
   TurbulenceVelocity: {x: 0, y: 0, z: 0}
   IntensityFlicker: {x: 0, y: 0}
   IntervalRange:
-    Minimum: 0.05
-    Maximum: 0.1
+    Minimum: 0.25
+    Maximum: 0.4
   CountRange:
     Minimum: 1
     Maximum: 1
   CountProbabilityModifier: 1
   DelayRange:
-    Minimum: 0.02
-    Maximum: 0.04
+    Minimum: 0
+    Maximum: 0
   DurationRange:
     Minimum: 0.15
     Maximum: 0.3
   TrunkWidthRange:
-    Minimum: 0.01
-    Maximum: 0.02
+    Minimum: 0.005
+    Maximum: 0.012
   LifeTime: 0
   Generations: 2
-  ChaosFactor: 0.2
-  ChaosFactorForks: 0.095
-  Intensity: 1
-  GlowIntensity: 0.71
+  ChaosFactor: 0.1
+  ChaosFactorForks: 0.03
+  Intensity: 5
+  GlowIntensity: 1
   GlowWidthMultiplier: 1.4
-  FadePercent: 0.4
+  FadePercent: 0.15
   FadeInMultiplier: 1
   FadeFullyLitMultiplier: 1
   FadeOutMultiplier: 1
@@ -134,14 +134,14 @@ MonoBehaviour:
       m_Calls: []
   MeshFilter: {fileID: 0}
   MeshOffsetRange:
-    Minimum: 0.05
-    Maximum: 0.1
+    Minimum: 0.002
+    Maximum: 0.006
   PathLengthCount:
     Minimum: 3
-    Maximum: 16
+    Maximum: 5
   MinimumPathDistanceRange:
-    Minimum: 0.1
-    Maximum: 0.4
-  MaximumPathDistance: 2
-  Spline: 1
+    Minimum: 0.08
+    Maximum: 0.2
+  MaximumPathDistance: 0.6
+  Spline: 0
   DistancePerSegmentHint: 0.15
