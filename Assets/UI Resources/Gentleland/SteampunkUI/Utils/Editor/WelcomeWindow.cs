@@ -1,4 +1,6 @@
+#if UNITY_EDITOR
 using UnityEditor;
+
 using UnityEngine;
 
 // if you want to delete this file delete all Gentleland "Utils" folder 
@@ -96,3 +98,4 @@ CEO - Gentleland"
 
     }
 }
+#endif
