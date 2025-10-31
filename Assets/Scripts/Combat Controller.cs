@@ -73,8 +73,12 @@ public class CombatController : MonoBehaviour
     public GameObject crosshair;
     public GameObject player;
     private swordDamageDeterminer sd;
+
+    [Header("Sounds")]
+    private SwordSounds swordSoundScript;
     void Start()
     {
+        swordSoundScript = GetComponentInChildren<SwordSounds>();
         player = GameObject.FindGameObjectWithTag("Player");
         sd = player.GetComponent<swordDamageDeterminer>();
         
@@ -302,6 +306,7 @@ public class CombatController : MonoBehaviour
         }
         else
         {
+            swordSoundScript.PlayClashSound();
             wInertia.ParryClash(1);
         }
     }
@@ -332,6 +337,7 @@ public class CombatController : MonoBehaviour
         }
         else
         {
+            swordSoundScript.PlayClashSound();
             wInertia.ParryClash(1);
         }
     }
@@ -382,6 +388,7 @@ public class CombatController : MonoBehaviour
             if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
             hurtFX?.Pulse(severity);
             shake.Shake(1);
+            swordSoundScript.PlayClashSound();
             wInertia.ParryClash(1);
         }
     }

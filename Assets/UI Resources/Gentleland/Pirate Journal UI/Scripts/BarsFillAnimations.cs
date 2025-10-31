@@ -11,7 +11,7 @@ public class BarsFillAnimations : MonoBehaviour
 
     private void Start()
     {
-        sliders = FindObjectsOfType<Slider>();
+        sliders = FindObjectsByType<Slider>(FindObjectsSortMode.None);
         shifts = new float[sliders.Length];
         fillTimeInSeconds = new float[sliders.Length];
         for (int i = 0; i < sliders.Length; i++)
