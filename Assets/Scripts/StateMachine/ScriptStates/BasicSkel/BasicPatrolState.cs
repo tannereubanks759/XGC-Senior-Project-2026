@@ -88,7 +88,7 @@ public class BasicPatrolState : BaseState<EnemyState>
             float distance = _enemy.Agent.remainingDistance - .875f;
             
             // The radius in which the enemy will begin to slow down
-            float slowDownRadius = 2.5f;
+            float slowDownRadius = 2.75f;
 
             // Normalized slowdown factor (0-1)
             float distanceFactor = Mathf.Clamp01(distance / slowDownRadius);

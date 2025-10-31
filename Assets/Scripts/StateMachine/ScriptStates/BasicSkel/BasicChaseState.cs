@@ -3,12 +3,10 @@ using UnityEngine;
 public class BasicChaseState : BaseState<EnemyState>
 {
     private BaseEnemyAI _enemy;
-    private BasicSkeleton _skeleton;
 
-    public BasicChaseState(EnemyState key, BaseEnemyAI enemy, BasicSkeleton skeleton) : base(key)
+    public BasicChaseState(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
         _enemy = enemy;
-        _skeleton = skeleton;
     }
 
     public override void EnterState()
