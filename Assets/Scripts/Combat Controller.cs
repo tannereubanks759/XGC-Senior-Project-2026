@@ -25,6 +25,8 @@ public class CombatController : MonoBehaviour
     public Slider healthSlider;
     public HurtPostFXURP hurtFX;
     public CameraShake shake;
+    public AudioSource audioSource;
+    public AudioClip[] hurtClips;
 
     // Smooth UI health (eases toward 'health')
     private float displayedHealth;          // what the slider shows
@@ -291,8 +293,9 @@ public class CombatController : MonoBehaviour
     }
     public void TakeDamage(int damage)
     {
-        if(blocking == false)
+        if (blocking == false)
         {
+            audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
             //health = Mathf.Max(health - damage, 0);
             lastDamageTime = Time.time;   // reset regen cooldown
             regenAccumulator = 0f;        // reset regen tick build-up
@@ -324,6 +327,7 @@ public class CombatController : MonoBehaviour
     {
         if(blocking == false)
         {
+            audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
             //health = Mathf.Max(health - damage, 0);
             lastDamageTime = Time.time;   // reset regen cooldown
             regenAccumulator = 0f;        // reset regen tick build-up
@@ -353,6 +357,7 @@ public class CombatController : MonoBehaviour
     }
     public void TakeDamageByBoss(int damage)
     {
+        audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
         if (blocking == false)
         {
             //health = Mathf.Max(health - damage, 0);
