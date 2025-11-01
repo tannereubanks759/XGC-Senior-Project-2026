@@ -11,6 +11,10 @@ public class HealthPotion : MonoBehaviour
     private CombatController healthController;
     private Animator anim;
     private WeaponsManager weaponsManager;
+    public AudioSource source;
+    public AudioClip collectPotion;
+    public AudioClip drinkPotion;
+    public AudioClip corkPop;
     void Start()
     {
         anim = FindAnyObjectByType<HealthPotionAnimEvents>().GetComponent<Animator>();
@@ -45,6 +49,7 @@ public class HealthPotion : MonoBehaviour
                     {
                         weaponsManager.SetHealing(true);
                     }
+                    source.PlayOneShot(corkPop);
                     anim.SetTrigger("Drink");
                 }
                 else //if no health controllers exist in the scene
@@ -60,12 +65,14 @@ public class HealthPotion : MonoBehaviour
     }
     public void CollectHealthPotion()
     {
+        source.PlayOneShot(collectPotion);
         SetQuantity(Quantity += 1); //Add one health potion
         SetText(GetQuantity().ToString()); //update the UI
     }
 
     public void ConsumeHealthPotion()
     {
+        source.PlayOneShot(drinkPotion);
         if(weaponsManager == null)
         {
             weaponsManager = FindAnyObjectByType<WeaponsManager>();
