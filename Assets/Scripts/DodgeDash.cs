@@ -27,7 +27,6 @@ public class DodgeDash : MonoBehaviour
     public bool lockForFullBurst = true;
     [Tooltip("If true, clears horizontal velocity before applying the burst so the dodge has consistent speed.")]
     public bool zeroHorizontalBeforeBurst = true;
-    public GameObject boneChips;
 
     private Coroutine lockRoutine;
     private Coroutine burstRoutine;

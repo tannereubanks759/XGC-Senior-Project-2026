@@ -9,6 +9,7 @@ public class GunSounds : MonoBehaviour
     public AudioClip AimSound;
     public AudioClip clickSound;
     public AudioClip equipSound;
+    public AudioClip collectAmmoSound;
     public void PlayShootSound()
     {
         PlaySound(shootSound);
@@ -37,5 +38,10 @@ public class GunSounds : MonoBehaviour
     public void PlayEquipSound()
     {
         PlaySound(equipSound);
+    }
+
+    public void PlayCollectAmmoSound()
+    {
+        PlaySound(collectAmmoSound);
     }
 }

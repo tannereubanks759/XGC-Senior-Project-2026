@@ -1747,6 +1747,7 @@ MonoBehaviour:
   AimSound: {fileID: 8300000, guid: 881903fd3bca3b946bce10d5bd322225, type: 3}
   clickSound: {fileID: 8300000, guid: 03a633a5a7df4544bb33184f89b2913b, type: 3}
   equipSound: {fileID: 8300000, guid: f191484b0da06264abf39bf7b4826d61, type: 3}
+  collectAmmoSound: {fileID: 8300000, guid: 11e48a3b0c0af7b44aa7f1b7396eb364, type: 3}
 --- !u!1 &5641870728450996532
 GameObject:
   m_ObjectHideFlags: 0
@@ -3244,7 +3245,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   lockForFullBurst: 1
   zeroHorizontalBeforeBurst: 1
-  boneChips: {fileID: 6482988337023351770, guid: 8f590b1a747989f4dad7c2c470bcad3b, type: 3}
   isDodging: 0
 --- !u!114 &5230912486499667837
 MonoBehaviour:
@@ -3497,6 +3497,7 @@ GameObject:
   - component: {fileID: 9190579263966314903}
   - component: {fileID: 6372272836626282012}
   - component: {fileID: 3651523959833766474}
+  - component: {fileID: 4603577665270097772}
   - component: {fileID: 414781114502182563}
   m_Layer: 16
   m_Name: Pirate_sword_optimized
@@ -3597,6 +3598,25 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.16343932, y: 0.6593732, z: 0.088371545}
   m_Center: {x: -0.0000029726766, y: 0.10229473, z: 0.0000004819491}
+--- !u!114 &4603577665270097772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7880519312847440154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ba8fddccff59264f8dc88b61eaa2d8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  source: {fileID: 8524340187920834651}
+  hitSkeleton:
+  - {fileID: 8300000, guid: 679e994c5e1555e45988d4b449da35db, type: 3}
+  - {fileID: 8300000, guid: 95dbad9643bc5944c91c405da0bba8ea, type: 3}
+  - {fileID: 8300000, guid: e0fbb201db705c847b06838a1513ca6a, type: 3}
+  - {fileID: 8300000, guid: 77ecc66f169eefd48819dbe835a044e4, type: 3}
+  boneChips: {fileID: 6482988337023351770, guid: 8f590b1a747989f4dad7c2c470bcad3b, type: 3}
 --- !u!54 &414781114502182563
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -69,6 +69,7 @@ public class Blunderbuss : MonoBehaviour
     }
     public void AddAmmo(int amount)
     {
+        sounds.PlayCollectAmmoSound();
         totalAmmo += amount;
         anim.SetInteger("ammo", totalAmmo);
         if (ammoText != null)
