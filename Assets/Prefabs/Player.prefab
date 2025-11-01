@@ -1655,6 +1655,7 @@ GameObject:
   - component: {fileID: 6477666516781027436}
   - component: {fileID: 7898634754509010974}
   - component: {fileID: 1359402192895646864}
+  - component: {fileID: 1818580360353405784}
   m_Layer: 0
   m_Name: Gun Parent
   m_TagString: Untagged
@@ -1705,6 +1706,7 @@ MonoBehaviour:
   PelletHitEffect: {fileID: 7702016645961028260, guid: fb84710ed3eb1234d88246f99637d655, type: 3}
   MuzzleFlashParticle: {fileID: 2433334877477487246, guid: b7ef2de922497df41af7ef8763d87681, type: 3}
   fxPool: {fileID: 0}
+  sounds: {fileID: 1818580360353405784}
 --- !u!95 &1359402192895646864
 Animator:
   serializedVersion: 7
@@ -1727,6 +1729,24 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1818580360353405784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5484108582164116026}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a470dfe0562cef345b78fa5cdf7c9d13, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gunSource: {fileID: 8524340187920834651}
+  shootSound: {fileID: 8300000, guid: ea73c6b4b463ae44289614f5736d8162, type: 3}
+  packGunpowederSound: {fileID: 8300000, guid: c9f1770e15f311644bf348360c17ed0b, type: 3}
+  AimSound: {fileID: 8300000, guid: 881903fd3bca3b946bce10d5bd322225, type: 3}
+  clickSound: {fileID: 8300000, guid: 03a633a5a7df4544bb33184f89b2913b, type: 3}
+  equipSound: {fileID: 8300000, guid: f191484b0da06264abf39bf7b4826d61, type: 3}
 --- !u!1 &5641870728450996532
 GameObject:
   m_ObjectHideFlags: 0

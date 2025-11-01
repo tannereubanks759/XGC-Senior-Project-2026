@@ -22,7 +22,7 @@ public class Blunderbuss : MonoBehaviour
     public FXPool fxPool; // <-- assign in Inspector
     private TextMeshProUGUI ammoText;
     private WeaponInertia wIntertia;
-
+    public GunSounds sounds;
     void Start()
     {
         ammoText = GameObject.FindGameObjectWithTag("ammoText").GetComponent<TextMeshProUGUI>();
@@ -41,6 +41,11 @@ public class Blunderbuss : MonoBehaviour
 
     private void OnEnable()
     {
+        if(Time.timeSinceLevelLoad > 1)
+        {
+            sounds.PlayEquipSound();
+        }
+        
         anim.SetInteger("ammo", totalAmmo);
         if (isLoaded) anim.SetBool("canShoot", true);
     }
@@ -50,6 +55,10 @@ public class Blunderbuss : MonoBehaviour
 
         if (Input.GetKeyDown(shootKey) && isLoaded && Inv.isOpen == false)
             anim.SetTrigger("Shoot");
+        else if (Input.GetKeyDown(shootKey) && Inv.isOpen == false)
+        {
+            sounds.PlayClickSound();
+        }
 
         if (Input.GetKeyDown(KeyCode.Alpha9))
         {
@@ -70,6 +79,11 @@ public class Blunderbuss : MonoBehaviour
     // Called by animation event
     void Shoot()
     {
+        if(totalAmmo > 0)
+        {
+            sounds.PlayShootSound();
+        }
+
         // Muzzle flash via pool (3s auto-return)
         if (fxPool && MuzzleFlashParticle)
             fxPool.Spawn(MuzzleFlashParticle, BulletPos.transform.position, BulletPos.transform.rotation, 3f);
