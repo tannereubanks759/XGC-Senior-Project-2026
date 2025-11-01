@@ -2254,6 +2254,7 @@ MonoBehaviour:
   lamp: {fileID: 1741374509052533481}
   healthPotion: {fileID: 6477989230758600513}
   healing: 0
+  isPaused: 0
 --- !u!114 &3629823473797291533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2368,6 +2369,9 @@ MonoBehaviour:
   AmountOfAttacks: 4
   crosshair: {fileID: 7525595337763482492}
   player: {fileID: 0}
+  soundSource: {fileID: 8524340187920834651}
+  dodgeClip: {fileID: 8300000, guid: a9a5e73bff45e04479ca3b162c809e5e, type: 3}
+  isPaused: 0
 --- !u!1 &6428402459396883477
 GameObject:
   m_ObjectHideFlags: 0
@@ -4137,6 +4141,7 @@ MonoBehaviour:
   equalPowerFade: 1
   masterVolume: 0.25
   disableIfNoClips: 0
+  paused: 0
 --- !u!1001 &1609146371620435225
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4361,6 +4366,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4034809813528378397, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: wm
+      value: 
+      objectReference: {fileID: 7945717937085838674}
+    - target: {fileID: 4034809813528378397, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: amb
+      value: 
+      objectReference: {fileID: 4005951020069433729}
+    - target: {fileID: 4034809813528378397, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+      propertyPath: combatController
+      value: 
+      objectReference: {fileID: 6230349697370413922}
     - target: {fileID: 4164409346251536612, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0

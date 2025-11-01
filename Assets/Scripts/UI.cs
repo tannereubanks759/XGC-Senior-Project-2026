@@ -13,6 +13,8 @@ public class UI : MonoBehaviour
     public GameObject playerUI;
     public Camera SceneCamera;
     public Ambience amb;
+    public CombatController combatController;
+    public WeaponsManager wm;
     void Start()
     {
         Resume();
@@ -50,6 +52,9 @@ public class UI : MonoBehaviour
 
     void Pause()
     {
+        wm.isPaused = true;
+        amb.paused = true;
+        combatController.isPaused = true;
         FirstPersonController.isPaused = true;
         PauseScreen.SetActive(true);
         isPaused = true;
@@ -59,6 +64,9 @@ public class UI : MonoBehaviour
 
     public void Resume()
     {
+        wm.isPaused = false;
+        amb.paused = false;
+        combatController.isPaused = false;
         FirstPersonController.isPaused = false;
         PauseScreen.SetActive(false);
         isPaused = false;

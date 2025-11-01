@@ -14,10 +14,11 @@ public class WeaponsManager : MonoBehaviour
     public GameObject lamp;
     public GameObject healthPotion;
     public bool healing = false;
-
+    public bool isPaused;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        isPaused = false;
         weaponIcons = GameObject.FindGameObjectsWithTag("WeaponIcon");
         //Array.Reverse(weaponIcons);
         InitializeWeapons();
@@ -29,6 +30,8 @@ public class WeaponsManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isPaused) return;
+
         if(healing == false)
         {
             float scroll = Input.GetAxis("Mouse ScrollWheel");

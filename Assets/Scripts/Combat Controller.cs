@@ -76,8 +76,14 @@ public class CombatController : MonoBehaviour
 
     [Header("Sounds")]
     private SwordSounds swordSoundScript;
+    public AudioSource soundSource;
+    public AudioClip dodgeClip;
+
+    public bool isPaused;
+
     void Start()
     {
+        isPaused = false;
         swordSoundScript = GetComponentInChildren<SwordSounds>();
         player = GameObject.FindGameObjectWithTag("Player");
         sd = player.GetComponent<swordDamageDeterminer>();
@@ -137,7 +143,7 @@ public class CombatController : MonoBehaviour
 
     void Update()
     {
-        if (FirstPersonController.isPaused) return;
+        if (FirstPersonController.isPaused || isPaused) return;
 
         if (Input.GetKeyDown(KeyCode.O)) 
         {
@@ -246,6 +252,10 @@ public class CombatController : MonoBehaviour
 
             if (blocking && !swinging && Input.GetKeyDown(dodge))
             {
+                if(soundSource != null && dodgeClip != null)
+                {
+                    soundSource.PlayOneShot(dodgeClip);
+                }
                 Vector3 direction = rb.linearVelocity.normalized;
                 dodgeScript.Dodge(direction);
             }
