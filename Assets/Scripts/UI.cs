@@ -12,6 +12,7 @@ public class UI : MonoBehaviour
     public GameObject DeathScreen;
     public GameObject playerUI;
     public Camera SceneCamera;
+    public Ambience amb;
     void Start()
     {
         Resume();
