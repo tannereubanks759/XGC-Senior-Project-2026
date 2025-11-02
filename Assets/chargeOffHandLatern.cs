@@ -16,7 +16,7 @@ public class chargeOffHandLatern : MonoBehaviour
     public Color inactiveColor = Color.red;
     public Color activeColor = Color.green;
     public float damageRadius = 5f;
-    public int explosionDamage = 40;
+    public int explosionDamage = 20;
     
     private void UpdateSphereColors()
     {
@@ -46,9 +46,10 @@ public class chargeOffHandLatern : MonoBehaviour
         Collider[] closeEnemies = Physics.OverlapSphere(transform.position, damageRadius, ~0, QueryTriggerInteraction.Ignore);
         foreach (Collider col in closeEnemies)
         {
-            Debug.Log(col);
+            
             if (col.CompareTag("Enemy") && col.transform != this.transform)
             {
+                Debug.Log(col);
                 var enemyTestScript = col.GetComponent<BasicSkeleton>();
                 if (enemyTestScript.currentHealth > 0)
                 {
