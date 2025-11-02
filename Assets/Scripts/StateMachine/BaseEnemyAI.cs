@@ -181,7 +181,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
               if (currentHealth > 0)
               {
                   TakeDamage(burnTickDamage);
-                  Debug.Log("burn damage current hp = " + currentHealth);
+                  //Debug.Log("burn damage current hp = " + currentHealth);
 
               }
 
