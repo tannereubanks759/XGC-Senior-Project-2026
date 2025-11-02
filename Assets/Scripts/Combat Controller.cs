@@ -82,7 +82,7 @@ public class CombatController : MonoBehaviour
     public AudioClip dodgeClip;
 
     public bool isPaused;
-
+    public bool invulnerability = false;
     void Start()
     {
         isPaused = false;
@@ -295,27 +295,33 @@ public class CombatController : MonoBehaviour
     {
         if (blocking == false)
         {
-            audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
-            //health = Mathf.Max(health - damage, 0);
-            lastDamageTime = Time.time;   // reset regen cooldown
-            regenAccumulator = 0f;        // reset regen tick build-up
+            if(invulnerability==false)
+            {
+                audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
+                //health = Mathf.Max(health - damage, 0);
+                lastDamageTime = Time.time;   // reset regen cooldown
+                regenAccumulator = 0f;        // reset regen tick build-up
 
-            // Kick off damage flash
-            damageAlpha = 1f;             // fully visible red
-            damageAlphaVel = 0f;          // reset ease
-            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
-            if (actuallyApplied <= 0) return;
+                // Kick off damage flash
+                damageAlpha = 1f;             // fully visible red
+                damageAlphaVel = 0f;          // reset ease
+                int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+                if (actuallyApplied <= 0) return;
 
-            int old = health;
-            health = Mathf.Max(0, health - actuallyApplied);
+                int old = health;
+                health = Mathf.Max(0, health - actuallyApplied);
 
-            // --- HURT FX: make sure this always runs when damage is applied ---
-            Mathf.Clamp(old, 0, maxHealth);
-            float severity = actuallyApplied / (float)old;   // FLOAT division!
-            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
-            hurtFX?.Pulse(severity);
-            shake.Shake(1);
-            
+                // --- HURT FX: make sure this always runs when damage is applied ---
+                Mathf.Clamp(old, 0, maxHealth);
+                float severity = actuallyApplied / (float)old;   // FLOAT division!
+                if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+                hurtFX?.Pulse(severity);
+                shake.Shake(1);
+            }
+            else
+            {
+                swordSoundScript.PlayClashSound();
+            }
         }
         else
         {
@@ -327,26 +333,34 @@ public class CombatController : MonoBehaviour
     {
         if(blocking == false)
         {
-            audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
-            //health = Mathf.Max(health - damage, 0);
-            lastDamageTime = Time.time;   // reset regen cooldown
-            regenAccumulator = 0f;        // reset regen tick build-up
+            if(invulnerability==false)
+            {
+                audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
+                //health = Mathf.Max(health - damage, 0);
+                lastDamageTime = Time.time;   // reset regen cooldown
+                regenAccumulator = 0f;        // reset regen tick build-up
 
-            // Kick off damage flash
-            damageAlpha = 1f;             // fully visible red
-            damageAlphaVel = 0f;          // reset ease
-            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
-            if (actuallyApplied <= 0) return;
+                // Kick off damage flash
+                damageAlpha = 1f;             // fully visible red
+                damageAlphaVel = 0f;          // reset ease
+                int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+                if (actuallyApplied <= 0) return;
 
-            int old = health;
-            health = Mathf.Max(0, health - actuallyApplied);
+                int old = health;
+                health = Mathf.Max(0, health - actuallyApplied);
 
-            // --- HURT FX: make sure this always runs when damage is applied ---
-            Mathf.Clamp(old, 0, maxHealth);
-            float severity = actuallyApplied / (float)old;   // FLOAT division!
-            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
-            hurtFX?.Pulse(severity);
-            shake.ShakeFromHit(Dir, 1);
+                // --- HURT FX: make sure this always runs when damage is applied ---
+                Mathf.Clamp(old, 0, maxHealth);
+                float severity = actuallyApplied / (float)old;   // FLOAT division!
+                if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+                hurtFX?.Pulse(severity);
+                shake.ShakeFromHit(Dir, 1);
+            }
+            else
+            {
+                swordSoundScript.PlayClashSound();
+            }
+            
             
         }
         else
@@ -360,25 +374,33 @@ public class CombatController : MonoBehaviour
         audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
         if (blocking == false)
         {
-            //health = Mathf.Max(health - damage, 0);
-            lastDamageTime = Time.time;   // reset regen cooldown
-            regenAccumulator = 0f;        // reset regen tick build-up
+            if(invulnerability==false) 
+            {
+                //health = Mathf.Max(health - damage, 0);
+                lastDamageTime = Time.time;   // reset regen cooldown
+                regenAccumulator = 0f;        // reset regen tick build-up
 
-            // Kick off damage flash
-            damageAlpha = 1f;             // fully visible red
-            damageAlphaVel = 0f;          // reset ease
-            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
-            if (actuallyApplied <= 0) return;
+                // Kick off damage flash
+                damageAlpha = 1f;             // fully visible red
+                damageAlphaVel = 0f;          // reset ease
+                int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+                if (actuallyApplied <= 0) return;
 
-            int old = health;
-            health = Mathf.Max(0, health - actuallyApplied);
+                int old = health;
+                health = Mathf.Max(0, health - actuallyApplied);
 
-            // --- HURT FX: make sure this always runs when damage is applied ---
-            Mathf.Clamp(old, 0, maxHealth);
-            float severity = actuallyApplied / (float)old;   // FLOAT division!
-            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
-            hurtFX?.Pulse(severity);
-            shake.Shake(1);
+                // --- HURT FX: make sure this always runs when damage is applied ---
+                Mathf.Clamp(old, 0, maxHealth);
+                float severity = actuallyApplied / (float)old;   // FLOAT division!
+                if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+                hurtFX?.Pulse(severity);
+                shake.Shake(1);
+            }
+            else
+            {
+                swordSoundScript.PlayClashSound();
+            }
+
 
         }
         else

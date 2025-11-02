@@ -18,9 +18,15 @@ public class chargeOffHandLatern : MonoBehaviour
     public float damageRadius = 5f;
     public int explosionDamage = 20;
     public int tickDamage;
-    private float fireTime;
+    public float invulnerabilityTime=5f;
     public float burnTime;
-    
+    public enum OffHandTypes
+    {
+        explosion, invulnerabilty
+    }
+    public OffHandTypes offHandType;
+    //private GameObject player;
+    private CombatController CombatController;
     private void UpdateSphereColors()
     {
         int hitsPerSphere = Mathf.CeilToInt((float)hitsToCharge / chargeSpheres.Count);
@@ -36,9 +42,24 @@ public class chargeOffHandLatern : MonoBehaviour
     void Start()
     {
         WeaponsManager = GetComponentInChildren<WeaponsManager>();
+        //player = GameObject.FindGameObjectWithTag("Player");
+        CombatController = GetComponentInChildren<CombatController>();
         UpdateSphereColors();
     }
-
+    IEnumerator invulnerableTime()
+    {
+        yield return new WaitForSeconds(invulnerabilityTime);
+        hitCount = 0;
+        CombatController.invulnerability = false;
+        UpdateSphereColors();
+    }
+    public void invulnerable()
+    {
+        CombatController.invulnerability = true;
+        Debug.Log("Invulnerable Active");
+        StartCoroutine(invulnerableTime());
+        Debug.Log("Invulnerable OFF");
+    }
     public void explode()
     {
         //Debug.Log("BOOM");
@@ -74,13 +95,21 @@ public class chargeOffHandLatern : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.K))
         {
-            explode();
+            invulnerable();
         }
     }
    
     public void activate()
     {
-        WeaponsManager.swapLantern();
+        if (offHandType == OffHandTypes.invulnerabilty)
+        {
+            WeaponsManager.invulnerabilitySwap();
+        }
+        else
+        {
+            WeaponsManager.swapLantern();
+        }
+        
         isActive = true;
         UpdateSphereColors();
     }
@@ -99,6 +128,7 @@ public class chargeOffHandLatern : MonoBehaviour
     }
     public void hitRegistered()
     {
+        
         if (!isActive) return;
         if (decayCorutine != null)
         {
@@ -109,7 +139,15 @@ public class chargeOffHandLatern : MonoBehaviour
         UpdateSphereColors();
         if (hitCount > hitsToCharge)
         {
-            explode();
+            if(offHandType==OffHandTypes.explosion)
+            {
+                explode();
+            }
+            else if(offHandType == OffHandTypes.invulnerabilty) 
+            {
+                invulnerable();
+            }
+            
         }
             
     }

@@ -5,6 +5,7 @@ public class offhandLamp : ItemData
     public override void OnEquip(GameObject player)
     {
         var script = player.GetComponent<chargeOffHandLatern>();
+        script.offHandType = chargeOffHandLatern.OffHandTypes.explosion;
         script.activate();
         inventoryScript invScript;
         invScript = player.GetComponentInChildren<inventoryScript>();

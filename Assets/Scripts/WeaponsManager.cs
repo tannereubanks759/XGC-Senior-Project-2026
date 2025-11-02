@@ -15,6 +15,9 @@ public class WeaponsManager : MonoBehaviour
     public GameObject healthPotion;
     public bool healing = false;
     public bool isPaused;
+    public GameObject explosionFire;
+    public GameObject invulnerabilityFire;
+    
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -24,7 +27,10 @@ public class WeaponsManager : MonoBehaviour
         InitializeWeapons();
         Crosshair = GameObject.FindGameObjectWithTag("crosshair");
         EnableCrosshair(false);
+        explosionFire.SetActive(false);
+        invulnerabilityFire.SetActive(false);   
         lamp.SetActive(false);
+        
     }
     //
     // Update is called once per frame
@@ -84,10 +90,12 @@ public class WeaponsManager : MonoBehaviour
     {
         if (lamp.activeSelf)
         {
+            explosionFire.SetActive(false);
             lamp.SetActive(false);
         }
         else
         {
+            explosionFire.SetActive(true);
             lamp.SetActive(true);
         }
     }
@@ -106,6 +114,23 @@ public class WeaponsManager : MonoBehaviour
             healthPotion.SetActive(false);
             healing = false;
         }
+    }
+    public void invulnerabilitySwap()
+    {
+       
+        
+        if (lamp.activeSelf)
+        {
+            invulnerabilityFire.SetActive(false);
+            lamp.SetActive(false);
+        }
+        else
+        {
+            invulnerabilityFire.SetActive(true);
+            explosionFire.SetActive(false);
+            lamp.SetActive(true);
+        }
+
     }
     void InitializeWeapons()
     {
