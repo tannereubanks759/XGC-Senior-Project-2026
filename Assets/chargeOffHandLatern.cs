@@ -17,6 +17,9 @@ public class chargeOffHandLatern : MonoBehaviour
     public Color activeColor = Color.green;
     public float damageRadius = 5f;
     public int explosionDamage = 20;
+    public int tickDamage;
+    private float fireTime;
+    public float burnTime;
     
     private void UpdateSphereColors()
     {
@@ -35,6 +38,7 @@ public class chargeOffHandLatern : MonoBehaviour
         WeaponsManager = GetComponentInChildren<WeaponsManager>();
         UpdateSphereColors();
     }
+
     public void explode()
     {
         //Debug.Log("BOOM");
@@ -54,6 +58,8 @@ public class chargeOffHandLatern : MonoBehaviour
                 if (enemyTestScript.currentHealth > 0)
                 {
                     enemyTestScript.TakeDamage(explosionDamage);
+                    enemyTestScript.applyBurn(1,1f,5);
+
                 }
 
             }

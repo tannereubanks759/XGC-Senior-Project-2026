@@ -54,6 +54,14 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("Lighting Variables")]
     public float radius;
     #endregion
+    #region Burn Damage
+    [Header("Burn Damage Variables")]
+    private bool isBurning = false;
+    private float burnNextTickTime = 0f;
+    private float burnTimeBetweenTicks = 1f;
+    private int burnTicksLeft = 0;
+    private int burnTickDamage = 0;
+    #endregion
 
     #region Combat System
     [Header("Combat System")]
@@ -166,7 +174,29 @@ public class BaseEnemyAI : StateManager<EnemyState>
     void Update()
     {
         base.Update();
+        if(isBurning) 
+        {
+           if (Time.time >= burnNextTickTime)
+           {
+              if (currentHealth > 0)
+              {
+                  TakeDamage(burnTickDamage);
+                  Debug.Log("burn damage current hp = " + currentHealth);
 
+              }
+
+              burnTicksLeft--;
+              if (burnTicksLeft > 0)
+              {
+                  burnNextTickTime = Time.time + burnTimeBetweenTicks;
+              }
+              else
+              {
+                  isBurning = false;
+                   // disable fire VFX here
+              }
+            }
+        }
         if (usingLoS)
         {
             CanSeePlayer();
@@ -479,6 +509,17 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Damage and Death Methods
     // Apply damage to the enemy, factoring in blocking
+    public void applyBurn(int tickDamage, float timeBetweenTicks, int howManyTimesToDamage)
+    {
+
+        isBurning = true;
+        burnTickDamage = tickDamage;
+        burnTimeBetweenTicks = timeBetweenTicks;
+        burnTicksLeft = howManyTimesToDamage;
+        burnNextTickTime = Time.time + burnTimeBetweenTicks;
+
+        //disable fire effect
+    }
     public void TakeDamage(int damage)
     {
         if(currentHealth > 0)
