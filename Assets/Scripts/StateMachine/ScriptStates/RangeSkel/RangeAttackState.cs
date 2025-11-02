@@ -7,14 +7,14 @@ public class RangeAttackState : BaseState<EnemyState>
     private float attackStartTime;
     private bool isTrackingPlayer = true;
 
-    // How long enemy keeps facing the player during attack (seconds)
-    private const float trackDuration = 0.7f;
+    
+    private const float trackDuration = 1f;
 
-    // How fast the enemy blends to idle at the start of attack
+    
     private const float stopBlendSpeed = 0.125f;
 
-    // How fast to rotate when tracking
-    private const float rotationSpeed = 360f;
+    
+    private const float rotationSpeed = 180f;
 
     public RangeAttackState(EnemyState key, BaseEnemyAI enemy) : base(key)
     {
@@ -30,11 +30,9 @@ public class RangeAttackState : BaseState<EnemyState>
         attackTime = 0;
         isTrackingPlayer = true;
 
-        // Stop the NavMeshAgent from steering movement, 
-        // but keep it active for rotation/position reference
         _enemy.Agent.isStopped = true;
 
-        // Begin blending the movement animation toward idle
+        
         _enemy.Animator.SetFloat("Speed", 0f, stopBlendSpeed, Time.deltaTime);
 
         Debug.Log("Entered Attack");
@@ -75,7 +73,7 @@ public class RangeAttackState : BaseState<EnemyState>
         }
 
         // Ensure we stay visually idle (root motion keeps us grounded)
-        _enemy.Animator.SetFloat("Speed", 0f, 0.2f, Time.deltaTime);
+        _enemy.Animator.SetFloat("Speed", 0f, 0.125f, Time.deltaTime);
 
         // Handle attack timing reset
         if (_enemy.CurrentAttackState == BaseEnemyAI.EAttackState.Finished && attackTime == 0)

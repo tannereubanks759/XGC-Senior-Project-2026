@@ -228,7 +228,9 @@ public class BaseEnemyAI : StateManager<EnemyState>
         _ps = Instantiate(ps, transform.parent);
         _ps.Stop();
         var ap = _ps.GetComponent<AttractParticles>();
-        ap.goldCount = 20 + 5 * boneCount;
+
+        if (isRanged) ap.goldCount = 35 + 5 * boneCount;
+        else ap.goldCount = 20 + 5 * boneCount;
     }
     #endregion
 
