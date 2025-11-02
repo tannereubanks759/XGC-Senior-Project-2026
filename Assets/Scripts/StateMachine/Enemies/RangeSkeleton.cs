@@ -11,6 +11,7 @@ public class RangeSkeleton : BaseEnemyAI
         States[EnemyState.Idle] = new BasicIdleState(EnemyState.Idle, this);
         States[EnemyState.Patrol] = new BasicPatrolState(EnemyState.Patrol, this, area);
         States[EnemyState.Chase] = new BasicChaseState(EnemyState.Chase, this);
+        States[EnemyState.Attack] = new RangeAttackState(EnemyState.Attack, this);
 
         CurrentState = States[EnemyState.Idle];
     }

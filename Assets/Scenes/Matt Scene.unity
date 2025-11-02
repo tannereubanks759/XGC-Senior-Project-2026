@@ -508,6 +508,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BasicSkeleton
       objectReference: {fileID: 0}
+    - target: {fileID: 2855602832369097640, guid: 7b6586eca58ee6b44a1bf2e3766deb87, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4753,7 +4757,6 @@ GameObject:
   - component: {fileID: 5225840485298422255}
   - component: {fileID: 5225840485306183197}
   - component: {fileID: 5225840485283632477}
-  - component: {fileID: 6027705289430069075}
   - component: {fileID: 6236431078657290991}
   - component: {fileID: 7501499581385275728}
   - component: {fileID: 7501499581385275729}
@@ -4774,7 +4777,7 @@ Animator:
   m_GameObject: {fileID: 5225840485298789839}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
-  m_Controller: {fileID: 9100000, guid: ba9f7e68471e3654eaef13862d875dba, type: 2}
+  m_Controller: {fileID: 9100000, guid: 147ed4a65c570334dbf8ceaeb43524b4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 1
@@ -4897,50 +4900,6 @@ SkinnedMeshRenderer:
     m_Center: {x: 0, y: 0.0027837828, z: -0.10164899}
     m_Extent: {x: 0.69292045, y: 0.19141167, z: 0.9630589}
   m_DirtyAABB: 0
---- !u!114 &6027705289430069075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5225840485298789839}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d134ffaf7e97f60439beaf2598bbf5ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Player: {fileID: 0}
-  playerController: {fileID: 0}
-  lightingBoltPrefab: {fileID: 222523385688736188, guid: 312873be285086d4db0c8f29e38dc408, type: 3}
-  usingLoS: 0
-  detectionRadius: 12
-  fieldOfView: 120
-  obstructionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  playerMask:
-    serializedVersion: 2
-    m_Bits: 128
-  radius: 5
-  canRunAtPlayer: 0
-  hasSeenPlayerBefore: 0
-  combatRange: 0
-  AttackRange: 2.5
-  threatRange: 4
-  CurrentAttackState: 0
-  isBlocking: 0
-  canMoveWhileAttacking: 0
-  moveBackward: 0
-  attacks: []
-  currentAttack: {fileID: 0}
-  overrideAttack: 0
-  attackTime: 0
-  isInQueue: 0
-  item: {fileID: 0}
-  ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
-  gold: 0
-  maxSpeed: 0.5
-  maxHealth: 40
 --- !u!136 &6236431078657290991
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -5023,20 +4982,20 @@ MonoBehaviour:
   playerController: {fileID: 0}
   lightingBoltPrefab: {fileID: 222523385688736188, guid: 312873be285086d4db0c8f29e38dc408, type: 3}
   usingLoS: 0
-  detectionRadius: 12
+  detectionRadius: 20
   fieldOfView: 120
   obstructionMask:
     serializedVersion: 2
     m_Bits: 0
   playerMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 128
   radius: 0
   canRunAtPlayer: 0
   hasSeenPlayerBefore: 0
   combatRange: 0
-  AttackRange: 2.5
-  threatRange: 4
+  AttackRange: 12
+  threatRange: 8
   CurrentAttackState: 0
   isBlocking: 0
   canMoveWhileAttacking: 0
@@ -5046,6 +5005,7 @@ MonoBehaviour:
   overrideAttack: 0
   attackTime: 0
   isInQueue: 0
+  isRanged: 1
   item: {fileID: 0}
   ps: {fileID: 0}
   gold: 0

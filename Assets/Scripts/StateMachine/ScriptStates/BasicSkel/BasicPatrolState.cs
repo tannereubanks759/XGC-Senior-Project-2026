@@ -37,7 +37,7 @@ public class BasicPatrolState : BaseState<EnemyState>
         destinationReached = false;
         
         // Get the enemy's next destination
-        _enemy.Agent.destination = _area.GetRandomPoint(10);
+        _enemy.Agent.destination = _area.GetRandomPoint(10, _enemy);
     }
 
     public override void ExitState()

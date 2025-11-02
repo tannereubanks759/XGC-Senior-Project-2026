@@ -103,6 +103,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [HideInInspector] public float attackTime;              // The time that the enemy attacked
 
     public bool isInQueue = false;
+
+    public bool isRanged = false;
     #endregion
 
     #region Item System
@@ -126,10 +128,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
     #endregion
 
     #region Speed/Movement
-    [Tooltip("The current speed of the unit")]
-    public float CurrentSpeed { get; private set; } // Current movement speed
+    [Header("Speed/Movement System")]
     [Tooltip("The max speed of the unit")]
     public float maxSpeed = .5f;
+    [Tooltip("The current speed of the unit")]
+    public float CurrentSpeed { get; private set; } // Current movement speed
     public float damagedSpeed {  get; private set; }
     #endregion
 
@@ -420,7 +423,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         //Attack();        // Apply damage logic here
         //canRotate = false;
 
-        swordCollider.enabled = false;
+        if (!isRanged) swordCollider.enabled = false;
 
         // APPLY DAMAGE
     }
@@ -432,7 +435,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
         SetAttackState(EAttackState.Finished);
         //Debug.Log(CurrentAttackState);
         //canRotate = true;
-        swordCollider.enabled = false;
+        if (!isRanged) swordCollider.enabled = false;
+
         //overrideAttack = false;
 
         SetResetTriggers("AttackOver");

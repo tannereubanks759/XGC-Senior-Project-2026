@@ -26,7 +26,7 @@ public class PatrolArea : MonoBehaviour
     }
 
     // Returns a random point within the patrol radius that is valid on the NavMesh.
-    public Vector3 GetRandomPoint(int recurIndex)
+    public Vector3 GetRandomPoint(int recurIndex, BaseEnemyAI enemy)
     {
         // Pick a random point inside a unit circle and scale by radius.
         Vector2 randomCircle = Random.insideUnitCircle * patrolRadius;
@@ -37,11 +37,13 @@ public class PatrolArea : MonoBehaviour
         // Snap the random point to the NavMesh to ensure the enemy can reach it.
         if (NavMesh.SamplePosition(randomPoint, out var hit, 1f, NavMesh.AllAreas))
         {
-            //Debug.Log(hit.position);
-            return hit.position;
+            if (Vector3.Distance(hit.position, enemy.transform.position) > 5f)
+            {
+                return hit.position;
+            }
         }
 
-        if (recurIndex > 0) return GetRandomPoint(recurIndex - 1);
+        if (recurIndex > 0) return GetRandomPoint(recurIndex - 1, enemy);
 
         //Debug.Log(transform.position);
         // If unable to find a valid NavMesh point, fallback to the patrol area's center.
