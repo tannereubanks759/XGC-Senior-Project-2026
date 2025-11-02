@@ -36,10 +36,13 @@ public class BasicDeadState : BaseState<EnemyState>
         //_enemy.combatQueue.RemoveAttackingEnemy(_enemy.GetComponent<BasicSkeleton>());
         GameObject parent = sword.GetComponentInParent<BaseEnemyAI>().gameObject;
         sword.GetComponent<Rigidbody>().isKinematic = false;
-        Collider col = sword.GetComponent<Collider>();
-        col.enabled = true;
-        col.isTrigger = false;
-        sword.GetComponent<AffectPlayer>().enabled = false;
+        if (!_enemy.isRanged)
+        {
+            Collider col = sword.GetComponent<Collider>();
+            col.enabled = true;
+            col.isTrigger = false;
+            sword.GetComponent<AffectPlayer>().enabled = false;
+        }
         sword.layer = 12;
         sword.transform.parent = null;
         
