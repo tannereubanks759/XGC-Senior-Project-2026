@@ -145,7 +145,7 @@ public class PirateBossAI : MonoBehaviour
 
     void Update()
     {
-        Debug.Log(State);
+        //Debug.Log(State);
         if (State == BossState.Dead) return;
 
         switch (State)

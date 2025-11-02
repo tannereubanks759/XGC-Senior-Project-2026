@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class chargeOffHandLatern : MonoBehaviour
@@ -11,8 +12,12 @@ public class chargeOffHandLatern : MonoBehaviour
     private Coroutine decayCorutine;
     private bool isActive = false;
     public List<Renderer> chargeSpheres;
+    public GameObject explosionEffectPrefab;
     public Color inactiveColor = Color.red;
     public Color activeColor = Color.green;
+    public float damageRadius = 5f;
+    public int explosionDamage = 20;
+    
     private void UpdateSphereColors()
     {
         int hitsPerSphere = Mathf.CeilToInt((float)hitsToCharge / chargeSpheres.Count);
@@ -30,20 +35,43 @@ public class chargeOffHandLatern : MonoBehaviour
         WeaponsManager = GetComponentInChildren<WeaponsManager>();
         UpdateSphereColors();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
     public void explode()
     {
-        Debug.Log("BOOM");
-       //KNOCKBACK LOGIC
+        //Debug.Log("BOOM");
+        //KNOCKBACK LOGIC
+        // spawn particle effect and knockback
+        Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
 
+        // apply damage to those in radius
+        Collider[] closeEnemies = Physics.OverlapSphere(transform.position, damageRadius, ~0, QueryTriggerInteraction.Ignore);
+        foreach (Collider col in closeEnemies)
+        {
+            
+            if (col.CompareTag("Enemy") && col.transform != this.transform)
+            {
+                Debug.Log(col);
+                var enemyTestScript = col.GetComponent<BasicSkeleton>();
+                if (enemyTestScript.currentHealth > 0)
+                {
+                    enemyTestScript.TakeDamage(explosionDamage);
+                }
+
+            }
+
+        }
+        // inumerate damage over time to those enemies that got damaged
         hitCount = 0;
         UpdateSphereColors();
     }
+    // Update is called once per frame
+    void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.K))
+        {
+            explode();
+        }
+    }
+   
     public void activate()
     {
         WeaponsManager.swapLantern();
@@ -73,7 +101,7 @@ public class chargeOffHandLatern : MonoBehaviour
         decayCorutine = StartCoroutine(HitWindowCD());
         hitCount++;
         UpdateSphereColors();
-        if (hitCount >= hitsToCharge)
+        if (hitCount > hitsToCharge)
         {
             explode();
         }
