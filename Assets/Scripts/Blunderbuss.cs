@@ -107,7 +107,7 @@ public class Blunderbuss : MonoBehaviour
         
         // Group by damageable component (prevents multi-collider dupes)
         var skullHits = new Dictionary<FloatingSkullAI, int>();
-        var gruntHits = new Dictionary<BasicSkeleton, int>();
+        var gruntHits = new Dictionary<BaseEnemyAI, int>();
         var bossHits = new Dictionary<PirateBossAI, int>();
         int pelletsThatHitAnything = 0;
 
@@ -136,7 +136,7 @@ public class Blunderbuss : MonoBehaviour
                 
                 // Prefer components over tags
                 var skull = t.GetComponentInParent<FloatingSkullAI>();
-                var grunt = t.GetComponentInParent<BasicSkeleton>();
+                var grunt = t.GetComponentInParent<BaseEnemyAI>();
                 var boss = t.GetComponentInParent<PirateBossAI>();
                 if (skull)
                 {
