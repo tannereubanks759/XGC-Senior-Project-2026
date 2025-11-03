@@ -28,7 +28,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 452700993767431812}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
   m_ConstrainProportionsScale: 1
@@ -94,6 +94,9 @@ MonoBehaviour:
   image: {fileID: 8743053075287160661}
   currentSlotChanged: {fileID: 0}
   originalParent: {fileID: 0}
+  allSlots: []
+  slotObjs: []
+  artifactType: 
 --- !u!114 &8259411977621997687
 MonoBehaviour:
   m_ObjectHideFlags: 0
