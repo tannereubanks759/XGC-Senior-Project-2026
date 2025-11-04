@@ -222,50 +222,55 @@ public class CombatController : MonoBehaviour
         // --- Combat input ---Only when sword is active
         if (swordAnim.gameObject.activeSelf)
         {
-            if (Input.GetKey(primaryAttack))
+            if (Time.timeScale == 1f)
             {
-                int random = Random.Range(1, AmountOfAttacks + 1);
-                swinging = true;
-                swordAnim.SetBool("swinging", true);
-                swordAnim.SetInteger("attackNum", random);
-            }
-            else
-            {
-                swordAnim.SetInteger("attackNum", 0);
-                swinging = false;
-                swordAnim.SetBool("swinging", false);
-            }
-
-            if (Input.GetKey(block_or_aim))
-            {
-                blocking = true;
-                swordAnim.SetBool("blocking", true);
-            }
-            else
-            {
-                blocking = false;
-                swordAnim.SetBool("blocking", false);
-            }
-
-            if (blocking && Input.GetKeyDown(primaryAttack))
-            {
-                swordAnim.SetTrigger("Knockback");
-            }
-            else
-            {
-                swordAnim.ResetTrigger("Knockback");
-            }
 
 
-            if (Time.time > nextTime && blocking && !swinging && Input.GetKeyDown(dodge))
-            {
-                if(soundSource != null && dodgeClip != null)
+                if (Input.GetKey(primaryAttack))
                 {
-                    soundSource.PlayOneShot(dodgeClip);
+                    int random = Random.Range(1, AmountOfAttacks + 1);
+                    swinging = true;
+                    swordAnim.SetBool("swinging", true);
+                    swordAnim.SetInteger("attackNum", random);
                 }
-                Vector3 direction = rb.linearVelocity.normalized;
-                dodgeScript.Dodge(direction);
-                nextTime = Time.time + dodgeCooldown;
+                else
+                {
+                    swordAnim.SetInteger("attackNum", 0);
+                    swinging = false;
+                    swordAnim.SetBool("swinging", false);
+                }
+
+                if (Input.GetKey(block_or_aim))
+                {
+                    blocking = true;
+                    swordAnim.SetBool("blocking", true);
+                }
+                else
+                {
+                    blocking = false;
+                    swordAnim.SetBool("blocking", false);
+                }
+
+                if (blocking && Input.GetKeyDown(primaryAttack))
+                {
+                    swordAnim.SetTrigger("Knockback");
+                }
+                else
+                {
+                    swordAnim.ResetTrigger("Knockback");
+                }
+
+
+                if (Time.time > nextTime && blocking && !swinging && Input.GetKeyDown(dodge))
+                {
+                    if (soundSource != null && dodgeClip != null)
+                    {
+                        soundSource.PlayOneShot(dodgeClip);
+                    }
+                    Vector3 direction = rb.linearVelocity.normalized;
+                    dodgeScript.Dodge(direction);
+                    nextTime = Time.time + dodgeCooldown;
+                }
             }
         }
         
