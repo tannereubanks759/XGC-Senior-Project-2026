@@ -2111,6 +2111,7 @@ MonoBehaviour:
   dodgeClip: {fileID: 8300000, guid: a9a5e73bff45e04479ca3b162c809e5e, type: 3}
   isPaused: 0
   invulnerability: 0
+  boss_healthbar: {fileID: 7328997988885366978}
 --- !u!1 &6428402459396883477
 GameObject:
   m_ObjectHideFlags: 0
@@ -3881,7 +3882,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1624751114418384355, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1645328732767626248, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3965,11 +3966,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6638827475430184147, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6638827475430184147, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7798073467077093250, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4006,6 +4007,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3657037082975847786, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
   m_PrefabInstance: {fileID: 1609146371620435225}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7328997988885366978 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8349958269638016475, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}
+  m_PrefabInstance: {fileID: 1609146371620435225}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8a8ac982d7412c40b75d6baad03edbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7525595337763482492 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9089564835497188965, guid: 85ec78169170ce84f920fa9665bedf53, type: 3}

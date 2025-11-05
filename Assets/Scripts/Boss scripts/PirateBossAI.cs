@@ -12,6 +12,7 @@ public class PirateBossAI : MonoBehaviour
     public Animator animator;
     public NavMeshAgent agent;
     public Transform player;
+    public BossHealthbar healthbar;
 
     [Header("Tuning")]
     public float attackRange = 3.5f;
@@ -138,6 +139,7 @@ public class PirateBossAI : MonoBehaviour
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
+            
             if (p) player = p.transform;
         }
         TransitionTo(BossState.Idle);
@@ -161,6 +163,8 @@ public class PirateBossAI : MonoBehaviour
     {
         if (State == BossState.Dead) return;
         if (playerTarget) player = playerTarget;
+        healthbar = playerTarget.GetComponentInChildren<CombatController>().boss_healthbar;
+        healthbar.gameObject.SetActive(true);
         TransitionTo(BossState.Chase);
     }
 
@@ -169,6 +173,7 @@ public class PirateBossAI : MonoBehaviour
         if (State == BossState.Dead) return;
         currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(amount));
         animator.SetTrigger("Impacted");
+        healthbar.TakeDamage(amount);
         if (currentHealth <= 0) TransitionTo(BossState.Dead);
     }
 

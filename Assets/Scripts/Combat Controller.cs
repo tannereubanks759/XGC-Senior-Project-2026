@@ -86,9 +86,10 @@ public class CombatController : MonoBehaviour
     public bool invulnerability = false;
     private float nextTime;
 
-    
+    public BossHealthbar boss_healthbar;
     void Start()
     {
+
         nextTime = Time.time;
         isPaused = false;
         swordSoundScript = GetComponentInChildren<SwordSounds>();
@@ -105,7 +106,11 @@ public class CombatController : MonoBehaviour
         dodgeScript = GetComponentInChildren<DodgeDash>();
         rb = GetComponentInParent<Rigidbody>();
         controller = rb.GetComponent<FirstPersonController>();
-
+        if (boss_healthbar != null)
+        {
+            boss_healthbar.gameObject.SetActive(false);
+        }
+        
         EnsureSlider();
         if (healthSlider != null)
         {
