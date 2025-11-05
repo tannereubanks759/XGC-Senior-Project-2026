@@ -18,6 +18,8 @@ public class CollectionPool : MonoBehaviour
     private IObjectPool<GameObject> pool;
 
     // The effect to be played
+    [Header("References")]
+    [Tooltip("The particle system/audio source to be played")]
     [SerializeField] private GameObject collectionEffect;
     private Transform poolParent;
 
@@ -41,17 +43,14 @@ public class CollectionPool : MonoBehaviour
         );
     }
 
-    void Update()
+    public void CollectGoldEffects(Vector3 p)
     {
-        // Press Space to spawn one pooled object for 1 second.
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            GameObject gameObject = pool.Get();
-            gameObject.transform.position = new Vector3(0, 0, 2);
+        GameObject gameObject = pool.Get();
 
-            // Return it to the pool after a short delay.
-            StartCoroutine(ReturnAfter(gameObject, 1f));
-        }
+        gameObject.transform.position = p;
+
+        // Return it to the pool after a short delay.
+        StartCoroutine(ReturnAfter(gameObject, 1f));
     }
 
     // Creates a new pooled GameObject the first time (and whenever the pool needs more).

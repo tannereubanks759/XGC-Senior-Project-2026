@@ -9,7 +9,6 @@
  */
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 
 public class AttractParticles : MonoBehaviour
 {
@@ -25,11 +24,15 @@ public class AttractParticles : MonoBehaviour
     [Header("Particle Setup")]
     public int goldCount = 1;
 
+    private CollectionPool collPool;
+
     private void Start()
     {
         if (ps == null) ps = GetComponent<ParticleSystem>();
 
         if (player == null) player = GameObject.FindGameObjectWithTag("Player")?.transform;
+
+        if (collPool == null ) collPool = GameObject.FindAnyObjectByType<CollectionPool>();
 
         inside = new List<ParticleSystem.Particle>();
 
@@ -77,9 +80,13 @@ public class AttractParticles : MonoBehaviour
             // Optional: snap or remove if it gets very close
             if (dist <= stopDistance)
             {
+                collPool.CollectGoldEffects(p.position);
+                
                 p.remainingLifetime = 0f; // kills particle (collected)
+
                 // Trigger gold gain
                 player.GetComponent<GoldBank>().AddGold(1);
+
             }
 
             inside[i] = p;
