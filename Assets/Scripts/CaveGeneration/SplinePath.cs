@@ -14,7 +14,7 @@ public class SplinePath : MonoBehaviour
     public class Node
     {
         public Vector3 localPosition = Vector3.zero;
-        [Min(0.1f)] public float radius = 3f;          // tunnel radius at node (meters)
+        [Min(0f)] public float radius = 3f;          // tunnel radius at node (meters)
         public Vector2 ovalScale = Vector2.one;         // x/y scale for oval tunnels
         public float twistDegrees = 0f;                 // roll at node
         [Range(0f, 1f)] public float roughness = 0.2f;  // per-node noise weight
