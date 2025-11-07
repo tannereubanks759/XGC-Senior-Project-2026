@@ -13,9 +13,9 @@ public class artifactThree : ItemData
         Debug.Log("Applied artifact3 stuff");
         sd.lightningSwordEffect.SetActive(true);
 
-        inventoryScript invScript;
+        /*inventoryScript invScript;
         invScript = player.GetComponentInChildren<inventoryScript>();
-        invScript.toggleInv();
+        invScript.toggleInv();*/
     }
     public override void OnUnEquip(GameObject player)
     {
