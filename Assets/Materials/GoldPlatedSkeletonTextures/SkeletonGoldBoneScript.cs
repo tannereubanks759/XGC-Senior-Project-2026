@@ -34,7 +34,10 @@ public class SkeletonGoldBoneScript : MonoBehaviour
 
     void UpdateColor()
     {
-        int rand = Random.Range(0, colors.Length);
-        mat.SetColor("emmisionColor", colors[rand]);
+        if (colors.Length > 0)
+        {
+            int rand = Random.Range(0, colors.Length);
+            mat.SetColor("emmisionColor", colors[rand]);
+        }
     }
 }

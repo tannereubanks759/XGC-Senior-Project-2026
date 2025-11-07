@@ -3,7 +3,9 @@ using UnityEngine;
 
 public class RangeSkeleton : BaseEnemyAI
 {
+#pragma warning disable CS0114 // Member hides inherited member; missing override keyword
     private void Awake()
+#pragma warning restore CS0114 // Member hides inherited member; missing override keyword
     {
         base.Awake();
 

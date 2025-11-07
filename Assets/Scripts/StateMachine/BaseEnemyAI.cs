@@ -54,6 +54,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("Lighting Variables")]
     public float radius;
     #endregion
+
     #region Burn Damage
     [Header("Burn Damage Variables")]
     private bool isBurning = false;
@@ -131,8 +132,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("The particle system of gold that spawns when then enemy dies")]
     [SerializeField] private ParticleSystem ps;
     private ParticleSystem _ps;
-    [Tooltip("The amount of gold this enemy is to drop")]
-    public int gold;
     #endregion
 
     #region Speed/Movement
@@ -171,9 +170,12 @@ public class BaseEnemyAI : StateManager<EnemyState>
     }
     // Call the update of the parent so that state logic still runs
     // Check to see if we can see the player
+#pragma warning disable CS0114 // Member hides inherited member; missing override keyword
     void Update()
+#pragma warning restore CS0114 // Member hides inherited member; missing override keyword
     {
         base.Update();
+
         if(isBurning) 
         {
            if (Time.time >= burnNextTickTime)
@@ -231,8 +233,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         swordCollider.enabled = false;
         moveBackward = false;
         damagedSpeed = maxSpeed / 2f;
-
-        gold = Random.Range(0, 51);
     }
 
     // Initialize an item system for the enemy
@@ -260,6 +260,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         var ap = _ps.GetComponent<AttractParticles>();
 
         if (isRanged) ap.goldCount = 35 + 5 * boneCount;
+        if (GetComponentInChildren<SkeletonGoldBoneScript>().isElite) ap.goldCount = 50 + 5 * boneCount;
         else ap.goldCount = 20 + 5 * boneCount;
     }
     #endregion

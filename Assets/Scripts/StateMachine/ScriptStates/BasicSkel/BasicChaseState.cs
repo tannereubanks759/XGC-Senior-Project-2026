@@ -60,10 +60,8 @@ public class BasicChaseState : BaseState<EnemyState>
             {
                 _enemy.Agent.ResetPath();
             }
-            else if (!_enemy.isInQueue)
-            {
-                _enemy.Agent.destination = _enemy.Player.position;
-            }
+            
+            _enemy.Agent.destination = _enemy.Player.position;
         }
         else
         {

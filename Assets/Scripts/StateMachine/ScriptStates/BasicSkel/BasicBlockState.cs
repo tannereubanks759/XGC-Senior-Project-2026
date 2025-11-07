@@ -13,8 +13,6 @@ public class BasicBlockState : BaseState<EnemyState>
         //Debug.Log("Entered Block State");
         _enemy.SetResetTriggers("Block");
 
-        _enemy.isBlocking = true;
-
     }
 
     public override void ExitState()
@@ -26,10 +24,6 @@ public class BasicBlockState : BaseState<EnemyState>
     {
         if (_enemy.currentHealth <= 0) return EnemyState.Dead;
 
-        if (!_enemy.isBlocking)
-        {
-            return EnemyState.Chase;
-        }
         return StateKey;
     }
 

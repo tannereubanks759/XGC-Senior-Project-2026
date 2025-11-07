@@ -1,8 +1,13 @@
-using UnityEngine;
+using System.Runtime.CompilerServices;
 using RayFire;
+using UnityEngine;
 
-public class BasicSkeleton : BaseEnemyAI
+public class EliteSkeleton : BaseEnemyAI
 {
+    [Header("Elite Specific Data")]
+    [Tooltip("Controls how the enemy's attack effects the player")]
+    [SerializeField] private EliteType type;
+
 #pragma warning disable CS0114 // Member hides inherited member; missing override keyword
     private void Awake()
 #pragma warning restore CS0114 // Member hides inherited member; missing override keyword
@@ -21,6 +26,12 @@ public class BasicSkeleton : BaseEnemyAI
         States[EnemyState.Dead] = new BasicDeadState(EnemyState.Dead, this, rf, sword);
 
         CurrentState = States[EnemyState.Idle];
-
     }
+}
+
+public enum EliteType
+{
+    Basic,
+    Fire,
+    Water
 }
