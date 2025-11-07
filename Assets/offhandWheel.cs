@@ -4,6 +4,7 @@ using UnityEngine.Rendering;
 public class offhandWheel : MonoBehaviour
 {
     public GameObject offhandWheelCanvas;
+   
     void Start()
     {
         offhandWheelCanvas.SetActive(false);
@@ -18,6 +19,8 @@ public class offhandWheel : MonoBehaviour
     }
     public void closeWheel()
     {
+        var offhandHandle = FindAnyObjectByType<RMF_RadialMenu>();
+        offhandHandle.buttonPress();
         Volume vol = Camera.main.gameObject.GetComponent<Volume>();
         vol.enabled = false;
         offhandWheelCanvas.SetActive(false);
