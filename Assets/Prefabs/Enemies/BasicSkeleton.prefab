@@ -104,7 +104,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 100018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 100018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_TagString
@@ -1107,16 +1107,16 @@ MonoBehaviour:
     m_Bits: 128
   radius: 5
   AttackRange: 2.5
-  hasSeenPlayerBefore: 0
   CurrentAttackState: 0
+  currentAttack: {fileID: 0}
+  overrideAttack: 0
   attackTime: 0
-  isInQueue: 0
   isRanged: 0
   item: {fileID: 0}
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
-  gold: 0
   maxSpeed: 0.5
   maxHealth: 40
+  eliteType: 0
 --- !u!136 &-5068651191832824696
 CapsuleCollider:
   m_ObjectHideFlags: 0

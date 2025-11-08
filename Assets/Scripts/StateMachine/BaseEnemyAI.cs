@@ -203,7 +203,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Agent.stoppingDistance = AttackRange - 0.5f;
         currentHealth = maxHealth;
-        swordCollider.enabled = false;
+        if(swordCollider != null)
+        {
+            swordCollider.enabled = false;
+        }
+        
         damagedSpeed = maxSpeed / 2f;
     }
 
