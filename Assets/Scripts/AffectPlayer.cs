@@ -3,31 +3,44 @@ using UnityEngine;
 public class AffectPlayer : MonoBehaviour
 {
     [Header("References")]
-    private CombatController CombatController;
+    private CombatController combatController;
+    private BaseEnemyAI enemyAI;
 
     [Header("Damage Value")]
-    [SerializeField] private int damage;
+    [SerializeField] private int damage = 10;
 
     [Header("Collider")]
     public Collider swordCollider;
 
     private void Awake()
     {
-        swordCollider.enabled = false;
-        //CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
+        if (swordCollider != null) swordCollider.enabled = false;
+
+        // Get the parent enemy AI
+        enemyAI = GetComponentInParent<BaseEnemyAI>();
     }
-    
+
+    private void Start()
+    {
+        combatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player"))
+            return;
+
+        swordCollider.enabled = false;
+
+        Vector3 hitDir = (other.transform.position - transform.position).normalized;
+
+        if (enemyAI != null)
         {
-            swordCollider.enabled = false;
-            Debug.Log("Hit Player");
-            if(CombatController == null)
-            {
-                CombatController = GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<CombatController>();
-            }
-            CombatController.TakeDamage(damage, this.gameObject.transform.position);
+            combatController.TakeDamage(damage, hitDir, enemyAI.eliteType);
+        }
+        else
+        {
+            combatController.TakeDamage(damage, hitDir);
         }
     }
 

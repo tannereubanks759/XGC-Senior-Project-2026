@@ -13,6 +13,8 @@ public class EliteSkeleton : BaseEnemyAI
     {
         base.Awake();
 
+        eliteType = type;
+
         PatrolArea area = FindClosestPatrolArea();
         RayfireRigid rf = GetComponentInChildren<RayfireRigid>();
         GameObject sword = GetComponentInChildren<Rigidbody>().gameObject;

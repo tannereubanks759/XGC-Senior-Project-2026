@@ -123,6 +123,13 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("The current amount of health the unit has")]
     public int currentHealth { get; private set; } // Current health
     #endregion
+
+    #region Elite System
+    [Header("Elite Type")]
+    [Tooltip("Determines what elemental type this enemy is (Basic, Fire, Water, Gas, etc.)")]
+    public EliteType eliteType = EliteType.Basic;
+    #endregion
+
     #endregion
 
     #region Monobehavior Methods

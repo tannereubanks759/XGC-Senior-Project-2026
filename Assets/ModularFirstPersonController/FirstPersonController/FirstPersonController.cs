@@ -45,6 +45,8 @@ public class FirstPersonController : MonoBehaviour
 
     public CombatController healthSystem;
 
+    public float speed { get; private set; }
+
 
     private Rigidbody rb;
 

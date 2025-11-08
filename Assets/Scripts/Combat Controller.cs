@@ -385,6 +385,98 @@ public class CombatController : MonoBehaviour
             wInertia.ParryClash(1);
         }
     }
+
+    public void TakeDamage(int damage, Vector3 Dir, EliteType eliteType)
+    {
+        // Call your existing damage logic
+        TakeDamage(damage, Dir);
+
+        // Apply the elite effect afterwards
+        switch (eliteType)
+        {
+            case EliteType.Fire:
+                StartCoroutine(FireEffect());
+                break;
+            case EliteType.Water:
+                StartCoroutine(WaterEffect());
+                break;
+            case EliteType.Gas:
+                StartCoroutine(GasEffect());
+                break;
+                // EliteType.Basic does nothing extra
+        }
+    }
+
+    private IEnumerator FireEffect()
+    {
+        float duration = 5f;
+        float tickRate = 1f;
+        int tickDamage = 3;
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            TakeDamage(tickDamage, Vector3.zero); // Reuse your base damage logic
+            elapsed += tickRate;
+            yield return new WaitForSeconds(tickRate);
+        }
+    }
+
+    private IEnumerator WaterEffect()
+    {
+        float duration = 4f;
+        float slowAmount = 0.5f;
+
+        controller.walkSpeed *= slowAmount;
+        yield return new WaitForSeconds(duration);
+        controller.walkSpeed /= slowAmount;
+    }
+
+    private IEnumerator GasEffect()
+    {
+        float duration = 6f;          // total effect duration
+        float fadeInTime = 1f;        // fast fade-in
+        float fadeOutTime = duration - fadeInTime; // slow fade-out
+        float maxDensity = 0.15f;     // maximum fog density
+
+        // Save original fog settings
+        bool originalFog = RenderSettings.fog;
+        float originalFogDensity = RenderSettings.fogDensity;
+        Color originalFogColor = RenderSettings.fogColor;
+        FogMode originalFogMode = RenderSettings.fogMode;
+
+        // Set gas effect
+        RenderSettings.fog = true;
+        RenderSettings.fogMode = FogMode.ExponentialSquared; // denser near camera
+        RenderSettings.fogColor = new Color(0.5f, 0.8f, 0.2f, 1f); // gas color
+
+        // --- Fade In ---
+        float timer = 0f;
+        while (timer < fadeInTime)
+        {
+            RenderSettings.fogDensity = Mathf.Lerp(0f, maxDensity, timer / fadeInTime);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        RenderSettings.fogDensity = maxDensity;
+
+        // --- Fade Out ---
+        timer = 0f;
+        while (timer < fadeOutTime)
+        {
+            RenderSettings.fogDensity = Mathf.Lerp(maxDensity, 0f, timer / fadeOutTime);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        // Restore original fog
+        RenderSettings.fogDensity = originalFogDensity;
+        RenderSettings.fogColor = originalFogColor;
+        RenderSettings.fogMode = originalFogMode;
+        RenderSettings.fog = originalFog;
+    }
+
+
     public void TakeDamageByBoss(int damage)
     {
         audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
