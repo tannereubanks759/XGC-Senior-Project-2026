@@ -129,7 +129,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("Determines what elemental type this enemy is (Basic, Fire, Water, Gas, etc.)")]
     public EliteType eliteType = EliteType.Basic;
     #endregion
-
     #endregion
 
     #region Monobehavior Methods
@@ -516,7 +515,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public void DropGold(Transform transform)
     {
         _ps.Clear();
-        _ps.transform.position = transform.position;
+        var tempPos = new Vector3(transform.position.x, transform.position.y + .75f, transform.position.z);
+        _ps.transform.position = tempPos;
         _ps.Play();
     }
 
