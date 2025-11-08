@@ -66,20 +66,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Combat System
     [Header("Combat System")]
-    [Tooltip("Can the enemy run towards the player")]
-    public bool canRunAtPlayer;
-
-    [HideInInspector]
-    public bool hasSeenPlayerBefore = false;
-
-    [Tooltip("The range in which the enemy will start to engage in combat")]
-    public float combatRange;
-
     [Tooltip("The range in which this unit will start to attack the player (Auto braking is hard coded to stop the enemies 0.5 units into the attack range)")]
     public float AttackRange = 2.5f;        // Distance at which enemy will attack
-
-    [Tooltip("The range in which the enemy will react to the player's attacks")]
-    public float threatRange = 4f;
 
     // Attack state enum to track attack animation progress
     public enum EAttackState { None, InProgress, Finished }
@@ -91,27 +79,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("The amount of damage that this unit will do to the player")]
     public int Damage { get; private set; }                    // Base damage (used in attacks)
 
-    [Tooltip("Is this unit currently blocking?")]
-    public bool isBlocking;               // Flag for blocking state
-
-    [Tooltip("Can this unit move toward the player while attacking?" +
-        "\n(Decided based on the attack animation")]
-    public bool canMoveWhileAttacking;
-    
-    [Tooltip("Will this unit move backward?" +
-        "\n(Decided based based on the attack animation)")]
-    public bool moveBackward;
-
-    [Tooltip("An array containing the attack data")]
-    public AttackData[] attacks;
-
     [HideInInspector] public AttackData currentAttack;
 
     [HideInInspector] public bool overrideAttack = false;
 
     [HideInInspector] public float attackTime;              // The time that the enemy attacked
-
-    public bool isInQueue = false;
 
     public bool isRanged = false;
     #endregion
@@ -225,13 +197,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         Agent.stoppingDistance = AttackRange - 0.5f;
         currentHealth = maxHealth;
-        isBlocking = false;
-
-        canRunAtPlayer = false;
-        combatRange = 8f;
-        canMoveWhileAttacking = false;
         swordCollider.enabled = false;
-        moveBackward = false;
         damagedSpeed = maxSpeed / 2f;
     }
 
@@ -415,24 +381,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         if (Player == null) return false;
 
         return playerController.swinging;
-    }
-
-    public void StopMoveWhileAttacking()
-    {
-        canMoveWhileAttacking = false;
-        moveBackward = false;
-    }
-
-    public void StartMoveWhileAttacking()
-    {
-        canMoveWhileAttacking = true;
-    }
-
-    public void MoveBackwardWhileAttacking()
-    {
-        moveBackward = true;
-        canMoveWhileAttacking = true;
-    }    
+    }   
 
     // Called via animation event at the start of the swing
     public void OnAttackStart()
@@ -475,20 +424,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         SetResetTriggers("AttackOver");
     }
 
-    // Called via animation event at the end of the block
-    public void OnBlockEnd()
-    {
-        SetResetTriggers("BlockOver");
-        isBlocking = false;
-    }
-
-    public void BlockHitOver()
-    {
-        Debug.Log("HitOver");
-        isBlocking = false;
-        SetResetTriggers("BlockHitOver");
-    }
-
     // Manually set the current attack state
     public void SetAttackState(EAttackState newState)
     {
@@ -527,13 +462,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         {
             int finalDamage = damage;
 
-            if (isBlocking)
-            {
-                // Halve incoming damage when blocking
-                finalDamage = 0;
-                Debug.Log($"{name} blocked! Damage reduced to {finalDamage}.");
-            }
-
             // Apply damage
             currentHealth -= finalDamage;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
@@ -545,20 +473,12 @@ public class BaseEnemyAI : StateManager<EnemyState>
             {
                 Die();
             }
-            else
-            {
-                // Pick correct reaction state
-                if (isBlocking)
-                {
-                }
-                else
-                {
-                    //TransitionToState(EnemyState.Hit);
+ 
+            //TransitionToState(EnemyState.Hit);
 
-                    Animator.SetLayerWeight(1, 1f);
-                    SetResetTriggers("HitLayer");
-                }
-            }
+            Animator.SetLayerWeight(1, 1f);
+            SetResetTriggers("HitLayer");
+            
         }
         
     }
@@ -615,11 +535,13 @@ public class BaseEnemyAI : StateManager<EnemyState>
         // Detect sword hits
         if (other.CompareTag("PlayerSword"))
         {
+            /*
             if (isBlocking)
             {
                 Debug.Log("Stagger");
                 Player.gameObject.GetComponentInChildren<CombatController>().GetStaggeredFrom(this.transform, 1f); //Stagger player if enemy gets hit while blocking
             }
+            */
             var sd = other.transform.root.GetComponent<swordDamageDeterminer>();
             int damage = sd.damage;
             if (sd.isLighting)

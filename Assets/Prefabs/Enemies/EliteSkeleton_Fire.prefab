@@ -2652,7 +2652,7 @@ GameObject:
   - component: {fileID: 7093428832996310007}
   m_Layer: 0
   m_Name: EliteSkeleton_Fire
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2766,20 +2766,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   radius: 5
-  canRunAtPlayer: 0
-  hasSeenPlayerBefore: 0
-  combatRange: 0
   AttackRange: 2.5
-  threatRange: 4
   CurrentAttackState: 0
-  isBlocking: 0
-  canMoveWhileAttacking: 0
-  moveBackward: 0
-  attacks: []
   currentAttack: {fileID: 0}
   overrideAttack: 0
   attackTime: 0
-  isInQueue: 0
   isRanged: 0
   item: {fileID: 0}
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using RayFire;
 using UnityEngine;
 
@@ -33,5 +32,6 @@ public enum EliteType
 {
     Basic,
     Fire,
-    Water
+    Water,
+    Gas,
 }

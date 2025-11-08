@@ -1146,6 +1146,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 17bd0c5c502afe7409496dca834e6492, type: 3}
+--- !u!1001 &1236863968
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -14.99766
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.6300013
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 18.097439
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1099948059258206228, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8397437053496789767, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
+      propertyPath: m_Name
+      value: EliteSkeleton_Gas
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8895e4d53d82f064f8d82cad9bf573c2, type: 3}
 --- !u!1 &1244537433
 GameObject:
   m_ObjectHideFlags: 0
@@ -1775,3 +1832,4 @@ SceneRoots:
   - {fileID: 4562349953559189971}
   - {fileID: 1706497918}
   - {fileID: 890805359}
+  - {fileID: 1236863968}
