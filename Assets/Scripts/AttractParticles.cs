@@ -17,76 +17,71 @@ public class AttractParticles : MonoBehaviour
     private Transform player;
 
     [Header("Attraction Settings")]
-    public float attractionStrength = 10000f;   // How strongly they’re pulled in
-    public float maxSpeed = 30f;             // Limit so it looks smooth
-    public float stopDistance = 1f;       // When to consider “collected”
+    public float attractionStrength = 25f;    // Pull force per second
+    public float maxSpeed = 15f;              // Smooth cap
+    public float stopDistance = 1.5f;           // Collection range
+    public float delayBeforeAttract = 3f;   // Let them bounce first
 
     [Header("Particle Setup")]
     public int goldCount = 1;
 
     private CollectionPool collPool;
+    private float spawnTime;
 
     private void Start()
     {
-        if (ps == null) ps = GetComponent<ParticleSystem>();
-
-        if (player == null) player = GameObject.FindGameObjectWithTag("Player")?.transform;
-
-        if (collPool == null ) collPool = GameObject.FindAnyObjectByType<CollectionPool>();
+        ps = GetComponent<ParticleSystem>();
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        collPool = GameObject.FindAnyObjectByType<CollectionPool>();
 
         inside = new List<ParticleSystem.Particle>();
+        spawnTime = Time.time;
 
+        // Setup emission
         var emission = ps.emission;
+        emission.SetBursts(new ParticleSystem.Burst[]
+        {
+            new ParticleSystem.Burst(0f, goldCount)
+        });
 
-        // Create a single burst at time 0, emitting goldCount particles
-        var burst = new ParticleSystem.Burst(0f, (float)goldCount);
-
-        // Assign it to the emission module
-        emission.SetBurst(0, burst);
-
+        // Setup trigger
         var triggers = ps.trigger;
-
         triggers.SetCollider(0, player.GetComponent<Collider>());
-
         triggers.inside = ParticleSystemOverlapAction.Callback;
     }
 
-
     void OnParticleTrigger()
     {
-        // Get all particles currently inside the trigger
-        int numInside = ps.GetTriggerParticles(ParticleSystemTriggerEventType.Inside, inside);
+        // Skip attraction for a short moment after spawn (let initial velocity play)
+        if (Time.time - spawnTime < delayBeforeAttract)
+            return;
 
+        int numInside = ps.GetTriggerParticles(ParticleSystemTriggerEventType.Inside, inside);
         Vector3 playerPos = player.position;
 
         for (int i = 0; i < numInside; i++)
         {
             ParticleSystem.Particle p = inside[i];
 
-            // Direction toward player
             Vector3 dir = (playerPos - p.position);
             float dist = dir.magnitude;
             dir.Normalize();
 
-            // Accelerate particle toward player
-            Vector3 velocity = p.velocity.normalized + dir * (attractionStrength * Time.deltaTime);
+            // Accelerate toward player — keep consistent acceleration scale
+            Vector3 velocity = p.velocity + dir * (attractionStrength * Time.deltaTime);
 
-            // Clamp to max speed for smooth motion
+            // Clamp for smooth motion
             if (velocity.magnitude > maxSpeed)
                 velocity = velocity.normalized * maxSpeed;
 
             p.velocity = velocity;
-
-            // Optional: snap or remove if it gets very close
+            
+            // Collect when close enough
             if (dist <= stopDistance)
             {
                 collPool.CollectGoldEffects(p.position);
-                
-                p.remainingLifetime = 0f; // kills particle (collected)
-
-                // Trigger gold gain
                 player.GetComponent<GoldBank>().AddGold(1);
-
+                p.remainingLifetime = 0f;
             }
 
             inside[i] = p;
