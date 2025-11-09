@@ -2150,6 +2150,7 @@ GameObject:
   - component: {fileID: 8329541187511738591}
   - component: {fileID: 4298105130201558956}
   - component: {fileID: 2174788210189082112}
+  - component: {fileID: 7813852301509748149}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -2666,6 +2667,22 @@ MonoBehaviour:
   invulnerabilityTime: 5
   burnTime: 0
   offHandType: 0
+--- !u!114 &7813852301509748149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428402459396883477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55004728def25f64fbf190340dceeaf6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeInBetweenEachTick: 1
+  damage: 30
+  health: {fileID: 6230349697370413922}
+  inLava: 0
 --- !u!1 &6477989230758600513
 GameObject:
   m_ObjectHideFlags: 0
