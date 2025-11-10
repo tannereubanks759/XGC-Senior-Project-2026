@@ -36,8 +36,9 @@ public class interactScript : MonoBehaviour
     private HealthPotion HealthPotionScript;
     private GoldBank goldRef;
     public int priceOfHealthPotion = 5;
-
+    private bool upgrade = false;
     public bool TeleporterInteract = false;
+    public GameObject currentUpgradeStation;
     void Start()
     {
         TeleporterInteract = false;
@@ -163,6 +164,13 @@ public class interactScript : MonoBehaviour
             tmpro.text = "Teleport To The Next Island";
             interactText.SetActive(true);
         }
+        else if (other.CompareTag("Upgrade"))
+        {
+            upgrade = true;
+            currentUpgradeStation = other.gameObject;
+            tmpro.text = "Upgrade Station";
+            interactText.SetActive(true);
+        }
         /*if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
         {
             interactText.SetActive(true);
@@ -202,10 +210,18 @@ public class interactScript : MonoBehaviour
         else if (other.CompareTag("Teleporter"))
         {
             TeleporterInteract = false;
+            tmpro.text = "E to interact";
         }
         else if (other.CompareTag("shop"))
         {
             shopInteract = false;
+            tmpro.text = "E to interact";
+        }
+        else if(other.CompareTag("Upgrade"))
+        {
+            upgrade = false;
+            currentUpgradeStation = null;
+            tmpro.text = "E to interact";
         }
         /*else if (other.CompareTag("DungeonLock"))
         {
@@ -297,6 +313,14 @@ public class interactScript : MonoBehaviour
                     
                 }
                 
+            }
+            else if(upgrade)
+            {
+                if(currentUpgradeStation!=null)
+                {
+                    var upgradeScript = currentArtifactObj.GetComponent<upgradeStationScript>();
+                    //upgradeScript.
+                }
             }
             
                 /*else if(dungeonDoor != null && treasureRoomUnlocked)
