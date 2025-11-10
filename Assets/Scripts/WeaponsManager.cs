@@ -99,6 +99,26 @@ public class WeaponsManager : MonoBehaviour
             lamp.SetActive(true);
         }
     }
+    public void ShowExplosionLantern()
+    {
+        lamp.SetActive(true);
+        explosionFire.SetActive(true);
+        invulnerabilityFire.SetActive(false);
+    }
+
+    public void ShowInvulnerabilityLantern()
+    {
+        lamp.SetActive(true);
+        invulnerabilityFire.SetActive(true);
+        explosionFire.SetActive(false);
+    }
+
+    public void HideLantern()
+    {
+        lamp.SetActive(false);
+        explosionFire.SetActive(false);
+        invulnerabilityFire.SetActive(false);
+    }
     public void SetHealing(bool heal)
     {
         

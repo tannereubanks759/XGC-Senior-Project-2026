@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 public class inventoryScript : MonoBehaviour
 {
-    //public List<GameObject> items = new List<GameObject>();
+   /* //public List<GameObject> items = new List<GameObject>();
     public GameObject inventoryUI;
     public bool isOpen = false;
     
@@ -19,10 +19,10 @@ public class inventoryScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        inventoryUI = GameObject.Find("NEW INV");
-        equip = inventoryUI.GetComponentInChildren<equipScript>();
-        inventoryUI.SetActive(false);
-        middleInventorySlot = inventoryUI.transform.Find("bg/AssigningSpot/assignImageBG");
+        //inventoryUI = GameObject.Find("NEW INV");
+        //equip = inventoryUI.GetComponentInChildren<equipScript>();
+        //inventoryUI.SetActive(false);
+        //middleInventorySlot = inventoryUI.transform.Find("bg/AssigningSpot/assignImageBG");
     }
 
     // Update is called once per frame
@@ -53,7 +53,7 @@ public class inventoryScript : MonoBehaviour
         {
             interactScript.current.RefreshKeyIcons();
         }
-        inventoryUI.SetActive(!isOpen);
+        //inventoryUI.SetActive(!isOpen);
 
         setPauseLogic(!isOpen);
         isOpen = !isOpen;
@@ -102,5 +102,5 @@ public class inventoryScript : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
-    }
+    }*/
 }

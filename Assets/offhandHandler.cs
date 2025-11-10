@@ -17,55 +17,85 @@ public class offhandHandler : MonoBehaviour
     public void unequip()
     {
         player = GameObject.FindWithTag("Player");
-        if (currentOffhand != null) 
+        foreach (ItemData item in allOffhands)
         {
-            currentOffhand.OnUnEquip(player);
+            if (item != null)
+                item.OnUnEquip(player);
         }
+        currentOffhand = null;
+
     }
     public void lightning()
     {
-        unequip();
-        currentOffhand = null;
         player = GameObject.FindWithTag("Player");
+        unequip();
         Debug.Log("Lightning Offhand Swapped to");
-        currentOffhand = allOffhands[1];
-        if(currentOffhand != null) 
+
+        // base lightning
+        if (allOffhands.Length > 1 && allOffhands[1] != null)
         {
-            currentOffhand.OnEquip(player);
+            allOffhands[1].OnEquip(player);
+            currentOffhand = allOffhands[1];
+        }
+
+        // upgrade 1
+        if (lightningUpgradeCount >= 1 && allOffhands.Length > 2 && allOffhands[2] != null)
+        {
+            allOffhands[2].OnEquip(player);
+        }
+
+        // upgrade 2
+        if (lightningUpgradeCount >= 2 && allOffhands.Length > 3 && allOffhands[3] != null)
+        {
+            allOffhands[3].OnEquip(player);
         }
     }
     public void chaos()
     {
-        unequip();
-        currentOffhand = null;
         player = GameObject.FindWithTag("Player");
-        Debug.Log("Chaos Offhand Swapped to");
-        if (currentOffhand != null)
-        {
-            currentOffhand.OnEquip(player);
-        }
+        unequip();
+        
     }
     public void Defense()
     {
-        unequip();
-        currentOffhand = null;
         player = GameObject.FindWithTag("Player");
+        unequip();
+
         Debug.Log("Defense Offhand Swapped to");
-        currentOffhand = allOffhands[0];
-        if (currentOffhand != null)
+
+        if (allOffhands.Length > 0 && allOffhands[0] != null)
         {
-            currentOffhand.OnEquip(player);
+            allOffhands[0].OnEquip(player);
+            currentOffhand = allOffhands[0];
         }
     }
     public void FireBomb()
     {
-        unequip();
-        currentOffhand = null;
         player = GameObject.FindWithTag("Player");
-        Debug.Log("Firebomb Offhand Swapped to");
-        if (currentOffhand != null)
+        unequip();
+        
+    }
+    public void increaseUpgradeStatus(int num)
+    {
+        if (num == 1)
         {
-            currentOffhand.OnEquip(player);
+            lightningUpgradeCount++;
+            lightning();        
+        }
+        else if (num == 2)
+        {
+            firebombUpgradeCount++;
+            FireBomb();
+        }
+        else if (num == 3)
+        {
+            defenseUpgradeCount++;
+            Defense();
+        }
+        else
+        {
+            choasUpgradeCount++;
+            chaos();
         }
     }
     // Update is called once per frame

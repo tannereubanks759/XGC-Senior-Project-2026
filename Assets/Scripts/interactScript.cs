@@ -80,16 +80,7 @@ public class interactScript : MonoBehaviour
     public void RefreshKeyIcons()
     {
         
-       redKeyObj.SetActive(false);
-       greenKey.SetActive(false);
-       blueKey.SetActive(false);
-       goldKey.SetActive(false);
-
-        
-        foreach (int id in keyIDs)
-        {
-            colorIDChecker(id, true);
-        }
+       
             
     }
     private void OnTriggerStay(Collider other)
@@ -251,9 +242,9 @@ public class interactScript : MonoBehaviour
                 {
                     goldRef.RemoveGold(cost);
                     if (itemDataA) itemDataA.wasOwned = true;
-                    inventoryScript.addToInventory(currentArtifact, currentArtifactObj);
+                    //inventoryScript.addToInventory(currentArtifact, currentArtifactObj);
 
-                    inventoryScript.toggleInv();
+                    //inventoryScript.toggleInv();
                     canInteract = false;
                 }
             }
@@ -271,10 +262,10 @@ public class interactScript : MonoBehaviour
                 infoScriptRef.keyCount++;
                 k.chest.DisableSeal();
                 k.chest.chestOutline.enabled = true;
-                if (inventoryScript.inventoryUI.activeSelf)
+                /*if (inventoryScript.inventoryUI.activeSelf)
                 {
                     colorIDChecker(id, true);
-                }
+                }*/
                 keyInteract = false;
             }
             else if (chestInteract)
@@ -301,25 +292,28 @@ public class interactScript : MonoBehaviour
             }
             else if (healthPotionInteract)
             {
-                if(goldRef.gold >= priceOfHealthPotion)
+                if (goldRef.gold >= priceOfHealthPotion)
                 {
-                    if(HealthPotionScript.GetQuantity()<=4)
+                    if (HealthPotionScript.GetQuantity() <= 4)
                     {
                         HealthPotionScript.CollectHealthPotion();
                         goldRef.RemoveGold(priceOfHealthPotion);
-                        Destroy(currentHealthPotion);
+
+                        if (currentHealthPotion != null)
+                            Destroy(currentHealthPotion);
+
                         currentHealthPotion = null;
+                        healthPotionInteract = false;
+                        tmpro.text = "E to interact"; 
                     }
-                    
                 }
-                
             }
             else if(upgrade)
             {
                 if(currentUpgradeStation!=null)
                 {
-                    var upgradeScript = currentArtifactObj.GetComponent<upgradeStationScript>();
-                    //upgradeScript.
+                    var upgradeScript = currentUpgradeStation.GetComponent<upgradeStationScript>();
+                    upgradeScript.openUI();
                 }
             }
             
@@ -338,10 +332,7 @@ public class interactScript : MonoBehaviour
     }
     public void HideAllKeyIcons()
     {
-        redKeyObj.SetActive(false);
-        greenKey.SetActive(false);
-        blueKey.SetActive(false);
-        goldKey.SetActive(false);
+        
 
     }
 }

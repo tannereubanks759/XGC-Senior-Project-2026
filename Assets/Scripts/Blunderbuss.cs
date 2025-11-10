@@ -53,9 +53,9 @@ public class Blunderbuss : MonoBehaviour
     void Update()
     {
 
-        if (Input.GetKeyDown(shootKey) && isLoaded && Inv.isOpen == false)
+        if (Input.GetKeyDown(shootKey) && isLoaded)
             anim.SetTrigger("Shoot");
-        else if (Input.GetKeyDown(shootKey) && Inv.isOpen == false)
+        else if (Input.GetKeyDown(shootKey))
         {
             sounds.PlayClickSound();
         }

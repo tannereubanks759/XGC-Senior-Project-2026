@@ -15,9 +15,9 @@ public class artifactTwo : ItemData
         sd.bonusDamage = true;
         //sd.damage = 20;
         
-        inventoryScript invScript;
+        /*inventoryScript invScript;
         invScript= player.GetComponentInChildren<inventoryScript>();
-        invScript.toggleInv();
+        invScript.toggleInv();*/
     }
     public override void OnUnEquip(GameObject player)
     {

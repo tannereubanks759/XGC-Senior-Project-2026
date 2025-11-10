@@ -98,24 +98,26 @@ public class chargeOffHandLatern : MonoBehaviour
             invulnerable();
         }
     }
-   
+
     public void activate()
     {
         if (offHandType == OffHandTypes.invulnerabilty)
         {
-            WeaponsManager.invulnerabilitySwap();
+            WeaponsManager.ShowInvulnerabilityLantern();
         }
         else
         {
-            WeaponsManager.swapLantern();
+            WeaponsManager.ShowExplosionLantern();
         }
-        
+
         isActive = true;
         UpdateSphereColors();
     }
+
     public void deactivate()
     {
-        WeaponsManager.swapLantern();
+        
+        WeaponsManager.HideLantern();
         isActive = false;
         UpdateSphereColors();
     }

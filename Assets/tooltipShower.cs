@@ -11,8 +11,10 @@ public class tooltipShower : MonoBehaviour
     }
     public static void Show(string description, string name = "")
     {
+        //Debug.Log("Recieved Call");
         current.tooltipR.SetText(description, name);
         current.tooltipR.gameObject.SetActive(true);
+        Debug.Log("Updated");
     }
     public static void Hide()
     {

@@ -9,9 +9,9 @@ public class artifactFour : ItemData
         FirstPersonController playercontrollerRef;
         playercontrollerRef = player.GetComponent<FirstPersonController>();
         playercontrollerRef.fov = 120;
-        inventoryScript invScript;
-        invScript = player.GetComponentInChildren<inventoryScript>();
-        invScript.toggleInv();
+        //inventoryScript invScript;
+        //invScript = player.GetComponentInChildren<inventoryScript>();
+        //invScript.toggleInv();
 
     }
     public override void OnUnEquip(GameObject player)

@@ -8,9 +8,9 @@ public class knockBackArtifact : ItemData
         RaycastKnockback rcKB;
         rcKB = player.GetComponentInChildren<RaycastKnockback>();
         rcKB.upgradedKnockback = true;
-        inventoryScript invScript;
-        invScript = player.GetComponentInChildren<inventoryScript>();
-        invScript.toggleInv();
+        //inventoryScript invScript;
+        //invScript = player.GetComponentInChildren<inventoryScript>();
+        //invScript.toggleInv();
 
     }
     public override void OnUnEquip(GameObject player)

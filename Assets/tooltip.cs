@@ -26,10 +26,19 @@ public class tooltip : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector2 position = Input.mousePosition;
+        //Vector2 position = Input.mousePosition;
         //float x =  position.x/Screen.width;
         //float y = position.y/Screen.height;
         //rect.pivot = new Vector2(x,y);
-        transform.position = position;
+        //transform.position = position;
+        Vector2 mousePos = Input.mousePosition;
+
+        // set pivot based on screen position
+        rect.pivot = new Vector2(
+            mousePos.x / Screen.width > 0.5f ? 1f : 0f,   // right half -> pivot right
+            mousePos.y / Screen.height > 0.5f ? 1f : 0f   // top half -> pivot top
+        );
+
+        transform.position = mousePos;
     }
 }
