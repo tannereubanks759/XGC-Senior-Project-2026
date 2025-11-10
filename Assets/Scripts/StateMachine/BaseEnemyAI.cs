@@ -567,7 +567,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
                 {
                     if (col.CompareTag("Enemy") && col.transform != this.transform)
                     {
-                        var enemyTestScript = col.GetComponent<BasicSkeleton>();
+                        var enemyTestScript = col.GetComponent<BaseEnemyAI>();
                         if (enemyTestScript.currentHealth > 0)
                         {
                             //Debug.Log("Lighting damage transferred");
