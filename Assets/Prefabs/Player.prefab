@@ -264,13 +264,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f42aa2fc615111947a021f27186d3858, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inventoryUI: {fileID: 0}
-  isOpen: 0
-  items: []
-  currentlyEquippingItemData: {fileID: 0}
-  equip: {fileID: 0}
-  middleInventorySlot: {fileID: 0}
-  spawnPoint: {fileID: 8477255157793664075}
 --- !u!65 &747820038537369880
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -641,6 +634,54 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &2708173403352759965
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5163136769391558192}
+  - component: {fileID: 1741420818005438438}
+  m_Layer: 0
+  m_Name: Artifacts
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5163136769391558192
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2708173403352759965}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2259459058816825701}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1741420818005438438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2708173403352759965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 461981d78ac72844f8665261780515c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isActive: 1
+  enemyMask:
+    serializedVersion: 2
+    m_Bits: 33281
 --- !u!1 &2730707169803131150
 GameObject:
   m_ObjectHideFlags: 0
@@ -1979,6 +2020,7 @@ Transform:
   - {fileID: 6477666516781027436}
   - {fileID: 557882133316157221}
   - {fileID: 4842778643313173995}
+  - {fileID: 5163136769391558192}
   m_Father: {fileID: 5696692602856398275}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7945717937085838674
