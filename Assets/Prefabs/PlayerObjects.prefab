@@ -8104,6 +8104,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3657037082975847786}
+  - component: {fileID: 5179326652048583628}
   m_Layer: 0
   m_Name: PlayerObjects
   m_TagString: Untagged
@@ -8132,6 +8133,23 @@ Transform:
   - {fileID: 2417829174255287664}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5179326652048583628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2605202062515863851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23287258d5b23fa47a2add62c397c4b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PauseScreen: {fileID: 8949630733366587131}
+  DeathScreen: {fileID: 2788842281223973736}
+  PlayerUIScreen: {fileID: 8227175006808214364}
+  OffhandWheelScreen: {fileID: 0}
+  UpgradeStationScreen: {fileID: 0}
 --- !u!1 &2689840063558183440
 GameObject:
   m_ObjectHideFlags: 0
@@ -15469,6 +15487,7 @@ MonoBehaviour:
   amb: {fileID: 0}
   combatController: {fileID: 0}
   wm: {fileID: 0}
+  UIM: {fileID: 5179326652048583628}
 --- !u!114 &5963858954921748016
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,7 +6,6 @@ public class UI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public KeyCode PauseKey = KeyCode.Tab;
-
     public bool isPaused = false;
     public GameObject PauseScreen;
     public GameObject DeathScreen;
@@ -15,6 +14,7 @@ public class UI : MonoBehaviour
     public Ambience amb;
     public CombatController combatController;
     public WeaponsManager wm;
+    public UImanager UIM;
     void Start()
     {
         Resume();
@@ -37,17 +37,6 @@ public class UI : MonoBehaviour
                 Pause();
             }
         }
-        if (Input.GetKeyDown(KeyCode.U))
-        {
-            if (playerUI.activeSelf)
-            {
-                playerUI.SetActive(false);
-            }
-            else
-            {
-                playerUI.SetActive(true);
-            }
-        }
     }
 
     void Pause()
@@ -56,10 +45,8 @@ public class UI : MonoBehaviour
         amb.paused = true;
         combatController.isPaused = true;
         FirstPersonController.isPaused = true;
-        PauseScreen.SetActive(true);
         isPaused = true;
-        EnableCursor(true);
-        Time.timeScale = 0f;
+        UIM.OpenPauseScreen();
     }
 
     public void Resume()
@@ -68,18 +55,14 @@ public class UI : MonoBehaviour
         amb.paused = false;
         combatController.isPaused = false;
         FirstPersonController.isPaused = false;
-        PauseScreen.SetActive(false);
         isPaused = false;
-        EnableCursor(false);
-        Time.timeScale = 1f;
+        UIM.OpenPlayerUIScreen();
     }
 
     public void ShowDeathScreen()
     {
         FirstPersonController.isPaused = true;
-        DeathScreen.SetActive(true);
-        EnableCursor(true);
-        Time.timeScale = 0f;
+        UIM.OpenDeathScreen();
     }
 
     void EnableCursor(bool enabled)
