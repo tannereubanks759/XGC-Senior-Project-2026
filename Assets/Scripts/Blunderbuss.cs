@@ -23,8 +23,10 @@ public class Blunderbuss : MonoBehaviour
     private TextMeshProUGUI ammoText;
     private WeaponInertia wIntertia;
     public GunSounds sounds;
+    private UI ui;
     void Start()
     {
+        ui = GameObject.FindAnyObjectByType<UI>();
         ammoText = GameObject.FindGameObjectWithTag("ammoText").GetComponent<TextMeshProUGUI>();
         anim.SetInteger("ammo", totalAmmo);
         isLoaded = true;
@@ -52,7 +54,7 @@ public class Blunderbuss : MonoBehaviour
 
     void Update()
     {
-
+        if (ui.isPaused) return;
         if (Input.GetKeyDown(shootKey) && isLoaded)
             anim.SetTrigger("Shoot");
         else if (Input.GetKeyDown(shootKey))

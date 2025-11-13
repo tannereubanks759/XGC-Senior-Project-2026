@@ -8,7 +8,11 @@ public class UImanager : MonoBehaviour
     public GameObject PlayerUIScreen;
     public GameObject OffhandWheelScreen;
     public GameObject UpgradeStationScreen;
-    
+
+    private void Awake()
+    {
+        OpenPlayerUIScreen();
+    }
     public void OpenPauseScreen()
     {
         PreSetup(true, true);

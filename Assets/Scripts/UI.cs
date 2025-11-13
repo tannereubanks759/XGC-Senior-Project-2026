@@ -7,9 +7,6 @@ public class UI : MonoBehaviour
 
     public KeyCode PauseKey = KeyCode.Tab;
     public bool isPaused = false;
-    public GameObject PauseScreen;
-    public GameObject DeathScreen;
-    public GameObject playerUI;
     public Camera SceneCamera;
     public Ambience amb;
     public CombatController combatController;
@@ -18,9 +15,7 @@ public class UI : MonoBehaviour
     void Start()
     {
         Resume();
-        //SceneCamera.gameObject.SetActive(false);
         EnableCursor(false);
-        DeathScreen.SetActive(false);
     }
 
     // Update is called once per frame
