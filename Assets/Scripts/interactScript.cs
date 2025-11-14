@@ -39,6 +39,7 @@ public class interactScript : MonoBehaviour
     private bool upgrade = false;
     public bool TeleporterInteract = false;
     public GameObject currentUpgradeStation;
+    public upgradeStationScript upgradeScript;
     void Start()
     {
         TeleporterInteract = false;
@@ -312,7 +313,7 @@ public class interactScript : MonoBehaviour
             {
                 if(currentUpgradeStation!=null)
                 {
-                    var upgradeScript = currentUpgradeStation.GetComponent<upgradeStationScript>();
+                    
                     upgradeScript.openUI();
                 }
             }

@@ -3,22 +3,20 @@ using UnityEngine.Rendering;
 
 public class offhandWheel : MonoBehaviour
 {
-    public GameObject offhandWheelCanvas;
-   
+    public UImanager UIM;
     void Start()
     {
-        offhandWheelCanvas.SetActive(false);
     }
     public void openWheel()
     {
+        UIM.OpenOffhandWheelScreen();
         var controllerRef = FindAnyObjectByType<FirstPersonController>();
         controllerRef.playerCanMove = false;
         controllerRef.cameraCanMove = false;
         Volume vol = Camera.main.gameObject.GetComponent<Volume>();
         vol.enabled = true;
-        offhandWheelCanvas.SetActive(true);
-        Cursor.lockState = CursorLockMode.None;
         Time.timeScale = .3f;
+        
     }
     public void closeWheel()
     {
@@ -29,9 +27,7 @@ public class offhandWheel : MonoBehaviour
         offhandHandle.buttonPress();
         Volume vol = Camera.main.gameObject.GetComponent<Volume>();
         vol.enabled = false;
-        offhandWheelCanvas.SetActive(false);
-        Cursor.lockState = CursorLockMode.Locked;
-        Time.timeScale = 1f;
+        UIM.OpenPlayerUIScreen();
     }
     // Update is called once per frame
     void Update()

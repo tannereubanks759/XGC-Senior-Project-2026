@@ -423,7 +423,6 @@ GameObject:
   - component: {fileID: 9220087965060300104}
   - component: {fileID: 4704908381500064190}
   - component: {fileID: 4277643956625295505}
-  - component: {fileID: 8698380874204312210}
   m_Layer: 0
   m_Name: LampArtifact
   m_TagString: Artifact
@@ -544,20 +543,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &8698380874204312210
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3868072046874173741}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2d76d631e065f149a8d6bd787c36c4e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Speed: 0.7
-  height: 0.2
 --- !u!1 &4899627404088501692
 GameObject:
   m_ObjectHideFlags: 0

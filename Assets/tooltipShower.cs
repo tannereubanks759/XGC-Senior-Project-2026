@@ -3,7 +3,6 @@ using UnityEngine;
 public class tooltipShower : MonoBehaviour
 {
     private static tooltipShower current;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     public tooltip tooltipR;
     public void Awake()
     {
@@ -20,9 +19,5 @@ public class tooltipShower : MonoBehaviour
     {
         current.tooltipR.gameObject.SetActive(false);
     }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 }
