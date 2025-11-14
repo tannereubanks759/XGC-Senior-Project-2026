@@ -21856,6 +21856,7 @@ GameObject:
   - component: {fileID: 3629823473797291533}
   - component: {fileID: 6007496857955723791}
   - component: {fileID: 6230349697370413922}
+  - component: {fileID: 6183583974348778513}
   m_Layer: 0
   m_Name: Weapons
   m_TagString: Untagged
@@ -22033,6 +22034,25 @@ MonoBehaviour:
   isPaused: 0
   invulnerability: 0
   boss_healthbar: {fileID: 7328997988885366978}
+--- !u!114 &6183583974348778513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6199241630844518463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6b765d36a93914eb8f115f4cfc0586, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parent: {fileID: 7635544870034271462}
+  useKey: 102
+  FireballPref: {fileID: 5373108870937837011, guid: 8e60aa237f45fe649b51cec1b00319c0, type: 3}
+  fireball_1: {fileID: 3757368228119819915}
+  fireball_2: {fileID: 838562964997630056}
+  activeFireballs: 2
+  scalePower: 0.01
 --- !u!1 &6428402459396883477
 GameObject:
   m_ObjectHideFlags: 0
@@ -22989,7 +23009,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7997094350293341575}
   - component: {fileID: 101445691574310370}
-  - component: {fileID: 1692524855442001327}
   m_Layer: 18
   m_Name: FireballParent
   m_TagString: Untagged
@@ -23035,24 +23054,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1692524855442001327
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7635544870034271462}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f6b765d36a93914eb8f115f4cfc0586, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useKey: 102
-  FireballPref: {fileID: 5373108870937837011, guid: 8e60aa237f45fe649b51cec1b00319c0, type: 3}
-  fireball_1: {fileID: 3757368228119819915}
-  fireball_2: {fileID: 838562964997630056}
-  activeFireballs: 2
-  scalePower: 0.01
 --- !u!1 &7638729564069392685
 GameObject:
   m_ObjectHideFlags: 0

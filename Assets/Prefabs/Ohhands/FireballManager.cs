@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class FireballManager : MonoBehaviour
 {
+    public GameObject parent;
     public KeyCode useKey = KeyCode.F;
     public GameObject FireballPref;
     public GameObject fireball_1;
@@ -14,6 +15,7 @@ public class FireballManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        parent.SetActive(false);
         targetScale = fireball_1.gameObject.transform.localScale;
     }
 
@@ -38,6 +40,20 @@ public class FireballManager : MonoBehaviour
                 activeFireballs++;
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha7)) //DEBUG KEY TO OPEN FIRE OBJECT
+        {
+            if (parent.activeSelf)
+            {
+                parent.SetActive(false);
+            }
+            else
+            {
+                parent.SetActive(true);
+            }
+        }
+
+        if (!parent.activeSelf) return;
 
         if (Input.GetKeyDown(useKey) && activeFireballs > 0)
         {
