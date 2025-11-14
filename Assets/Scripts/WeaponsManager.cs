@@ -27,8 +27,15 @@ public class WeaponsManager : MonoBehaviour
         InitializeWeapons();
         Crosshair = GameObject.FindGameObjectWithTag("crosshair");
         EnableCrosshair(false);
-        explosionFire.SetActive(false);
-        invulnerabilityFire.SetActive(false);   
+        if (explosionFire)
+        {
+            explosionFire.SetActive(false);
+        }
+        if (invulnerabilityFire)
+        {
+            invulnerabilityFire.SetActive(false);
+        }
+         
         lamp.SetActive(false);
         
     }
