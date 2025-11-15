@@ -5,7 +5,7 @@ public class BossAnimatorEvents : MonoBehaviour
     private AnchorWeapon weapon;
     private BossHand hand;
     public ParticleSystem lavaPs;
-    
+    public Collider chargeAttackCol;
     private void Start()
     {
         weapon = GetComponentInChildren<AnchorWeapon>();
@@ -64,6 +64,14 @@ public class BossAnimatorEvents : MonoBehaviour
             
         }
         
+        
+    }
+    public void SetChargeOn()
+    {
+        if (chargeAttackCol)
+        {
+            chargeAttackCol.enabled = true;
+        }
     }
     public void SetLavaOff()
     {
@@ -71,6 +79,10 @@ public class BossAnimatorEvents : MonoBehaviour
         {
             var emmission = lavaPs.emission;
             emmission.enabled = false;
+        }
+        if (chargeAttackCol)
+        {
+            chargeAttackCol.enabled = false;
         }
         
     }
