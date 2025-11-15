@@ -23,9 +23,9 @@ public class Fireball : MonoBehaviour
             {
                 colliders[i].GetComponent<BaseEnemyAI>().TakeDamage((int)damage);
             }
-            else if (colliders[i].GetComponent<PirateBossAI>())
+            else if (colliders[i].GetComponent<DamageRef>())
             {
-                colliders[i].GetComponent<PirateBossAI>().TakeDamage((int)damage);
+                colliders[i].GetComponent<DamageRef>().TakeDamage((int)damage);
             }
             else if (colliders[i].GetComponent<FirstPersonController>())
             {

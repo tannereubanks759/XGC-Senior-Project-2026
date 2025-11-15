@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UnityEngine;
 
 [AddComponentMenu("AI/Boss Arena Trigger")]
@@ -6,6 +7,7 @@ public class BossArenaTrigger : MonoBehaviour
 {
     [Tooltip("Assign the boss AI in this arena.")]
     public PirateBossAI boss;
+    public MagmaBossAI magmaBoss;
     [Tooltip("If true, this trigger only fires once.")]
     public bool oneShot = true;
     bool _fired;
@@ -20,12 +22,23 @@ public class BossArenaTrigger : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (_fired && oneShot) return;
-        if (boss == null) return;
+        if (boss == null && magmaBoss == null) return;
 
         if (other.CompareTag("Player"))
         {
-            boss.BeginEncounter(other.transform);
-            smokeCollider.isTrigger = false;
+            if (boss)
+            {
+                boss.BeginEncounter(other.transform);
+            }
+            if (magmaBoss)
+            {
+                magmaBoss.BeginEncounter(other.transform);
+            }
+            if (smokeCollider)
+            {
+                smokeCollider.isTrigger = false;
+            }
+            
             _fired = true;
         }
     }

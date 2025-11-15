@@ -10,14 +10,26 @@ public class BossAnimatorEvents : MonoBehaviour
     }
     public void SetColliderOn()
     {
-        weapon.EnableCollider(true);
+        if (weapon)
+        {
+            weapon.EnableCollider(true);
+        }
+        
     }
     public void SetColliderOff()
     {
-        weapon.EnableCollider(false);
+        if (weapon)
+        {
+            weapon.EnableCollider(false);
+        }
+            
     }
     public void ThrowAnchor()
     {
-        weapon.Throw();
+        if (weapon)
+        {
+            weapon.Throw();
+        }
+        
     }
 }
