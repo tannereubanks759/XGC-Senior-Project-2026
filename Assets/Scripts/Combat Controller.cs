@@ -538,6 +538,11 @@ public class CombatController : MonoBehaviour
             wInertia.ParryClash(1);
         }
     }
+    public void TDBB_With_Knockback(int damage, Transform from)
+    {
+        TakeDamageByBoss(damage);
+        GetStaggeredFrom(from, 1f);
+    }
 
     /*
      private void OnTriggerEnter(Collider other)
@@ -632,7 +637,6 @@ public class CombatController : MonoBehaviour
             Vector3 fromEnemyToPlayer = (transform.position - enemy.position).normalized;
             //wInertia.BlockStagger(fromEnemyToPlayer, intensity);
             isStaggered = true;
-            swordAnim.SetTrigger("Stagger");
             StartCoroutine(CoApplyStaggerKnockback(fromEnemyToPlayer)); // push away from enemy
         }
         else
@@ -669,7 +673,6 @@ public class CombatController : MonoBehaviour
         // Hold lockout for the stagger duration
         yield return new WaitForSeconds(staggerLockTime);
         isStaggered = false;
-        swordAnim.ResetTrigger("Stagger");
         // Restore movement & friction
         if (controller != null) controller.playerCanMove = true;
         if (col != null && staggerLowFriction != null) col.material = originalMat;

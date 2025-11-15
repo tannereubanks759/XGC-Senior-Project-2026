@@ -10,7 +10,7 @@ public class LavaDamage : MonoBehaviour
     public bool inLava = false;
 
     private float nextTick = 0f;
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -33,6 +33,17 @@ public class LavaDamage : MonoBehaviour
         if(other.tag == "Lava")
         {
             inLava = false;
+        }
+    }
+    private void OnParticleCollision(GameObject other)
+    {
+        if(other.gameObject.layer == 17)//lava layer
+        {
+            if(Time.time > nextTick)
+            {
+                nextTick = Time.time + timeInBetweenEachTick;
+                health.TakeDamage((int)damage);
+            }
         }
     }
 }

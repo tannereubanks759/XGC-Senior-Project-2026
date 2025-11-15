@@ -6,7 +6,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class MagmaBossAI : MonoBehaviour
 {
-    public enum BossState { Idle, Chase, Attack, Dead }
+    public enum BossState { Idle, Chase, Attack, Charge, Dead }
 
     [Header("References")]
     public Animator animator;
@@ -47,12 +47,31 @@ public class MagmaBossAI : MonoBehaviour
     [SerializeField] string paramAttackIdx = "attack";
     [SerializeField] string paramIsDead = "isDead";
 
+    // --- NEW: Charge animator params ---
+    [SerializeField] string paramIsCharging = "isCharging";           // bool
+    [SerializeField] string paramChargeTelegraph = "ChargeTelegraph"; // trigger
+    [SerializeField] string paramChargeSpeed = "chargeSpeed";         // float for anim speed blend
+
     [Header("Attack Selection")]
     [Min(1)] public int numAttackAnims = 5;
     public bool avoidImmediateRepeat = true;
 
-    bool _deathHandled = false;
+    // --- NEW: Charge Attack Tuning ---
+    [Header("Charge Attack")]
+    public float chargeStartDistance = 12f;       // must be at least this far to begin a charge
+    public float chargeTriggerDistance = 5f;      // when this close, lock direction and go straight
+    public float chargeRunDistance = 8f;          // straight-line distance after locking
+    public float chargeSpeedMultiplier = 2.5f;    // movement speed multiplier during charge
+    public float chargeCooldown = 6f;             // cooldown so charge is not spammed
+    public float chargeTelegraphTime = 0.8f;      // telegraph wind-up duration
 
+    [Header("Charge Animation Blend")]
+    public float minChargeAnimSpeed = 1.0f;       // low end of charge anim speed
+    public float maxChargeAnimSpeed = 1.5f;       // high end of charge anim speed
+
+    float _nextChargeAllowedTime = 0f;
+
+    bool _deathHandled = false;
     public BossState State { get; private set; } = BossState.Idle;
 
     // Internals
@@ -67,6 +86,13 @@ public class MagmaBossAI : MonoBehaviour
     float _nextWalkToggleTime;
     float _speedLPF;
 
+    // --- NEW: Charge internals ---
+    float _baseAgentSpeed;
+    bool _chargeBusy;
+    bool _chargeCancelRequested;
+    Vector3 _chargeDirection;
+    Vector3 _chargeStartPos;
+
     void Reset()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -76,9 +102,11 @@ public class MagmaBossAI : MonoBehaviour
     void Awake()
     {
         if (!agent) agent = GetComponent<NavMeshAgent>();
+
         agent.updateRotation = false;
         agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
 
+        _baseAgentSpeed = agent.speed;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
         RecalcRanges();
@@ -111,6 +139,7 @@ public class MagmaBossAI : MonoBehaviour
             case BossState.Idle: TickIdle(); break;
             case BossState.Chase: TickChase(); break;
             case BossState.Attack: TickAttack(); break;
+            case BossState.Charge: TickCharge(); break; // mostly handled by coroutine, but kept for safety
         }
     }
 
@@ -140,8 +169,10 @@ public class MagmaBossAI : MonoBehaviour
     void TickIdle()
     {
         agent.isStopped = true;
+        agent.speed = _baseAgentSpeed;
         SetWalk(false, true);
         animator.SetBool(paramIsAttackin, false);
+        animator.SetBool(paramIsCharging, false);
     }
 
     void TickChase()
@@ -156,15 +187,24 @@ public class MagmaBossAI : MonoBehaviour
         Vector3 toPlayer = player.position - transform.position;
         float sqrDist = toPlayer.sqrMagnitude;
 
-        // Attack if close enough & off cooldown
+        // --- NEW: Charge trigger (far enough and off cooldown) ---
+        if (Time.time >= _nextChargeAllowedTime &&
+            sqrDist >= chargeStartDistance * chargeStartDistance)
+        {
+            TransitionTo(BossState.Charge);
+            return;
+        }
+
+        // Attack if close enough & off cooldown (original logic)
         if (Time.time >= _attackCooldownUntil && sqrDist <= _sqrAttackEnter)
         {
             TransitionTo(BossState.Attack);
             return;
         }
 
-        // Move toward player
+        // Move toward player (original chase logic)
         agent.isStopped = false;
+        agent.speed = _baseAgentSpeed;
         agent.SetDestination(player.position);
         FaceTarget();
 
@@ -195,6 +235,7 @@ public class MagmaBossAI : MonoBehaviour
 
         animator.SetBool(paramIsRunning, false);
         animator.SetBool(paramIsAttackin, false);
+        animator.SetBool(paramIsCharging, false);
     }
 
     void TickAttack()
@@ -206,6 +247,26 @@ public class MagmaBossAI : MonoBehaviour
             float sqrDist = (player.position - transform.position).sqrMagnitude;
             if (sqrDist > _sqrAttackExit && !_attackBusy)
                 TransitionTo(BossState.Chase);
+        }
+    }
+
+    // Charge state is driven mostly by the coroutine, but we can keep this for any extra per-frame logic.
+    void TickCharge()
+    {
+        // Just keep facing where we're going if we have a direction
+        if (_chargeDirection.sqrMagnitude > 0.0001f)
+        {
+            Vector3 dir = _chargeDirection;
+            dir.y = 0f;
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(dir, Vector3.up);
+                transform.rotation = Quaternion.RotateTowards(
+                    transform.rotation,
+                    targetRot,
+                    turnSpeed * Time.deltaTime
+                );
+            }
         }
     }
 
@@ -244,21 +305,33 @@ public class MagmaBossAI : MonoBehaviour
             _attackBusy = false;
         }
 
+        if (State == BossState.Charge)
+        {
+            // safety cleanup in case charge is interrupted
+            CleanupChargeState();
+        }
+
         State = next;
 
         switch (next)
         {
             case BossState.Idle:
                 agent.isStopped = true;
+                agent.speed = _baseAgentSpeed;
                 SetWalk(false, true);
                 break;
 
             case BossState.Chase:
                 agent.isStopped = false;
+                agent.speed = _baseAgentSpeed;
                 break;
 
             case BossState.Attack:
                 if (!_attackBusy) StartCoroutine(AttackRoutine());
+                break;
+
+            case BossState.Charge:
+                if (!_chargeBusy) StartCoroutine(ChargeRoutine());
                 break;
 
             case BossState.Dead:
@@ -283,6 +356,7 @@ public class MagmaBossAI : MonoBehaviour
 
         SetWalk(false, true);
         animator.SetBool(paramIsAttackin, false);
+        animator.SetBool(paramIsCharging, false);
 
         foreach (var col in GetComponentsInChildren<Collider>())
             col.enabled = false;
@@ -313,6 +387,173 @@ public class MagmaBossAI : MonoBehaviour
         _attackCooldownUntil = Time.time + attackCooldown;
 
         _attackBusy = false;
+        TransitionTo(BossState.Chase);
+    }
+
+    // --- NEW: Charge coroutine driving telegraph + homing + straight burst ---
+    IEnumerator ChargeRoutine()
+    {
+        _chargeBusy = true;
+        _chargeCancelRequested = false;
+        _chargeDirection = Vector3.zero;
+        _chargeStartPos = transform.position;
+
+        // TELEGRAPH PHASE
+        agent.isStopped = true;
+        agent.speed = _baseAgentSpeed;
+        SetWalk(false, true);
+        animator.SetBool(paramIsCharging, false);
+
+        if (!string.IsNullOrEmpty(paramChargeTelegraph))
+        {
+            animator.ResetTrigger(paramChargeTelegraph);
+            animator.SetTrigger(paramChargeTelegraph);
+        }
+
+        float telegraphEnd = Time.time + chargeTelegraphTime;
+        while (Time.time < telegraphEnd && State == BossState.Charge && !_chargeCancelRequested)
+        {
+            FaceTarget();
+            yield return null;
+        }
+
+        if (State != BossState.Charge || _chargeCancelRequested)
+        {
+            EndCharge();
+            yield break;
+        }
+
+        // HOMING PHASE - move toward player until within chargeTriggerDistance
+        agent.isStopped = false;
+        agent.speed = _baseAgentSpeed * chargeSpeedMultiplier;
+        animator.SetBool(paramIsCharging, true);
+
+        while (State == BossState.Charge && !_chargeCancelRequested)
+        {
+            if (!player)
+            {
+                EndCharge();
+                yield break;
+            }
+
+            Vector3 toPlayer = player.position - transform.position;
+            toPlayer.y = 0f;
+            float dist = toPlayer.magnitude;
+
+            if (dist <= chargeTriggerDistance)
+            {
+                // lock direction
+                if (toPlayer.sqrMagnitude > 0.0001f)
+                    _chargeDirection = toPlayer.normalized;
+                else
+                    _chargeDirection = transform.forward;
+
+                _chargeStartPos = transform.position;
+                break;
+            }
+
+            // continue homing
+            agent.SetDestination(player.position);
+            FaceTarget();
+
+            // Blend anim speed based on velocity
+            UpdateChargeAnimSpeed();
+
+            yield return null;
+        }
+
+        if (State != BossState.Charge || _chargeCancelRequested)
+        {
+            EndCharge();
+            yield break;
+        }
+
+        // FORWARD BURST PHASE - run straight until distance or navmesh fails
+        float traveled = 0f;
+        Vector3 lastPos = transform.position;
+
+        while (State == BossState.Charge && !_chargeCancelRequested)
+        {
+            float stepDistance = agent.speed * Time.deltaTime;
+            Vector3 nextPos = transform.position + _chargeDirection * stepDistance;
+
+            // Check navmesh
+            NavMeshHit hit;
+            if (!NavMesh.SamplePosition(nextPos, out hit, 0.3f, NavMesh.AllAreas))
+            {
+                // no navmesh to run on
+                break;
+            }
+
+            // Move using agent.Warp to keep navmesh agent happy
+            agent.Warp(hit.position);
+
+            traveled = Vector3.Distance(_chargeStartPos, transform.position);
+            if (traveled >= chargeRunDistance)
+                break;
+
+            // Blend anim speed based on actual movement
+            float actualSpeed = (transform.position - lastPos).magnitude / Mathf.Max(Time.deltaTime, 0.0001f);
+            lastPos = transform.position;
+            UpdateChargeAnimSpeed(actualSpeed);
+
+            yield return null;
+        }
+
+        EndCharge();
+    }
+
+    void UpdateChargeAnimSpeed(float actualSpeed = -1f)
+    {
+        if (string.IsNullOrEmpty(paramChargeSpeed) || animator == null) return;
+
+        float refSpeed = _baseAgentSpeed * chargeSpeedMultiplier;
+        float speedNorm;
+
+        if (actualSpeed < 0f)
+        {
+            // fallback to agent velocity if not provided
+            speedNorm = refSpeed > 0.01f ? Mathf.Clamp01(agent.velocity.magnitude / refSpeed) : 0f;
+        }
+        else
+        {
+            speedNorm = refSpeed > 0.01f ? Mathf.Clamp01(actualSpeed / refSpeed) : 0f;
+        }
+
+        float animSpeed = Mathf.Lerp(minChargeAnimSpeed, maxChargeAnimSpeed, speedNorm);
+        animator.SetFloat(paramChargeSpeed, animSpeed);
+    }
+
+    void CleanupChargeState()
+    {
+        _chargeBusy = false;
+        _chargeCancelRequested = false;
+        _chargeDirection = Vector3.zero;
+
+        if (animator)
+        {
+            animator.SetBool(paramIsCharging, false);
+            if (!string.IsNullOrEmpty(paramChargeSpeed))
+                animator.SetFloat(paramChargeSpeed, 1f);
+        }
+
+        if (agent)
+        {
+            agent.speed = _baseAgentSpeed;
+            agent.isStopped = false;
+        }
+    }
+
+    void EndCharge()
+    {
+        if (State != BossState.Charge)
+        {
+            CleanupChargeState();
+            return;
+        }
+
+        CleanupChargeState();
+        _nextChargeAllowedTime = Time.time + chargeCooldown;
         TransitionTo(BossState.Chase);
     }
 
@@ -353,6 +594,12 @@ public class MagmaBossAI : MonoBehaviour
     {
         if (!enabled || State == BossState.Dead) return;
 
+        // Stop charge if we hit the player (trigger-volume)
+        if (State == BossState.Charge && other.CompareTag("Player"))
+        {
+            _chargeCancelRequested = true;
+        }
+
         if (other.CompareTag(swordTag))
         {
             if (Time.time < _nextDamageAllowedTime) return;
@@ -367,6 +614,12 @@ public class MagmaBossAI : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (!enabled || State == BossState.Dead) return;
+
+        // Stop charge if we hit anything solid (wall, environment, player collider)
+        if (State == BossState.Charge && !collision.collider.isTrigger)
+        {
+            _chargeCancelRequested = true;
+        }
 
         if (collision.collider.CompareTag(swordTag))
         {
@@ -383,5 +636,11 @@ public class MagmaBossAI : MonoBehaviour
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, chargeStartDistance);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, chargeTriggerDistance);
     }
 }
