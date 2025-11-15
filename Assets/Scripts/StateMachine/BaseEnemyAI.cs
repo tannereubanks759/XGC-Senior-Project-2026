@@ -139,7 +139,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         //VarInit();
         ItemInit();
     }
-    private void Start()
+    protected virtual void Start()
     {
         if (!Agent) Agent = GetComponent<NavMeshAgent>();
         if (!Animator) Animator = GetComponent<Animator>();
