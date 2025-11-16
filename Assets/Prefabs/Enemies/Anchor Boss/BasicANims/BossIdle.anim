@@ -527404,14 +527404,21 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
+    functionName: SetLavaOff
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0
     functionName: SetColliderOff
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.06666667
-    functionName: SetLavaOff
+  - time: 0
+    functionName: SetSpitOff
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

@@ -6,6 +6,7 @@ public class BossAnimatorEvents : MonoBehaviour
     private BossHand hand;
     public ParticleSystem lavaPs;
     public Collider chargeAttackCol;
+    public ParticleSystem spitPs;
     private void Start()
     {
         weapon = GetComponentInChildren<AnchorWeapon>();
@@ -13,6 +14,10 @@ public class BossAnimatorEvents : MonoBehaviour
         if (lavaPs)
         {
             lavaPs.Stop();
+        }
+        if (spitPs)
+        {
+            spitPs.Stop();
         }
     }
     public void SetColliderOn()
@@ -52,19 +57,39 @@ public class BossAnimatorEvents : MonoBehaviour
     {
         if (lavaPs)
         {
-            if(lavaPs.isPlaying == false)
+            var emmission = lavaPs.emission;
+            emmission.enabled = true;
+            if (lavaPs.isPlaying == false)
             {
+                lavaPs.Stop();
+                lavaPs.Clear();
                 lavaPs.Play();
-            }
-            else
-            {
-                var emmission = lavaPs.emission;
-                emmission.enabled = true;
             }
             
         }
-        
-        
+    }
+
+    public void SetSpitOn()
+    {
+        if (spitPs)
+        {
+            var emmission = spitPs.emission;
+            emmission.enabled = true;
+            if (spitPs.isPlaying == false)
+            {
+                spitPs.Stop();
+                spitPs.Clear();
+                spitPs.Play();
+            }
+        }
+    }
+    public void SetSpitOff()
+    {
+        if (spitPs)
+        {
+            var emmission = spitPs.emission;
+            emmission.enabled = false;
+        }
     }
     public void SetChargeOn()
     {
