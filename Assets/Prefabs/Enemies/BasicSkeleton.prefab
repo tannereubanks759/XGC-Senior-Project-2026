@@ -1106,6 +1106,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   radius: 5
+  curseVfxPrefab: {fileID: 5488512800074345544, guid: 9b5717009b11ee94aa6720fd2f3565c4, type: 3}
   AttackRange: 2.5
   CurrentAttackState: 0
   currentAttack: {fileID: 0}
@@ -1116,6 +1117,7 @@ MonoBehaviour:
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
   maxSpeed: 0.5
   maxHealth: 40
+  damageMult: 1
   eliteType: 0
 --- !u!136 &-5068651191832824696
 CapsuleCollider:

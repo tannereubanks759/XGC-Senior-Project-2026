@@ -2768,6 +2768,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   radius: 5
+  curseVfxPrefab: {fileID: 5488512800074345544, guid: 9b5717009b11ee94aa6720fd2f3565c4, type: 3}
   AttackRange: 2.5
   CurrentAttackState: 0
   currentAttack: {fileID: 0}
@@ -2778,6 +2779,7 @@ MonoBehaviour:
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
   maxSpeed: 0.25
   maxHealth: 100
+  damageMult: 1
   eliteType: 2
   swingEffect: {fileID: 5421800402394538473}
   swingEffectTwo: {fileID: 3663454773237859682}

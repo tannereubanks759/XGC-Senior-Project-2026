@@ -63,7 +63,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
     private int burnTicksLeft = 0;
     private int burnTickDamage = 0;
     #endregion
-
+    [Header("Curse VFX")]
+    public GameObject curseVfxPrefab;
     #region Combat System
     [Header("Combat System")]
     [Tooltip("The range in which this unit will start to attack the player (Auto braking is hard coded to stop the enemies 0.5 units into the attack range)")]

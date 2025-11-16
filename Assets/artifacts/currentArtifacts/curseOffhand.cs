@@ -43,6 +43,7 @@ public class curseOffhand : MonoBehaviour
         if (cursedEnemy != null && cursedEnemy.currentHealth <= 0)
         {
             cursedEnemy = null;
+
         }
 
         if (Input.GetKeyDown(KeyCode.F))
@@ -60,10 +61,12 @@ public class curseOffhand : MonoBehaviour
                 if (enemy != null)
                 {
                     Debug.Log("Applied curse");
-
                     var enemyScript = enemy.GetComponent<BaseEnemyAI>();
                     cursedEnemy = enemyScript;
                     enemyScript.damageMult = damageMult;
+                    Vector3 offset = new Vector3(0f, 1.3f, 0f);
+                    var vfx = Instantiate(enemyScript.curseVfxPrefab, enemy.transform.position + offset, Quaternion.identity, enemy.transform);
+                    vfx.transform.localPosition = offset;
                     checkUpgrade(enemyScript);
                 }
             }

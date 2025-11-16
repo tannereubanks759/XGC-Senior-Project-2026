@@ -2765,26 +2765,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   radius: 5
-  canRunAtPlayer: 0
-  hasSeenPlayerBefore: 0
-  combatRange: 0
+  curseVfxPrefab: {fileID: 5488512800074345544, guid: 9b5717009b11ee94aa6720fd2f3565c4, type: 3}
   AttackRange: 2.5
-  threatRange: 4
   CurrentAttackState: 0
-  isBlocking: 0
-  canMoveWhileAttacking: 0
-  moveBackward: 0
-  attacks: []
   currentAttack: {fileID: 0}
   overrideAttack: 0
   attackTime: 0
-  isInQueue: 0
   isRanged: 0
   item: {fileID: 0}
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
   maxSpeed: 0.25
   maxHealth: 100
-  type: 0
+  damageMult: 1
+  eliteType: 0
+  swingEffect: {fileID: 0}
+  swingEffectTwo: {fileID: 0}
 --- !u!1 &8525627896789532236
 GameObject:
   m_ObjectHideFlags: 0
