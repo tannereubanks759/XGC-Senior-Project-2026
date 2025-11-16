@@ -10,6 +10,7 @@ public class offhandHandler : MonoBehaviour
     public int defenseUpgradeCount = 0;
     public int firebombUpgradeCount = 0;
     private GameObject player;
+    public GameObject fireBall;
     void Start()
     {
         //player = GameObject.FindWithTag("Player");
@@ -22,6 +23,7 @@ public class offhandHandler : MonoBehaviour
             if (item != null)
                 item.OnUnEquip(player);
         }
+        fireBall.SetActive(false);
         currentOffhand = null;
 
     }
@@ -73,6 +75,7 @@ public class offhandHandler : MonoBehaviour
     {
         player = GameObject.FindWithTag("Player");
         unequip();
+        fireBall.SetActive(true);
         
     }
     public void increaseUpgradeStatus(int num)
