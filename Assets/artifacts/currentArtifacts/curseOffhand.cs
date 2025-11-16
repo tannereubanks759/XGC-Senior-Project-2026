@@ -35,27 +35,36 @@ public class curseOffhand : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isActive) 
-        { 
-            if(Input.GetKeyDown(KeyCode.F))
+        if (!isActive)
+        {
+            return;
+        }
+           
+        if (cursedEnemy != null && cursedEnemy.currentHealth <= 0)
+        {
+            cursedEnemy = null;
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            
+            if (cursedEnemy != null)
             {
-                if(cursedEnemy!=null) 
+                return;
+            }
+
+            Ray curseRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+            if (Physics.Raycast(curseRay, out RaycastHit hit, curseRange, enemyMask))
+            {
+                BaseEnemyAI enemy = hit.collider.GetComponentInParent<BaseEnemyAI>();
+                if (enemy != null)
                 {
-                    return;
-                }
-                Ray curseRay= new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-                if (Physics.Raycast(curseRay, out RaycastHit hit, curseRange, enemyMask))
-                {
-                    BaseEnemyAI enemy = hit.collider.GetComponentInParent<BaseEnemyAI>();
-                    if (enemy != null)
-                    {
-                        Debug.Log("Applied curse");
-                        var enemyScript =  enemy.gameObject.GetComponent<BaseEnemyAI>();
-                        cursedEnemy = enemyScript;
-                        enemyScript.damageMult =damageMult;
-                        checkUpgrade(enemyScript);
-                        
-                    }
+                    Debug.Log("Applied curse");
+
+                    var enemyScript = enemy.GetComponent<BaseEnemyAI>();
+                    cursedEnemy = enemyScript;
+                    enemyScript.damageMult = damageMult;
+                    checkUpgrade(enemyScript);
                 }
             }
         }
