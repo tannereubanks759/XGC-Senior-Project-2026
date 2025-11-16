@@ -42,6 +42,17 @@ public class AffectPlayer : MonoBehaviour
         {
             combatController.TakeDamage(damage, hitDir);
         }
-    }
 
+        var lantern = FindFirstObjectByType<curseOffhand>();
+        if(lantern.reflectionUpgrade!= true)
+        {
+            return;
+        }
+        if (lantern.cursedEnemy == enemyAI)
+        {
+            
+            enemyAI.TakeDamage(5);
+        }
+       
+    }
 }

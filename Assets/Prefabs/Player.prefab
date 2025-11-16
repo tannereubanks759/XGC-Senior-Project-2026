@@ -10540,9 +10540,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActive: 1
+  cursedEnemy: {fileID: 0}
   enemyMask:
     serializedVersion: 2
     m_Bits: 33281
+  damageMult: 2
+  slowUpgrade: 0
+  reflectionUpgrade: 1
 --- !u!1 &2730707169803131150
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,17 +1,37 @@
 using UnityEngine;
+using UnityEngine.AI;
 
 public class curseOffhand : MonoBehaviour
 {
     public bool isActive;
-    private BaseEnemyAI cursedEnemy;
+    public BaseEnemyAI cursedEnemy;
     private int curseRange = 10;
     public LayerMask enemyMask;
+    public int damageMult = 2;
+    public bool slowUpgrade = false;
+    public bool reflectionUpgrade = false;
+    private float slowedSpeed;
+    
+    //private BaseEnemyAI baseAI;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         
     }
+    private void checkUpgrade(BaseEnemyAI baseAI)
+    {
+        NavMeshAgent navMesh = baseAI.GetComponent<NavMeshAgent>();
+        if(slowUpgrade) 
+        {
+            slowedSpeed = 10f;
+            baseAI.SetSpeed(slowedSpeed);
+            
+        }
+        if(reflectionUpgrade) 
+        { 
 
+        }
+    }
     // Update is called once per frame
     void Update()
     {
@@ -30,7 +50,11 @@ public class curseOffhand : MonoBehaviour
                     if (enemy != null)
                     {
                         Debug.Log("Applied curse");
-                        enemy.gameObject.SetActive(false);
+                        var enemyScript =  enemy.gameObject.GetComponent<BaseEnemyAI>();
+                        cursedEnemy = enemyScript;
+                        enemyScript.damageMult =damageMult;
+                        checkUpgrade(enemyScript);
+                        
                     }
                 }
             }

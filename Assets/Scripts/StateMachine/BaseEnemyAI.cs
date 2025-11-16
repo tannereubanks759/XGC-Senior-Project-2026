@@ -119,7 +119,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Header("Health")]
     [Tooltip("The maximum amount of health this unit has")]
     [SerializeField] private int maxHealth = 100;           // Maximum health
-
+    public int damageMult = 1;
     [Tooltip("The current amount of health the unit has")]
     public int currentHealth { get; private set; } // Current health
     #endregion
@@ -470,7 +470,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         if(currentHealth > 0)
         {
-            int finalDamage = damage;
+            int finalDamage = damage*damageMult;
 
             // Apply damage
             currentHealth -= finalDamage;
