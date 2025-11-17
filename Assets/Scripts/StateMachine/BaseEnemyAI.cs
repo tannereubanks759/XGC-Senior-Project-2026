@@ -114,6 +114,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("The current speed of the unit")]
     public float CurrentSpeed { get; private set; } // Current movement speed
     public float damagedSpeed {  get; private set; }
+    public float speedMultiplier = 1f;
     #endregion
 
     #region Health

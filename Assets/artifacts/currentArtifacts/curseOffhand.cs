@@ -23,14 +23,12 @@ public class curseOffhand : MonoBehaviour
         NavMeshAgent navMesh = baseAI.GetComponent<NavMeshAgent>();
         if(slowUpgrade) 
         {
-            slowedSpeed = 10f;
-            baseAI.SetSpeed(slowedSpeed);
-            
+            baseAI.speedMultiplier = .25f;
         }
-        if(reflectionUpgrade) 
+        /*if(reflectionUpgrade) 
         { 
 
-        }
+        }*/
     }
     // Update is called once per frame
     void Update()

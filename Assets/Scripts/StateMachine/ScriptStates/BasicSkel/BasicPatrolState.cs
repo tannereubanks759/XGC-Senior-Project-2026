@@ -94,8 +94,8 @@ public class BasicPatrolState : BaseState<EnemyState>
             float distanceFactor = Mathf.Clamp01(distance / slowDownRadius);
 
             // Determine the base speed depending on health
-            float baseSpeed = (_enemy.currentHealth < 15) ? _enemy.damagedSpeed : _enemy.maxSpeed;
-            
+            float baseSpeed = (_enemy.currentHealth < 15 ? _enemy.damagedSpeed : _enemy.maxSpeed) * _enemy.speedMultiplier;
+
             // Final speed scales with how close we are to the destination
             float targetSpeed = baseSpeed * distanceFactor;
 

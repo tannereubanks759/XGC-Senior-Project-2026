@@ -47,13 +47,29 @@ public class BasicChaseState : BaseState<EnemyState>
 
             if (_enemy.currentHealth < 15)
             {
-                _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? Mathf.Clamp(animdir.z, 0f, _enemy.damagedSpeed) : Mathf.Floor(0), .75f, Time.deltaTime);
-                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, _enemy.damagedSpeed);
+                _enemy.Animator.SetFloat(
+                    "Speed",
+                    isFacingMoveDirection
+                        ? Mathf.Clamp(animdir.z, 0f, _enemy.damagedSpeed * _enemy.speedMultiplier)
+                        : Mathf.Floor(0),
+                    .75f,
+                    Time.deltaTime
+                );
+
+                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, _enemy.damagedSpeed * _enemy.speedMultiplier);
             }
             else
             {
-                _enemy.Animator.SetFloat("Speed", isFacingMoveDirection ? Mathf.Clamp(animdir.z, 0f, _enemy.maxSpeed) : Mathf.Floor(0), .75f, Time.deltaTime);
-                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, _enemy.maxSpeed);
+                _enemy.Animator.SetFloat(
+                    "Speed",
+                    isFacingMoveDirection
+                        ? Mathf.Clamp(animdir.z, 0f, _enemy.maxSpeed * _enemy.speedMultiplier)
+                        : Mathf.Floor(0),
+                    .75f,
+                    Time.deltaTime
+                );
+
+                _enemy.Agent.speed = Mathf.Clamp(animdir.z, 0f, _enemy.maxSpeed * _enemy.speedMultiplier);
             }
 
             if (Vector3.Distance(_enemy.transform.position, _enemy.Agent.destination) < _enemy.Agent.radius)
