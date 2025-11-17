@@ -11,6 +11,7 @@ public class chargeOffHandLatern : MonoBehaviour
     public int hitCount = 0;
     private Coroutine decayCorutine;
     private bool isActive = false;
+
     public List<Renderer> chargeSpheres;
     public GameObject explosionEffectPrefab;
     public Color inactiveColor = Color.red;
@@ -18,15 +19,23 @@ public class chargeOffHandLatern : MonoBehaviour
     public float damageRadius = 5f;
     public int explosionDamage = 20;
     public int tickDamage;
-    public float invulnerabilityTime=5f;
+    public float invulnerabilityTime = 5f;
     public float burnTime;
+
     public enum OffHandTypes
     {
-        explosion, invulnerabilty
+        explosion,
+        invulnerabilty
     }
     public OffHandTypes offHandType;
-    //private GameObject player;
+    [Header("Invulnerability Upgrades")]
+    public bool longerInvulnUpgrade = false;
+    public float invulnDurationMultiplier = 1.5f;
+    public bool invulnPersistsOnSwapUpgrade = false;
+
     private CombatController CombatController;
+    private Coroutine invulnCoroutine;
+
     private void UpdateSphereColors()
     {
         int hitsPerSphere = Mathf.CeilToInt((float)hitsToCharge / chargeSpheres.Count);
@@ -38,32 +47,59 @@ public class chargeOffHandLatern : MonoBehaviour
             chargeSpheres[i].material.color = targetColor;
         }
     }
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public void persistUpgrade()
+    {
+        invulnPersistsOnSwapUpgrade = true;
+    }
+    public void timeUpgrade() 
+    {
+        longerInvulnUpgrade = true;
+    }
     void Start()
     {
         WeaponsManager = GetComponentInChildren<WeaponsManager>();
-        //player = GameObject.FindGameObjectWithTag("Player");
         CombatController = GetComponentInChildren<CombatController>();
         UpdateSphereColors();
     }
+
     IEnumerator invulnerableTime()
     {
-        yield return new WaitForSeconds(invulnerabilityTime);
-        hitCount = 0;
+        float duration = invulnerabilityTime;
+
+        if (longerInvulnUpgrade)
+        {
+            duration *= invulnDurationMultiplier;
+        }
+
+        yield return new WaitForSeconds(duration);
+
         CombatController.invulnerability = false;
-        UpdateSphereColors();
+        invulnCoroutine = null;
     }
+
     public void invulnerable()
     {
+        // consume charge
+        hitCount = 0;
+        UpdateSphereColors();
+        if (decayCorutine != null)
+        {
+            StopCoroutine(decayCorutine);
+            decayCorutine = null;
+        }
+
         CombatController.invulnerability = true;
         Debug.Log("Invulnerable Active");
-        StartCoroutine(invulnerableTime());
-        Debug.Log("Invulnerable OFF");
+
+        if (invulnCoroutine != null)
+        {
+            StopCoroutine(invulnCoroutine);
+        }
+        invulnCoroutine = StartCoroutine(invulnerableTime());
     }
+
     public void explode()
     {
-        //Debug.Log("BOOM");
-        //KNOCKBACK LOGIC
         // spawn particle effect and knockback
         Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
 
@@ -71,31 +107,38 @@ public class chargeOffHandLatern : MonoBehaviour
         Collider[] closeEnemies = Physics.OverlapSphere(transform.position, damageRadius, ~0, QueryTriggerInteraction.Ignore);
         foreach (Collider col in closeEnemies)
         {
-            
             if (col.CompareTag("Enemy") && col.transform != this.transform)
             {
-                Debug.Log(col);
                 var enemyTestScript = col.GetComponent<BasicSkeleton>();
-                if (enemyTestScript.currentHealth > 0)
+                if (enemyTestScript != null && enemyTestScript.currentHealth > 0)
                 {
                     enemyTestScript.TakeDamage(explosionDamage);
-                    enemyTestScript.applyBurn(1,1f,5);
-
+                    enemyTestScript.applyBurn(1, 1f, 5);
                 }
-
             }
-
         }
-        // inumerate damage over time to those enemies that got damaged
         hitCount = 0;
         UpdateSphereColors();
+        if (decayCorutine != null)
+        {
+            StopCoroutine(decayCorutine);
+            decayCorutine = null;
+        }
     }
-    // Update is called once per frame
+
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.K))
+        if (!isActive) return;
+        if (Input.GetKeyDown(KeyCode.F) && hitCount >= hitsToCharge)
         {
-            invulnerable();
+            if (offHandType == OffHandTypes.explosion)
+            {
+                explode();
+            }
+            else if (offHandType == OffHandTypes.invulnerabilty)
+            {
+                invulnerable();
+            }
         }
     }
 
@@ -116,11 +159,20 @@ public class chargeOffHandLatern : MonoBehaviour
 
     public void deactivate()
     {
-        
         WeaponsManager.HideLantern();
         isActive = false;
         UpdateSphereColors();
+        if (!invulnPersistsOnSwapUpgrade)
+        {
+            if (invulnCoroutine != null)
+            {
+                StopCoroutine(invulnCoroutine);
+                invulnCoroutine = null;
+            }
+            CombatController.invulnerability = false;
+        }
     }
+
     IEnumerator HitWindowCD()
     {
         yield return new WaitForSeconds(hitWindowSeconds);
@@ -128,31 +180,21 @@ public class chargeOffHandLatern : MonoBehaviour
         UpdateSphereColors();
         decayCorutine = null;
     }
+
     public void hitRegistered()
     {
-        
         if (!isActive) return;
+
         if (decayCorutine != null)
         {
             StopCoroutine(decayCorutine);
         }
         decayCorutine = StartCoroutine(HitWindowCD());
         hitCount++;
-        UpdateSphereColors();
         if (hitCount > hitsToCharge)
         {
-            if(offHandType==OffHandTypes.explosion)
-            {
-                explode();
-            }
-            else if(offHandType == OffHandTypes.invulnerabilty) 
-            {
-                invulnerable();
-            }
-            
+            hitCount = hitsToCharge;
         }
-            
+        UpdateSphereColors();
     }
-
-
 }

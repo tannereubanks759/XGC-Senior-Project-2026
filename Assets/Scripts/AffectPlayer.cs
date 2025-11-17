@@ -44,16 +44,20 @@ public class AffectPlayer : MonoBehaviour
         }
 
         var lantern = FindFirstObjectByType<curseOffhand>();
-        if(lantern.reflectionUpgrade!= true)
+        if(lantern != null )
         {
-            return;
-        }
-        if (lantern.cursedEnemy == enemyAI)
-        {
-            
-            enemyAI.TakeDamage(5);
+            if (lantern.reflectionUpgrade != true)
+            {
+                return;
+            }
+            if (lantern.cursedEnemy == enemyAI)
+            {
 
+                enemyAI.TakeDamage(5);
+
+            }
         }
+        
        
     }
 }
