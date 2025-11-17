@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,6 +13,7 @@ public class BossHealthbar : MonoBehaviour
     [Header("UI Components")]
     public Slider bossHealthSlider;
     public CanvasGroup bossHealthGroup;
+    public TextMeshProUGUI text;
 
     [Tooltip("Optional UI element that fades when the boss is idle/dead.")]
     public bool autoHideWhenFull = true;

@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class PirateBossAI : MonoBehaviour
 {
     public enum BossState { Idle, Chase, Attack, AnchorThrow, Dead }
+    public string BossName = "Anchor Boss";
 
     [Header("References")]
     public Animator animator;
@@ -164,6 +165,7 @@ public class PirateBossAI : MonoBehaviour
         if (State == BossState.Dead) return;
         if (playerTarget) player = playerTarget;
         healthbar = playerTarget.GetComponentInChildren<CombatController>().boss_healthbar;
+        healthbar.text.text = BossName;
         healthbar.gameObject.SetActive(true);
         TransitionTo(BossState.Chase);
     }
