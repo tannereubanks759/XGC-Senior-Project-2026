@@ -143,6 +143,8 @@ public class FirstPersonController : MonoBehaviour
 
     // Internal Variables
     public bool isGrounded = false;
+    private bool GroundHitThisFrame = false;
+    private bool RawGrounded = false;
 
     #endregion
 
@@ -343,8 +345,7 @@ public class FirstPersonController : MonoBehaviour
 
     private void Update()
     {
-        
-        
+
         #region Camera
         if (isPaused) return;
         // Control camera movement
@@ -506,10 +507,11 @@ public class FirstPersonController : MonoBehaviour
                 rb.AddForce(Vector3.up * ladderJumpUpImpulse, ForceMode.Impulse);
                 EndLadder();
             }
-            else if (!isSwimming && isGrounded)
+            else if (!isSwimming && RawGrounded)
             {
                 Jump();
             }
+
         }
 
 
@@ -765,34 +767,35 @@ public class FirstPersonController : MonoBehaviour
     void CheckGround()
     {
         var col = GetComponent<CapsuleCollider>();
-        float radius = col ? Mathf.Max(0.01f, col.radius * 0.95f) : 0.3f;
-        Vector3 origin = transform.position + Vector3.up * (radius + 0.02f);
-        float castDist = (col ? (col.height * 0.5f) : 0.9f) + groundedSkin;
+        float radius = Mathf.Max(0.01f, col.radius * 0.95f);
+
+        Vector3 center = transform.TransformPoint(col.center);
+        Vector3 origin = center + Vector3.up * 0.02f;
+        float castDist = (col.height * 0.5f) - radius + groundedSkin;
+
 
         RaycastHit hit;
         bool didHit = Physics.SphereCast(origin, radius, Vector3.down, out hit, castDist, ~0, QueryTriggerInteraction.Ignore);
+
+        RawGrounded = didHit;                // <-- NEW
+        GroundHitThisFrame = didHit;         // <-- NEW
+
         if (didHit)
         {
             isGrounded = true;
             groundedBufferUntil = Time.time + coyoteTime;
-
             groundNormal = hit.normal;
             groundPoint = hit.point;
             groundAngle = Vector3.Angle(groundNormal, Vector3.up);
         }
         else
         {
+            // buffered grounded but NOT valid for jumping
             isGrounded = Time.time < groundedBufferUntil;
-
-            // Keep last known normal when buffering; otherwise reset to up
-            if (!isGrounded)
-            {
-                groundNormal = Vector3.up;
-                groundAngle = 0f;
-                groundPoint = transform.position;
-            }
         }
     }
+
+
 
 
 
