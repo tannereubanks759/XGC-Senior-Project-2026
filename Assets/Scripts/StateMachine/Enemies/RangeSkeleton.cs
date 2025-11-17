@@ -53,7 +53,10 @@ public class RangeSkeleton : BaseEnemyAI
 
     private void ShootRay(GameObject origin, BaseEnemyAI enemyAI = null)
     {
+        
         // Aim using the stored position from the anim event
+        storedPlayerPos = playerController.transform.position;
+        //storedPlayerPos += new Vector3(0, .5f, 0);
         Vector3 toPlayer = storedPlayerPos - origin.transform.position;
 
         // Only correct vertical aim so player can dodge horizontally
