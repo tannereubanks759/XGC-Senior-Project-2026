@@ -3,7 +3,7 @@ using UnityEngine.AI;
 
 public class curseOffhand : MonoBehaviour
 {
-    public bool isActive;
+    //public bool isActive;
     public BaseEnemyAI cursedEnemy;
     private int curseRange = 10;
     public LayerMask enemyMask;
@@ -16,7 +16,16 @@ public class curseOffhand : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        slowUpgrade = false;
+        reflectionUpgrade = false;  
+    }
+   public void slowUpgradae()
+    {
+        slowUpgrade = true;
+    }
+    public void reflectionUpgradae()
+    {
+        reflectionUpgrade = true;
     }
     private void checkUpgrade(BaseEnemyAI baseAI)
     {
@@ -33,10 +42,7 @@ public class curseOffhand : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!isActive)
-        {
-            return;
-        }
+        
            
         if (cursedEnemy != null && cursedEnemy.currentHealth <= 0)
         {

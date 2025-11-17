@@ -11,6 +11,7 @@ public class offhandHandler : MonoBehaviour
     public int firebombUpgradeCount = 0;
     private GameObject player;
     public GameObject fireBall;
+    public GameObject curse;
     void Start()
     {
         //player = GameObject.FindWithTag("Player");
@@ -24,6 +25,7 @@ public class offhandHandler : MonoBehaviour
                 item.OnUnEquip(player);
         }
         fireBall.SetActive(false);
+        curse.SetActive(false);
         currentOffhand = null;
 
     }
@@ -56,6 +58,7 @@ public class offhandHandler : MonoBehaviour
     {
         player = GameObject.FindWithTag("Player");
         unequip();
+        curse.SetActive(true);
         
     }
     public void Defense()
