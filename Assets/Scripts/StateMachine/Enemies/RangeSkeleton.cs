@@ -53,23 +53,33 @@ public class RangeSkeleton : BaseEnemyAI
 
     private void ShootRay(GameObject origin, BaseEnemyAI enemyAI = null)
     {
-        
-        // Aim using the stored position from the anim event
-        storedPlayerPos = playerController.transform.position;
-        //storedPlayerPos += new Vector3(0, .5f, 0);
-        Vector3 toPlayer = storedPlayerPos - origin.transform.position;
 
-        // Only correct vertical aim so player can dodge horizontally
-        Vector3 forward = origin.transform.forward;
-        forward.y = toPlayer.normalized.y;
+        // Aim using stored position
+        Vector3 playerPos = storedPlayerPos;
+        Vector3 originPos = origin.transform.position;
 
-        Vector3 dir = forward.normalized;
+        // Horizontal facing (yaw)
+        Vector3 flatForward = origin.transform.forward;
+        flatForward.y = 0f;
+        flatForward.Normalize();
+
+        // Horizontal distance between gun and player
+        Vector3 toPlayer = playerPos - originPos;
+        float horizontalDist = new Vector2(toPlayer.x, toPlayer.z).magnitude;
+
+        // Vertical difference
+        float vertical = playerPos.y - originPos.y;
+
+        // Build direction: same horizontal aim, correct vertical height
+        Vector3 dir = (flatForward * horizontalDist + Vector3.up * vertical).normalized;
 
         Ray ray = new Ray(origin.transform.position, dir);
-        
+
+        Debug.DrawRay(origin.transform.position, dir * 10f, Color.red, 1f);
+
+
         if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, playerMask))
         {
-            Debug.DrawRay(origin.transform.position, origin.transform.forward * 100f, Color.red, 1f);
 
             if (!hit.collider.CompareTag("Player"))
                 return;
