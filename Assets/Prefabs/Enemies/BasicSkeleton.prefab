@@ -700,7 +700,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -17.57
+      value: -23.21
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -708,7 +708,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9.65
+      value: 9.4
       objectReference: {fileID: 0}
     - target: {fileID: 400018, guid: c333ab34335b52345b2d5aa5665f8a4f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1115,7 +1115,9 @@ MonoBehaviour:
   isRanged: 0
   item: {fileID: 0}
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
+  canMove: 1
   maxSpeed: 0.5
+  speedMultiplier: 1
   maxHealth: 40
   damageMult: 1
   eliteType: 0
