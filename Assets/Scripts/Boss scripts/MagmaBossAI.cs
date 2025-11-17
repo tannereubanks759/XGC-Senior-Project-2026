@@ -7,6 +7,7 @@ using UnityEngine.AI;
 public class MagmaBossAI : MonoBehaviour
 {
     public enum BossState { Idle, Chase, Attack, Charge, Spit, Dead }
+    public string BossName = "Magma Boss";
 
     [Header("References")]
     public Animator animator;
@@ -172,6 +173,7 @@ public class MagmaBossAI : MonoBehaviour
         if (playerTarget) player = playerTarget;
 
         healthbar = playerTarget.GetComponentInChildren<CombatController>().boss_healthbar;
+        healthbar.text.text = BossName;
         healthbar.gameObject.SetActive(true);
 
         TransitionTo(BossState.Chase);
