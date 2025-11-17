@@ -6,7 +6,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class MagmaBossAI : MonoBehaviour
 {
-    public enum BossState { Idle, Chase, Attack, Charge, Dead }
+    public enum BossState { Idle, Chase, Attack, Charge, Spit, Dead }
 
     [Header("References")]
     public Animator animator;
@@ -47,29 +47,48 @@ public class MagmaBossAI : MonoBehaviour
     [SerializeField] string paramAttackIdx = "attack";
     [SerializeField] string paramIsDead = "isDead";
 
-    // --- NEW: Charge animator params ---
+    // --- Charge animator params ---
     [SerializeField] string paramIsCharging = "isCharging";           // bool
     [SerializeField] string paramChargeTelegraph = "ChargeTelegraph"; // trigger
     [SerializeField] string paramChargeSpeed = "chargeSpeed";         // float for anim speed blend
+
+    // --- Spit animator params ---
+    [SerializeField] string paramIsSpitting = "isSpitting";           // bool
+    [SerializeField] string paramSpitTelegraph = "SpitTelegraph";     // trigger
 
     [Header("Attack Selection")]
     [Min(1)] public int numAttackAnims = 5;
     public bool avoidImmediateRepeat = true;
 
-    // --- NEW: Charge Attack Tuning ---
+    // --- Special Selection Weights ---
+    [Header("Special Attack Selection")]
+    public float chargeWeight = 1f;
+    public float spitWeight = 1f;
+
+    // --- Charge Attack Tuning ---
     [Header("Charge Attack")]
     public float chargeStartDistance = 12f;       // must be at least this far to begin a charge
     public float chargeTriggerDistance = 5f;      // when this close, lock direction and go straight
     public float chargeRunDistance = 8f;          // straight-line distance after locking
     public float chargeSpeedMultiplier = 2.5f;    // movement speed multiplier during charge
-    public float chargeCooldown = 6f;             // cooldown so charge is not spammed
+    public float chargeCooldown = 6f;             // cooldown after a CHARGE
+
     public float chargeTelegraphTime = 0.8f;      // telegraph wind-up duration
 
     [Header("Charge Animation Blend")]
     public float minChargeAnimSpeed = 1.0f;       // low end of charge anim speed
     public float maxChargeAnimSpeed = 1.5f;       // high end of charge anim speed
 
-    float _nextChargeAllowedTime = 0f;
+    // --- Spit Attack Tuning ---
+    [Header("Spit Attack")]
+    public float spitMinDistance = 6f;            // only spit when player is at least this far
+    public float spitMaxDistance = 20f;           // and no farther than this
+    public float spitCooldown = 4f;               // cooldown after a SPIT
+    public float spitTelegraphTime = 0.7f;        // telegraph before spit
+    public float spitDuration = 1.0f;             // how long boss remains in spit state
+
+    // Shared cooldown for all specials (charge + spit)
+    float _nextSpecialAllowedTime = 0f;
 
     bool _deathHandled = false;
     public BossState State { get; private set; } = BossState.Idle;
@@ -86,12 +105,15 @@ public class MagmaBossAI : MonoBehaviour
     float _nextWalkToggleTime;
     float _speedLPF;
 
-    // --- NEW: Charge internals ---
+    // Charge internals
     float _baseAgentSpeed;
     bool _chargeBusy;
     bool _chargeCancelRequested;
     Vector3 _chargeDirection;
     Vector3 _chargeStartPos;
+
+    // Spit internals
+    bool _spitBusy;
 
     void Reset()
     {
@@ -139,7 +161,8 @@ public class MagmaBossAI : MonoBehaviour
             case BossState.Idle: TickIdle(); break;
             case BossState.Chase: TickChase(); break;
             case BossState.Attack: TickAttack(); break;
-            case BossState.Charge: TickCharge(); break; // mostly handled by coroutine, but kept for safety
+            case BossState.Charge: TickCharge(); break;
+            case BossState.Spit: TickSpit(); break;
         }
     }
 
@@ -173,6 +196,7 @@ public class MagmaBossAI : MonoBehaviour
         SetWalk(false, true);
         animator.SetBool(paramIsAttackin, false);
         animator.SetBool(paramIsCharging, false);
+        animator.SetBool(paramIsSpitting, false);
     }
 
     void TickChase()
@@ -186,13 +210,28 @@ public class MagmaBossAI : MonoBehaviour
 
         Vector3 toPlayer = player.position - transform.position;
         float sqrDist = toPlayer.sqrMagnitude;
+        float dist = Mathf.Sqrt(sqrDist);
 
-        // --- NEW: Charge trigger (far enough and off cooldown) ---
-        if (Time.time >= _nextChargeAllowedTime &&
-            sqrDist >= chargeStartDistance * chargeStartDistance)
+        // --- SPECIAL (Charge/Spit) trigger: shared cooldown ---
+        if (Time.time >= _nextSpecialAllowedTime)
         {
-            TransitionTo(BossState.Charge);
-            return;
+            bool canCharge = dist >= chargeStartDistance;
+            bool canSpit = dist >= spitMinDistance && dist <= spitMaxDistance;
+
+            if (canCharge || canSpit)
+            {
+                BossState choice = ChooseSpecial(canCharge, canSpit);
+                if (choice == BossState.Charge)
+                {
+                    TransitionTo(BossState.Charge);
+                    return;
+                }
+                else if (choice == BossState.Spit)
+                {
+                    TransitionTo(BossState.Spit);
+                    return;
+                }
+            }
         }
 
         // Attack if close enough & off cooldown (original logic)
@@ -236,6 +275,7 @@ public class MagmaBossAI : MonoBehaviour
         animator.SetBool(paramIsRunning, false);
         animator.SetBool(paramIsAttackin, false);
         animator.SetBool(paramIsCharging, false);
+        animator.SetBool(paramIsSpitting, false);
     }
 
     void TickAttack()
@@ -250,10 +290,9 @@ public class MagmaBossAI : MonoBehaviour
         }
     }
 
-    // Charge state is driven mostly by the coroutine, but we can keep this for any extra per-frame logic.
     void TickCharge()
     {
-        // Just keep facing where we're going if we have a direction
+        // Charge steering handled mostly by coroutine; keep facing direction
         if (_chargeDirection.sqrMagnitude > 0.0001f)
         {
             Vector3 dir = _chargeDirection;
@@ -268,6 +307,14 @@ public class MagmaBossAI : MonoBehaviour
                 );
             }
         }
+    }
+
+    void TickSpit()
+    {
+        // Just face the player, do not move
+        FaceTarget();
+        agent.isStopped = true;
+        agent.speed = 0f;
     }
 
     void SetWalk(bool value, bool force = false)
@@ -294,6 +341,27 @@ public class MagmaBossAI : MonoBehaviour
         );
     }
 
+    BossState ChooseSpecial(bool canCharge, bool canSpit)
+    {
+        float cw = canCharge ? Mathf.Max(0f, chargeWeight) : 0f;
+        float sw = canSpit ? Mathf.Max(0f, spitWeight) : 0f;
+
+        if (cw <= 0f && sw <= 0f)
+        {
+            // fallback – prefer charge if legal
+            if (canCharge) return BossState.Charge;
+            if (canSpit) return BossState.Spit;
+            return BossState.Chase;
+        }
+
+        float total = cw + sw;
+        float r = Random.value * total;
+
+        if (r < cw && canCharge) return BossState.Charge;
+        if (canSpit) return BossState.Spit;
+        return canCharge ? BossState.Charge : BossState.Chase;
+    }
+
     void TransitionTo(BossState next)
     {
         if (State == next) return;
@@ -307,8 +375,12 @@ public class MagmaBossAI : MonoBehaviour
 
         if (State == BossState.Charge)
         {
-            // safety cleanup in case charge is interrupted
             CleanupChargeState();
+        }
+
+        if (State == BossState.Spit)
+        {
+            CleanupSpitState();
         }
 
         State = next;
@@ -334,6 +406,10 @@ public class MagmaBossAI : MonoBehaviour
                 if (!_chargeBusy) StartCoroutine(ChargeRoutine());
                 break;
 
+            case BossState.Spit:
+                if (!_spitBusy) StartCoroutine(SpitRoutine());
+                break;
+
             case BossState.Dead:
                 HandleDeath();
                 break;
@@ -357,6 +433,7 @@ public class MagmaBossAI : MonoBehaviour
         SetWalk(false, true);
         animator.SetBool(paramIsAttackin, false);
         animator.SetBool(paramIsCharging, false);
+        animator.SetBool(paramIsSpitting, false);
 
         foreach (var col in GetComponentsInChildren<Collider>())
             col.enabled = false;
@@ -368,6 +445,7 @@ public class MagmaBossAI : MonoBehaviour
     {
         _attackBusy = true;
         agent.isStopped = true;
+        agent.speed = _baseAgentSpeed;
         SetWalk(false, true);
 
         int idx = PickAttackIndex();
@@ -390,7 +468,8 @@ public class MagmaBossAI : MonoBehaviour
         TransitionTo(BossState.Chase);
     }
 
-    // --- NEW: Charge coroutine driving telegraph + homing + straight burst ---
+    // --- CHARGE ---
+
     IEnumerator ChargeRoutine()
     {
         _chargeBusy = true;
@@ -419,7 +498,7 @@ public class MagmaBossAI : MonoBehaviour
 
         if (State != BossState.Charge || _chargeCancelRequested)
         {
-            EndCharge();
+            EndCharge(false);
             yield break;
         }
 
@@ -432,7 +511,7 @@ public class MagmaBossAI : MonoBehaviour
         {
             if (!player)
             {
-                EndCharge();
+                EndCharge(false);
                 yield break;
             }
 
@@ -464,7 +543,7 @@ public class MagmaBossAI : MonoBehaviour
 
         if (State != BossState.Charge || _chargeCancelRequested)
         {
-            EndCharge();
+            EndCharge(false);
             yield break;
         }
 
@@ -485,7 +564,6 @@ public class MagmaBossAI : MonoBehaviour
                 break;
             }
 
-            // Move using agent.Warp to keep navmesh agent happy
             agent.Warp(hit.position);
 
             traveled = Vector3.Distance(_chargeStartPos, transform.position);
@@ -500,7 +578,7 @@ public class MagmaBossAI : MonoBehaviour
             yield return null;
         }
 
-        EndCharge();
+        EndCharge(true);
     }
 
     void UpdateChargeAnimSpeed(float actualSpeed = -1f)
@@ -544,17 +622,102 @@ public class MagmaBossAI : MonoBehaviour
         }
     }
 
-    void EndCharge()
+    void EndCharge(bool applyCooldown)
     {
-        if (State != BossState.Charge)
+        if (State == BossState.Charge)
         {
             CleanupChargeState();
-            return;
+            TransitionTo(BossState.Chase);
+        }
+        else
+        {
+            CleanupChargeState();
         }
 
-        CleanupChargeState();
-        _nextChargeAllowedTime = Time.time + chargeCooldown;
-        TransitionTo(BossState.Chase);
+        if (applyCooldown)
+        {
+            _nextSpecialAllowedTime = Time.time + chargeCooldown;
+        }
+    }
+
+    // --- SPIT ---
+
+    IEnumerator SpitRoutine()
+    {
+        _spitBusy = true;
+
+        // TELEGRAPH PHASE
+        agent.isStopped = true;
+        agent.speed = 0f;
+        SetWalk(false, true);
+        animator.SetBool(paramIsSpitting, false);
+
+        if (!string.IsNullOrEmpty(paramSpitTelegraph))
+        {
+            animator.ResetTrigger(paramSpitTelegraph);
+            animator.SetTrigger(paramSpitTelegraph);
+        }
+
+        float telegraphEnd = Time.time + spitTelegraphTime;
+        while (Time.time < telegraphEnd && State == BossState.Spit)
+        {
+            FaceTarget();
+            yield return null;
+        }
+
+        if (State != BossState.Spit)
+        {
+            EndSpit(false);
+            yield break;
+        }
+
+        // SPITTING PHASE – stay in place, let animation handle VFX
+        animator.SetBool(paramIsSpitting, true);
+        agent.isStopped = true;
+        agent.speed = 0f;
+
+        float spitEnd = Time.time + spitDuration;
+        while (Time.time < spitEnd && State == BossState.Spit)
+        {
+            FaceTarget();
+            yield return null;
+        }
+
+        EndSpit(true);
+    }
+
+    void CleanupSpitState()
+    {
+        _spitBusy = false;
+
+        if (animator)
+        {
+            animator.SetBool(paramIsSpitting, false);
+        }
+
+        if (agent)
+        {
+            agent.speed = _baseAgentSpeed;
+            agent.isStopped = false;
+        }
+    }
+
+    void EndSpit(bool applyCooldown)
+    {
+        if (State == BossState.Spit)
+        {
+            CleanupSpitState();
+            TransitionTo(BossState.Chase);
+        }
+        else
+        {
+            CleanupSpitState();
+        }
+
+        if (applyCooldown)
+        {
+            _nextSpecialAllowedTime = Time.time + spitCooldown;
+        }
     }
 
     IEnumerator DieRoutine()
@@ -594,7 +757,7 @@ public class MagmaBossAI : MonoBehaviour
     {
         if (!enabled || State == BossState.Dead) return;
 
-        // Stop charge if we hit the player (trigger-volume)
+        // Stop charge if we hit the player via trigger
         if (State == BossState.Charge && other.CompareTag("Player"))
         {
             _chargeCancelRequested = true;
@@ -642,5 +805,11 @@ public class MagmaBossAI : MonoBehaviour
 
         Gizmos.color = Color.magenta;
         Gizmos.DrawWireSphere(transform.position, chargeTriggerDistance);
+
+        // Spit distances (min & max)
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, spitMinDistance);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, spitMaxDistance);
     }
 }

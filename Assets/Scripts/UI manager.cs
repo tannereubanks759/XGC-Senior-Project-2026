@@ -31,6 +31,7 @@ public class UImanager : MonoBehaviour
     public void OpenOffhandWheelScreen()
     {
         PreSetup(true);
+        Cursor.visible = false;
         OffhandWheelScreen.SetActive(true);
     }
     public void OpenUpgradeStationScreen()

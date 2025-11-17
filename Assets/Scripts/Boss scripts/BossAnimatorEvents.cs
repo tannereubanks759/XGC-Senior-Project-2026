@@ -4,22 +4,29 @@ public class BossAnimatorEvents : MonoBehaviour
 {
     private AnchorWeapon weapon;
     private BossHand hand;
+
+    [Header("VFX")]
     public ParticleSystem lavaPs;
-    public Collider chargeAttackCol;
     public ParticleSystem spitPs;
+
+    [Header("Colliders")]
+    public Collider chargeAttackCol;
+
     private void Start()
     {
         weapon = GetComponentInChildren<AnchorWeapon>();
         hand = GetComponentInChildren<BossHand>();
+
         if (lavaPs)
         {
-            lavaPs.Stop();
+            lavaPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
         if (spitPs)
         {
-            spitPs.Stop();
+            spitPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
     }
+
     public void SetColliderOn()
     {
         if (weapon)
@@ -30,8 +37,8 @@ public class BossAnimatorEvents : MonoBehaviour
         {
             hand.EnableCollider(true);
         }
-        
     }
+
     public void SetColliderOff()
     {
         if (weapon)
@@ -42,55 +49,44 @@ public class BossAnimatorEvents : MonoBehaviour
         {
             hand.EnableCollider(false);
         }
-            
     }
+
     public void ThrowAnchor()
     {
         if (weapon)
         {
             weapon.Throw();
         }
-        
     }
+
+    // ===== LAVA / CHARGE VFX =====
 
     public void SetLavaOn()
     {
+        if (!lavaPs) return;
+
+        // ALWAYS enable emission when turning on
+        var emission = lavaPs.emission;
+        emission.enabled = true;
+
+        // Restart from a clean state
+        lavaPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        lavaPs.Play(true);
+    }
+
+    public void SetLavaOff()
+    {
         if (lavaPs)
         {
-            var emmission = lavaPs.emission;
-            emmission.enabled = true;
-            if (lavaPs.isPlaying == false)
-            {
-                lavaPs.Stop();
-                lavaPs.Clear();
-                lavaPs.Play();
-            }
-            
+            var emission = lavaPs.emission;
+            emission.enabled = false;
+        }
+        if (chargeAttackCol)
+        {
+            chargeAttackCol.enabled = false;
         }
     }
 
-    public void SetSpitOn()
-    {
-        if (spitPs)
-        {
-            var emmission = spitPs.emission;
-            emmission.enabled = true;
-            if (spitPs.isPlaying == false)
-            {
-                spitPs.Stop();
-                spitPs.Clear();
-                spitPs.Play();
-            }
-        }
-    }
-    public void SetSpitOff()
-    {
-        if (spitPs)
-        {
-            var emmission = spitPs.emission;
-            emmission.enabled = false;
-        }
-    }
     public void SetChargeOn()
     {
         if (chargeAttackCol)
@@ -98,17 +94,26 @@ public class BossAnimatorEvents : MonoBehaviour
             chargeAttackCol.enabled = true;
         }
     }
-    public void SetLavaOff()
+
+    // ===== SPIT VFX =====
+
+    public void SetSpitOn()
     {
-        if (lavaPs)
+        if (!spitPs) return;
+
+        var emission = spitPs.emission;
+        emission.enabled = true;
+
+        spitPs.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        spitPs.Play(true);
+    }
+
+    public void SetSpitOff()
+    {
+        if (spitPs)
         {
-            var emmission = lavaPs.emission;
-            emmission.enabled = false;
+            var emission = spitPs.emission;
+            emission.enabled = false;
         }
-        if (chargeAttackCol)
-        {
-            chargeAttackCol.enabled = false;
-        }
-        
     }
 }
