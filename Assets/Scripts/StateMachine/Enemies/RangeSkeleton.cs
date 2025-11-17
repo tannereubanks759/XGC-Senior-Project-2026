@@ -10,6 +10,8 @@ public class RangeSkeleton : BaseEnemyAI
     [SerializeField] private int damage = 10;
     [SerializeField] private float rayDistance = 25f;
 
+    private Vector3 storedPlayerPos;
+
 
 #pragma warning disable CS0114 // Member hides inherited member; missing override keyword
     private void Awake()
@@ -42,10 +44,25 @@ public class RangeSkeleton : BaseEnemyAI
     { 
         shotVFX.Play(); 
     }
+    public void CachePlayerPosition()
+    {
+        if (playerController != null)
+            storedPlayerPos = playerController.transform.position;
+    }
+
 
     private void ShootRay(GameObject origin, BaseEnemyAI enemyAI = null)
     {
-        Ray ray = new Ray(origin.transform.position, origin.transform.forward);
+        // Aim using the stored position from the anim event
+        Vector3 toPlayer = storedPlayerPos - origin.transform.position;
+
+        // Only correct vertical aim so player can dodge horizontally
+        Vector3 forward = origin.transform.forward;
+        forward.y = toPlayer.normalized.y;
+
+        Vector3 dir = forward.normalized;
+
+        Ray ray = new Ray(origin.transform.position, dir);
         
         if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, playerMask))
         {

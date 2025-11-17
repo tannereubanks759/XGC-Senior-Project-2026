@@ -8,7 +8,7 @@ public class RangeAttackState : BaseState<EnemyState>
     private bool isTrackingPlayer = true;
 
     
-    private const float trackDuration = 1f;
+    private const float trackDuration = .25f;
 
     
     private const float stopBlendSpeed = 0.125f;
