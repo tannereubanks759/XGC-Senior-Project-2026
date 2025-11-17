@@ -1914,7 +1914,7 @@ MonoBehaviour:
   - {fileID: 2800000, guid: aed711706c94ea94081c8d15407829b3, type: 3}
   - {fileID: 2800000, guid: 3b0069915ea374c4d9b652a92a1b9bad, type: 3}
   colors:
-  - {r: 1, g: 0.2856879, b: 0, a: 0}
+  - {r: 1, g: 0.70299095, b: 0, a: 0}
   isElite: 1
 --- !u!114 &3558591718275666369
 MonoBehaviour:
@@ -2777,7 +2777,9 @@ MonoBehaviour:
   isRanged: 0
   item: {fileID: 0}
   ps: {fileID: 3074733937248170186, guid: 13be04f77227247469ca338314dc1047, type: 3}
+  canMove: 0
   maxSpeed: 0.25
+  speedMultiplier: 1
   maxHealth: 100
   damageMult: 1
   eliteType: 1
