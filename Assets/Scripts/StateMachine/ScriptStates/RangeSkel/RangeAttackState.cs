@@ -24,15 +24,18 @@ public class RangeAttackState : BaseState<EnemyState>
     public override void EnterState()
     {
         _enemy.SetAttackState(BaseEnemyAI.EAttackState.InProgress);
+
         _enemy.SetResetTriggers("Attack");
 
         attackStartTime = Time.time;
         attackTime = 0;
         isTrackingPlayer = true;
 
-        _enemy.Agent.isStopped = true;
+        // Only stop the agent if the enemy can move
+        if (_enemy.canMove)
+            _enemy.Agent.isStopped = true;
 
-        
+        // Ensure idle speed for animation blending
         _enemy.Animator.SetFloat("Speed", 0f, stopBlendSpeed, Time.deltaTime);
 
         Debug.Log("Entered Attack");
@@ -50,8 +53,14 @@ public class RangeAttackState : BaseState<EnemyState>
         if (_enemy.currentHealth <= 0)
             return EnemyState.Dead;
 
+        // Attack finished
         if (_enemy.CurrentAttackState == BaseEnemyAI.EAttackState.None)
-            return EnemyState.Chase;
+        {
+            if (_enemy.canMove)
+                return EnemyState.Chase; // mobile enemies continue chasing
+            else
+                return EnemyState.Idle;  // stationary enemies go back to idle
+        }
 
         return StateKey;
     }

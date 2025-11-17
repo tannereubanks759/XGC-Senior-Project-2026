@@ -10,6 +10,7 @@
 */
 
 //using UnityEditorInternal;
+using BKPureNature;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -109,6 +110,8 @@ public class BaseEnemyAI : StateManager<EnemyState>
 
     #region Speed/Movement
     [Header("Speed/Movement System")]
+    [Tooltip("Can this unit move?")]
+    public bool canMove;
     [Tooltip("The max speed of the unit")]
     public float maxSpeed = .5f;
     [Tooltip("The current speed of the unit")]
@@ -429,11 +432,23 @@ public class BaseEnemyAI : StateManager<EnemyState>
         SetAttackState(EAttackState.Finished);
         //Debug.Log(CurrentAttackState);
         //canRotate = true;
-        if (!isRanged) swordCollider.enabled = false;
+        if (!isRanged)
+        {
+            swordCollider.enabled = false;
 
-        //overrideAttack = false;
-
-        SetResetTriggers("AttackOver");
+            SetResetTriggers("AttackOver");
+        }
+        else
+        {
+            if (canMove)
+            {
+                SetResetTriggers("AttackOverWalk");
+            }
+            else
+            {
+                SetResetTriggers("AttackOverIdle");
+            }
+        }
     }
 
     // Manually set the current attack state
