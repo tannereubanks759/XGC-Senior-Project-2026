@@ -12,26 +12,29 @@ public class offhandHandler : MonoBehaviour
     private GameObject player;
     public GameObject fireBall;
     public GameObject curse;
+    private WeaponsManager wm;
     void Start()
     {
-        //player = GameObject.FindWithTag("Player");
+        wm = GameObject.FindAnyObjectByType<WeaponsManager>();
+        player = GameObject.FindWithTag("Player");
     }
     public void unequip()
     {
-        player = GameObject.FindWithTag("Player");
-        foreach (ItemData item in allOffhands)
-        {
-            if (item != null)
-                item.OnUnEquip(player);
-        }
+        
         fireBall.SetActive(false);
         curse.SetActive(false);
         currentOffhand = null;
+        foreach (ItemData item in allOffhands)
+        {
+            if (item != null && player!= null)
+                item.OnUnEquip(player);
+        }
+        
 
     }
     public void lightning()
     {
-        player = GameObject.FindWithTag("Player");
+        CheckForBlunderbuss();
         unequip();
         Debug.Log("Lightning Offhand Swapped to");
 
@@ -56,14 +59,14 @@ public class offhandHandler : MonoBehaviour
     }
     public void chaos()
     {
-        player = GameObject.FindWithTag("Player");
+        CheckForBlunderbuss();
         unequip();
         curse.SetActive(true);
         
     }
     public void Defense()
     {
-        player = GameObject.FindWithTag("Player");
+        CheckForBlunderbuss();
         unequip();
 
         Debug.Log("Defense Offhand Swapped to");
@@ -76,7 +79,7 @@ public class offhandHandler : MonoBehaviour
     }
     public void FireBomb()
     {
-        player = GameObject.FindWithTag("Player");
+        CheckForBlunderbuss();
         unequip();
         fireBall.SetActive(true);
         
@@ -108,5 +111,13 @@ public class offhandHandler : MonoBehaviour
     void Update()
     {
         
+    }
+
+    void CheckForBlunderbuss()
+    {
+        if (wm.weapons[1].activeSelf)
+        {
+            wm.SwitchWeapon(0);
+        }
     }
 }

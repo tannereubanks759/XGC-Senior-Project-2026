@@ -4,8 +4,10 @@ using UnityEngine.Rendering;
 public class offhandWheel : MonoBehaviour
 {
     public UImanager UIM;
+    private offhandHandler handler;
     void Start()
     {
+        handler = GameObject.FindAnyObjectByType<offhandHandler>();
     }
     public void openWheel()
     {

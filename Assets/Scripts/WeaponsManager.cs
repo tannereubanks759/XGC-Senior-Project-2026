@@ -17,7 +17,7 @@ public class WeaponsManager : MonoBehaviour
     public bool isPaused;
     public GameObject explosionFire;
     public GameObject invulnerabilityFire;
-    
+    private offhandHandler offhandHandle;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -35,7 +35,7 @@ public class WeaponsManager : MonoBehaviour
         {
             invulnerabilityFire.SetActive(false);
         }
-         
+        offhandHandle = GameObject.FindAnyObjectByType<offhandHandler>();
         lamp.SetActive(false);
         
     }
@@ -178,12 +178,15 @@ public class WeaponsManager : MonoBehaviour
         }
     }
 
-    void SwitchWeapon(int weaponSlot)
+    public void SwitchWeapon(int weaponSlot)
     {
         weapons[currentWeapon].SetActive(false);
         currentWeapon = weaponSlot;
         weapons[weaponSlot].SetActive(true);
-
+        if (weapons[weaponSlot].GetComponent<Blunderbuss>())
+        {
+            offhandHandle.unequip();
+        }
         /*if (weaponIcons.Length > 0)
         {
             EnlargeWeaponIcon(weaponIcons[currentWeapon].GetComponent<RawImage>());
