@@ -759,8 +759,9 @@ public class MagmaBossAI : MonoBehaviour
     {
         if (!enabled || State == BossState.Dead) return;
 
-        // Stop charge if we hit the player via trigger
-        if (State == BossState.Charge && other.CompareTag("Player"))
+        // Stop charge if we hit the player OR an arena wall trigger
+        if (State == BossState.Charge &&
+            (other.CompareTag("Player") || other.CompareTag("ArenaWallTrigger")))
         {
             _chargeCancelRequested = true;
         }
@@ -775,6 +776,7 @@ public class MagmaBossAI : MonoBehaviour
             _nextDamageAllowedTime = Time.time + hitInvulnerability;
         }
     }
+
 
     void OnCollisionEnter(Collision collision)
     {
