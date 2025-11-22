@@ -4,6 +4,7 @@ using UnityEngine;
 public class UImanager : MonoBehaviour
 {
     public GameObject PauseScreen;
+    public GameObject OptionsScreen;
     public GameObject DeathScreen;
     public GameObject PlayerUIScreen;
     public GameObject OffhandWheelScreen;
@@ -16,6 +17,7 @@ public class UImanager : MonoBehaviour
     public void OpenPauseScreen()
     {
         PreSetup(true, true);
+        OptionsScreen.SetActive(false);
         PauseScreen.SetActive(true);
     }
     public void OpenDeathScreen()
