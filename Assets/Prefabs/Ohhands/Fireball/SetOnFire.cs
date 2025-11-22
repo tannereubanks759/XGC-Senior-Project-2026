@@ -8,6 +8,8 @@ public class SetOnFire : MonoBehaviour
     DamageRef dmgRef; //used for bosses
     public ParticleSystem system;
     public bool OnFire = false;
+    public bool InLava = false;
+    public float lavaDamage = 30f;
 
     public float timeOnFire = 3f;
     public float tickInterval = 1f;
@@ -24,9 +26,14 @@ public class SetOnFire : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(OnFire && Time.time > nextTick) //Logic for being on fire
+        if (InLava && Time.time > nextTick)
         {
-            ApplyDamage();
+            ApplyDamage((int)lavaDamage);
+            nextTick = Time.time + tickInterval;
+        }
+        if (OnFire && Time.time > nextTick) //Logic for being on fire
+        {
+            ApplyDamage((int)damagePerTick);
             nextTick = Time.time + tickInterval;
         }
     }
@@ -38,15 +45,15 @@ public class SetOnFire : MonoBehaviour
         }
         
     }
-    void ApplyDamage()
+    void ApplyDamage(int damage)
     {
         if (aiRef)
         {
-            aiRef.TakeDamage((int)damagePerTick);
+            aiRef.TakeDamage(damage);
         }
         if (dmgRef)
         {
-            dmgRef.TakeDamage((int)damagePerTick);
+            dmgRef.TakeDamage(damage);
         }
     }
 
@@ -75,5 +82,37 @@ public class SetOnFire : MonoBehaviour
         
         OnFire = false;
         nextTick = 0f;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "Lava")
+        {
+            InLava = true;
+            if (system)
+            {
+                var emission = system.emission;
+                if (system.isStopped)
+                {
+                    system.Play();
+                }
+                else
+                {
+                    emission.enabled = true;
+                }
+            }
+        }
+    }
+    private void OnTriggerExit(Collider other)
+    {
+        if(other.tag == "Lava")
+        {
+            InLava = false;
+            if (system)
+            {
+                var emission = system.emission;
+                emission.enabled = false;
+            }
+        }
     }
 }
