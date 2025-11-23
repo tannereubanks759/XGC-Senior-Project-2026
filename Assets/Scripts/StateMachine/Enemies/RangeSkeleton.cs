@@ -9,6 +9,7 @@ public class RangeSkeleton : BaseEnemyAI
 
     [SerializeField] private int damage = 10;
     [SerializeField] private float rayDistance = 25f;
+    [SerializeField] private float sphereRadius = .5f;
 
     private Vector3 storedPlayerPos;
 
@@ -77,8 +78,7 @@ public class RangeSkeleton : BaseEnemyAI
 
         Debug.DrawRay(origin.transform.position, dir * 10f, Color.red, 1f);
 
-
-        if (Physics.Raycast(ray, out RaycastHit hit, rayDistance, playerMask))
+        if (Physics.SphereCast(ray, sphereRadius, out RaycastHit hit, rayDistance, playerMask))
         {
 
             if (!hit.collider.CompareTag("Player"))
