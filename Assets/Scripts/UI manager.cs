@@ -5,6 +5,7 @@ public class UImanager : MonoBehaviour
 {
     public GameObject PauseScreen;
     public GameObject OptionsScreen;
+    public GameObject MainPauseScreen;
     public GameObject DeathScreen;
     public GameObject PlayerUIScreen;
     public GameObject OffhandWheelScreen;
@@ -18,6 +19,7 @@ public class UImanager : MonoBehaviour
     {
         PreSetup(true, true);
         OptionsScreen.SetActive(false);
+        MainPauseScreen.SetActive(true);
         PauseScreen.SetActive(true);
     }
     public void OpenDeathScreen()
