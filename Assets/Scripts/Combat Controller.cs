@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CombatController : MonoBehaviour
@@ -129,11 +130,11 @@ public class CombatController : MonoBehaviour
 
         wInertia = GetComponentInChildren<WeaponInertia>();
 
-        Enemies();
+        //Enemies();
 
     }
 
-    void Enemies()
+    void EnemiesSceneChange(Scene scene1, Scene scene2)
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
@@ -147,10 +148,39 @@ public class CombatController : MonoBehaviour
                     ai.Player = this.transform;
                     ai.playerController = this;
                 }
-                
             }
         }
-        
+    }
+
+    void EnemiesLoaded(Scene scene1, LoadSceneMode loadSceneMode)
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        if (enemies.Length > 0)
+        {
+            foreach (var enemy in enemies)
+            {
+                BaseEnemyAI ai = enemy.GetComponent<BaseEnemyAI>();
+                if (ai != null)
+                {
+                    ai.Player = this.transform;
+                    ai.playerController = this;
+                }
+            }
+        }
+    }
+
+    private void Awake()
+    {
+        SceneManager.activeSceneChanged += EnemiesSceneChange;
+        SceneManager.sceneLoaded += EnemiesLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.activeSceneChanged -= EnemiesSceneChange;
+        SceneManager.sceneLoaded -= EnemiesLoaded;
+
     }
 
 
