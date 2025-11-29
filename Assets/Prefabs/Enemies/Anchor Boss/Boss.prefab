@@ -1442,7 +1442,7 @@ Transform:
   m_GameObject: {fileID: 2997295603815908784}
   serializedVersion: 2
   m_LocalRotation: {x: -0.6864633, y: 0.00000012854267, z: 0.0000001361641, w: 0.7271645}
-  m_LocalPosition: {x: 1.2689972, y: 2.077844, z: -0.5877762}
+  m_LocalPosition: {x: 1.269, y: 2.0778434, z: -0.5877762}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4500,6 +4500,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a53af6c22395ac145ae939fe9682c900, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GoldBagPrefab: {fileID: 2109710059515890420, guid: 97822603a9dc3dd40ac9e0eb73c427aa, type: 3}
+  OverrideGoldAmount: 100
 --- !u!114 &7390047889774688700
 MonoBehaviour:
   m_ObjectHideFlags: 0
