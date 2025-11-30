@@ -100,11 +100,9 @@ public class chargeOffHandLatern : MonoBehaviour
 
     public void explode()
     {
-        // spawn particle effect and knockback
         Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-
-        // apply damage to those in radius
         Collider[] closeEnemies = Physics.OverlapSphere(transform.position, damageRadius, ~0, QueryTriggerInteraction.Ignore);
+
         foreach (Collider col in closeEnemies)
         {
             if (col.CompareTag("Enemy") && col.transform != this.transform)
@@ -116,7 +114,27 @@ public class chargeOffHandLatern : MonoBehaviour
                     enemyTestScript.applyBurn(1, 1f, 5);
                 }
             }
+            else
+            {
+                var bossRef = col.GetComponentInParent<DamageRef>();
+                if (bossRef != null)
+                {
+                    var pirateBoss = bossRef.GetComponentInParent<PirateBossAI>();
+                    var magmaBoss = bossRef.GetComponentInParent<MagmaBossAI>();
+
+                    if (pirateBoss != null && pirateBoss.currentHealth > 0)
+                    {
+                        pirateBoss.TakeDamage(explosionDamage);
+                    }
+                    else if (magmaBoss != null && magmaBoss.currentHealth > 0)
+                    {
+                        magmaBoss.TakeDamage(explosionDamage);
+                    }
+                }
+            }
         }
+
+        // reset charge
         hitCount = 0;
         UpdateSphereColors();
         if (decayCorutine != null)

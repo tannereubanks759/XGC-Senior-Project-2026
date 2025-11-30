@@ -802,7 +802,12 @@ public class MagmaBossAI : MonoBehaviour
 
             int dmg = ResolveDamageFrom(other);
             TakeDamage(dmg);
-
+            var lantern = GameObject.FindAnyObjectByType<chargeOffHandLatern>();
+            if (lantern != null && lantern.enabled)
+            {
+                // Debug.Log("Boss hit by sword, notifying lantern");
+                lantern.hitRegistered();
+            }
             _nextDamageAllowedTime = Time.time + hitInvulnerability;
         }
     }
