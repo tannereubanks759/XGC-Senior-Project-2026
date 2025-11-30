@@ -420,7 +420,11 @@ public class AnchorWeapon : MonoBehaviour
             {
                 combat.TakeDamageByBoss(AnchorDamage);
             }
-
+            if (boss != null && boss.isCursed && boss.reflectDamageWhenCursed)
+            {
+                int reflected = Mathf.RoundToInt(AnchorDamage * 0.5f);
+                boss.TakeDamage(reflected);
+            }
             // latch ONLY if we were mid-air throw
             if (isInAir)
             {

@@ -51,12 +51,10 @@ public class curseOffhand : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            
-            if (cursedEnemy != null)
+            if (cursedEnemy != null || FindObjectOfType<PirateBossAI>()?.isCursed == true)
             {
                 return;
             }
-
             Ray curseRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
             if (Physics.Raycast(curseRay, out RaycastHit hit, curseRange, enemyMask))
             {
@@ -72,7 +70,33 @@ public class curseOffhand : MonoBehaviour
                     vfx.transform.localPosition = offset;
                     checkUpgrade(enemyScript);
                 }
+                //check if boss
+                else
+                {
+                    DamageRef bossRef = hit.collider.GetComponentInParent<DamageRef>();
+                    if (bossRef != null)
+                    {
+                        PirateBossAI pirateboss = bossRef.GetComponentInParent<PirateBossAI>();
+                        MagmaBossAI magmaBoss = bossRef.GetComponentInParent<MagmaBossAI>();
+
+                        if (pirateboss != null)
+                        {
+                            if (!pirateboss.isCursed)
+                            {
+                                Vector3 offset = new Vector3(0f, 2f, 0f);
+                                var vfx = Instantiate(pirateboss.cursedVfxPrefab, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                                vfx.transform.localPosition = offset;
+                            }
+                        pirateboss.curseBoss(slowUpgrade, reflectionUpgrade);
+                        }
+                        else if (magmaBoss != null)
+                        {
+                            // same pattern later
+                        }
+                    }
+                }
+                }
             }
         }
     }
-}
+

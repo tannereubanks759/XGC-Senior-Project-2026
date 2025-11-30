@@ -14,7 +14,13 @@ public class PirateBossAI : MonoBehaviour
     public NavMeshAgent agent;
     public Transform player;
     public BossHealthbar healthbar;
-
+    [Header("Curse")]
+    public int damageMult = 1;
+    public float cursedSpeedMultiplier = 0.4f;
+    public bool reflectDamageWhenCursed = false;
+    float _baseAgentSpeed;
+    public bool isCursed;
+    public GameObject cursedVfxPrefab;
     [Header("Tuning")]
     public float attackRange = 3.5f;
     public float turnSpeed = 360f;
@@ -107,7 +113,7 @@ public class PirateBossAI : MonoBehaviour
         if (!agent) agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
         agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
-
+        _baseAgentSpeed = agent.speed;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
         animator?.SetBool(paramIsWalking, false);
         animator?.SetBool(paramIsRunning, false);
@@ -117,7 +123,17 @@ public class PirateBossAI : MonoBehaviour
         RecalcRanges();
         _deathHash = Animator.StringToHash("Base Layer.Death");
     }
-
+    public void curseBoss(bool slow, bool reflection)
+    {
+        if (isCursed) return;
+        isCursed = true;
+        damageMult = 2;
+        if (slow)
+        {
+            agent.speed = _baseAgentSpeed * cursedSpeedMultiplier;
+        }
+        reflectDamageWhenCursed = reflection;
+    }
     void RecalcRanges()
     {
         _sqrAttackEnter = attackRange * attackRange;
@@ -173,9 +189,10 @@ public class PirateBossAI : MonoBehaviour
     public void TakeDamage(int amount)
     {
         if (State == BossState.Dead) return;
-        currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(amount));
+        int finalDamage = amount * damageMult;
+        currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(finalDamage));
         animator.SetTrigger("Impacted");
-        healthbar.TakeDamage(amount);
+        healthbar.TakeDamage(finalDamage);
         if (currentHealth <= 0) TransitionTo(BossState.Dead);
     }
 
