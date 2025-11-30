@@ -108,6 +108,7 @@ public class MagmaBossAI : MonoBehaviour
 
     // Charge internals
     float _baseAgentSpeed;
+    float _cursedSpeedMultiplier = 1f;
     bool _chargeBusy;
     bool _chargeCancelRequested;
     Vector3 _chargeDirection;
@@ -115,7 +116,11 @@ public class MagmaBossAI : MonoBehaviour
 
     // Spit internals
     bool _spitBusy;
-
+    [Header("Curse")]
+    public bool isCursed = false;
+    public bool reflectDamageWhenCursed = false;
+    public GameObject cursedVfxPrefab;
+    public int damageMult = 1;
     void Reset()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -183,14 +188,39 @@ public class MagmaBossAI : MonoBehaviour
     {
         if (State == BossState.Dead) return;
 
-        currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(amount));
+        int finalDamage = Mathf.Max(1, amount * damageMult);
+
+        currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(finalDamage));
         animator.SetTrigger("Impacted");
-        healthbar.TakeDamage(amount);
+        healthbar.TakeDamage(finalDamage);
 
         if (currentHealth <= 0)
             TransitionTo(BossState.Dead);
     }
+    public void CurseBoss(bool slow, bool reflection)
+    {
+        if (isCursed) return;
 
+        isCursed = true;
+        reflectDamageWhenCursed = reflection;
+        damageMult = 2;
+
+        if (slow)
+        {
+            _cursedSpeedMultiplier = 0.5f;
+            _baseAgentSpeed *= _cursedSpeedMultiplier;
+            agent.speed = _baseAgentSpeed;
+        }
+    }
+    public void OnDealtDamageToPlayer(int dealtDamage)
+    {
+        if (isCursed && reflectDamageWhenCursed)
+        {
+            int reflected = Mathf.RoundToInt(dealtDamage * 0.5f);
+            TakeDamage(reflected);
+            
+        }
+    }
     void TickIdle()
     {
         agent.isStopped = true;

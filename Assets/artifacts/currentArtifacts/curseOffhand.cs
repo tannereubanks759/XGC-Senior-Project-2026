@@ -48,14 +48,18 @@ public class curseOffhand : MonoBehaviour
             cursedEnemy = null;
 
         }
-
-        if (Input.GetKeyDown(KeyCode.F))
+        //only run when f is pressed
+        if (!Input.GetKeyDown(KeyCode.F))
         {
-            if (cursedEnemy != null || FindObjectOfType<PirateBossAI>()?.isCursed == true)
-            {
-                return;
-            }
-            Ray curseRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+            return;
+        }
+            //make sure two thingsd arent cursed at once
+        if (cursedEnemy != null || FindObjectOfType<PirateBossAI>()?.isCursed == true || FindObjectOfType<MagmaBossAI>()?.isCursed == true)
+        {
+            return;
+        }
+        // base enemy logic
+        Ray curseRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
             if (Physics.Raycast(curseRay, out RaycastHit hit, curseRange, enemyMask))
             {
                 BaseEnemyAI enemy = hit.collider.GetComponentInParent<BaseEnemyAI>();
@@ -70,7 +74,7 @@ public class curseOffhand : MonoBehaviour
                     vfx.transform.localPosition = offset;
                     checkUpgrade(enemyScript);
                 }
-                //check if boss
+                //boss enemy logic
                 else
                 {
                     DamageRef bossRef = hit.collider.GetComponentInParent<DamageRef>();
@@ -89,14 +93,23 @@ public class curseOffhand : MonoBehaviour
                             }
                         pirateboss.curseBoss(slowUpgrade, reflectionUpgrade);
                         }
-                        else if (magmaBoss != null)
+                    //magma boss logic
+                    else if (magmaBoss != null)
+                    {
+                        if (!magmaBoss.isCursed)
                         {
-                            // same pattern later
+                            Vector3 offset = new Vector3(0f, 1.6f, 0f);
+                            var vfx = Instantiate(magmaBoss.cursedVfxPrefab, magmaBoss.transform.position + offset, Quaternion.identity, magmaBoss.transform);
+                            vfx.transform.localPosition = offset;
                         }
+
+                        magmaBoss.CurseBoss(slowUpgrade, reflectionUpgrade);
                     }
-                }
                 }
             }
         }
     }
+}
+        
+    
 
