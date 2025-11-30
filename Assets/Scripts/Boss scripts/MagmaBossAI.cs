@@ -207,7 +207,7 @@ public class MagmaBossAI : MonoBehaviour
 
         if (slow)
         {
-            _cursedSpeedMultiplier = 0.5f;
+            _cursedSpeedMultiplier = 0.75f;
             _baseAgentSpeed *= _cursedSpeedMultiplier;
             agent.speed = _baseAgentSpeed;
         }
