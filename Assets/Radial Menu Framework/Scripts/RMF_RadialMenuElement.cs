@@ -29,7 +29,8 @@ public class RMF_RadialMenuElement : MonoBehaviour {
     [HideInInspector]
     public int assignedIndex = 0;
     // Use this for initialization
-
+    public GameObject infoPanel;
+    public GameObject[] allPanels;
     private CanvasGroup cg;
 
     void Awake() {
@@ -97,13 +98,20 @@ public class RMF_RadialMenuElement : MonoBehaviour {
         angleMax = offset + (baseOffset / 2f);
 
     }
-
+    public void disableAllInfo() 
+    {
+        foreach(GameObject game in allPanels) 
+        { 
+            game.SetActive(false);
+        }
+    }
     //Highlights this button. Unity's default button wasn't really meant to be controlled through code so event handlers are necessary here.
     //I would highly recommend not messing with this stuff unless you know what you're doing, if one event handler is wrong then the whole thing can break.
     public void highlightThisElement(PointerEventData p) {
 
         ExecuteEvents.Execute(button.gameObject, p, ExecuteEvents.selectHandler);
         active = true;
+        disableAllInfo();
         setParentMenuLable(label);
 
     }
@@ -111,6 +119,7 @@ public class RMF_RadialMenuElement : MonoBehaviour {
     //Sets the label of the parent menu. Is set to public so you can call this elsewhere if you need to show a special label for something.
     public void setParentMenuLable(string l) {
 
+        infoPanel.gameObject.SetActive(true);
         if (parentRM.textLabel != null)
             parentRM.textLabel.text = l;
 
