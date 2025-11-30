@@ -168,7 +168,8 @@ public class chargeOffHandLatern : MonoBehaviour
         }
         else
         {
-            WeaponsManager.ShowExplosionLantern();
+            //WeaponsManager.ShowExplosionLantern();
+            //enable charge logic
         }
 
         isActive = true;
