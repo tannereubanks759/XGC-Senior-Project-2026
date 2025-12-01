@@ -13,6 +13,11 @@ public class RangeSkeleton : BaseEnemyAI
 
     private Vector3 storedPlayerPos;
 
+    public AudioClip sizzle;
+    public AudioClip gunShot;
+
+    public AudioSource audioSource;
+
 
 #pragma warning disable CS0114 // Member hides inherited member; missing override keyword
     private void Awake()
@@ -106,5 +111,16 @@ public class RangeSkeleton : BaseEnemyAI
     {
         ShotVFX();
         ShootRay(gunPos);
+        audioSource.PlayOneShot(gunShot, 10f);
+    }
+
+    public void StartSizzle()
+    {
+        audioSource.Play();
+    }
+
+    public void EndSizzle()
+    {
+        audioSource.Stop();
     }
 }
