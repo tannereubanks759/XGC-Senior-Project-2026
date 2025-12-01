@@ -473,7 +473,7 @@ public class PirateBossAI : MonoBehaviour
         {
             if (Time.time < _nextDamageAllowedTime) return;
             int dmg = ResolveDamageFrom(other);
-            TakeDamage(dmg);
+            GetComponent<DamageRef>().TakeDamage(dmg);
             var lantern = GameObject.FindAnyObjectByType<chargeOffHandLatern>();
             if (lantern != null && lantern.enabled)
             {
