@@ -12,6 +12,7 @@ public class UI : MonoBehaviour
     public CombatController combatController;
     public WeaponsManager wm;
     public UImanager UIM;
+    public GameObject deathUI;
     void Start()
     {
         Resume();
@@ -78,20 +79,29 @@ public class UI : MonoBehaviour
 
     public void LoadScene(string name)
     {
-        if(name != "MainMenu" && name != SceneManager.GetActiveScene().name)
-        {
-            SceneManager.LoadScene(name);
-        }
-        else
+        if (name == "MainMenu")
         {
             Destroy(this.GetComponentInParent<FirstPersonController>().gameObject);
-            SceneManager.LoadScene(name);
         }
-        
+        SceneManager.LoadScene(name);
     }
     public void RestartScene()
     {
+       ResetPlayer();
         LoadScene(SceneManager.GetActiveScene().name);
     }
-
+    void ResetPlayer()
+    {
+        FirstPersonController player = GetComponentInParent<FirstPersonController>();
+        CombatController health = player.GetComponentInChildren<CombatController>();
+        if (health != null)
+        {
+            health.health = health.maxHealth;
+            health.healthSlider.value = health.health;
+        }
+        UIM.CloseDeathScreen();
+        UIM.OpenPlayerUIScreen();
+        player.playerCanMove = true;
+        FirstPersonController.isPaused = false;
+    }
 }

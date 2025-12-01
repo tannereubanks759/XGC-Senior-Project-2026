@@ -27,6 +27,11 @@ public class UImanager : MonoBehaviour
         PreSetup(true, true);
         DeathScreen.SetActive(true);
     }
+    public void CloseDeathScreen()
+    {
+        PreSetup(false, false);
+        DeathScreen.SetActive(false);
+    }
     public void OpenPlayerUIScreen()
     {
         PreSetup(false, false);
