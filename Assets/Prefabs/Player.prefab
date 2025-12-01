@@ -22184,7 +22184,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6526647450148579118
 Transform:
   m_ObjectHideFlags: 0
@@ -28595,7 +28595,7 @@ MonoBehaviour:
   firebombUpgradeCount: 0
   fireBall: {fileID: 7635544870034271462}
   curse: {fileID: 2708173403352759965}
-  lightningSkull: {fileID: 5851568336786274065}
+  lightningSkull: {fileID: 2232083423495473721}
 --- !u!1 &3517035798997151314
 GameObject:
   m_ObjectHideFlags: 0
@@ -66885,18 +66885,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7929822157425361283, guid: e7d3dc3fc22cec042ad70990442a6ce8, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e7d3dc3fc22cec042ad70990442a6ce8, type: 3}
---- !u!1 &5851568336786274065 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7929822157425361283, guid: e7d3dc3fc22cec042ad70990442a6ce8, type: 3}
-  m_PrefabInstance: {fileID: 4555550842111784594}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6520969039246912939 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7297999153910258489, guid: e7d3dc3fc22cec042ad70990442a6ce8, type: 3}
