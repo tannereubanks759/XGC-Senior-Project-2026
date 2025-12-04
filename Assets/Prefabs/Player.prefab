@@ -52341,7 +52341,9 @@ MonoBehaviour:
   fireball_1: {fileID: 3757368228119819915}
   fireball_2: {fileID: 838562964997630056}
   activeFireballs: 2
-  scalePower: 0.01
+  totalChargeTime: 8
+  scaleAtPopStart: 0.6
+  popStartTimeFraction: 0.95
 --- !u!1 &6203221231945686468
 GameObject:
   m_ObjectHideFlags: 0
