@@ -183,16 +183,22 @@ public class PirateBossAI : MonoBehaviour
         healthbar = playerTarget.GetComponentInChildren<CombatController>().boss_healthbar;
         healthbar.text.text = BossName;
         healthbar.gameObject.SetActive(true);
+        healthbar.ShowHealthbarOnBossTriggered();
+        
         TransitionTo(BossState.Chase);
     }
 
     public void TakeDamage(int amount)
     {
+        
         if (State == BossState.Dead) return;
         int finalDamage = amount * damageMult;
+        
         currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(finalDamage));
         animator.SetTrigger("Impacted");
-        healthbar.TakeDamage(finalDamage);
+
+        healthbar.TakeDamage(currentHealth);
+
         if (currentHealth <= 0) TransitionTo(BossState.Dead);
     }
 

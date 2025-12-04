@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class BossHealthbar : MonoBehaviour
 {
     [Header("Health Settings")]
-    public int maxHealth = 500;
-    public int currentHealth = 500;
+    public int maxHealth = 300;
+    public int currentHealth = 300;
 
     [Header("UI Components")]
     public Slider bossHealthSlider;
@@ -41,9 +41,38 @@ public class BossHealthbar : MonoBehaviour
             bossHealthSlider.value = displayedHealth;
         }
 
-        if (bossHealthGroup != null)
-            bossHealthGroup.alpha = 0f; // Start hidden until damaged
+        /*if (bossHealthGroup != null)
+            bossHealthGroup.alpha = 0f; // Start hidden until damaged*/
     }
+
+    public void ResetHealthbar()
+    {
+        // Reset logical health
+        currentHealth = maxHealth;
+        displayedHealth = maxHealth;
+        healthVelocity = 0f;
+
+        // Make sure we have a slider reference
+        EnsureSlider();
+
+        // Reset slider values
+        if (bossHealthSlider != null)
+        {
+            bossHealthSlider.minValue = 0;
+            bossHealthSlider.maxValue = maxHealth;
+            bossHealthSlider.value = maxHealth;
+        }
+        // Immediately hide the healthbar UI
+        if (bossHealthGroup != null)
+        {
+            bossHealthGroup.alpha = 0f;   // fully faded out
+        }
+
+        // Reset fade state so it won’t auto-fade in
+        fadingOut = false;
+        lastDamageTime = -9999f; // ensures HandleAutoFade treats it as idle/hidden
+    }
+
 
     void Update()
     {
@@ -71,6 +100,28 @@ public class BossHealthbar : MonoBehaviour
                 bossHealthSlider = go.GetComponent<Slider>();
         }
     }
+    /// <summary>
+    /// Call this when the boss is triggered/aggroed to fade the healthbar back in.
+    /// </summary>
+    public void ShowHealthbarOnBossTriggered()
+    {
+        // Make sure slider exists (in case scene changed / reloaded)
+        EnsureSlider();
+
+        // Start from fully transparent so the fade-in is visible
+        if (bossHealthGroup != null)
+        {
+            bossHealthGroup.alpha = 0f;
+        }
+
+        // Cancel any fade-out logic
+        fadingOut = false;
+
+        // This tells HandleAutoFade that we were "just used",
+        // so it will drive the alpha toward 1 over time.
+        lastDamageTime = Time.time;
+        currentHealth = maxHealth;
+    }
 
     void HandleAutoFade()
     {
@@ -96,22 +147,16 @@ public class BossHealthbar : MonoBehaviour
     /// Call this function from your boss script when taking damage.
     /// Example: bossHealthbar.TakeDamage(25);
     /// </summary>
-    public void TakeDamage(int damage)
+    public void TakeDamage(int currentHealthFromBoss)
     {
-        damage = Mathf.Max(0, damage);
-        int applied = Mathf.Clamp(damage, 0, currentHealth);
-
-        if (applied <= 0) return;
-
-        currentHealth = Mathf.Max(0, currentHealth - applied);
-        lastDamageTime = Time.time;
-        fadingOut = false;
+        currentHealth = currentHealthFromBoss;
 
         // Optional: if boss dies, fade out UI
         if (currentHealth <= 0)
         {
             StartCoroutine(FadeOutOnDeath());
         }
+        Debug.Log(currentHealth);
     }
 
     private IEnumerator FadeOutOnDeath()

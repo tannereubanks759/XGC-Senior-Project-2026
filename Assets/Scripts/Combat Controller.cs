@@ -108,10 +108,7 @@ public class CombatController : MonoBehaviour
         dodgeScript = GetComponentInChildren<DodgeDash>();
         rb = GetComponentInParent<Rigidbody>();
         controller = rb.GetComponent<FirstPersonController>();
-        if (boss_healthbar != null)
-        {
-            boss_healthbar.gameObject.SetActive(false);
-        }
+        
         
         EnsureSlider();
         if (healthSlider != null)
@@ -154,6 +151,12 @@ public class CombatController : MonoBehaviour
 
     void EnemiesLoaded(Scene scene1, LoadSceneMode loadSceneMode)
     {
+        if (boss_healthbar != null)
+        {
+            boss_healthbar.gameObject.SetActive(true);
+            boss_healthbar.ResetHealthbar();
+        }
+
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
 
         if (enemies.Length > 0)
