@@ -20,6 +20,10 @@ public class BossAnimatorEvents : MonoBehaviour
             spitPs.Stop();
         }
     }
+    public void shockwave()
+    {
+        GetComponentInParent<GhostBossAI>().ShockwaveImpactEvent();
+    }
     public void SetColliderOn()
     {
         if (weapon)

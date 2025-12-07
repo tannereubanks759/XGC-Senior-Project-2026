@@ -14729,6 +14729,29 @@ MonoBehaviour:
     m_RotationOrder: 4
   paramIsLunging: isLunging
   paramLungeTelegraph: LungeTelegraph
+  enableHauntingBlink: 1
+  blinkMinDistance: 6
+  blinkMaxDistance: 14
+  blinkBehindDistance: 1
+  blinkSideOffset: 1
+  blinkCooldown: 7
+  blinkTelegraphTime: 3
+  paramBlinkTelegraph: BlinkTelegraph
+  blinkAfterimagePrefab: {fileID: 0}
+  blinkReappearVfxPrefab: {fileID: 0}
+  enableSpectralShockwave: 1
+  shockwaveMaxRange: 7
+  shockwaveRadius: 5
+  shockwaveTelegraphTime: 1.7
+  shockwaveCooldown: 7
+  shockwavePostDelay: 1
+  paramShockwaveTelegraph: ShockwaveTelegraph
+  shockwaveVfxPrefab: {fileID: 0}
+  shockwaveVfxHeightOffset: 0.1
+  shockwaveHitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  playerTag: Player
   isCursed: 0
   reflectDamageWhenCursed: 0
   cursedVfxPrefab: {fileID: 1918354688}

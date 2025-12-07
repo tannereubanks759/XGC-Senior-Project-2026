@@ -6,7 +6,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class GhostBossAI : MonoBehaviour
 {
-    public enum BossState { Idle, Chase, Attack, Dead, PhaseLunge }
+    public enum BossState { Idle, Chase, Attack, Dead, PhaseLunge, HauntingBlink, SpectralShockwave }
     public string BossName = "Ghost Boss";
 
     [Header("References")]
@@ -21,6 +21,9 @@ public class GhostBossAI : MonoBehaviour
     public float attackDuration = 1.2f;
     public float attackCooldown = 0.6f;
     public float stopEpsilon = 0.05f;
+    [Header("Special Cooldowns")]
+    public float specialGlobalCooldown = 3f;   // minimum time between ANY two specials
+    float _nextAnySpecialAllowedTime = 0f;
 
     [Header("Locomotion")]
     public float walkEnterSpeed = 0.25f;
@@ -63,6 +66,52 @@ public class GhostBossAI : MonoBehaviour
 
     [SerializeField] string paramIsLunging = "isLunging";
     [SerializeField] string paramLungeTelegraph = "LungeTelegraph";
+
+    [Header("Haunting Blink")]
+    public bool enableHauntingBlink = true;
+    public float blinkMinDistance = 6f;      // when to consider blinking
+    public float blinkMaxDistance = 14f;
+    public float blinkBehindDistance = 2.5f; // how far behind/side of player
+    public float blinkSideOffset = 1.5f;     // side offset
+    public float blinkCooldown = 6f;
+    public float blinkTelegraphTime = 0.3f;
+
+    [SerializeField] string paramBlinkTelegraph = "BlinkTelegraph";
+
+    public GameObject blinkAfterimagePrefab;   // at old position (optional)
+    public GameObject blinkReappearVfxPrefab;  // at new position (optional)
+
+    [Header("Spectral Shockwave")]
+    public bool enableSpectralShockwave = true;
+    bool _shockwaveHasHit;
+
+    // When to consider doing it (distance from player)
+    public float shockwaveMaxRange = 7f;      // if player is within this, we may stomp
+
+    // How it behaves
+    public float shockwaveRadius = 6f;        // damage radius
+    public float shockwaveTelegraphTime = 0.6f;
+    public float shockwaveCooldown = 7f;
+    public float shockwavePostDelay = 0.3f;   // small delay after impact before resuming
+
+    [SerializeField] string paramShockwaveTelegraph = "ShockwaveTelegraph";
+
+    public GameObject shockwaveVfxPrefab;     // circular ring prefab (optional)
+    public float shockwaveVfxHeightOffset = 0.1f;
+
+    // Optional: which layers/targets get hit
+    public LayerMask shockwaveHitMask = ~0;   // default: everything
+    public string playerTag = "Player";
+    // public int shockwaveDamage = 25;      // if you want to wire damage here
+
+    bool _shockwaveBusy;
+    float _nextShockwaveAllowedTime;
+
+
+    bool _blinkBusy;
+    float _nextBlinkAllowedTime;
+    Renderer[] _renderers; // cache for hide/show
+
 
     bool _lungeBusy;
     float _nextLungeAllowedTime;
@@ -108,7 +157,18 @@ public class GhostBossAI : MonoBehaviour
         _baseAgentSpeed = agent.speed;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
 
+        _renderers = GetComponentsInChildren<Renderer>();
+
         RecalcRanges();
+    }
+
+    void SetRenderersVisible(bool visible)
+    {
+        if (_renderers == null) return;
+        for (int i = 0; i < _renderers.Length; i++)
+        {
+            if (_renderers[i]) _renderers[i].enabled = visible;
+        }
     }
 
     void RecalcRanges()
@@ -138,9 +198,21 @@ public class GhostBossAI : MonoBehaviour
             case BossState.Idle: TickIdle(); break;
             case BossState.Chase: TickChase(); break;
             case BossState.Attack: TickAttack(); break;
+            case BossState.HauntingBlink: TickHauntingBlink(); break;
             case BossState.PhaseLunge: TickPhaseLunge(); break;
+            case BossState.SpectralShockwave: TickSpectralShockwave(); break;
         }
     }
+    void TickSpectralShockwave()
+    {
+        FaceTarget();
+    }
+
+    void TickHauntingBlink()
+    {
+        FaceTarget();
+    }
+
     void TickPhaseLunge()
     {
         FaceTarget();
@@ -222,17 +294,40 @@ public class GhostBossAI : MonoBehaviour
         Vector3 toPlayer = player.position - transform.position;
         float sqrDist = toPlayer.sqrMagnitude;
         float dist = Mathf.Sqrt(sqrDist);
-
         // --- PHASE LUNGE TRIGGER ---
         if (enablePhaseLunge &&
+            !_attackBusy && !_lungeBusy && !_blinkBusy && !_shockwaveBusy &&
             Time.time >= _nextLungeAllowedTime &&
-            !_attackBusy &&                      // don’t conflict with normal attack
+            Time.time >= _nextAnySpecialAllowedTime &&
             dist >= lungeMinDistance &&
             dist <= lungeMaxDistance)
         {
             TransitionTo(BossState.PhaseLunge);
             return;
         }
+
+        // --- HAUNTING BLINK TRIGGER ---
+        if (enableHauntingBlink &&
+            !_attackBusy && !_lungeBusy && !_blinkBusy && !_shockwaveBusy &&
+            Time.time >= _nextBlinkAllowedTime &&
+            Time.time >= _nextAnySpecialAllowedTime &&
+            dist >= blinkMinDistance && dist <= blinkMaxDistance)
+        {
+            TransitionTo(BossState.HauntingBlink);
+            return;
+        }
+
+        // --- SPECTRAL SHOCKWAVE TRIGGER (close-ish) ---
+        if (enableSpectralShockwave &&
+            !_attackBusy && !_lungeBusy && !_blinkBusy && !_shockwaveBusy &&
+            Time.time >= _nextShockwaveAllowedTime &&
+            Time.time >= _nextAnySpecialAllowedTime &&
+            dist <= shockwaveMaxRange)
+        {
+            TransitionTo(BossState.SpectralShockwave);
+            return;
+        }
+
 
         // --- existing melee attack check ---
         if (Time.time >= _attackCooldownUntil && sqrDist <= _sqrAttackEnter)
@@ -287,6 +382,253 @@ public class GhostBossAI : MonoBehaviour
                 TransitionTo(BossState.Chase);
         }
     }
+    // Called from an Animation Event on the stomp frame
+    public void ShockwaveImpactEvent()
+    {
+        // Only apply if we're actually in the SpectralShockwave state
+        if (State != BossState.SpectralShockwave) return;
+        if (_shockwaveHasHit) return; // safety
+
+        _shockwaveHasHit = true;
+        DoSpectralShockwaveImpact();
+    }
+
+    IEnumerator SpectralShockwaveRoutine()
+    {
+        _shockwaveBusy = true;
+        _shockwaveHasHit = false;
+
+        // Stop + telegraph
+        agent.isStopped = true;
+        agent.speed = 0f;
+        SetWalk(false, true);
+
+        if (!string.IsNullOrEmpty(paramShockwaveTelegraph))
+        {
+            animator.ResetTrigger(paramShockwaveTelegraph);
+            animator.SetTrigger(paramShockwaveTelegraph);
+        }
+
+        // Optional pre-telegraph delay (you can keep or lower this)
+        float telegraphEnd = Time.time + shockwaveTelegraphTime;
+        while (Time.time < telegraphEnd && State == BossState.SpectralShockwave)
+        {
+            FaceTarget();
+            yield return null;
+        }
+
+        if (State != BossState.SpectralShockwave)
+        {
+            EndSpectralShockwave(false);
+            yield break;
+        }
+
+        // Now we just wait for the Animation Event to call ShockwaveImpactEvent()
+        // (with a safety timeout so it can't hang forever if the event is missing)
+        float maxWait = 2f; // failsafe
+        float waited = 0f;
+
+        while (!_shockwaveHasHit &&
+               waited < maxWait &&
+               State == BossState.SpectralShockwave)
+        {
+            waited += Time.deltaTime;
+            FaceTarget();
+            yield return null;
+        }
+
+        // If the state changed before impact, treat as cancelled
+        if (State != BossState.SpectralShockwave)
+        {
+            EndSpectralShockwave(false);
+            yield break;
+        }
+
+        // If for some reason the anim event never fired, you can optionally do a fallback:
+        if (!_shockwaveHasHit)
+        {
+            DoSpectralShockwaveImpact();
+        }
+
+        // small post-delay so it doesn't instantly resume running
+        float endTime = Time.time + shockwavePostDelay;
+        while (Time.time < endTime && State == BossState.SpectralShockwave)
+        {
+            yield return null;
+        }
+
+        EndSpectralShockwave(true);
+    }
+
+    void DoSpectralShockwaveImpact()
+    {
+        Vector3 center = transform.position;
+        center.y += shockwaveVfxHeightOffset;
+
+        // VFX ring
+        if (shockwaveVfxPrefab)
+        {
+            Instantiate(shockwaveVfxPrefab, center, Quaternion.identity);
+        }
+
+        // Hit detection (AoE)
+        Collider[] hits = Physics.OverlapSphere(transform.position, shockwaveRadius, shockwaveHitMask, QueryTriggerInteraction.Ignore);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            var col = hits[i];
+
+            // Example: only care about the player here
+            if (!string.IsNullOrEmpty(playerTag) && !col.CompareTag(playerTag))
+                continue;
+
+            // TODO: call into your player damage / knockback logic here.
+            // e.g.:
+            var cc = col.GetComponentInChildren<CombatController>();
+            if (cc != null)
+            {
+                cc.TakeDamageByBoss(30);
+            }
+        }
+    }
+    void EndSpectralShockwave(bool applyCooldown)
+    {
+        _shockwaveBusy = false;
+
+        if (agent)
+        {
+            agent.isStopped = false;
+            agent.speed = _baseAgentSpeed;
+        }
+
+        if (applyCooldown)
+        {
+            _nextShockwaveAllowedTime = Time.time + shockwaveCooldown;
+            _nextAnySpecialAllowedTime = Time.time + specialGlobalCooldown;
+        }
+
+        if (State == BossState.SpectralShockwave)
+            TransitionTo(BossState.Chase);
+    }
+
+
+    IEnumerator HauntingBlinkRoutine()
+    {
+        _blinkBusy = true;
+
+        // TELEGRAPH PHASE
+        agent.isStopped = true;
+        agent.speed = 0f;
+        SetWalk(false, true);
+
+        if (!string.IsNullOrEmpty(paramBlinkTelegraph))
+        {
+            animator.ResetTrigger(paramBlinkTelegraph);
+            animator.SetTrigger(paramBlinkTelegraph);
+        }
+
+        // Spawn afterimage at current spot (it will fade using its own script)
+        if (blinkAfterimagePrefab)
+        {
+            Instantiate(
+                blinkAfterimagePrefab,
+                transform.position,
+                transform.rotation
+            );
+        }
+
+        float telegraphEnd = Time.time + blinkTelegraphTime;
+        while (Time.time < telegraphEnd && State == BossState.HauntingBlink)
+        {
+            FaceTarget();
+            yield return null;
+        }
+
+        if (State != BossState.HauntingBlink)
+        {
+            // got interrupted somehow
+            _blinkBusy = false;
+            agent.isStopped = false;
+            agent.speed = _baseAgentSpeed;
+            yield break;
+        }
+
+        // DISAPPEAR (visual) – hide renderers
+        SetRenderersVisible(false);
+
+        // ---- CHOOSE BLINK POSITION AROUND PLAYER ----
+        Vector3 newPos = ComputeBlinkPositionAroundPlayer();
+
+        // Warp agent to new spot
+        agent.Warp(newPos);
+
+        // REAPPEAR VFX
+        if (blinkReappearVfxPrefab)
+        {
+            Instantiate(
+                blinkReappearVfxPrefab,
+                transform.position,
+                transform.rotation
+            );
+        }
+
+        // Become visible again
+        SetRenderersVisible(true);
+
+        // Cooldown + clean up
+        _nextBlinkAllowedTime = Time.time + blinkCooldown;
+        _nextAnySpecialAllowedTime = Time.time + specialGlobalCooldown;
+
+        _blinkBusy = false;
+        agent.isStopped = false;
+        agent.speed = _baseAgentSpeed;
+
+        // Face the player after reappearing
+        FaceTarget();
+
+        // Immediately follow up with an attack (melee or roar)
+        if (State == BossState.HauntingBlink)
+        {
+            TransitionTo(BossState.Attack);
+        }
+    }
+    Vector3 ComputeBlinkPositionAroundPlayer()
+    {
+        if (!player)
+            return transform.position;
+
+        Vector3 playerPos = player.position;
+        Vector3 forward = player.forward;
+        forward.y = 0f;
+        if (forward.sqrMagnitude < 0.0001f)
+            forward = (playerPos - transform.position).normalized;
+        forward.Normalize();
+
+        // 0 = directly behind, 1/2 = behind-left/right
+        int choice = Random.Range(0, 3);
+        Vector3 offsetDir;
+
+        if (choice == 0)
+            offsetDir = -forward;  // behind
+        else if (choice == 1)
+            offsetDir = Quaternion.Euler(0f, 60f, 0f) * -forward; // back-left-ish
+        else
+            offsetDir = Quaternion.Euler(0f, -60f, 0f) * -forward; // back-right-ish
+
+        offsetDir.y = 0f;
+        offsetDir.Normalize();
+
+        Vector3 target = playerPos + offsetDir * blinkBehindDistance;
+
+        // keep roughly on same height as boss
+        target.y = transform.position.y;
+
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(target, out hit, 1.5f, NavMesh.AllAreas))
+            target = hit.position;
+
+        return target;
+    }
 
     void SetWalk(bool value, bool force = false)
     {
@@ -323,9 +665,6 @@ public class GhostBossAI : MonoBehaviour
             _attackBusy = false;
         }
 
-        // You can add a clean-up if you want later:
-        // if (State == BossState.PhaseLunge) CleanupPhaseLungeState();
-
         State = next;
 
         switch (next)
@@ -345,8 +684,16 @@ public class GhostBossAI : MonoBehaviour
                 if (!_attackBusy) StartCoroutine(AttackRoutine());
                 break;
 
+            case BossState.HauntingBlink:
+                if (!_blinkBusy) StartCoroutine(HauntingBlinkRoutine());
+                break;
+
             case BossState.PhaseLunge:
                 if (!_lungeBusy) StartCoroutine(PhaseLungeRoutine());
+                break;
+
+            case BossState.SpectralShockwave:
+                if (!_shockwaveBusy) StartCoroutine(SpectralShockwaveRoutine());
                 break;
 
             case BossState.Dead:
@@ -354,6 +701,8 @@ public class GhostBossAI : MonoBehaviour
                 break;
         }
     }
+
+
 
     IEnumerator PhaseLungeRoutine()
     {
@@ -439,6 +788,7 @@ public class GhostBossAI : MonoBehaviour
         if (applyCooldown)
         {
             _nextLungeAllowedTime = Time.time + lungeCooldown;
+            _nextAnySpecialAllowedTime = Time.time + specialGlobalCooldown;
         }
 
         if (State == BossState.PhaseLunge)
@@ -446,6 +796,7 @@ public class GhostBossAI : MonoBehaviour
             TransitionTo(BossState.Chase);
         }
     }
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
@@ -457,6 +808,14 @@ public class GhostBossAI : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, lungeMaxDistance);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, blinkMinDistance);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, blinkMaxDistance);
     }
 
     void HandleDeath()
