@@ -98,6 +98,13 @@ public class BossAnimatorEvents : MonoBehaviour
             chargeAttackCol.enabled = true;
         }
     }
+    public void SetChargeOff()
+    {
+        if (chargeAttackCol)
+        {
+            chargeAttackCol.enabled = false;
+        }
+    }
     public void SetLavaOff()
     {
         if (lavaPs)

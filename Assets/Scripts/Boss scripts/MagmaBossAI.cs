@@ -179,7 +179,10 @@ public class MagmaBossAI : MonoBehaviour
         if (playerTarget) player = playerTarget;
 
         healthbar = playerTarget.GetComponentInChildren<CombatController>().boss_healthbar;
+        healthbar.maxHealth = maxHealth;
+        healthbar.currentHealth = currentHealth;
         healthbar.text.text = BossName;
+        healthbar.TakeDamage(currentHealth);
         healthbar.gameObject.SetActive(true);
         healthbar.ShowHealthbarOnBossTriggered();
         

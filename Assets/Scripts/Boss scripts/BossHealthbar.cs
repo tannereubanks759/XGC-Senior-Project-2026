@@ -107,6 +107,9 @@ public class BossHealthbar : MonoBehaviour
     {
         // Make sure slider exists (in case scene changed / reloaded)
         EnsureSlider();
+        bossHealthSlider.maxValue = maxHealth;
+        bossHealthSlider.value = currentHealth;
+        displayedHealth = currentHealth;
 
         // Start from fully transparent so the fade-in is visible
         if (bossHealthGroup != null)
