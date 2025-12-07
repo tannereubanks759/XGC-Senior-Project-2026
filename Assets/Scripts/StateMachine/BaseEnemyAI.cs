@@ -238,12 +238,23 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         _ps = Instantiate(ps, transform.parent);
         _ps.Stop();
-        var ap = _ps.GetComponent<AttractParticles>();
 
-        if (isRanged) ap.goldCount = 35 + 5 * boneCount;
-        if (GetComponentInChildren<SkeletonGoldBoneScript>().isElite) ap.goldCount = 50 + 5 * boneCount;
-        else ap.goldCount = 20 + 5 * boneCount;
+        int coinAmount;
+
+        if (isRanged)
+            coinAmount = 3 + boneCount;
+        else if (GetComponentInChildren<SkeletonGoldBoneScript>().isElite)
+            coinAmount = 5 + boneCount;
+        else
+            coinAmount = 2 + boneCount;
+
+        // Apply burst count to the particle system
+        var emission = _ps.emission;
+        var burst = emission.GetBurst(0);
+        burst.count = coinAmount;
+        emission.SetBurst(0, burst);
     }
+
     #endregion
 
     #region Vision Methods
