@@ -53216,6 +53216,7 @@ GameObject:
   - component: {fileID: 4298105130201558956}
   - component: {fileID: 2174788210189082112}
   - component: {fileID: 7813852301509748149}
+  - component: {fileID: 7072011364156543277}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -53719,6 +53720,9 @@ MonoBehaviour:
   hitsToCharge: 10
   hitWindowSeconds: 6
   hitCount: 0
+  chargeBase: {fileID: 0}
+  chargePerHit: 10
+  minChargeToExplode: 30
   chargeSpheres:
   - {fileID: 5397390188825295214}
   - {fileID: 4597246973575666185}
@@ -53753,6 +53757,21 @@ MonoBehaviour:
   damage: 30
   health: {fileID: 6230349697370413922}
   inLava: 0
+--- !u!114 &7072011364156543277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6428402459396883477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffb63ec5d7f94fe4388c3e48d0874318, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxCharge: 100
+  currentCharge: 0
+  isActive: 1
 --- !u!1 &6450579590065900363
 GameObject:
   m_ObjectHideFlags: 0
@@ -58570,6 +58589,7 @@ MonoBehaviour:
   fxObject: {fileID: 1836639356757348, guid: 7a4a07efe85384d42a0d0e9409b05caa, type: 3}
   fxSpawnPoint: {fileID: 5277082541760541816}
   offset: {x: 90, y: 0, z: 0}
+  chargeBase: {fileID: 0}
 --- !u!114 &530851876868477192
 MonoBehaviour:
   m_ObjectHideFlags: 0
