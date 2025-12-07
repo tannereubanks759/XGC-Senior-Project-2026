@@ -6,11 +6,13 @@ public class ChargeAttackDMG : MonoBehaviour
     public float chargeDamage = 30f;
     private Collider col;
     private MagmaBossAI magmaBoss;
+    private GhostBossAI ghostBoss;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         col = GetComponent<Collider>();
         magmaBoss = GetComponentInParent<MagmaBossAI>();
+        ghostBoss = GetComponentInParent<GhostBossAI>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -26,6 +28,10 @@ public class ChargeAttackDMG : MonoBehaviour
             if (magmaBoss != null)
             {
                 magmaBoss.OnDealtDamageToPlayer(dmg);
+            }
+            if(ghostBoss != null)
+            {
+                ghostBoss.OnDealtDamageToPlayer(dmg);
             }
             col.enabled = false;
         }

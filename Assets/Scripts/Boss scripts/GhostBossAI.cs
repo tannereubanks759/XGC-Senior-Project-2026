@@ -2,44 +2,31 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-[AddComponentMenu("AI/Pirate Boss AI")]
+[AddComponentMenu("AI/Ghost Boss AI")]
 [RequireComponent(typeof(NavMeshAgent))]
-public class PirateBossAI : MonoBehaviour
+public class GhostBossAI : MonoBehaviour
 {
-    public enum BossState { Idle, Chase, Attack, AnchorThrow, Dead }
-    public string BossName = "Anchor Boss";
+    public enum BossState { Idle, Chase, Attack, Dead, PhaseLunge }
+    public string BossName = "Ghost Boss";
 
     [Header("References")]
     public Animator animator;
     public NavMeshAgent agent;
     public Transform player;
     public BossHealthbar healthbar;
-    [Header("Curse")]
-    public int damageMult = 1;
-    public float cursedSpeedMultiplier = 0.4f;
-    public bool reflectDamageWhenCursed = false;
-    float _baseAgentSpeed;
-    public bool isCursed;
-    public GameObject cursedVfxPrefab;
+
     [Header("Tuning")]
     public float attackRange = 3.5f;
     public float turnSpeed = 360f;
-    [Tooltip("How fast the boss can spin specifically during AnchorThrow.")]
-    public float throwTurnSpeed = 900f;          // <-- NEW
     public float attackDuration = 1.2f;
     public float attackCooldown = 0.6f;
     public float stopEpsilon = 0.05f;
 
     [Header("Locomotion")]
-    [Tooltip("If speed is above this, we want walk anim ON.")]
     public float walkEnterSpeed = 0.25f;
-    [Tooltip("If speed is below this AND we're close enough, we want walk anim OFF.")]
     public float walkExitSpeed = 0.10f;
-    [Tooltip("Milliseconds to wait before allowing the next walk/idle flip.")]
     public float walkToggleDebounce = 0.18f;
-    [Tooltip("LPF smoothing for agent speed (bigger = snappier).")]
     public float speedSmoothing = 10f;
-    [Tooltip("Extra buffer beyond attackRange to leave Attack state (prevents snap-flopping).")]
     public float rangeHysteresis = 0.5f;
 
     [Header("Health")]
@@ -47,50 +34,44 @@ public class PirateBossAI : MonoBehaviour
     public int currentHealth = 300;
 
     [Header("Damage Intake")]
-    [Tooltip("Tag on the player's sword collider(s).")]
     public string swordTag = "PlayerSword";
-
-    [Tooltip("Fallback damage if the sword has no DamageDealer component.")]
     public int defaultSwordDamage = 20;
-
-    [Tooltip("Small invulnerability window after a hit to prevent multi-hit spam from continuous overlap.")]
     public float hitInvulnerability = 0.12f;
-
-    [Tooltip("Log hits to the console for debugging.")]
     public bool debugDamage = false;
 
     float _nextDamageAllowedTime = 0f;
 
-    [Header("Animator Parameters (match your controller)")]
+    [Header("Animator Parameters")]
     [SerializeField] string paramIsWalking = "isWalking";
     [SerializeField] string paramIsRunning = "isRunning";
-    [SerializeField] string paramIsAttackin = "isAttackin";
-    [SerializeField] string paramAttackIdx = "attack";     // int
+    [SerializeField] string paramIsAttackin = "isAttack";
+    [SerializeField] string paramAttackIdx = "attack";
     [SerializeField] string paramIsDead = "isDead";
 
     [Header("Attack Selection")]
     [Min(1)] public int numAttackAnims = 5;
     public bool avoidImmediateRepeat = true;
 
-    [Header("Anchor Throw")]
-    [Range(0f, 1f)] public float throwChance = 0.35f;
-    [Tooltip("Minimum distance from boss to consider attempting a throw (meters).")]
-    public float throwDistance = 8f;
-    public float maxThrowDistance = 16.5f;
-    [Tooltip("How long the boss stays in the AnchorThrow state (seconds).")]
-    public float throwTime = 1.2f;
-    public bool canRotate = true;
-    [SerializeField] string paramThrowTrigger = "throw"; // Animator trigger name
+    [Header("Phase Lunge")]
+    public bool enablePhaseLunge = true;
+    public float lungeMinDistance = 4f;
+    public float lungeMaxDistance = 12f;
+    public float lungeWindupTime = 0.5f;
+    public float lungeTravelTime = 0.35f;
+    public float lungeCooldown = 5f;
+    public AnimationCurve lungeEaseCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
-    // --- Death guards ---
+    [SerializeField] string paramIsLunging = "isLunging";
+    [SerializeField] string paramLungeTelegraph = "LungeTelegraph";
+
+    bool _lungeBusy;
+    float _nextLungeAllowedTime;
+
+
     bool _deathHandled = false;
-    int _deathHash;
-
-    float _sqrThrowDist;
-
     public BossState State { get; private set; } = BossState.Idle;
 
-    // internals
+    // Internals
     bool _attackBusy;
     float _sqrAttackEnter;
     float _sqrAttackExit;
@@ -102,6 +83,15 @@ public class PirateBossAI : MonoBehaviour
     float _nextWalkToggleTime;
     float _speedLPF;
 
+    float _baseAgentSpeed;
+    float _cursedSpeedMultiplier = 1f;
+
+    [Header("Curse")]
+    public bool isCursed = false;
+    public bool reflectDamageWhenCursed = false;
+    public GameObject cursedVfxPrefab;
+    public int damageMult = 1;
+
     void Reset()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -111,44 +101,21 @@ public class PirateBossAI : MonoBehaviour
     void Awake()
     {
         if (!agent) agent = GetComponent<NavMeshAgent>();
+
         agent.updateRotation = false;
         agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
+
         _baseAgentSpeed = agent.speed;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        animator?.SetBool(paramIsWalking, false);
-        animator?.SetBool(paramIsRunning, false);
-        animator?.SetBool(paramIsAttackin, false);
-        animator?.ResetTrigger(paramIsDead);
 
         RecalcRanges();
-        _deathHash = Animator.StringToHash("Base Layer.Death");
     }
-    public void curseBoss(bool slow, bool reflection)
-    {
-        if (isCursed) return;
-        isCursed = true;
-        damageMult = 2;
-        if (slow)
-        {
-            agent.speed = _baseAgentSpeed * cursedSpeedMultiplier;
-        }
-        reflectDamageWhenCursed = reflection;
-    }
+
     void RecalcRanges()
     {
         _sqrAttackEnter = attackRange * attackRange;
         float exitR = attackRange + Mathf.Max(0.05f, rangeHysteresis);
         _sqrAttackExit = exitR * exitR;
-
-        _sqrThrowDist = Mathf.Max(0f, throwDistance) * Mathf.Max(0f, throwDistance);
-    }
-
-    void OnValidate()
-    {
-        if (agent) agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
-        if (numAttackAnims < 1) numAttackAnims = 1;
-        if (walkExitSpeed > walkEnterSpeed) walkExitSpeed = walkEnterSpeed * 0.6f;
-        RecalcRanges();
     }
 
     void Start()
@@ -156,15 +123,14 @@ public class PirateBossAI : MonoBehaviour
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
-            
             if (p) player = p.transform;
         }
+
         TransitionTo(BossState.Idle);
     }
 
     void Update()
     {
-        //Debug.Log(State);
         if (State == BossState.Dead) return;
 
         switch (State)
@@ -172,43 +138,75 @@ public class PirateBossAI : MonoBehaviour
             case BossState.Idle: TickIdle(); break;
             case BossState.Chase: TickChase(); break;
             case BossState.Attack: TickAttack(); break;
-            case BossState.AnchorThrow: TickAnchorThrow(); break;
+            case BossState.PhaseLunge: TickPhaseLunge(); break;
         }
     }
+    void TickPhaseLunge()
+    {
+        FaceTarget();
+    }
+
 
     public void BeginEncounter(Transform playerTarget)
     {
         if (State == BossState.Dead) return;
         if (playerTarget) player = playerTarget;
+
         healthbar = playerTarget.GetComponentInChildren<CombatController>().boss_healthbar;
         healthbar.maxHealth = maxHealth;
         healthbar.currentHealth = currentHealth;
-        healthbar.TakeDamage(currentHealth);
         healthbar.text.text = BossName;
         healthbar.gameObject.SetActive(true);
+        healthbar.TakeDamage(currentHealth);
         healthbar.ShowHealthbarOnBossTriggered();
-        
+
         TransitionTo(BossState.Chase);
     }
 
     public void TakeDamage(int amount)
     {
-        
         if (State == BossState.Dead) return;
-        int finalDamage = amount * damageMult;
-        
+
+        int finalDamage = Mathf.Max(1, amount * damageMult);
         currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(finalDamage));
         animator.SetTrigger("Impacted");
 
         healthbar.TakeDamage(currentHealth);
 
-        if (currentHealth <= 0) TransitionTo(BossState.Dead);
+        if (currentHealth <= 0)
+            TransitionTo(BossState.Dead);
+    }
+
+    public void CurseBoss(bool slow, bool reflection)
+    {
+        if (isCursed) return;
+
+        isCursed = true;
+        reflectDamageWhenCursed = reflection;
+        damageMult = 2;
+
+        if (slow)
+        {
+            _cursedSpeedMultiplier = 0.75f;
+            _baseAgentSpeed *= _cursedSpeedMultiplier;
+            agent.speed = _baseAgentSpeed;
+        }
+    }
+
+    public void OnDealtDamageToPlayer(int dealtDamage)
+    {
+        if (isCursed && reflectDamageWhenCursed)
+        {
+            int reflected = Mathf.RoundToInt(dealtDamage * 0.5f);
+            TakeDamage(reflected);
+        }
     }
 
     void TickIdle()
     {
-        if (!agent.isStopped) agent.isStopped = true;
-        SetWalk(false, force: true);
+        agent.isStopped = true;
+        agent.speed = _baseAgentSpeed;
+        SetWalk(false, true);
         animator.SetBool(paramIsAttackin, false);
     }
 
@@ -223,18 +221,20 @@ public class PirateBossAI : MonoBehaviour
 
         Vector3 toPlayer = player.position - transform.position;
         float sqrDist = toPlayer.sqrMagnitude;
+        float dist = Mathf.Sqrt(sqrDist);
 
-        // Throw if distance is in range [throwDistance .. maxThrowDistance]
-        if (sqrDist >= _sqrThrowDist && toPlayer.magnitude <= maxThrowDistance)
+        // --- PHASE LUNGE TRIGGER ---
+        if (enablePhaseLunge &&
+            Time.time >= _nextLungeAllowedTime &&
+            !_attackBusy &&                      // don’t conflict with normal attack
+            dist >= lungeMinDistance &&
+            dist <= lungeMaxDistance)
         {
-            if (Random.value < throwChance)
-            {
-                TransitionTo(BossState.AnchorThrow);
-                return;
-            }
+            TransitionTo(BossState.PhaseLunge);
+            return;
         }
 
-        // Attack if close enough & off cooldown
+        // --- existing melee attack check ---
         if (Time.time >= _attackCooldownUntil && sqrDist <= _sqrAttackEnter)
         {
             TransitionTo(BossState.Attack);
@@ -243,10 +243,11 @@ public class PirateBossAI : MonoBehaviour
 
         // Move toward player
         agent.isStopped = false;
+        agent.speed = _baseAgentSpeed;
         agent.SetDestination(player.position);
-        FaceTarget(); // normal turn speed
+        FaceTarget();
 
-        // speed smoothing -> walk anim blend logic
+        // speed smoothing
         float rawSpeed = agent.velocity.magnitude;
         float alpha = 1f - Mathf.Exp(-speedSmoothing * Time.deltaTime);
         _speedLPF = Mathf.Lerp(_speedLPF, rawSpeed, alpha);
@@ -267,14 +268,8 @@ public class PirateBossAI : MonoBehaviour
 
         if (Time.time >= _nextWalkToggleTime)
         {
-            if (!_walkState && wantWalk)
-            {
-                SetWalk(true);
-            }
-            else if (_walkState && wantIdle)
-            {
-                SetWalk(false);
-            }
+            if (!_walkState && wantWalk) SetWalk(true);
+            else if (_walkState && wantIdle) SetWalk(false);
         }
 
         animator.SetBool(paramIsRunning, false);
@@ -283,7 +278,8 @@ public class PirateBossAI : MonoBehaviour
 
     void TickAttack()
     {
-        FaceTarget(); // normal turnSpeed
+        FaceTarget();
+
         if (player)
         {
             float sqrDist = (player.position - transform.position).sqrMagnitude;
@@ -300,16 +296,10 @@ public class PirateBossAI : MonoBehaviour
         _nextWalkToggleTime = Time.time + walkToggleDebounce;
     }
 
-    // Overload 1: default turn speed
     void FaceTarget()
     {
-        FaceTarget(turnSpeed);
-    }
-
-    // Overload 2: custom turn speed (used for throw spin)
-    void FaceTarget(float customTurnSpeed)
-    {
         if (!player) return;
+
         Vector3 dir = player.position - transform.position;
         dir.y = 0f;
         if (dir.sqrMagnitude < 0.0001f) return;
@@ -318,19 +308,13 @@ public class PirateBossAI : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(
             transform.rotation,
             targetRot,
-            customTurnSpeed * Time.deltaTime
+            turnSpeed * Time.deltaTime
         );
     }
 
-    Coroutine _throwCo;
-
     void TransitionTo(BossState next)
     {
-        if (State == next)
-        {
-            if (next == BossState.Dead) return;
-            return;
-        }
+        if (State == next) return;
 
         // Exit hooks
         if (State == BossState.Attack)
@@ -338,11 +322,9 @@ public class PirateBossAI : MonoBehaviour
             animator.SetBool(paramIsAttackin, false);
             _attackBusy = false;
         }
-        if (State == BossState.AnchorThrow && _throwCo != null)
-        {
-            StopCoroutine(_throwCo);
-            _throwCo = null;
-        }
+
+        // You can add a clean-up if you want later:
+        // if (State == BossState.PhaseLunge) CleanupPhaseLungeState();
 
         State = next;
 
@@ -350,88 +332,162 @@ public class PirateBossAI : MonoBehaviour
         {
             case BossState.Idle:
                 agent.isStopped = true;
-                SetWalk(false, force: true);
+                agent.speed = _baseAgentSpeed;
+                SetWalk(false, true);
                 break;
 
             case BossState.Chase:
                 agent.isStopped = false;
+                agent.speed = _baseAgentSpeed;
                 break;
 
             case BossState.Attack:
                 if (!_attackBusy) StartCoroutine(AttackRoutine());
                 break;
 
-            case BossState.AnchorThrow:
-                agent.isStopped = true;
-                SetWalk(false, force: true);
-                agent.velocity = Vector3.zero;
-                AnchorThrowSet();
+            case BossState.PhaseLunge:
+                if (!_lungeBusy) StartCoroutine(PhaseLungeRoutine());
                 break;
 
             case BossState.Dead:
-                if (_deathHandled) return;
-                IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>().GetComponent<IslandTeleporter>();
-                if (tel != null)
-                {
-                    tel.OpenDoor();
-                }
-                _deathHandled = true;
-
-                agent.isStopped = true;
-                agent.updatePosition = false;
-                agent.updateRotation = false;
-
-                SetWalk(false, force: true);
-                animator.SetBool(paramIsAttackin, false);
-
-                foreach (var col in GetComponentsInChildren<Collider>()) col.enabled = false;
-
-                StartCoroutine(DieRoutine());
+                HandleDeath();
                 break;
         }
     }
 
-    public void AnchorThrowSet()
+    IEnumerator PhaseLungeRoutine()
     {
-        animator.ResetTrigger(paramThrowTrigger);
-        animator.SetTrigger(paramThrowTrigger);
+        _lungeBusy = true;
+
+        // TELEGRAPH
+        agent.isStopped = true;
+        agent.speed = _baseAgentSpeed;
+        SetWalk(false, true);
+
+        if (!string.IsNullOrEmpty(paramLungeTelegraph))
+        {
+            animator.ResetTrigger(paramLungeTelegraph);
+            animator.SetTrigger(paramLungeTelegraph);
+        }
+
+        float telegraphEnd = Time.time + lungeWindupTime;
+        while (Time.time < telegraphEnd && State == BossState.PhaseLunge)
+        {
+            FaceTarget();
+            yield return null;
+        }
+
+        if (State != BossState.PhaseLunge)
+        {
+            EndPhaseLunge(false);
+            yield break;
+        }
+
+        // ==== START LUNGE: go to the player's position at lunge start ====
+        Vector3 start = transform.position;
+
+        // Where the player is *right now* when we commit to the lunge
+        Vector3 target = start + transform.forward * 2f; // fallback
+        if (player)
+        {
+            target = player.position;
+        }
+
+        // keep movement mostly horizontal
+        target.y = start.y;
+
+        // Clamp target onto the NavMesh, near the player
+        NavMeshHit hit;
+        if (NavMesh.SamplePosition(target, out hit, 1.5f, NavMesh.AllAreas))
+        {
+            target = hit.position;
+        }
+
+        if (!string.IsNullOrEmpty(paramIsLunging))
+            animator.SetBool(paramIsLunging, true);
+
+        float elapsed = 0f;
+        while (elapsed < lungeTravelTime && State == BossState.PhaseLunge)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / lungeTravelTime);
+            float eased = (lungeEaseCurve != null) ? lungeEaseCurve.Evaluate(t) : t;
+
+            Vector3 newPos = Vector3.Lerp(start, target, eased);
+            agent.Warp(newPos);
+            FaceTarget();
+
+            yield return null;
+        }
+
+        if (!string.IsNullOrEmpty(paramIsLunging))
+            animator.SetBool(paramIsLunging, false);
+
+        EndPhaseLunge(true);
     }
 
-    void TickAnchorThrow()
+    void EndPhaseLunge(bool applyCooldown)
     {
-        // keep agent frozen in place
-        if (!agent.isStopped) agent.isStopped = true;
-        agent.velocity = Vector3.zero;
+        _lungeBusy = false;
 
-        // spin FAST to face player while throwing
-        if (canRotate)
+        if (agent)
         {
-            FaceTarget(throwTurnSpeed); // <-- fast turn during throw
+            agent.isStopped = false;
+            agent.speed = _baseAgentSpeed;
+        }
+
+        if (applyCooldown)
+        {
+            _nextLungeAllowedTime = Time.time + lungeCooldown;
+        }
+
+        if (State == BossState.PhaseLunge)
+        {
+            TransitionTo(BossState.Chase);
         }
     }
-
-    public void AnchorThrowLeave()
+    void OnDrawGizmosSelected()
     {
-        TransitionTo(BossState.Chase);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, lungeMinDistance);
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, lungeMaxDistance);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 
-    int PickAttackIndex()
+    void HandleDeath()
     {
-        if (numAttackAnims <= 1 || !avoidImmediateRepeat)
-            return Mathf.Clamp(Random.Range(1, numAttackAnims + 1), 1, numAttackAnims);
+        if (_deathHandled) return;
 
-        if (numAttackAnims == 2) return (_lastAttack == 1) ? 2 : 1;
+        _deathHandled = true;
 
-        int pick;
-        do { pick = Random.Range(1, numAttackAnims + 1); } while (pick == _lastAttack);
-        return pick;
+        IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?
+            .GetComponent<IslandTeleporter>();
+        if (tel != null) tel.OpenDoor();
+
+        agent.isStopped = true;
+        agent.updatePosition = false;
+        agent.updateRotation = false;
+
+        SetWalk(false, true);
+        animator.SetBool(paramIsAttackin, false);
+
+        foreach (var col in GetComponentsInChildren<Collider>())
+            col.enabled = false;
+
+        StartCoroutine(DieRoutine());
     }
 
     IEnumerator AttackRoutine()
     {
         _attackBusy = true;
         agent.isStopped = true;
-        SetWalk(false, force: true);
+        agent.speed = _baseAgentSpeed;
+        SetWalk(false, true);
 
         int idx = PickAttackIndex();
         _lastAttack = idx;
@@ -457,15 +513,26 @@ public class PirateBossAI : MonoBehaviour
     {
         animator.SetTrigger(paramIsDead);
 
-        Collider[] cols = GetComponentsInChildren<Collider>();
-        foreach (var col in cols)
-        {
+        foreach (var col in GetComponentsInChildren<Collider>())
             col.enabled = false;
-        }
 
         yield return new WaitForSeconds(.01f);
-
         enabled = false;
+    }
+
+    int PickAttackIndex()
+    {
+        if (numAttackAnims <= 1 || !avoidImmediateRepeat)
+            return Mathf.Clamp(Random.Range(1, numAttackAnims + 1), 1, numAttackAnims);
+
+        if (numAttackAnims == 2)
+            return (_lastAttack == 1) ? 2 : 1;
+
+        int pick;
+        do { pick = Random.Range(1, numAttackAnims + 1); }
+        while (pick == _lastAttack);
+
+        return pick;
     }
 
     int ResolveDamageFrom(Collider other)
@@ -478,18 +545,18 @@ public class PirateBossAI : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!enabled || State == BossState.Dead) return;
+
         if (other.CompareTag(swordTag))
         {
             if (Time.time < _nextDamageAllowedTime) return;
+
             int dmg = ResolveDamageFrom(other);
-            GetComponent<DamageRef>().TakeDamage(dmg);
+            TakeDamage(dmg);
             var lantern = GameObject.FindAnyObjectByType<chargeOffHandLatern>();
             if (lantern != null && lantern.enabled)
             {
-               // Debug.Log("Boss hit by sword, notifying lantern");
                 lantern.hitRegistered();
             }
-
             _nextDamageAllowedTime = Time.time + hitInvulnerability;
         }
     }
@@ -497,18 +564,17 @@ public class PirateBossAI : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (!enabled || State == BossState.Dead) return;
+
         if (collision.collider.CompareTag(swordTag))
         {
             if (Time.time < _nextDamageAllowedTime) return;
+
             int dmg = ResolveDamageFrom(collision.collider);
             TakeDamage(dmg);
+
             _nextDamageAllowedTime = Time.time + hitInvulnerability;
         }
     }
 
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-    }
+    
 }

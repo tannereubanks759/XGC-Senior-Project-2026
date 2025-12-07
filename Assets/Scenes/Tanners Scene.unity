@@ -172,9 +172,13 @@ PrefabInstance:
       value: ArenaGate
       objectReference: {fileID: 0}
     - target: {fileID: 7176263822460710257, guid: 9dba0b9286cdda04e806b1c653079594, type: 3}
+      propertyPath: ghostBoss
+      value: 
+      objectReference: {fileID: 7027132255037625101}
+    - target: {fileID: 7176263822460710257, guid: 9dba0b9286cdda04e806b1c653079594, type: 3}
       propertyPath: magmaBoss
       value: 
-      objectReference: {fileID: 5801238082211652073}
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5341,6 +5345,73 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97822603a9dc3dd40ac9e0eb73c427aa, type: 3}
+--- !u!1 &425965913
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 425965914}
+  - component: {fileID: 425965915}
+  - component: {fileID: 425965918}
+  m_Layer: 0
+  m_Name: Charge
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &425965914
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 425965913}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.162, z: 0.219}
+  m_LocalScale: {x: 1.5215, y: 1.5215, z: 1.5215}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2097577180741101667}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &425965915
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 425965913}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &425965918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 425965913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff76ccd9182528d40b647b955c9bcc87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chargeDamage: 30
 --- !u!1 &930099866
 GameObject:
   m_ObjectHideFlags: 0
@@ -5359,7 +5430,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &930099867
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5506,73 +5577,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97822603a9dc3dd40ac9e0eb73c427aa, type: 3}
---- !u!1 &1031494246
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1031494249}
-  - component: {fileID: 1031494247}
-  - component: {fileID: 1031494248}
-  m_Layer: 0
-  m_Name: ChargeAttackCollider
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!135 &1031494247
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1031494246}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1031494248
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1031494246}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff76ccd9182528d40b647b955c9bcc87, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  chargeDamage: 30
---- !u!4 &1031494249
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1031494246}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0.2813753, y: -0.000000038349185, z: -0.000000025391891, w: 0.9595979}
-  m_LocalPosition: {x: -0.08, y: -0.383, z: 0.596}
-  m_LocalScale: {x: 1.4042871, y: 1.4042871, z: 1.4042871}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2097577180741101667}
-  m_LocalEulerAnglesHint: {x: 32.685, y: 0, z: 0}
 --- !u!1001 &1105159548
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11028,6 +11032,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3347783823356518405, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.00048828125
+      objectReference: {fileID: 0}
     - target: {fileID: 3475804386237825866, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -11278,6 +11286,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 230717784}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1918354688 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2708173403352759965, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
+  m_PrefabInstance: {fileID: 1831124612}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1925971682
 GameObject:
   m_ObjectHideFlags: 0
@@ -12334,7 +12347,7 @@ GameObject:
   - component: {fileID: 6522767600880958999}
   - component: {fileID: 2665805301242253734}
   m_Layer: 0
-  m_Name: MagmaBoss
+  m_Name: GhostBoss
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12405,7 +12418,7 @@ Transform:
   m_Children:
   - {fileID: 4325202857859003313}
   - {fileID: 230717784}
-  - {fileID: 1031494249}
+  - {fileID: 425965914}
   m_Father: {fileID: 8778906764245242765}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &2146573003908878297
@@ -12579,9 +12592,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8096e14203ec9324f8c1adc39b11168f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lavaPs: {fileID: 230717783}
-  chargeAttackCol: {fileID: 1031494247}
-  spitPs: {fileID: 1765234832}
+  lavaPs: {fileID: 0}
+  chargeAttackCol: {fileID: 425965915}
+  spitPs: {fileID: 0}
 --- !u!137 &2669461891389815852
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0
@@ -14004,7 +14017,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1670176684118479750}
-  - component: {fileID: 5801238082211652073}
+  - component: {fileID: 7027132255037625101}
   - component: {fileID: 497471671458553495}
   - component: {fileID: 7027132255037625098}
   - component: {fileID: 1177527288514566680}
@@ -14069,70 +14082,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &5801238082211652073
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5635413184487032685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6ea7dc45bc8ff4448922f1272da38e62, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BossName: Magma Boss
-  animator: {fileID: 6522767600880958999}
-  agent: {fileID: 497471671458553495}
-  player: {fileID: 0}
-  healthbar: {fileID: 0}
-  attackRange: 2
-  turnSpeed: 360
-  attackDuration: 1.2
-  attackCooldown: 0.6
-  stopEpsilon: 0.05
-  walkEnterSpeed: 0.25
-  walkExitSpeed: 0.1
-  walkToggleDebounce: 0.18
-  speedSmoothing: 10
-  rangeHysteresis: 0.5
-  maxHealth: 300
-  currentHealth: 300
-  swordTag: PlayerSword
-  defaultSwordDamage: 20
-  hitInvulnerability: 0.12
-  debugDamage: 0
-  paramIsWalking: isWalking
-  paramIsRunning: isRunning
-  paramIsAttackin: isAttack
-  paramAttackIdx: attack
-  paramIsDead: isDead
-  paramIsCharging: isCharging
-  paramChargeTelegraph: ChargeTelegraph
-  paramChargeSpeed: chargeSpeed
-  paramIsSpitting: isSpitting
-  paramSpitTelegraph: SpitTelegraph
-  numAttackAnims: 2
-  avoidImmediateRepeat: 1
-  chargeWeight: 1
-  spitWeight: 0.5
-  chargeStartDistance: 6
-  chargeTriggerDistance: 4
-  chargeRunDistance: 14
-  chargeSpeedMultiplier: 3
-  chargeCooldown: 6
-  chargeTelegraphTime: 2.5
-  minChargeAnimSpeed: 0
-  maxChargeAnimSpeed: 1
-  spitMinDistance: 2
-  spitMaxDistance: 20
-  spitCooldown: 6
-  spitTelegraphTime: 2.5
-  spitDuration: 3
-  isCursed: 0
-  reflectDamageWhenCursed: 0
-  cursedVfxPrefab: {fileID: 5488512800074345544, guid: 9b5717009b11ee94aa6720fd2f3565c4, type: 3}
-  damageMult: 1
 --- !u!4 &5813716933267943413
 Transform:
   m_ObjectHideFlags: 0
@@ -14369,7 +14318,7 @@ Animator:
   m_GameObject: {fileID: 2029206227061306932}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: 326a01f2fb844b74cac71a58b1d2a755, type: 3}
-  m_Controller: {fileID: 9100000, guid: b37bc8eb88524a946abd5a7cda9752dd, type: 2}
+  m_Controller: {fileID: 9100000, guid: 0a38f1ea8a537a845afc422e71752628, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -14661,7 +14610,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GoldBagPrefab: {fileID: 2109710059515890420, guid: 97822603a9dc3dd40ac9e0eb73c427aa, type: 3}
-  OverrideGoldAmount: 150
+  OverrideGoldAmount: 300
 --- !u!114 &7027132255037625099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14708,6 +14657,82 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 1
+--- !u!114 &7027132255037625101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5635413184487032685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77bccbdb71b43c847b2735647c5d699f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BossName: Ghost Boss
+  animator: {fileID: 6522767600880958999}
+  agent: {fileID: 497471671458553495}
+  player: {fileID: 0}
+  healthbar: {fileID: 0}
+  attackRange: 3.5
+  turnSpeed: 360
+  attackDuration: 1.2
+  attackCooldown: 0.6
+  stopEpsilon: 0.05
+  walkEnterSpeed: 0.25
+  walkExitSpeed: 0.1
+  walkToggleDebounce: 0.18
+  speedSmoothing: 10
+  rangeHysteresis: 0.5
+  maxHealth: 500
+  currentHealth: 500
+  swordTag: PlayerSword
+  defaultSwordDamage: 20
+  hitInvulnerability: 0.12
+  debugDamage: 0
+  paramIsWalking: isWalking
+  paramIsRunning: isRunning
+  paramIsAttackin: isAttack
+  paramAttackIdx: attack
+  paramIsDead: isDead
+  numAttackAnims: 2
+  avoidImmediateRepeat: 1
+  enablePhaseLunge: 1
+  lungeMinDistance: 4
+  lungeMaxDistance: 12
+  lungeWindupTime: 3
+  lungeTravelTime: 0.7
+  lungeCooldown: 10
+  lungeEaseCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  paramIsLunging: isLunging
+  paramLungeTelegraph: LungeTelegraph
+  isCursed: 0
+  reflectDamageWhenCursed: 0
+  cursedVfxPrefab: {fileID: 1918354688}
+  damageMult: 1
 --- !u!4 &7031826642340374695
 Transform:
   m_ObjectHideFlags: 0

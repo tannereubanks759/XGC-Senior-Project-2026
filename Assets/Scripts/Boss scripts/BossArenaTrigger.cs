@@ -8,6 +8,7 @@ public class BossArenaTrigger : MonoBehaviour
     [Tooltip("Assign the boss AI in this arena.")]
     public PirateBossAI boss;
     public MagmaBossAI magmaBoss;
+    public GhostBossAI ghostBoss;
     [Tooltip("If true, this trigger only fires once.")]
     public bool oneShot = true;
     bool _fired;
@@ -22,7 +23,7 @@ public class BossArenaTrigger : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (_fired && oneShot) return;
-        if (boss == null && magmaBoss == null) return;
+        if (boss == null && magmaBoss == null && ghostBoss == null) return;
 
         if (other.CompareTag("Player"))
         {
@@ -33,6 +34,10 @@ public class BossArenaTrigger : MonoBehaviour
             if (magmaBoss)
             {
                 magmaBoss.BeginEncounter(other.transform);
+            }
+            if (ghostBoss)
+            {
+                ghostBoss.BeginEncounter(other.transform);
             }
             if (smokeCollider)
             {
