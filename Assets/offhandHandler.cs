@@ -14,10 +14,12 @@ public class offhandHandler : MonoBehaviour
     public GameObject curse;
     private WeaponsManager wm;
     public GameObject lightningSkull;
+    private chargeOffHandLatern chl;
     void Start()
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
         player = GameObject.FindWithTag("Player");
+        chl=FindAnyObjectByType<chargeOffHandLatern>(); 
     }
     public void unequip()
     {
@@ -40,6 +42,7 @@ public class offhandHandler : MonoBehaviour
         unequip();
         Debug.Log("Lightning Offhand Swapped to");
         lightningSkull.SetActive(true);
+        chl.offHandType = chargeOffHandLatern.OffHandTypes.explosion;
         // base lightning
         if (allOffhands.Length > 1 && allOffhands[1] != null)
         {
@@ -72,7 +75,7 @@ public class offhandHandler : MonoBehaviour
         unequip();
 
         Debug.Log("Defense Offhand Swapped to");
-
+        chl.offHandType = chargeOffHandLatern.OffHandTypes.invulnerabilty;
         if (allOffhands.Length > 0 && allOffhands[0] != null)
         {
             allOffhands[0].OnEquip(player);

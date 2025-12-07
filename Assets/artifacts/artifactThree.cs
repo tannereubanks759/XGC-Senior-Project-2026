@@ -7,9 +7,10 @@ public class artifactThree : ItemData
     {
         //base.OnEquip();
         
-        
+        chargeBaseScript cbs = FindAnyObjectByType<chargeBaseScript>();
         swordDamageDeterminer sd = player.GetComponent<swordDamageDeterminer>();
         sd.isLighting = true;
+        cbs.isActive = true;
         Debug.Log("Applied artifact3 stuff");
         sd.lightningSwordEffect.SetActive(true);
 
@@ -20,8 +21,9 @@ public class artifactThree : ItemData
     public override void OnUnEquip(GameObject player)
     {
         //base.OnUnEquip();
-        
+        chargeBaseScript cbs = FindAnyObjectByType<chargeBaseScript>();
         swordDamageDeterminer sd = player.GetComponent<swordDamageDeterminer>();
+        cbs.isActive = false;
         sd.isLighting = false;
         sd.lightningSwordEffect.SetActive(false);
         Debug.Log("UNApplied artifact3 stuff");

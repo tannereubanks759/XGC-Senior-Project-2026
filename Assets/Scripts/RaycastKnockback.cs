@@ -55,10 +55,19 @@ public class RaycastKnockback : MonoBehaviour
     public GameObject fxObject;
     public GameObject fxSpawnPoint;
     public Vector3 offset = new Vector3(90f, 0f, 0f);
+    public chargeBaseScript chargeBase;
     /// <summary>
     /// Casts a ray from the camera center and, if an enemy with a NavMeshAgent is hit,
     /// pushes it away from the camera, slightly upward.
     /// </summary>
+    private void Awake()
+    {
+        if (chargeBase == null)
+        {
+            chargeBase = FindFirstObjectByType<chargeBaseScript>();
+        }
+    }
+
     public void Knockback()
     {
         if (cam == null)
@@ -73,16 +82,26 @@ public class RaycastKnockback : MonoBehaviour
         {
             NavMeshAgent agent = hit.collider.GetComponentInParent<NavMeshAgent>();
 
-            
+
             if (upgradedKnockback)
             {
                 var health = hit.collider.GetComponentInParent<BaseEnemyAI>();
+                float chargeFactor = 0f;
+                if (chargeBase != null && chargeBase.maxCharge > 0f)
+                {
+                    chargeFactor = chargeBase.currentCharge / chargeBase.maxCharge;
+                }
                 Quaternion baseRot = Quaternion.LookRotation(cam.transform.forward, Vector3.up);
                 Quaternion fxRot = baseRot * Quaternion.Euler(offset);
                 GameObject objToDelete = Instantiate(fxObject, fxSpawnPoint.transform.position, fxRot, fxSpawnPoint.transform);
                 Destroy(objToDelete, .15f);
-                health.TakeDamage(knockBackDamage);
+                int finalDamage = knockBackDamage + Mathf.RoundToInt(knockBackDamage * chargeFactor);
+                if (health != null)
+                {
+                    health.TakeDamage(finalDamage);
+                }
             }
+
 
             if (agent == null || agent.enabled == false)
                 return;
@@ -98,7 +117,16 @@ public class RaycastKnockback : MonoBehaviour
 
             float finalForce = knockbackForce;
             if (upgradedKnockback)
-                finalForce *= upgradedForceMultiplier;
+            {
+                float chargeFactor = 0f;
+                if (chargeBase != null && chargeBase.maxCharge > 0f)
+                {
+                    chargeFactor = chargeBase.currentCharge / chargeBase.maxCharge;
+                }
+                float forceMultiplier = Mathf.Lerp(1f, upgradedForceMultiplier, chargeFactor);
+                finalForce *= forceMultiplier;
+            }
+
 
             Rigidbody rb = agent.GetComponent<Rigidbody>();
             if (preferRigidbodyWhenAvailable && rb != null && !rb.isKinematic)

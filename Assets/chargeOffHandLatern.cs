@@ -11,7 +11,10 @@ public class chargeOffHandLatern : MonoBehaviour
     public int hitCount = 0;
     private Coroutine decayCorutine;
     private bool isActive = false;
-
+    [Header("Lightning Charge")]
+    public chargeBaseScript chargeBase;
+    public float chargePerHit = 10f;
+    public float minChargeToExplode = 30f;
     public List<Renderer> chargeSpheres;
     public GameObject explosionEffectPrefab;
     public Color inactiveColor = Color.red;
@@ -21,7 +24,9 @@ public class chargeOffHandLatern : MonoBehaviour
     public int tickDamage;
     public float invulnerabilityTime = 5f;
     public float burnTime;
-
+    [Header("Explosion Scaling")]
+    public float maxRadiusMultiplier = 2f;
+    public float maxDamageMultiplier = 2f;
     public enum OffHandTypes
     {
         explosion,
@@ -38,13 +43,32 @@ public class chargeOffHandLatern : MonoBehaviour
 
     private void UpdateSphereColors()
     {
-        int hitsPerSphere = Mathf.CeilToInt((float)hitsToCharge / chargeSpheres.Count);
-        for (int i = 0; i < chargeSpheres.Count; i++)
+        if (chargeSpheres == null || chargeSpheres.Count == 0) return;
+
+        if (offHandType == OffHandTypes.explosion && chargeBase != null)
         {
-            if (chargeSpheres[i] == null) continue;
-            bool filled = hitCount >= (i + 1) * hitsPerSphere;
-            Color targetColor = filled ? activeColor : inactiveColor;
-            chargeSpheres[i].material.color = targetColor;
+            float normalized = chargeBase.maxCharge > 0f? chargeBase.currentCharge / chargeBase.maxCharge: 0f;
+
+            int litCount = Mathf.RoundToInt(normalized * chargeSpheres.Count);
+
+            for (int i = 0; i < chargeSpheres.Count; i++)
+            {
+                if (chargeSpheres[i] == null) continue;
+                bool filled = i < litCount;
+                Color targetColor = filled ? activeColor : inactiveColor;
+                chargeSpheres[i].material.color = targetColor;
+            }
+        }
+        else
+        {
+            int hitsPerSphere = Mathf.CeilToInt((float)hitsToCharge / chargeSpheres.Count);
+            for (int i = 0; i < chargeSpheres.Count; i++)
+            {
+                if (chargeSpheres[i] == null) continue;
+                bool filled = hitCount >= (i + 1) * hitsPerSphere;
+                Color targetColor = filled ? activeColor : inactiveColor;
+                chargeSpheres[i].material.color = targetColor;
+            }
         }
     }
     public void persistUpgrade()
@@ -59,6 +83,7 @@ public class chargeOffHandLatern : MonoBehaviour
     {
         WeaponsManager = GetComponentInChildren<WeaponsManager>();
         CombatController = GetComponentInChildren<CombatController>();
+        chargeBase = FindAnyObjectByType<chargeBaseScript>();   
         UpdateSphereColors();
     }
 
@@ -100,8 +125,18 @@ public class chargeOffHandLatern : MonoBehaviour
 
     public void explode()
     {
+ 
+        float currentCharge = (chargeBase != null) ? chargeBase.currentCharge : 0f;
+        float t = 0f;
+        if (chargeBase != null && chargeBase.maxCharge > 0f)
+        {
+            t = Mathf.InverseLerp(minChargeToExplode, chargeBase.maxCharge, currentCharge);
+        }
+        float finalRadius = damageRadius * Mathf.Lerp(1f, maxRadiusMultiplier, t);
+        int finalDamage = Mathf.RoundToInt(explosionDamage * Mathf.Lerp(1f, maxDamageMultiplier, t));
+
         Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-        Collider[] closeEnemies = Physics.OverlapSphere(transform.position, damageRadius, ~0, QueryTriggerInteraction.Ignore);
+        Collider[] closeEnemies = Physics.OverlapSphere(transform.position, finalRadius, ~0, QueryTriggerInteraction.Ignore);
 
         foreach (Collider col in closeEnemies)
         {
@@ -110,7 +145,7 @@ public class chargeOffHandLatern : MonoBehaviour
                 var enemyTestScript = col.GetComponent<BasicSkeleton>();
                 if (enemyTestScript != null && enemyTestScript.currentHealth > 0)
                 {
-                    enemyTestScript.TakeDamage(explosionDamage);
+                    enemyTestScript.TakeDamage(finalDamage);
                     enemyTestScript.applyBurn(1, 1f, 5);
                 }
             }
@@ -124,17 +159,15 @@ public class chargeOffHandLatern : MonoBehaviour
 
                     if (pirateBoss != null && pirateBoss.currentHealth > 0)
                     {
-                        pirateBoss.TakeDamage(explosionDamage);
+                        pirateBoss.TakeDamage(finalDamage);
                     }
                     else if (magmaBoss != null && magmaBoss.currentHealth > 0)
                     {
-                        magmaBoss.TakeDamage(explosionDamage);
+                        magmaBoss.TakeDamage(finalDamage);
                     }
                 }
             }
         }
-
-        // reset charge
         hitCount = 0;
         UpdateSphereColors();
         if (decayCorutine != null)
@@ -142,20 +175,33 @@ public class chargeOffHandLatern : MonoBehaviour
             StopCoroutine(decayCorutine);
             decayCorutine = null;
         }
+
+        if (chargeBase != null)
+        {
+            chargeBase.fullReset();
+            UpdateSphereColors();
+        }
     }
 
     void Update()
     {
         if (!isActive) return;
-        if (Input.GetKeyDown(KeyCode.F) && hitCount >= hitsToCharge)
+
+        if (Input.GetKeyDown(KeyCode.F))
         {
             if (offHandType == OffHandTypes.explosion)
             {
-                explode();
+                if (chargeBase != null && chargeBase.currentCharge >= minChargeToExplode)
+                {
+                    explode();
+                }
             }
             else if (offHandType == OffHandTypes.invulnerabilty)
             {
-                invulnerable();
+                if (hitCount >= hitsToCharge)
+                {
+                    invulnerable();
+                }
             }
         }
     }
@@ -202,8 +248,13 @@ public class chargeOffHandLatern : MonoBehaviour
 
     public void hitRegistered()
     {
-        if (!isActive) return;
-
+        //Debug.Log("COunted hit");
+        if (!isActive&&!chargeBase.isActive) return;
+        if (offHandType == OffHandTypes.explosion)
+        {
+            chargeBase.increaseCharge(chargePerHit);
+            return;
+        }
         if (decayCorutine != null)
         {
             StopCoroutine(decayCorutine);

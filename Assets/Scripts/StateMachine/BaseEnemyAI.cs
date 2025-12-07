@@ -574,9 +574,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
             int damage = sd.damage;
             if (sd.isLighting)
             {
-                
                 TakeDamage(damage);
-                //float radius = 10f;
                 float damageMultiplier = 0.5f;
                 Transform lastDamaged = this.transform;
                 Collider[] closeEnemies = Physics.OverlapSphere(transform.position, radius, ~0, QueryTriggerInteraction.Ignore);
@@ -587,28 +585,23 @@ public class BaseEnemyAI : StateManager<EnemyState>
                         var enemyTestScript = col.GetComponent<BaseEnemyAI>();
                         if (enemyTestScript.currentHealth > 0)
                         {
-                            //Debug.Log("Lighting damage transferred");
                             Vector3 offset = Vector3.up * 1.3f;
                             Transform enemyEnder = new GameObject("enemyEnderPoint").transform;
                             Transform enemyLast = new GameObject("lastDamagedPoint").transform;
                             enemyEnder.position = enemyTestScript.transform.position + offset;
                             enemyLast.position = lastDamaged.transform.position + offset;
-                            //Vector3 offset = enemyTestScript.transform.position + Vector3.up;
+
                             enemyTestScript.TakeDamage(Mathf.RoundToInt(damage * damageMultiplier));
-                            //SpawnLightningArc(lastDamaged, enemyTestScript.transform);
                             SpawnLightningArc(enemyLast, enemyEnder);
                             lastDamaged = enemyTestScript.transform;
                         }
-                        
                     }
-
                 }
                 var lantern = FindFirstObjectByType<chargeOffHandLatern>();
                 lantern.hitRegistered();
             }
             else
             {
-                
                 TakeDamage(damage);
                 var lantern = FindFirstObjectByType<chargeOffHandLatern>();
                 lantern.hitRegistered();

@@ -7,6 +7,7 @@ public class chargeBaseScript : MonoBehaviour
     public float maxCharge = 100f;
     public float currentCharge = 0f;
     public bool isActive = false;
+
     void Start()
     {
         
