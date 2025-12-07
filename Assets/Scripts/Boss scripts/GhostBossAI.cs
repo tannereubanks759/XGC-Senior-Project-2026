@@ -437,17 +437,11 @@ public class GhostBossAI : MonoBehaviour
             yield return null;
         }
 
-        // If the state changed before impact, treat as cancelled
-        if (State != BossState.SpectralShockwave)
+        // If the state changed OR the event never fired, treat as cancelled:
+        if (!_shockwaveHasHit || State != BossState.SpectralShockwave)
         {
             EndSpectralShockwave(false);
             yield break;
-        }
-
-        // If for some reason the anim event never fired, you can optionally do a fallback:
-        if (!_shockwaveHasHit)
-        {
-            DoSpectralShockwaveImpact();
         }
 
         // small post-delay so it doesn't instantly resume running
@@ -459,6 +453,7 @@ public class GhostBossAI : MonoBehaviour
 
         EndSpectralShockwave(true);
     }
+
 
     void DoSpectralShockwaveImpact()
     {
