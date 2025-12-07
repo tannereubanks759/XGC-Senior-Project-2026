@@ -53737,6 +53737,8 @@ MonoBehaviour:
   tickDamage: 0
   invulnerabilityTime: 5
   burnTime: 0
+  maxRadiusMultiplier: 2
+  maxDamageMultiplier: 2
   offHandType: 0
   longerInvulnUpgrade: 0
   invulnDurationMultiplier: 1.5
@@ -66921,6 +66923,10 @@ PrefabInstance:
     - target: {fileID: 132508, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
       propertyPath: m_Layer
       value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 132508, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 417948, guid: bb91a69fcf6179746b4011719cd02737, type: 3}
       propertyPath: m_LocalPosition.x
