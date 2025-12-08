@@ -7,7 +7,11 @@ public class chargeBaseScript : MonoBehaviour
     public float maxCharge = 100f;
     public float currentCharge = 0f;
     public bool isActive = false;
+    [Header("Decay Settings")]
+    public float decayAmountPerTick = 2f;
+    public float decayInterval = 1f;
 
+    private float decayTimer = 0f;
     void Start()
     {
         
@@ -26,6 +30,12 @@ public class chargeBaseScript : MonoBehaviour
         //check to see if 
 
 
+    }
+    private void NaturalDecayTick()
+    {
+        if (currentCharge <= 0f) return;
+        currentCharge = Mathf.Max(0f, currentCharge - decayAmountPerTick);
+        updateVFX(currentCharge);
     }
     public void decreaseCharge(float amount) 
     {
@@ -53,6 +63,13 @@ public class chargeBaseScript : MonoBehaviour
     }
     void Update()
     {
-        
+        if (currentCharge <= 0f) return;
+        decayTimer += Time.deltaTime;
+
+        if (decayTimer >= decayInterval)
+        {
+            decayTimer -= decayInterval;
+            NaturalDecayTick();
+        }
     }
 }

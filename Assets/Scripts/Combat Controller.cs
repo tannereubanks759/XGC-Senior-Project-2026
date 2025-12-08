@@ -87,6 +87,7 @@ public class CombatController : MonoBehaviour
     public bool isPaused;
     public bool invulnerability = false;
     private float nextTime;
+    chargeBaseScript cbs;
 
     public BossHealthbar boss_healthbar;
     void Start()
@@ -97,7 +98,7 @@ public class CombatController : MonoBehaviour
         swordSoundScript = GetComponentInChildren<SwordSounds>();
         player = GameObject.FindGameObjectWithTag("Player");
         sd = player.GetComponent<swordDamageDeterminer>();
-        
+        cbs =FindAnyObjectByType<chargeBaseScript>();   
         crosshair.SetActive(false);
         CachedAttack = Random.Range(1, AmountOfAttacks + 1);
         //rb.linearDamping = 0f; // tiny values like 0.02 are fine too
@@ -386,6 +387,7 @@ public class CombatController : MonoBehaviour
             if(invulnerability==false)
             {
                 audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
+                cbs.decreaseCharge(3f);
                 //health = Mathf.Max(health - damage, 0);
                 lastDamageTime = Time.time;   // reset regen cooldown
                 regenAccumulator = 0f;        // reset regen tick build-up
@@ -519,6 +521,7 @@ public class CombatController : MonoBehaviour
             if(invulnerability==false) 
             {
                 //health = Mathf.Max(health - damage, 0);
+                cbs.decreaseCharge(3f);
                 lastDamageTime = Time.time;   // reset regen cooldown
                 regenAccumulator = 0f;        // reset regen tick build-up
 
