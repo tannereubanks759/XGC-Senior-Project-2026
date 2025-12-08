@@ -6776,7 +6776,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 1.2165825e+35, z: 1.027e-42, w: -1.2420722e-15}
+  m_BoundingSphereOverride: {x: 5.421011e-20, y: 5.602027e-39, z: 5.1785e-41, w: 4e-45}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
@@ -11997,7 +11997,7 @@ GameObject:
   - component: {fileID: 8498561674476911150}
   - component: {fileID: 8868949599086323600}
   m_Layer: 18
-  m_Name: FireballPS (2)
+  m_Name: FireballPS_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34956,7 +34956,7 @@ GameObject:
   - component: {fileID: 5284164537411975145}
   - component: {fileID: 4414779187762946194}
   m_Layer: 18
-  m_Name: FireballPS (1)
+  m_Name: FireballPS_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -49433,7 +49433,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 1.2165825e+35, z: 1.027e-42, w: -1.2420722e-15}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
@@ -59635,6 +59635,8 @@ MonoBehaviour:
   totalChargeTime: 8
   scaleAtPopStart: 0.6
   popStartTimeFraction: 0.95
+  chargingSimSpeed: 0.35
+  fullSimSpeed: 1
 --- !u!1 &6203221231945686468
 GameObject:
   m_ObjectHideFlags: 0
@@ -67629,7 +67631,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5869562735038653815}
   - component: {fileID: 4095855198802963671}
-  - component: {fileID: 3933148431647531216}
   - component: {fileID: 7988304210848354691}
   m_Layer: 5
   m_Name: NoPostProcessCam
@@ -67704,14 +67705,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &3933148431647531216
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7626916067882482803}
-  m_Enabled: 1
 --- !u!114 &7988304210848354691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67910,7 +67903,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7997094350293341575
 Transform:
   m_ObjectHideFlags: 0

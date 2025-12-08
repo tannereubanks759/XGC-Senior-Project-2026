@@ -14,6 +14,10 @@ public class FireballManager : MonoBehaviour
     [Range(0f, 1f)] public float scaleAtPopStart = 0.6f;       // 60% size before pop
     [Range(0f, 1f)] public float popStartTimeFraction = 0.75f; // pop in last 25% of time
 
+    [Header("Particle Speed")]
+    public float chargingSimSpeed = 0.35f;   // while < 60% scale
+    public float fullSimSpeed = 1f;          // at 100% scale
+
     private Vector3 targetScale;
 
     private bool fireball_1_active = true;
@@ -26,15 +30,42 @@ public class FireballManager : MonoBehaviour
     private bool upgradeOne = false; //"Increase Splash Range"
     private bool upgradeTwo = false; //"Set Enemies On Fire For A Few Seconds"
 
+    // Particle systems for the held fireballs
+    private ParticleSystem ps1;
+    private ParticleSystem ps2;
+
+    // Renderers + base colors so we can lerp from black -> original
+    private Renderer rend1;
+    private Renderer rend2;
+    private Color baseColor1;
+    private Color baseColor2;
+
     void Start()
     {
         parent.SetActive(false);
         targetScale = fireball_1.transform.localScale; // assumed final/full scale
+
+        // Grab particle systems
+        ps1 = fireball_1.GetComponentInChildren<ParticleSystem>();
+        ps2 = fireball_2.GetComponentInChildren<ParticleSystem>();
+
+        // Grab renderers for color control
+        rend1 = fireball_1.GetComponentInChildren<Renderer>();
+        rend2 = fireball_2.GetComponentInChildren<Renderer>();
+
+        if (rend1 != null)
+            baseColor1 = rend1.material.color;
+        if (rend2 != null)
+            baseColor2 = rend2.material.color;
+
+        // Start them as fully powered visually
+        SetParticleSimSpeed(ps1, fullSimSpeed);
+        SetParticleSimSpeed(ps2, fullSimSpeed);
     }
 
     void Update()
     {
-        // --- ONLY ONE CAN CHARGE AT A TIME, AND WE PRIORITIZE WHICHEVER STARTED FIRST ---
+        // --- ONLY ONE CAN CHARGE AT A TIME, PRIORITIZE WHICHEVER STARTED FIRST ---
 
         bool fb1NeedsCharge = !fireball_1_active;
         bool fb2NeedsCharge = !fireball_2_active;
@@ -45,20 +76,20 @@ public class FireballManager : MonoBehaviour
             // (higher timer). If equal, fireball_1 wins the tie.
             if (fireball1ChargeTimer >= fireball2ChargeTimer)
             {
-                RechargeFireball(fireball_1, ref fireball_1_active, ref fireball1ChargeTimer);
+                RechargeFireball(fireball_1, ps1, rend1, baseColor1, ref fireball_1_active, ref fireball1ChargeTimer);
             }
             else
             {
-                RechargeFireball(fireball_2, ref fireball_2_active, ref fireball2ChargeTimer);
+                RechargeFireball(fireball_2, ps2, rend2, baseColor2, ref fireball_2_active, ref fireball2ChargeTimer);
             }
         }
         else if (fb1NeedsCharge)
         {
-            RechargeFireball(fireball_1, ref fireball_1_active, ref fireball1ChargeTimer);
+            RechargeFireball(fireball_1, ps1, rend1, baseColor1, ref fireball_1_active, ref fireball1ChargeTimer);
         }
         else if (fb2NeedsCharge)
         {
-            RechargeFireball(fireball_2, ref fireball_2_active, ref fireball2ChargeTimer);
+            RechargeFireball(fireball_2, ps2, rend2, baseColor2, ref fireball_2_active, ref fireball2ChargeTimer);
         }
 
         // ------------------------------------------------------------------------------
@@ -80,13 +111,22 @@ public class FireballManager : MonoBehaviour
     /// Charges a fireball from 0 → 100% over totalChargeTime.
     /// - First part: grows up to ~60% linearly.
     /// - Last part: pops from 60% → 100% with a cubic (exponential-feeling) curve.
+    /// Also:
+    /// - Particle sim speed: 0.35 while < 60%, ramps to 1.0 by 100%.
+    /// - Color: black at 0, original color at 100%, lerped as it scales.
     /// </summary>
-    void RechargeFireball(GameObject fb, ref bool isActive, ref float chargeTimer)
+    void RechargeFireball(
+        GameObject fb,
+        ParticleSystem ps,
+        Renderer rend,
+        Color baseColor,
+        ref bool isActive,
+        ref float chargeTimer)
     {
         // we only call this when !isActive, so no need to early-return
 
         chargeTimer += Time.deltaTime;
-        float t = Mathf.Clamp01(chargeTimer / totalChargeTime); // normalized 0–1
+        float t = Mathf.Clamp01(chargeTimer / totalChargeTime); // normalized 0–1 over time
 
         float scale01;
 
@@ -104,7 +144,38 @@ public class FireballManager : MonoBehaviour
             scale01 = Mathf.Lerp(scaleAtPopStart, 1f, eased);
         }
 
+        // Apply scale
         fb.transform.localScale = targetScale * scale01;
+
+        // === Particle simulation speed control ===
+        if (ps != null)
+        {
+            float simSpeed;
+
+            if (scale01 <= scaleAtPopStart)
+            {
+                // Still in "low power" charge zone
+                simSpeed = chargingSimSpeed;
+            }
+            else
+            {
+                // Scale01 is between scaleAtPopStart and 1, so ramp speed 0.35 -> 1
+                float u = (scale01 - scaleAtPopStart) / (1f - scaleAtPopStart); // [0,1]
+                float easedU = u * u; // curved ramp for extra pop
+                simSpeed = Mathf.Lerp(chargingSimSpeed, fullSimSpeed, easedU);
+            }
+
+            SetParticleSimSpeed(ps, simSpeed);
+        }
+
+        // === Color control: black -> original color as it scales ===
+        if (rend != null)
+        {
+            float colorT = Mathf.Clamp01(scale01); // 0 (black) → 1 (baseColor)
+            Color c = Color.Lerp(Color.black, baseColor, colorT);
+            rend.material.color = c;
+        }
+        // ========================================
 
         // when fully charged, mark as active and bump activeFireballs once
         if (t >= 1f && !isActive)
@@ -112,7 +183,21 @@ public class FireballManager : MonoBehaviour
             fb.transform.localScale = targetScale;
             isActive = true;
             activeFireballs++;
+
+            // ensure visuals are at "full power" at the very end
+            SetParticleSimSpeed(ps, fullSimSpeed);
+            if (rend != null)
+            {
+                rend.material.color = baseColor;
+            }
         }
+    }
+
+    void SetParticleSimSpeed(ParticleSystem ps, float speed)
+    {
+        if (ps == null) return;
+        var main = ps.main;
+        main.simulationSpeed = speed;
     }
 
     public void UpgradeOne()
@@ -135,12 +220,12 @@ public class FireballManager : MonoBehaviour
             if (fireball_1_active)
             {
                 fireball_1_active = false;
-                ActivateThrow(fireball_1, ref fireball1ChargeTimer);
+                ActivateThrow(fireball_1, ps1, rend1, ref fireball1ChargeTimer);
             }
             else
             {
                 fireball_2_active = false;
-                ActivateThrow(fireball_2, ref fireball2ChargeTimer);
+                ActivateThrow(fireball_2, ps2, rend2, ref fireball2ChargeTimer);
             }
         }
         else
@@ -148,17 +233,17 @@ public class FireballManager : MonoBehaviour
             if (fireball_2_active)
             {
                 fireball_2_active = false;
-                ActivateThrow(fireball_2, ref fireball2ChargeTimer);
+                ActivateThrow(fireball_2, ps2, rend2, ref fireball2ChargeTimer);
             }
             else
             {
                 fireball_1_active = false;
-                ActivateThrow(fireball_1, ref fireball1ChargeTimer);
+                ActivateThrow(fireball_1, ps1, rend1, ref fireball1ChargeTimer);
             }
         }
     }
 
-    void ActivateThrow(GameObject obj, ref float chargeTimer)
+    void ActivateThrow(GameObject obj, ParticleSystem ps, Renderer rend, ref float chargeTimer)
     {
         GameObject fireball = Instantiate(FireballPref, obj.transform.position, Camera.main.transform.rotation);
         Fireball fb = fireball.GetComponent<Fireball>();
@@ -174,8 +259,15 @@ public class FireballManager : MonoBehaviour
 
         Destroy(fireball, 5f);
 
-        // reset for recharge
+        // reset held orb for recharge
         obj.transform.localScale = Vector3.zero;
         chargeTimer = 0f;          // start counting 0 → 8s again for this orb
+
+        // while recharging from 0, keep particles in slow mode and make it black
+        SetParticleSimSpeed(ps, chargingSimSpeed);
+        if (rend != null)
+        {
+            rend.material.color = Color.black;
+        }
     }
 }
