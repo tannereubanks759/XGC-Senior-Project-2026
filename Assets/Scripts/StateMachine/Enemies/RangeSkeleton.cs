@@ -8,7 +8,7 @@ public class RangeSkeleton : BaseEnemyAI
     public GameObject gunPos;
 
     [SerializeField] private int damage = 10;
-    [SerializeField] private float rayDistance = 25f;
+    [SerializeField] private float rayDistance = 50f;
     [SerializeField] private float sphereRadius = .5f;
 
     private Vector3 storedPlayerPos;
@@ -17,6 +17,8 @@ public class RangeSkeleton : BaseEnemyAI
     public AudioClip gunShot;
 
     public AudioSource audioSource;
+
+    public GameObject bulletTrail;
 
 
 #pragma warning disable CS0114 // Member hides inherited member; missing override keyword
@@ -59,47 +61,58 @@ public class RangeSkeleton : BaseEnemyAI
 
     private void ShootRay(GameObject origin, BaseEnemyAI enemyAI = null)
     {
-
-        // Aim using stored position
-        Vector3 playerPos = storedPlayerPos;
         Vector3 originPos = origin.transform.position;
 
-        // Horizontal facing (yaw)
+        // Build direction (same as yours)
+        Vector3 playerPos = storedPlayerPos;
         Vector3 flatForward = origin.transform.forward;
         flatForward.y = 0f;
         flatForward.Normalize();
 
-        // Horizontal distance between gun and player
         Vector3 toPlayer = playerPos - originPos;
         float horizontalDist = new Vector2(toPlayer.x, toPlayer.z).magnitude;
-
-        // Vertical difference
         float vertical = playerPos.y - originPos.y;
 
-        // Build direction: same horizontal aim, correct vertical height
         Vector3 dir = (flatForward * horizontalDist + Vector3.up * vertical).normalized;
 
-        Ray ray = new Ray(origin.transform.position, dir);
+        // ---------------------------------------------------------
+        // 1) FIRST SPHERECAST: VISUAL HIT (NO MASK)
+        // ---------------------------------------------------------
+        bool visualHit = Physics.SphereCast(
+            originPos,
+            sphereRadius,
+            dir,
+            out RaycastHit visualInfo,
+            rayDistance
+        );
 
-        Debug.DrawRay(origin.transform.position, dir * 10f, Color.red, 1f);
+        // Determine endPos for the trail
+        Vector3 endPos = visualHit ? visualInfo.point : originPos + dir * rayDistance;
 
-        if (Physics.SphereCast(ray, sphereRadius, out RaycastHit hit, rayDistance, playerMask))
+        // Spawn trail ALWAYS
+        GameObject trail = Instantiate(bulletTrail);
+        trail.GetComponent<InstantBulletTrail>().Initialize(originPos, endPos);
+
+        // ---------------------------------------------------------
+        // 2) SECOND SPHERECAST: PLAYER HIT CHECK (MASKED)
+        // ---------------------------------------------------------
+        if (Physics.SphereCast(
+            originPos,
+            sphereRadius,
+            dir,
+            out RaycastHit hit,
+            rayDistance,
+            playerMask))
         {
-
-            if (!hit.collider.CompareTag("Player"))
-                return;
-
-            // Direction of hit
-            Vector3 hitDir = (hit.collider.transform.position - origin.transform.position).normalized;
-
-            playerController.TakeDamage(damage, hitDir);
-
-            // curse logic
-            var lantern = FindFirstObjectByType<curseOffhand>();
-
-            if (lantern != null && lantern.reflectionUpgrade == true)
+            if (hit.collider.CompareTag("Player"))
             {
-                if (lantern.cursedEnemy == enemyAI)
+                // Apply damage
+                Vector3 hitDir = (hit.collider.transform.position - originPos).normalized;
+                playerController.TakeDamage(damage, hitDir);
+
+                // Curse logic
+                var lantern = FindFirstObjectByType<curseOffhand>();
+                if (lantern != null && lantern.reflectionUpgrade && lantern.cursedEnemy == enemyAI)
                 {
                     enemyAI.TakeDamage(5);
                 }
@@ -107,11 +120,21 @@ public class RangeSkeleton : BaseEnemyAI
         }
     }
 
+
     public void Shoot()
     {
         ShotVFX();
         ShootRay(gunPos);
-        audioSource.PlayOneShot(gunShot, 10f);
+
+        var pitchVariance = 0.2f;
+
+        if (audioSource && gunShot)
+        {
+            // random pitch between (1 - variance) and (1 + variance)
+            audioSource.pitch = 1f + Random.Range(-pitchVariance, pitchVariance);
+
+            audioSource.PlayOneShot(gunShot, 10f);
+        }
     }
 
     public void StartSizzle()

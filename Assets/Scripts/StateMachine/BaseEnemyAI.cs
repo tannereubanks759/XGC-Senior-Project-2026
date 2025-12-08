@@ -13,6 +13,7 @@
 using BKPureNature;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Audio;
 
 public class BaseEnemyAI : StateManager<EnemyState>
 {
@@ -129,6 +130,23 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public int currentHealth { get; private set; } // Current health
     #endregion
 
+    [Header("Audio")]
+    public AudioSource footstepSource;
+    public AudioClip[] footstepClips;   // assign WAV files here
+    [Range(0.8f, 1.2f)]
+    public float pitchVariance = 0.1f;
+
+    [Header("Sword Audio")]
+    public AudioSource swordSource;
+    public AudioClip[] swordSwingClips;   // multiple clips for variation
+    public float swingPitchVariance = 0.1f;
+
+    [Header("Death Audio")]
+    public AudioSource deathSource;
+    public AudioClip[] deathClips;
+    public float deathVariance = 0.2f;
+
+
     #region Elite System
     [Header("Elite Type")]
     [Tooltip("Determines what elemental type this enemy is (Basic, Fire, Water, Gas, etc.)")]
@@ -238,12 +256,23 @@ public class BaseEnemyAI : StateManager<EnemyState>
     {
         _ps = Instantiate(ps, transform.parent);
         _ps.Stop();
-        var ap = _ps.GetComponent<AttractParticles>();
 
-        if (isRanged) ap.goldCount = 35 + 5 * boneCount;
-        if (GetComponentInChildren<SkeletonGoldBoneScript>().isElite) ap.goldCount = 50 + 5 * boneCount;
-        else ap.goldCount = 20 + 5 * boneCount;
+        int coinAmount;
+
+        if (isRanged)
+            coinAmount = 3 + boneCount;
+        else if (GetComponentInChildren<SkeletonGoldBoneScript>().isElite)
+            coinAmount = 5 + boneCount;
+        else
+            coinAmount = 2 + boneCount;
+
+        // Apply burst count to the particle system
+        var emission = _ps.emission;
+        var burst = emission.GetBurst(0);
+        burst.count = coinAmount;
+        emission.SetBurst(0, burst);
     }
+
     #endregion
 
     #region Vision Methods
@@ -516,6 +545,16 @@ public class BaseEnemyAI : StateManager<EnemyState>
         var tempTrans = this.transform;
         DropItem();
         DropGold(tempTrans);
+
+        // Pick a variation
+        AudioClip clip = deathClips[Random.Range(0, deathClips.Length)];
+
+        // Add slight pitch variation
+        float pitchOffset = Random.Range(-deathVariance, deathVariance);
+        deathSource.pitch = 1f + pitchOffset;
+
+        deathSource.PlayOneShot(clip);
+
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);
         
@@ -629,6 +668,38 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.SetTrigger(trigger);
     }
 
+    public void PlayFootstepSound()
+    {
+        if (footstepSource == null || footstepClips == null || footstepClips.Length == 0)
+            return;
+
+        // Pick a random clip
+        AudioClip clip = footstepClips[Random.Range(0, footstepClips.Length)];
+
+        // Slight random pitch offset for variation
+        float basePitch = 1f;
+        float offset = Random.Range(-pitchVariance, pitchVariance);
+        footstepSource.pitch = basePitch + offset;
+
+        footstepSource.PlayOneShot(clip);
+    }
+
+    public void PlaySwordSwing()
+    {
+        if (swordSource == null || swordSwingClips == null || swordSwingClips.Length == 0)
+            return;
+
+        // Pick a variation
+        AudioClip clip = swordSwingClips[Random.Range(0, swordSwingClips.Length)];
+
+        // Add slight pitch variation
+        float pitchOffset = Random.Range(-swingPitchVariance, swingPitchVariance);
+        swordSource.pitch = 1f + pitchOffset;
+
+        swordSource.PlayOneShot(clip);
+    }
+
+
     public float SnapZero(float value, float threshold = 0.01f)
     {
         return Mathf.Abs(value) < threshold ? 0f : value;
@@ -640,7 +711,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.SetFloat("xMov", SnapZero(x));
         Animator.SetFloat("zMov", SnapZero(z));
     }
-
 
     // Draw gizmos in editor to visualize ranges
     protected void OnDrawGizmosSelected()
