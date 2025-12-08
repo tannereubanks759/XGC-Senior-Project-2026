@@ -125,7 +125,16 @@ public class RangeSkeleton : BaseEnemyAI
     {
         ShotVFX();
         ShootRay(gunPos);
-        audioSource.PlayOneShot(gunShot, 10f);
+
+        var pitchVariance = 0.2f;
+
+        if (audioSource && gunShot)
+        {
+            // random pitch between (1 - variance) and (1 + variance)
+            audioSource.pitch = 1f + Random.Range(-pitchVariance, pitchVariance);
+
+            audioSource.PlayOneShot(gunShot, 10f);
+        }
     }
 
     public void StartSizzle()

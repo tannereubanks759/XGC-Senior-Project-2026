@@ -13,6 +13,7 @@
 using BKPureNature;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Audio;
 
 public class BaseEnemyAI : StateManager<EnemyState>
 {
@@ -128,6 +129,18 @@ public class BaseEnemyAI : StateManager<EnemyState>
     [Tooltip("The current amount of health the unit has")]
     public int currentHealth { get; private set; } // Current health
     #endregion
+
+    [Header("Audio")]
+    public AudioSource footstepSource;
+    public AudioClip[] footstepClips;   // assign WAV files here
+    [Range(0.8f, 1.2f)]
+    public float pitchVariance = 0.1f;
+
+    [Header("Sword Audio")]
+    public AudioSource swordSource;
+    public AudioClip[] swordSwingClips;   // multiple clips for variation
+    public float swingPitchVariance = 0.1f;
+
 
     #region Elite System
     [Header("Elite Type")]
@@ -640,6 +653,38 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.SetTrigger(trigger);
     }
 
+    public void PlayFootstepSound()
+    {
+        if (footstepSource == null || footstepClips == null || footstepClips.Length == 0)
+            return;
+
+        // Pick a random clip
+        AudioClip clip = footstepClips[Random.Range(0, footstepClips.Length)];
+
+        // Slight random pitch offset for variation
+        float basePitch = 1f;
+        float offset = Random.Range(-pitchVariance, pitchVariance);
+        footstepSource.pitch = basePitch + offset;
+
+        footstepSource.PlayOneShot(clip);
+    }
+
+    public void PlaySwordSwing()
+    {
+        if (swordSource == null || swordSwingClips == null || swordSwingClips.Length == 0)
+            return;
+
+        // Pick a variation
+        AudioClip clip = swordSwingClips[Random.Range(0, swordSwingClips.Length)];
+
+        // Add slight pitch variation
+        float pitchOffset = Random.Range(-swingPitchVariance, swingPitchVariance);
+        swordSource.pitch = 1f + pitchOffset;
+
+        swordSource.PlayOneShot(clip);
+    }
+
+
     public float SnapZero(float value, float threshold = 0.01f)
     {
         return Mathf.Abs(value) < threshold ? 0f : value;
@@ -651,7 +696,6 @@ public class BaseEnemyAI : StateManager<EnemyState>
         Animator.SetFloat("xMov", SnapZero(x));
         Animator.SetFloat("zMov", SnapZero(z));
     }
-
 
     // Draw gizmos in editor to visualize ranges
     protected void OnDrawGizmosSelected()
