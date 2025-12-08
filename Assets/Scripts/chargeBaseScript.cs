@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -10,11 +11,12 @@ public class chargeBaseScript : MonoBehaviour
     [Header("Decay Settings")]
     public float decayAmountPerTick = 2f;
     public float decayInterval = 1f;
-
+    //public GameObject textObj;
+    public TextMeshProUGUI textCharge;
     private float decayTimer = 0f;
     void Start()
     {
-        
+        textCharge.text = "0";
     }
     public void increaseCharge(float amount) 
     {
@@ -27,6 +29,7 @@ public class chargeBaseScript : MonoBehaviour
         // if it isnt then increase.
         currentCharge = Mathf.Clamp(currentCharge + amount, 0f, maxCharge);
         updateVFX(currentCharge);
+        textCharge.text = currentCharge.ToString();
         //check to see if 
 
 
@@ -36,6 +39,7 @@ public class chargeBaseScript : MonoBehaviour
         if (currentCharge <= 0f) return;
         currentCharge = Mathf.Max(0f, currentCharge - decayAmountPerTick);
         updateVFX(currentCharge);
+        textCharge.text = currentCharge.ToString();
     }
     public void decreaseCharge(float amount) 
     {
@@ -45,17 +49,20 @@ public class chargeBaseScript : MonoBehaviour
             if (currentCharge < 0)
             {  currentCharge = 0; }
             updateVFX(currentCharge);
+            textCharge.text = currentCharge.ToString();
 
         }
         else
         {
             currentCharge = 0;
+            textCharge.text = currentCharge.ToString();
         }
     }
     public void fullReset()
     {
         currentCharge = 0;
         updateVFX(currentCharge);
+        textCharge.text = currentCharge.ToString();
     }
     public void updateVFX(float charge)
     {

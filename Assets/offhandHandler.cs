@@ -15,6 +15,7 @@ public class offhandHandler : MonoBehaviour
     private WeaponsManager wm;
     public GameObject lightningSkull;
     private chargeOffHandLatern chl;
+    public GameObject chargeText;
     void Start()
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
@@ -27,6 +28,7 @@ public class offhandHandler : MonoBehaviour
         fireBall.SetActive(false);
         lightningSkull.SetActive(false);    
         curse.SetActive(false);
+        chargeText.SetActive(false);
         currentOffhand = null;
         foreach (ItemData item in allOffhands)
         {
@@ -42,6 +44,7 @@ public class offhandHandler : MonoBehaviour
         unequip();
         Debug.Log("Lightning Offhand Swapped to");
         lightningSkull.SetActive(true);
+        chargeText.SetActive(true);
         chl.offHandType = chargeOffHandLatern.OffHandTypes.explosion;
         // base lightning
         if (allOffhands.Length > 1 && allOffhands[1] != null)
