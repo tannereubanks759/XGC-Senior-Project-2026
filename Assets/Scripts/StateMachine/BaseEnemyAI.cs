@@ -141,6 +141,11 @@ public class BaseEnemyAI : StateManager<EnemyState>
     public AudioClip[] swordSwingClips;   // multiple clips for variation
     public float swingPitchVariance = 0.1f;
 
+    [Header("Death Audio")]
+    public AudioSource deathSource;
+    public AudioClip[] deathClips;
+    public float deathVariance = 0.2f;
+
 
     #region Elite System
     [Header("Elite Type")]
@@ -540,6 +545,16 @@ public class BaseEnemyAI : StateManager<EnemyState>
         var tempTrans = this.transform;
         DropItem();
         DropGold(tempTrans);
+
+        // Pick a variation
+        AudioClip clip = deathClips[Random.Range(0, deathClips.Length)];
+
+        // Add slight pitch variation
+        float pitchOffset = Random.Range(-deathVariance, deathVariance);
+        deathSource.pitch = 1f + pitchOffset;
+
+        deathSource.PlayOneShot(clip);
+
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);
         
