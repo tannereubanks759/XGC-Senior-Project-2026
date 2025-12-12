@@ -7,13 +7,16 @@ public class DamageRef : MonoBehaviour
     private GhostBossAI ghostBoss;
 
     public GameObject GoldBagPrefab;
-    public int OverrideGoldAmount = 0; 
+    public int OverrideGoldAmount = 0;
+
+    private bool hasSpawnedGold = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         anchorBoss = GetComponent<PirateBossAI>();
         magmaBoss = GetComponent<MagmaBossAI>();
         ghostBoss = GetComponent<GhostBossAI>();
+        hasSpawnedGold = false;
     }
 
     public void TakeDamage(float damage)
@@ -36,7 +39,7 @@ public class DamageRef : MonoBehaviour
 
     void SpawnGoldIfDead(int damage)
     {
-        if (GoldBagPrefab == null) return;
+        if (GoldBagPrefab == null && hasSpawnedGold) return;
 
         if (magmaBoss)
         {

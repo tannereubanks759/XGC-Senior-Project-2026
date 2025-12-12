@@ -90,6 +90,7 @@ public class CombatController : MonoBehaviour
     chargeBaseScript cbs;
 
     public BossHealthbar boss_healthbar;
+    public LavaDamage lavaDMG;
     void Start()
     {
 
@@ -152,6 +153,10 @@ public class CombatController : MonoBehaviour
 
     void EnemiesLoaded(Scene scene1, LoadSceneMode loadSceneMode)
     {
+        if (lavaDMG)
+        {
+            lavaDMG.inLava = false;
+        }
         if (boss_healthbar != null)
         {
             boss_healthbar.gameObject.SetActive(true);
