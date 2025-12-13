@@ -5126,7 +5126,7 @@ Transform:
   m_GameObject: {fileID: 285184365}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -11.69, y: 28.8, z: 40.48}
+  m_LocalPosition: {x: 264.86, y: 2.46, z: -187.24}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5745,6 +5745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1277676134}
   - component: {fileID: 1277676133}
+  - component: {fileID: 1277676135}
   m_Layer: 0
   m_Name: IslandManager
   m_TagString: Untagged
@@ -5793,6 +5794,86 @@ Transform:
   - {fileID: 285184366}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1277676135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277676132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 871e63b807f3c1f4ea0542c24826f8bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useSeed: 1
+  seed: 12345
+  useLiveAlphamapSamplingInEditor: 1
+  parentForSpawned: {fileID: 1341591861}
+  spawnerGuid: 
+  terrain: {fileID: 550024320}
+  levelLoadingUI: {fileID: 0}
+  loadingFadeDuration: 0.6
+  showCursorWhileLoading: 0
+  waterObjects: []
+  navSurfaces: []
+  rebuildNavMeshAfterSpawn: 0
+  playmodeDelayFrames: 1
+  treePrefabs:
+  - {fileID: 8928291132014703051, guid: f053abef340a50542bcc55bbd2810fc4, type: 3}
+  - {fileID: 4122935611763316882, guid: d343c4e8deb2543449e9280f8ad530ed, type: 3}
+  - {fileID: 1430483545311305414, guid: f429ec9c025cd294da68546537e51b33, type: 3}
+  - {fileID: 8892370798303049398, guid: c185eeb1f6e25294ea991125443d8ea0, type: 3}
+  - {fileID: 3026306378459054491, guid: 44f3d2eacfc1eaf41b287c25868c5035, type: 3}
+  - {fileID: 7973019007006120638, guid: e1e68c84b5ded8f42ba2a5b5c490154d, type: 3}
+  grassPrefabs:
+  - {fileID: 8482750545087394885, guid: 72672b015d995b44abb23c77c8149306, type: 3}
+  - {fileID: 8482750545087394885, guid: f454d4d1d6f565d48be6ae51e49ea5d6, type: 3}
+  - {fileID: 8040127436917160541, guid: a44c1e63499869e458426a1bdab4ccf2, type: 3}
+  - {fileID: 8040127436917160541, guid: 860eb279b5ff3bd40bae105dbe9093d6, type: 3}
+  - {fileID: 6824292779101560268, guid: 6f30c9d4b80ae5942b43685ae34170cf, type: 3}
+  - {fileID: 6824292779101560268, guid: 70d86892d6c17dc4fab6b03d2c977c45, type: 3}
+  prefabs: []
+  treeCount: 100
+  grassCount: 300
+  objectCount: 200
+  maxAttemptsPerObject: 80
+  spawnHotkey: 288
+  autoSpawnOnPlay: 0
+  oceanLevelY: 0
+  enforceSlope: 1
+  maxSlopeDegrees: 45
+  bushPrefabs:
+  - {fileID: 4970645220694984246, guid: 7e2893a36efc7a34e862cb18b5e1e1c7, type: 3}
+  - {fileID: 1130010732294578082, guid: f1b66e83b8eb9d140a4f571eb8fd3c7f, type: 3}
+  - {fileID: 2262819595030178988, guid: 4ba9802247df1184b8a95d2c58943e41, type: 3}
+  - {fileID: 5769138255568744075, guid: 9729a49852a1b614b98f036dae5578e5, type: 3}
+  - {fileID: 290449449394062152, guid: 3c619c213e9043f4184673a090e1b93d, type: 3}
+  bushCount: 150
+  bushSelfSpacing: 0
+  flowerPrefabs: []
+  flowerCount: 250
+  flowerSelfSpacing: 0
+  minDistanceToTrees: 5
+  minSpacingBetweenObjects: 3
+  pathLayer: {fileID: 0}
+  pathWeightThreshold: 0.35
+  pathPadding: 1.5
+  pathPaddingSampleRingPoints: 6
+  grassLayer: {fileID: 8574412962073106934, guid: 05a5642c88fb4d74cb05f4d2bc2da410, type: 2}
+  grassWeightThreshold: 0.5
+  uniformScaleRange: {x: 0.9, y: 1.1}
+  randomYRotation: 1
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  collisionRadius: 0.25
+  verboseLogs: 1
+  alignToGroundNormal: 1
+  normalAlignStrength: 1
+  grassSelfSpacing: 0
+  noSpawnVolumes: []
+  noSpawnVolumePadding: 0.25
 --- !u!1 &1333451758
 GameObject:
   m_ObjectHideFlags: 0
@@ -5803,9 +5884,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1333451759}
   - component: {fileID: 1333451760}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: Water System
-  m_TagString: Untagged
+  m_TagString: Water
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5876,6 +5957,37 @@ MonoBehaviour:
   ShowRendering: 0
   ShowExpertRenderingSettings: 0
   _waterGUID: Island 3.M4C4O
+--- !u!1 &1341591860
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1341591861}
+  m_Layer: 0
+  m_Name: Environment
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1341591861
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1341591860}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 279.54825, y: 14.917845, z: -50.469864}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1599687925
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -15765,3 +15877,4 @@ SceneRoots:
   - {fileID: 1277676134}
   - {fileID: 653071247}
   - {fileID: 772378980}
+  - {fileID: 1341591861}
