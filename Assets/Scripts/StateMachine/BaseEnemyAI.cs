@@ -553,7 +553,7 @@ public class BaseEnemyAI : StateManager<EnemyState>
         float pitchOffset = Random.Range(-deathVariance, deathVariance);
         deathSource.pitch = 1f + pitchOffset;
 
-        deathSource.PlayOneShot(clip);
+        //deathSource.PlayOneShot(clip);
 
         Debug.Log($"{name} died.");
         TransitionToState(EnemyState.Dead);

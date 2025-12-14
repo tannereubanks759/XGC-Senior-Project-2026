@@ -227,11 +227,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!82 &78005236 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 5433070016985805323, guid: 7b6586eca58ee6b44a1bf2e3766deb87, type: 3}
-  m_PrefabInstance: {fileID: 313664740}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &137371694
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1178,26 +1173,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: BasicSkeleton
       objectReference: {fileID: 0}
-    - target: {fileID: 2855602832369097640, guid: 7b6586eca58ee6b44a1bf2e3766deb87, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4360187683865864500, guid: 7b6586eca58ee6b44a1bf2e3766deb87, type: 3}
-      propertyPath: deathSource
-      value: 
-      objectReference: {fileID: 78005236}
-    - target: {fileID: 4360187683865864500, guid: 7b6586eca58ee6b44a1bf2e3766deb87, type: 3}
-      propertyPath: deathVariance
-      value: 0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 4360187683865864500, guid: 7b6586eca58ee6b44a1bf2e3766deb87, type: 3}
-      propertyPath: deathClips.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4360187683865864500, guid: 7b6586eca58ee6b44a1bf2e3766deb87, type: 3}
-      propertyPath: 'deathClips.Array.data[0]'
-      value: 
-      objectReference: {fileID: 8300000, guid: 72c0d7ab65230d5408f587d787c064c2, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

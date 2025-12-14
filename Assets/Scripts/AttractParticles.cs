@@ -72,7 +72,7 @@ public class AttractParticles : MonoBehaviour
                 dir.Normalize();
 
                 // ---- VACUUM FORCE ----
-                Vector3 vel = p.velocity + dir * (attractionStrength * Time.deltaTime);
+                Vector3 vel = p.velocity + dir * (attractionStrength);
 
                 if (vel.magnitude > maxSpeed)
                     vel = vel.normalized * maxSpeed;
