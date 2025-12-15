@@ -16,11 +16,37 @@ public class offhandHandler : MonoBehaviour
     public GameObject lightningSkull;
     private chargeOffHandLatern chl;
     public GameObject chargeText;
+    private enum OffhandType { None, Lightning, Chaos, Defense, FireBomb }
+    private OffhandType currentOffhandType = OffhandType.None;
+    private OffhandType lastOffhandType = OffhandType.None;
     void Start()
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
         player = GameObject.FindWithTag("Player");
         chl=FindAnyObjectByType<chargeOffHandLatern>(); 
+    }
+    public void quickSwap()
+    {
+        if (lastOffhandType == OffhandType.None)
+        {
+            return;
+        }
+        else if (lastOffhandType == OffhandType.Lightning)
+        {
+            lightning();
+        }
+        else if (lastOffhandType == OffhandType.Chaos)
+        {
+            chaos();
+        }
+        else if (lastOffhandType == OffhandType.Defense)
+        {
+            Defense();
+        }
+        else if (lastOffhandType == OffhandType.FireBomb)
+        {
+            FireBomb();
+        }
     }
     public void unequip()
     {
@@ -42,7 +68,10 @@ public class offhandHandler : MonoBehaviour
     {
         CheckForBlunderbuss();
         unequip();
-        Debug.Log("Lightning Offhand Swapped to");
+        if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Lightning)
+        {
+            lastOffhandType = currentOffhandType;
+        }
         lightningSkull.SetActive(true);
         chargeText.SetActive(true);
         chl.offHandType = chargeOffHandLatern.OffHandTypes.explosion;
@@ -64,33 +93,47 @@ public class offhandHandler : MonoBehaviour
         {
             allOffhands[3].OnEquip(player);
         }
+        currentOffhandType = OffhandType.Lightning;
     }
     public void chaos()
     {
         CheckForBlunderbuss();
         unequip();
+        if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Chaos)
+        {
+            lastOffhandType = currentOffhandType;
+        }
         curse.SetActive(true);
-        
+        currentOffhandType = OffhandType.Chaos;
     }
     public void Defense()
     {
         CheckForBlunderbuss();
         unequip();
-
-        Debug.Log("Defense Offhand Swapped to");
+        if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Defense)
+        {
+            lastOffhandType = currentOffhandType;
+        }
         chl.offHandType = chargeOffHandLatern.OffHandTypes.invulnerabilty;
         if (allOffhands.Length > 0 && allOffhands[0] != null)
         {
             allOffhands[0].OnEquip(player);
             currentOffhand = allOffhands[0];
         }
+        currentOffhandType = OffhandType.Defense;
     }
     public void FireBomb()
     {
         CheckForBlunderbuss();
         unequip();
+        if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.FireBomb)
+        {
+            lastOffhandType = currentOffhandType;
+        }
         fireBall.SetActive(true);
-        
+        currentOffhandType = OffhandType.FireBomb;
+
+
     }
     public void increaseUpgradeStatus(int num)
     {
