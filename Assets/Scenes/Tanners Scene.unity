@@ -9563,12 +9563,12 @@ MonoBehaviour:
   animMaxMoveSpeed: 4
   strafeDurationRange: {x: 0.4, y: 1}
   strafeChance: 0.65
-  attackCooldownRange: {x: 0.14, y: 0.2}
+  attackCooldownRange: {x: 0.5, y: 0.5}
   attackWindup: 0.18
   hitboxActiveTime: 0.22
   attackRecovery: 0.25
   maxHealth: 30
-  stunDuration: 0.6
+  stunDuration: 1.2
   animSpeedParam: Speed
   animAggroBool: Aggro
   animLightAttackTrigger: LightAttack
@@ -9735,12 +9735,12 @@ MonoBehaviour:
   animMaxMoveSpeed: 4
   strafeDurationRange: {x: 0.4, y: 1}
   strafeChance: 0.65
-  attackCooldownRange: {x: 0.14, y: 0.2}
+  attackCooldownRange: {x: 0.5, y: 0.5}
   attackWindup: 0.18
   hitboxActiveTime: 0.22
   attackRecovery: 0.25
   maxHealth: 30
-  stunDuration: 0.6
+  stunDuration: 1.2
   animSpeedParam: Speed
   animAggroBool: Aggro
   animLightAttackTrigger: LightAttack
@@ -16953,6 +16953,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2232083423495473721, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2665000143617993757, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -17363,12 +17367,12 @@ MonoBehaviour:
   animMaxMoveSpeed: 4
   strafeDurationRange: {x: 0.4, y: 1}
   strafeChance: 0.65
-  attackCooldownRange: {x: 0.14, y: 0.2}
+  attackCooldownRange: {x: 0.5, y: 0.5}
   attackWindup: 0.18
   hitboxActiveTime: 0.22
   attackRecovery: 0.25
   maxHealth: 30
-  stunDuration: 0.6
+  stunDuration: 1.2
   animSpeedParam: Speed
   animAggroBool: Aggro
   animLightAttackTrigger: LightAttack
@@ -43563,12 +43567,12 @@ MonoBehaviour:
   animMaxMoveSpeed: 4
   strafeDurationRange: {x: 0.4, y: 1}
   strafeChance: 0.65
-  attackCooldownRange: {x: 0.14, y: 0.2}
+  attackCooldownRange: {x: 0.5, y: 0.5}
   attackWindup: 0.18
   hitboxActiveTime: 0.22
   attackRecovery: 0.25
   maxHealth: 30
-  stunDuration: 0.6
+  stunDuration: 1.2
   animSpeedParam: Speed
   animAggroBool: Aggro
   animLightAttackTrigger: LightAttack
