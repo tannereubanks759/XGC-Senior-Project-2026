@@ -5,6 +5,7 @@ public class DamageRef : MonoBehaviour
     private PirateBossAI anchorBoss;
     private MagmaBossAI magmaBoss;
     private GhostBossAI ghostBoss;
+    private SkeletonSwordEnemy swordEnemy;
 
     public GameObject GoldBagPrefab;
     public int OverrideGoldAmount = 0;
@@ -16,6 +17,7 @@ public class DamageRef : MonoBehaviour
         anchorBoss = GetComponent<PirateBossAI>();
         magmaBoss = GetComponent<MagmaBossAI>();
         ghostBoss = GetComponent<GhostBossAI>();
+        swordEnemy = GetComponent<SkeletonSwordEnemy>();
         hasSpawnedGold = false;
     }
 
@@ -34,6 +36,10 @@ public class DamageRef : MonoBehaviour
         if (ghostBoss)
         {
             ghostBoss.TakeDamage((int)damage);
+        }
+        if (swordEnemy)
+        {
+            swordEnemy.ApplyDamage(damage, true);
         }
     }
 

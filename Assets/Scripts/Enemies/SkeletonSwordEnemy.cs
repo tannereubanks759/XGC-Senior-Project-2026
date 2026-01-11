@@ -1,3 +1,4 @@
+using RayFire;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -40,8 +41,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
     public Transform[] patrolPoints;
     public float patrolPointTolerance = 1.1f;
     public Vector2 patrolWaitRange = new Vector2(0.5f, 2.0f);
-
-    [Header("Perception")]
+    [Header("Perception (Reworked)")]
     [Tooltip("How far the skeleton can see the player.")]
     public float visionRange = 20f;
 
@@ -49,8 +49,28 @@ public class SkeletonSwordEnemy : MonoBehaviour
     [Tooltip("Field of view angle (degrees).")]
     public float visionFov = 120f;
 
-    [Tooltip("If within this range, the skeleton 'auto-detects' (even outside FOV).")]
+    [Tooltip("Within this range we ignore FOV (still requires line of sight).")]
+    public float closeAwarenessRange = 8.0f;
+
+    [Tooltip("If within this range, the skeleton 'auto-detects' even if not facing (still LOS).")]
     public float autoDetectRange = 3.0f;
+
+    [Tooltip("How thick the vision ray is. Helps prevent tiny gaps/edges breaking vision.")]
+    public float sightThickness = 0.12f;
+
+    [Tooltip("Eye height if eyePoint is null.")]
+    public float fallbackEyeHeight = 1.6f;
+
+    [Tooltip("Where on the target we aim the sight check (chest/head).")]
+    public float targetAimHeight = 1.4f;
+
+    [Tooltip("Only these layers can block vision (WALLS/LEVEL). EXCLUDE Player.")]
+    public LayerMask occlusionMask;
+
+    [Tooltip("Optional: draw vision debug rays.")]
+    public bool debugVision;
+
+
 
     [Tooltip("How far the skeleton can 'hear' (if you want to call OnHeardNoise).")]
     public float hearingRange = 12f;
@@ -70,6 +90,12 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     [Tooltip("Face target speed in melee.")]
     public float turnSpeed = 10f;
+
+    [Header("Locomotion Animation")]
+    [Tooltip("World speed (m/s) that corresponds to full run in your blend tree.")]
+    public float animMaxMoveSpeed = 4.0f; // set to chaseSpeedFar (or your clip's intended run speed)
+
+
 
     [Tooltip("How long we spend circling/strafing before attempting an attack.")]
     public Vector2 strafeDurationRange = new Vector2(0.4f, 1.0f);
@@ -120,6 +146,74 @@ public class SkeletonSwordEnemy : MonoBehaviour
     [Tooltip("How often we update destination while chasing.")]
     public float chaseRepathInterval = 0.20f;
 
+
+    [Range(0f, 1f)]
+    [Tooltip("0 = no staggering, 1 = full spreading across the whole interval.")]
+    public float staggerStrength = 1f;
+
+    private float _sensePhase;   // 0..1
+    private float _repathPhase;  // 0..1
+
+
+    [Header("Look IK")]
+    public bool useLookIK = true;
+
+    [Tooltip("If null, we'll approximate target head position using targetAimHeight.")]
+    public Transform targetHead;
+
+    [Range(0f, 1f)] public float lookWeight = 0.85f;
+    [Range(0f, 1f)] public float bodyWeight = 0.25f;
+    [Range(0f, 1f)] public float headWeight = 0.85f;
+    [Range(0f, 1f)] public float eyesWeight = 0.0f;
+
+    [Tooltip("How fast the look blends in/out.")]
+    public float lookBlendSpeed = 8f;
+
+    [Tooltip("How far away we stop looking (prevents weird long-distance twist).")]
+    public float lookMaxDistance = 18f;
+
+
+    [Tooltip("Max distance to start looking.")]
+    public float lookRange = 12f;
+
+    [Tooltip("Stop looking if player is more than this many degrees off forward (yaw).")]
+    [Range(10f, 180f)]
+    public float maxLookAngle = 85f;
+
+
+
+    [Tooltip("Clamp to reduce extreme twisting (0..1). Lower = less twist.")]
+    [Range(0f, 1f)] public float lookClamp = 0.55f;
+
+    [Header("Combat Movement Tuning")]
+    [Tooltip("Agent speed when far away (chasing).")]
+    public float chaseSpeedFar = 4.0f;
+
+    [Tooltip("Agent speed when close to the player (near melee).")]
+    public float chaseSpeedNear = 1.6f;
+
+    [Tooltip("Distance where we start slowing down.")]
+    public float slowDownStartDistance = 6.0f;
+
+    [Tooltip("Distance where we are at 'near' speed (usually around attack range).")]
+    public float slowDownEndDistance = 2.2f;
+
+    [Tooltip("How quickly speed blends (higher = snappier).")]
+    public float speedBlend = 8.0f;
+
+    [Tooltip("Optional: also scale acceleration to reduce twitchiness near player.")]
+    public float accelFar = 18f;
+    public float accelNear = 8f;
+
+
+    private float _lookW; // smoothed 0..1
+
+    // --- Vision helpers ---
+    private Collider[] _selfColliders;
+    private readonly RaycastHit[] _sightHits = new RaycastHit[24];
+
+
+
     private State _state;
     private float _health;
 
@@ -148,8 +242,22 @@ public class SkeletonSwordEnemy : MonoBehaviour
         _health = maxHealth;
 
         agent.stoppingDistance = stopDistance;
-        agent.updateRotation = false; // we manually face target (more SoT-like)
+        agent.updateRotation = false;
+
+        _selfColliders = GetComponentsInChildren<Collider>(includeInactive: true);
+
+        // Stable phases derived from instance ID (so enemies spread out consistently)
+        int id = Mathf.Abs(GetInstanceID());
+        _sensePhase = ((id * 0.6180339f) % 1f);       // pseudo-random 0..1
+        _repathPhase = ((id * 0.3819660f) % 1f);
+
+        float senseOffset = senseInterval * Mathf.Lerp(0f, _sensePhase, staggerStrength);
+        float repathOffset = chaseRepathInterval * Mathf.Lerp(0f, _repathPhase, staggerStrength);
+
+        _nextSenseTime = Time.time + senseOffset;
+        _nextRepathTime = Time.time + repathOffset;
     }
+
 
     private void Start()
     {
@@ -166,9 +274,13 @@ public class SkeletonSwordEnemy : MonoBehaviour
         // Sense at an interval
         if (Time.time >= _nextSenseTime)
         {
-            _nextSenseTime = Time.time + senseInterval;
+            _nextSenseTime = Time.time + senseInterval * (1f + 0f); // keep base interval
+                                                                    // and add phase offset by shifting the "start" only once (we already did in Awake)
+                                                                    // So this line is fine as-is; the initial offset prevents sync.
+
             Sense();
         }
+        UpdateCombatMoveTuning();
 
         // Animation locomotion blend
         UpdateAnimatorLocomotion();
@@ -176,48 +288,134 @@ public class SkeletonSwordEnemy : MonoBehaviour
         // Manual facing (only in relevant states)
         if (_state == State.Chase || _state == State.Strafe || _state == State.Attack || _state == State.Recover || _state == State.Investigate)
             FaceTargetOrMovement();
+
+        // Keeps attacking if you're standing still in range (SoT pressure)
+        if (_state == State.Chase || _state == State.Recover)
+        {
+            if (target && Time.time >= _nextAttackAllowedTime)
+            {
+                float dist = Vector3.Distance(transform.position, target.position);
+                if (dist <= attackRange)
+                {
+                    SetState(State.Attack);
+                }
+            }
+        }
+
+    }
+    private bool CanSeeTarget(out Vector3 seenPos)
+    {
+        seenPos = Vector3.zero;
+        if (!target) return false;
+
+        Vector3 origin = eyePoint
+            ? eyePoint.position
+            : (transform.position + Vector3.up * fallbackEyeHeight);
+
+        // Small offset so we don’t start inside our own capsule
+        origin += transform.up * 0.05f + transform.forward * 0.12f;
+
+        Vector3 aim = (targetHead != null)
+            ? targetHead.position
+            : (target.position + Vector3.up * targetAimHeight);
+
+        Vector3 to = aim - origin;
+        float dist = to.magnitude;
+        if (dist <= 0.001f) return true;
+
+        if (dist > visionRange) return false;
+
+        // FOV check (ignored up close)
+        bool inFov = true;
+        if (dist > closeAwarenessRange && dist > autoDetectRange)
+        {
+            Vector3 toFlat = to; toFlat.y = 0f;
+            Vector3 fwdFlat = transform.forward; fwdFlat.y = 0f;
+
+            if (toFlat.sqrMagnitude > 0.0001f && fwdFlat.sqrMagnitude > 0.0001f)
+            {
+                float ang = Vector3.Angle(fwdFlat.normalized, toFlat.normalized);
+                inFov = ang <= (visionFov * 0.5f);
+            }
+        }
+
+        if (!inFov) return false;
+
+        Vector3 dir = to / dist;
+
+        // SphereCastNonAlloc + filter out self colliders
+        int hitCount = Physics.SphereCastNonAlloc(
+            origin,
+            Mathf.Max(0.01f, sightThickness),
+            dir,
+            _sightHits,
+            dist,
+            occlusionMask,
+            QueryTriggerInteraction.Ignore
+        );
+
+        bool blocked = false;
+        RaycastHit closestBlock = default;
+        float closest = float.PositiveInfinity;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            var h = _sightHits[i];
+            var c = h.collider;
+            if (!c) continue;
+
+            // Ignore our own colliders
+            if (IsSelfCollider(c)) continue;
+
+            // If it's on occlusionMask and not self, it blocks
+            if (h.distance < closest)
+            {
+                closest = h.distance;
+                closestBlock = h;
+            }
+            blocked = true;
+        }
+
+        if (debugVision)
+        {
+            Debug.DrawLine(origin, aim, blocked ? Color.red : Color.green, senseInterval);
+            if (blocked) Debug.DrawRay(closestBlock.point, closestBlock.normal * 0.25f, Color.yellow, senseInterval);
+        }
+
+        if (blocked) return false;
+
+        seenPos = target.position;
+        return true;
     }
 
-    // --- Sensing ---
+    private bool IsSelfCollider(Collider c)
+    {
+        if (!c) return false;
+        // Fast path: most enemies are one hierarchy
+        return c.transform.IsChildOf(transform);
+    }
+
+
     private void Sense()
     {
         if (!target) return;
 
-        Vector3 toTarget = target.position - (eyePoint ? eyePoint.position : transform.position);
-        float dist = toTarget.magnitude;
-
-        bool detected = false;
-
-        // Auto-detect close range
-        if (dist <= autoDetectRange)
-        {
-            detected = HasLineOfSight(target.position);
-        }
-        else if (dist <= visionRange)
-        {
-            // FOV check
-            Vector3 dir = toTarget.normalized;
-            float angle = Vector3.Angle(transform.forward, dir);
-            if (angle <= visionFov * 0.5f && HasLineOfSight(target.position))
-                detected = true;
-        }
+        bool detected = CanSeeTarget(out Vector3 seenPos);
 
         if (detected)
         {
             _lastSeenTime = Time.time;
-            _lastKnownPos = target.position;
+            _lastKnownPos = seenPos;
 
             if (_state == State.Idle || _state == State.Patrol || _state == State.Investigate)
                 SetState(State.Chase);
         }
         else
         {
-            // If we haven't seen target for a while, drop aggro & return to patrol/idle
             bool hasMemory = (Time.time - _lastSeenTime) <= aggroMemoryTime;
 
             if (!hasMemory && (_state == State.Chase || _state == State.Strafe))
             {
-                // go investigate last known position briefly, then patrol
                 if (_lastSeenTime > -998f)
                     SetState(State.Investigate);
                 else
@@ -226,20 +424,8 @@ public class SkeletonSwordEnemy : MonoBehaviour
         }
     }
 
-    private bool HasLineOfSight(Vector3 targetPos)
-    {
-        Vector3 origin = eyePoint ? eyePoint.position : transform.position + Vector3.up * 1.6f;
-        Vector3 to = targetPos - origin;
-        float dist = to.magnitude;
 
-        if (dist <= 0.001f) return true;
-
-        // Raycast against obstacles only (player should NOT be on obstacleMask)
-        if (Physics.Raycast(origin, to / dist, dist, obstacleMask, QueryTriggerInteraction.Ignore))
-            return false;
-
-        return true;
-    }
+    
 
     /// <summary>
     /// Optional: call this from your player/noise system.
@@ -407,6 +593,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
             if (Time.time >= _nextRepathTime)
             {
                 _nextRepathTime = Time.time + chaseRepathInterval;
+
                 agent.SetDestination(target.position);
             }
 
@@ -622,10 +809,16 @@ public class SkeletonSwordEnemy : MonoBehaviour
     {
         if (!animator || !agent) return;
 
-        // normalized speed for blend tree (0..1)
-        float speed01 = agent.velocity.magnitude / Mathf.Max(0.01f, agent.speed);
-        animator.SetFloat(animSpeedParam, speed01, 0.1f, Time.deltaTime);
+        // Use *actual movement* speed in world space.
+        float worldSpeed = agent.velocity.magnitude;
+
+        // Normalize against a fixed max so slowing down actually lowers the param.
+        float speed01 = worldSpeed / Mathf.Max(0.01f, animMaxMoveSpeed);
+        speed01 = Mathf.Clamp01(speed01);
+
+        animator.SetFloat(animSpeedParam, speed01, 0.12f, Time.deltaTime);
     }
+
 
     private void SetAnimatorAggro(bool aggro)
     {
@@ -634,7 +827,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
     }
 
     // --- Damage API ---
-    public void ApplyDamage(float amount, Vector3 hitPoint, Vector3 hitNormal, bool canStun = true)
+    public void ApplyDamage(float amount, bool canStun = true)
     {
         if (_state == State.Dead) return;
 
@@ -667,12 +860,124 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
         if (swordHitbox) swordHitbox.EndHitWindow();
 
-        if (animator && !string.IsNullOrEmpty(animDieTrigger))
-            animator.SetTrigger(animDieTrigger);
+        GetComponentInChildren<RayfireRigid>().Demolish();
+        Destroy(this.gameObject);
 
         // Optional: disable colliders / drop loot / ragdoll, etc.
         // Destroy(gameObject, 8f);
     }
+    int ResolveDamageFrom(Collider other)
+    {
+        var dealer = other.GetComponentInParent<swordDamageDeterminer>();
+        if (dealer != null) return Mathf.Max(1, dealer.damage);
+        return Mathf.Max(1, 10);
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!enabled || _state == State.Dead) return;
+        if (other.CompareTag("PlayerSword"))
+        {
+            int dmg = ResolveDamageFrom(other);
+            GetComponent<DamageRef>().TakeDamage(dmg);
+            var lantern = GameObject.FindAnyObjectByType<chargeOffHandLatern>();
+            if (lantern != null && lantern.enabled)
+            {
+                // Debug.Log("Boss hit by sword, notifying lantern");
+                lantern.hitRegistered();
+            }
+        }
+    }
+    private void OnAnimatorIK(int layerIndex)
+    {
+        if (!useLookIK || !animator || _state == State.Dead)
+            return;
+
+        // Only do head tracking while engaged (tweak if you want it during patrol too)
+        bool engaged =
+            _state == State.Chase ||
+            _state == State.Strafe ||
+            _state == State.Attack ||
+            _state == State.Recover;
+
+        float desired = 0f;
+
+        if (engaged && target)
+        {
+            Vector3 origin = eyePoint ? eyePoint.position : (transform.position + Vector3.up * 1.6f);
+
+            Vector3 lookPos = (targetHead != null)
+                ? targetHead.position
+                : (target.position + Vector3.up * targetAimHeight);
+
+            Vector3 to = lookPos - origin;
+            float dist = to.magnitude;
+
+            if (dist <= lookRange && dist > 0.001f)
+            {
+                // Yaw angle only (ignore vertical so hills don't break it)
+                Vector3 toFlat = to; toFlat.y = 0f;
+                Vector3 fwdFlat = transform.forward; fwdFlat.y = 0f;
+
+                if (toFlat.sqrMagnitude > 0.0001f && fwdFlat.sqrMagnitude > 0.0001f)
+                {
+                    float yawAngle = Vector3.Angle(fwdFlat.normalized, toFlat.normalized);
+
+                    // Look only if player is within allowed angle
+                    if (yawAngle <= maxLookAngle)
+                        desired = 1f;
+                }
+
+                // Apply look target even while blending so it doesn't pop
+                animator.SetLookAtPosition(lookPos);
+            }
+        }
+
+        // Smooth blend in/out
+        _lookW = Mathf.MoveTowards(_lookW, desired, lookBlendSpeed * Time.deltaTime);
+
+        if (_lookW <= 0.001f)
+        {
+            animator.SetLookAtWeight(0f);
+            return;
+        }
+
+        animator.SetLookAtWeight(
+            _lookW * lookWeight,
+            bodyWeight,
+            headWeight,
+            eyesWeight,
+            lookClamp
+        );
+    }
+    private void UpdateCombatMoveTuning()
+    {
+        if (!agent || !target) return;
+
+        // Only scale speed while actually moving/engaging
+        bool engaging = _state == State.Chase || _state == State.Strafe || _state == State.Investigate;
+        if (!engaging) return;
+
+        float dist = Vector3.Distance(transform.position, target.position);
+
+        // Ensure correct ordering even if inspector values are reversed
+        float nearDist = Mathf.Min(slowDownStartDistance, slowDownEndDistance); // usually ~attackRange-ish
+        float farDist = Mathf.Max(slowDownStartDistance, slowDownEndDistance); // farther away
+
+        // norm: 0 when close (nearDist), 1 when far (farDist and beyond)
+        float norm = Mathf.InverseLerp(nearDist, farDist, dist);
+        norm = Mathf.Clamp01(norm);
+
+        // Optional easing (keeps it smoother)
+        norm = norm * norm; // ease-in
+
+        // When far -> chaseSpeedFar, when close -> chaseSpeedNear
+        float desiredSpeed = Mathf.Lerp(chaseSpeedNear, chaseSpeedFar, norm);
+        float desiredAccel = Mathf.Lerp(accelNear, accelFar, norm);
+
+        agent.speed = Mathf.Lerp(agent.speed, desiredSpeed, 1f - Mathf.Exp(-speedBlend * Time.deltaTime));
+        agent.acceleration = Mathf.Lerp(agent.acceleration, desiredAccel, 1f - Mathf.Exp(-speedBlend * Time.deltaTime));
+    }
+
 
     // --- Debug Gizmos ---
     private void OnDrawGizmosSelected()
