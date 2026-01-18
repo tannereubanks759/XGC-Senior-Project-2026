@@ -13,24 +13,10 @@ public class interactScript : MonoBehaviour
     private GameObject currentHealthPotion;
     public ItemData currentArtifact;
     public inventoryScript inventoryScript;
-    private bool keyInteract = false;
-    private bool chestInteract = false; 
-    public int keyCount = 0;
-    public GameObject keyobj;
-    public ChestScript chest;
     public objectIdentifier objIdentifierRef;
     private infoscript infoScriptRef;
-    //private GameObject DungeonKey;
-    //public bool treasureRoomUnlocked = false;
-    //private GameObject dungeonDoor;
-    //private GameObject dungeonLock;
-    public List<int> keyIDs = new List<int>();
     public static interactScript current;
     private bool shopInteract = false;
-    public GameObject redKeyObj;
-    public GameObject blueKey;
-    public GameObject greenKey;
-    public GameObject goldKey;
     private GameObject shop;
     private bool healthPotionInteract = false;
     private HealthPotion HealthPotionScript;
@@ -47,43 +33,11 @@ public class interactScript : MonoBehaviour
         interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
         tmpro = interactText.GetComponent<TextMeshProUGUI>();
-        infoScriptRef = GameObject.Find("PlayerInfo").GetComponent<infoscript>();
         HealthPotionScript =GameObject.FindAnyObjectByType<HealthPotion>();
         goldRef = current.GetComponent<GoldBank>();
-        HideAllKeyIcons();
-        //chest =  GameObject.Find("Animated PBR Chest _Wood_Demo").GetComponent<ChestScript>();
     }
-    private void Awake()
-    {
-        redKeyObj = GameObject.FindGameObjectWithTag("redKey");
-        blueKey = GameObject.FindGameObjectWithTag("blueKey");
-        greenKey = GameObject.FindGameObjectWithTag("greenKey");
-        goldKey = GameObject.FindGameObjectWithTag("goldKey");
-    }
-    private void colorIDChecker(int keyID, bool active)
-    {
-        int key = (keyID - 1) % 4;
-        switch (key)
-        {
-            case 0: 
-                if (redKeyObj) redKeyObj.SetActive(active); 
-                break;
-            case 1: 
-                if (greenKey) greenKey.SetActive(active); 
-                break;
-            case 2: 
-                if (blueKey) blueKey.SetActive(active); 
-                break;
-            case 3: if (goldKey) goldKey.SetActive(active); 
-                break;
-        }
-    }
-    public void RefreshKeyIcons()
-    {
-        
-       
-            
-    }
+    
+    
     private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("Artifact"))
@@ -111,31 +65,6 @@ public class interactScript : MonoBehaviour
                 Debug.Log("Touched artifact: " + currentArtifact.itemName);
             }
         }
-        else if (other.CompareTag("Key"))
-        {
-            keyInteract = true;
-            interactText.SetActive(true);
-            keyobj = other.gameObject;
-        }
-        else if (other.CompareTag("Chest"))
-        {
-
-            interactText.SetActive(true);
-            chest = other.GetComponent<ChestScript>();
-            chestInteract = true;   
-            
-        }
-        /*else if (other.CompareTag("DungeonKey"))
-        {
-            interactText.SetActive(true);
-            DungeonKey = other.gameObject;
-        }
-        else if (other.CompareTag("DungeonLock"))
-        {
-            if (interactText != null)
-                interactText.SetActive(true);
-            dungeonLock = other.gameObject;
-        }*/
         else if (other.CompareTag("shop"))
         {
             shopInteract = true;
@@ -163,11 +92,6 @@ public class interactScript : MonoBehaviour
             tmpro.text = "Upgrade Station";
             interactText.SetActive(true);
         }
-        /*if (other.CompareTag("DungeonDoor") && treasureRoomUnlocked)
-        {
-            interactText.SetActive(true);
-            dungeonDoor = other.gameObject;
-        }*/
     }
 
     private void OnTriggerExit(Collider other)
@@ -180,25 +104,14 @@ public class interactScript : MonoBehaviour
             interactText.GetComponent<TextMeshProUGUI>().text = "E to interact";
             Debug.Log("Left artifact");
         }
-        else if (other.CompareTag("Key"))
-        {
-            keyInteract = false;
-            keyobj = null;
-        }
+        
         else if (other.CompareTag("healthPotion"))
         {
             healthPotionInteract = false;
             tmpro.text = "E to interact";
             currentHealthPotion = null;
         }
-        else if (other.CompareTag("Chest"))
-        {
-            chestInteract = false;
-        }
-        /*else if (other.CompareTag("DungeonKey"))
-        {
-            DungeonKey = null;
-        }*/
+        
         else if (other.CompareTag("Teleporter"))
         {
             TeleporterInteract = false;
@@ -215,14 +128,7 @@ public class interactScript : MonoBehaviour
             currentUpgradeStation = null;
             tmpro.text = "E to interact";
         }
-        /*else if (other.CompareTag("DungeonLock"))
-        {
-            dungeonLock = null;
-        }
-        if (other.CompareTag("DungeonDoor"))
-        {
-            dungeonDoor = null;
-        }*/
+        
         if(interactText != null)
         {
             interactText.SetActive(false);
@@ -254,42 +160,9 @@ public class interactScript : MonoBehaviour
                 GameObject.FindAnyObjectByType<IslandTeleporter>().Teleport();
                 TeleporterInteract = false;
             }
-            else if (keyInteract)
-            {
-                keyobj.SetActive(false);
-                keyScript k = keyobj.GetComponent<keyScript>();
-                int id = k.keyID;
-                keyIDs.Add(id);
-                infoScriptRef.keyCount++;
-                k.chest.DisableSeal();
-                k.chest.chestOutline.enabled = true;
-                /*if (inventoryScript.inventoryUI.activeSelf)
-                {
-                    colorIDChecker(id, true);
-                }*/
-                keyInteract = false;
-            }
-            else if (chestInteract)
-            {
-                chestInteract = false;
-                chest.chestOpen(current);
-                int id = chest.keyID;
-                colorIDChecker(id, false);
-            }
-            /*else if (dungeonLock != null)
-            {
-                GameObject.FindAnyObjectByType<TreasureRoomLockKey>().Unlock();
-                dungeonLock = null;
-            }
-            else if(DungeonKey != null)
-            {
-                DungeonKey.GetComponentInParent<TreasureRoomLockKey>().PickupKey();
-                DungeonKey = null;
-            }*/
             else if (shopInteract)
             {
                 var shopScript = shop.GetComponent<baseShop>();
-                
             }
             else if (healthPotionInteract)
             {
@@ -318,22 +191,11 @@ public class interactScript : MonoBehaviour
                 }
             }
             
-                /*else if(dungeonDoor != null && treasureRoomUnlocked)
-                {
-                    Debug.Log("Open Door");
-                    //put door open animator here
-                    dungeonDoor.GetComponentInParent<Animator>().SetBool("DoorOpen", true);
-                    dungeonDoor = null;
-                }*/
 
 
                 interactText.SetActive(false);
 
         }
     }
-    public void HideAllKeyIcons()
-    {
-        
-
-    }
+    
 }
