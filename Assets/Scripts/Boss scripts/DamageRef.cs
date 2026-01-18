@@ -7,10 +7,10 @@ public class DamageRef : MonoBehaviour
     private GhostBossAI ghostBoss;
     private SkeletonSwordEnemy swordEnemy;
 
-    public GameObject GoldBagPrefab;
-    public int OverrideGoldAmount = 0;
+    public GameObject SoulPrefab;
+    public int OverrideSoulAmount = 0;
 
-    private bool hasSpawnedGold = false;
+    private bool hasSpawnedSoul = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -18,12 +18,12 @@ public class DamageRef : MonoBehaviour
         magmaBoss = GetComponent<MagmaBossAI>();
         ghostBoss = GetComponent<GhostBossAI>();
         swordEnemy = GetComponent<SkeletonSwordEnemy>();
-        hasSpawnedGold = false;
+        hasSpawnedSoul = false;
     }
 
     public void TakeDamage(float damage)
     {
-        SpawnGoldIfDead((int)damage);
+        SpawnSoulIfDead((int)damage);
 
         if (anchorBoss)
         {
@@ -43,15 +43,15 @@ public class DamageRef : MonoBehaviour
         }
     }
 
-    void SpawnGoldIfDead(int damage)
+    void SpawnSoulIfDead(int damage)
     {
-        if (GoldBagPrefab == null && hasSpawnedGold) return;
+        if (SoulPrefab == null && hasSpawnedSoul) return;
 
         if (magmaBoss)
         {
             if (magmaBoss.currentHealth <= damage ) //spawn gold
             {
-                SpawnGold();
+                SpawnSoul();
 
             }
         }
@@ -59,7 +59,7 @@ public class DamageRef : MonoBehaviour
         {
             if (anchorBoss.currentHealth <= damage) //spawn gold
             {
-                SpawnGold();
+                SpawnSoul();
 
             }
         }
@@ -67,21 +67,28 @@ public class DamageRef : MonoBehaviour
         {
             if(ghostBoss.currentHealth <= damage)
             {
-                SpawnGold();
+                SpawnSoul();
+            }
+        }
+        if (swordEnemy)
+        {
+            if (swordEnemy.GetHealth() <= damage)
+            {
+                SpawnSoul();
             }
         }
     }
 
-    void SpawnGold()
+    void SpawnSoul()
     {
-        if (OverrideGoldAmount > 0)
+        if (OverrideSoulAmount > 0)
         {
-            GoldBag bag = Instantiate(GoldBagPrefab, transform.position, Quaternion.identity).GetComponent<GoldBag>();
-            bag.AmountOfGold = OverrideGoldAmount;
+            SoulScript s = Instantiate(SoulPrefab, transform.position + new Vector3(0, 1, 0), Quaternion.identity).GetComponent<SoulScript>();
+            s.amountOfSouls = OverrideSoulAmount;
         }
         else
         {
-            Instantiate(GoldBagPrefab, transform.position, Quaternion.identity);
+            Instantiate(SoulPrefab, transform.position + new Vector3(0,1,0), Quaternion.identity);
         }
     }
 }

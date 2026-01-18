@@ -1108,7 +1108,10 @@ public class SkeletonSwordEnemy : MonoBehaviour
                 lantern.hitRegistered();
         }
     }
-
+    public float GetHealth()
+    {
+        return _health;
+    }
     // -------------------------
     // Debug Gizmos
     // -------------------------

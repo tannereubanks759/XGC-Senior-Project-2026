@@ -24944,7 +24944,7 @@ RectTransform:
   m_GameObject: {fileID: 2121564940297492528}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.60407, y: 0.60407, z: 0.60407}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1059385995463426238}
@@ -24983,13 +24983,13 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 0d8ae39890ceab64fb22152708cfbb03, type: 3}
+  m_Texture: {fileID: 2800000, guid: e19c914997b370446881daba27bc0c9f, type: 3}
   m_UVRect:
     serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+    x: 0.49
+    y: 0.15
+    width: 0.2
+    height: 0.2
 --- !u!1 &2129419948143774086
 GameObject:
   m_ObjectHideFlags: 0
@@ -42552,7 +42552,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -222, y: 27.811348}
+  m_AnchoredPosition: {x: -199.7, y: 2.5}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &230644503653532156
@@ -42610,8 +42610,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 24.99
+  m_fontSizeBase: 24.99
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -60895,15 +60895,7 @@ MonoBehaviour:
   currentArtifactObj: {fileID: 0}
   currentArtifact: {fileID: 0}
   inventoryScript: {fileID: 0}
-  keyCount: 0
-  keyobj: {fileID: 374289202576707483, guid: 78df1db2fbc8ec64f949fac0c05bf693, type: 3}
-  chest: {fileID: 4822395291547936970, guid: 1083f87f08232f541942f4a22a00127e, type: 3}
   objIdentifierRef: {fileID: 0}
-  keyIDs: 
-  redKeyObj: {fileID: 0}
-  blueKey: {fileID: 0}
-  greenKey: {fileID: 0}
-  goldKey: {fileID: 0}
   priceOfHealthPotion: 5
   TeleporterInteract: 0
   currentUpgradeStation: {fileID: 0}
