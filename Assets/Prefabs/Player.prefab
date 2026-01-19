@@ -66848,6 +66848,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5597446599923421742}
   - component: {fileID: 8196703046278169767}
+  - component: {fileID: 3277216731619315645}
   - component: {fileID: 2762810941035145519}
   - component: {fileID: 5230912486499667837}
   - component: {fileID: 530851876868477192}
@@ -66896,6 +66897,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &3277216731619315645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7482587371532213724}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2128352c2a3415a4d9f0c5e2cee9e181, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  col: {fileID: 3651523959833766474}
 --- !u!114 &2762810941035145519
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69976,6 +69990,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: e0fbb201db705c847b06838a1513ca6a, type: 3}
   - {fileID: 8300000, guid: 77ecc66f169eefd48819dbe835a044e4, type: 3}
   boneChips: {fileID: 6482988337023351770, guid: 8f590b1a747989f4dad7c2c470bcad3b, type: 3}
+  ClashEffect: {fileID: 1671413859314177194, guid: b7cf8280539e8c64188802749839c80d, type: 3}
+  col: {fileID: 3651523959833766474}
+  damage: 10
 --- !u!54 &414781114502182563
 Rigidbody:
   m_ObjectHideFlags: 0
