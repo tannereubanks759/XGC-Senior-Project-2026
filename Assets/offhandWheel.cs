@@ -38,6 +38,7 @@ public class offhandWheel : MonoBehaviour
         offhandHandle.buttonPress();
         Volume vol = Camera.main.gameObject.GetComponent<Volume>();
         vol.enabled = false;
+        if (UIM != null && UIM.ModalOpen) return;
         UIM.OpenPlayerUIScreen();
     }
 

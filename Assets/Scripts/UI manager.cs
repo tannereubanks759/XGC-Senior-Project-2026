@@ -1,5 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class UImanager : MonoBehaviour
 {
@@ -10,11 +11,20 @@ public class UImanager : MonoBehaviour
     public GameObject PlayerUIScreen;
     public GameObject OffhandWheelScreen;
     public GameObject UpgradeStationScreen;
+    public GameObject lightTut;
+    public GameObject curseTut;
+    public GameObject fireballTut;
+    public bool ModalOpen { get; private set; }
 
+    public void SetModal(bool open)
+    {
+        ModalOpen = open;
+    }
     private void Awake()
     {
         OpenPlayerUIScreen();
     }
+
     public void OpenPauseScreen()
     {
         PreSetup(true, true);
@@ -47,6 +57,35 @@ public class UImanager : MonoBehaviour
     {
         PreSetup(true, true);
         UpgradeStationScreen.SetActive(true);
+    }
+    public void openLightTutorial()
+    {
+        SetModal(true);
+        PreSetup(true, true);
+        lightTut.SetActive(true);
+        
+    }
+    public void openCurseTutorial()
+    {
+        SetModal(true);
+        PreSetup(true, true);
+        curseTut.SetActive(true);
+    }
+    public void openFireballTut()
+    {
+        SetModal(true);
+        PreSetup(true, true);
+        fireballTut.SetActive(true);
+    }
+    public void closeTut()
+    {
+        lightTut.SetActive(false);
+        curseTut.SetActive(false);
+        fireballTut.SetActive(false);
+        SetModal(false);
+        PreSetup(false, false);
+       
+        OpenPlayerUIScreen();
     }
     void PreSetup(bool hasCursor)
     {

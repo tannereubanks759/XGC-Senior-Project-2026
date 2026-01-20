@@ -16,20 +16,22 @@ public class offhandHandler : MonoBehaviour
     public GameObject lightningSkull;
     private chargeOffHandLatern chl;
     public GameObject chargeText;
-    public bool lightningFirst = false;
-    public bool curseFirst = false;
-    public bool fireballFirst = false;
-    public GameObject lightningTut;
-    public GameObject curseTut;
-    public GameObject fireballTut;
+    public bool lightningFirst = true;
+    public bool curseFirst = true;
+    public bool fireballFirst = true;
+    //public GameObject lightningTut;
+    //public GameObject curseTut;
+    //public GameObject fireballTut;
     private enum OffhandType { None, Lightning, Chaos, Defense, FireBomb }
     private OffhandType currentOffhandType = OffhandType.None;
     private OffhandType lastOffhandType = OffhandType.None;
+    public UImanager uiMan;
     void Start()
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
         player = GameObject.FindWithTag("Player");
         chl=FindAnyObjectByType<chargeOffHandLatern>(); 
+        //uiMan = FindAnyObjectByType<UImanager>();
     }
     public void quickSwap()
     {
@@ -72,6 +74,7 @@ public class offhandHandler : MonoBehaviour
     }
     public void lightning()
     {
+        
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Lightning)
@@ -103,7 +106,11 @@ public class offhandHandler : MonoBehaviour
         if(lightningFirst)
         {
             lightningFirst = false;
-            lightningTut.SetActive(true);
+            //Debug.Log("tried to turn on tut");
+            //lightningTut.SetActive(true);
+            uiMan.openLightTutorial();
+            
+            //Debug.Log("Turned on tut");
         }
     }
     public void chaos()
@@ -119,7 +126,8 @@ public class offhandHandler : MonoBehaviour
         if (curseFirst)
         {
             curseFirst = false;
-            curseTut.SetActive(true);
+            //curseTut.SetActive(true);
+            uiMan.openCurseTutorial();
         }
     }
     public void Defense()
@@ -151,7 +159,8 @@ public class offhandHandler : MonoBehaviour
         if (fireballFirst)
         {
             fireballFirst = false;
-            fireballTut.SetActive(true);
+            //fireballTut.SetActive(true);
+            uiMan.openFireballTut();
         }
 
     }
@@ -191,4 +200,9 @@ public class offhandHandler : MonoBehaviour
             wm.SwitchWeapon(0);
         }
     }
+    public void closeTut()
+    {
+        uiMan.closeTut();
+    }
+    
 }
