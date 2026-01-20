@@ -19,6 +19,9 @@ public class offhandHandler : MonoBehaviour
     public bool lightningFirst = false;
     public bool curseFirst = false;
     public bool fireballFirst = false;
+    public GameObject lightningTut;
+    public GameObject curseTut;
+    public GameObject fireballTut;
     private enum OffhandType { None, Lightning, Chaos, Defense, FireBomb }
     private OffhandType currentOffhandType = OffhandType.None;
     private OffhandType lastOffhandType = OffhandType.None;
@@ -97,6 +100,11 @@ public class offhandHandler : MonoBehaviour
             allOffhands[3].OnEquip(player);
         }
         currentOffhandType = OffhandType.Lightning;
+        if(lightningFirst)
+        {
+            lightningFirst = false;
+            lightningTut.SetActive(true);
+        }
     }
     public void chaos()
     {
@@ -108,6 +116,11 @@ public class offhandHandler : MonoBehaviour
         }
         curse.SetActive(true);
         currentOffhandType = OffhandType.Chaos;
+        if (curseFirst)
+        {
+            curseFirst = false;
+            curseTut.SetActive(true);
+        }
     }
     public void Defense()
     {
@@ -135,7 +148,11 @@ public class offhandHandler : MonoBehaviour
         }
         fireBall.SetActive(true);
         currentOffhandType = OffhandType.FireBomb;
-
+        if (fireballFirst)
+        {
+            fireballFirst = false;
+            fireballTut.SetActive(true);
+        }
 
     }
     public void increaseUpgradeStatus(int num)
