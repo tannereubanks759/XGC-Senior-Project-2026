@@ -16,6 +16,9 @@ public class offhandHandler : MonoBehaviour
     public GameObject lightningSkull;
     private chargeOffHandLatern chl;
     public GameObject chargeText;
+    public bool lightningFirst = false;
+    public bool curseFirst = false;
+    public bool fireballFirst = false;
     private enum OffhandType { None, Lightning, Chaos, Defense, FireBomb }
     private OffhandType currentOffhandType = OffhandType.None;
     private OffhandType lastOffhandType = OffhandType.None;
