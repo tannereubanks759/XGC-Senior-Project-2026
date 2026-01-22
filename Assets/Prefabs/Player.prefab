@@ -7147,7 +7147,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Lightning Generator
+  m_text: Fireball
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
   m_sharedMaterial: {fileID: 6855671223018784376, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
@@ -9387,7 +9387,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1207333133411315696}
   m_Layer: 5
-  m_Name: lightning
+  m_Name: fireball
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28524,7 +28524,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Lightning Generator
+  m_text: Curse
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
   m_sharedMaterial: {fileID: 6855671223018784376, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
@@ -31146,9 +31146,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "- Equip the lightning skull to gain chaining lightning.\n\n- Hitting enemies
-    builds Charge, increasing the skull\u2019s power.\n\n- Charge slowly decays if
-    you stop attacking.\n"
+  m_text: '- Press F to curse the enemy you are looking at.  (max 1 cursed enemy
+    at a time)
+
+
+    - When an enemy is cursed they take increased damage.
+
+
+    -
+    After a short time period the curse naturally expires.
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
   m_sharedMaterial: {fileID: 6855671223018784376, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
@@ -35593,6 +35601,7 @@ MonoBehaviour:
   lightTut: {fileID: 5775512469043043502}
   curseTut: {fileID: 1546426892406207368}
   fireballTut: {fileID: 9028227580859381266}
+  firstPersonController: {fileID: 2269966192252265701}
 --- !u!1 &3638877356003387192
 GameObject:
   m_ObjectHideFlags: 0
@@ -43550,7 +43559,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7041293006369594491}
   m_Layer: 5
-  m_Name: lightning
+  m_Name: curse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -43854,9 +43863,16 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "- Equip the lightning skull to gain chaining lightning.\n\n- Hitting enemies
-    builds Charge, increasing the skull\u2019s power.\n\n- Charge slowly decays if
-    you stop attacking.\n"
+  m_text: '- Press F to throw a fireball.
+
+
+    - You have two fireballs that recharge
+    over time.
+
+
+    - On impact the fireballs apply AoE damage.
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
   m_sharedMaterial: {fileID: 6855671223018784376, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
@@ -64210,8 +64226,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -111.02, y: 234.61002}
-  m_SizeDelta: {x: 307.4276, y: 75}
+  m_AnchoredPosition: {x: -30.2001, y: 234.61002}
+  m_SizeDelta: {x: 469.0674, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5224676749409916048
 CanvasRenderer:
@@ -64241,7 +64257,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Speciality: AoE'
+  m_text: 'Speciality: Ranged/AoE'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
   m_sharedMaterial: {fileID: 6855671223018784376, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
@@ -66199,8 +66215,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -111.02, y: 234.61002}
-  m_SizeDelta: {x: 307.4276, y: 75}
+  m_AnchoredPosition: {x: 42.798584, y: 234.61002}
+  m_SizeDelta: {x: 615.0646, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2209633509684247666
 CanvasRenderer:
@@ -66230,7 +66246,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Speciality: AoE'
+  m_text: 'Speciality: Single Target Damage'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}
   m_sharedMaterial: {fileID: 6855671223018784376, guid: 2a3de558aa8e9bc43bf1feaa3749e2d8, type: 2}

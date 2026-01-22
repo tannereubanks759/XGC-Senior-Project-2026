@@ -14,6 +14,7 @@ public class UImanager : MonoBehaviour
     public GameObject lightTut;
     public GameObject curseTut;
     public GameObject fireballTut;
+    public FirstPersonController firstPersonController;
     public bool ModalOpen { get; private set; }
 
     public void SetModal(bool open)
@@ -63,6 +64,8 @@ public class UImanager : MonoBehaviour
         SetModal(true);
         PreSetup(true, true);
         lightTut.SetActive(true);
+        firstPersonController.playerCanMove = false;
+        firstPersonController.cameraCanMove = false;
         
     }
     public void openCurseTutorial()
@@ -70,12 +73,16 @@ public class UImanager : MonoBehaviour
         SetModal(true);
         PreSetup(true, true);
         curseTut.SetActive(true);
+        firstPersonController.playerCanMove = false;
+        firstPersonController.cameraCanMove = false;
     }
     public void openFireballTut()
     {
         SetModal(true);
         PreSetup(true, true);
         fireballTut.SetActive(true);
+        firstPersonController.playerCanMove = false;
+        firstPersonController.cameraCanMove = false;
     }
     public void closeTut()
     {
@@ -84,7 +91,8 @@ public class UImanager : MonoBehaviour
         fireballTut.SetActive(false);
         SetModal(false);
         PreSetup(false, false);
-       
+        firstPersonController.playerCanMove = true;
+        firstPersonController.cameraCanMove = true;
         OpenPlayerUIScreen();
     }
     void PreSetup(bool hasCursor)
