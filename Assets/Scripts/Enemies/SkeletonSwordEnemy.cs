@@ -340,6 +340,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private void Update()
     {
+        if (!agent.enabled && !agent.isOnNavMesh) return;
         if (_state == State.Dead) return;
 
         AcquireTargetIfNeeded();
@@ -897,7 +898,11 @@ public class SkeletonSwordEnemy : MonoBehaviour
             Vector3 aroundDir = Quaternion.AngleAxis(65f * side, Vector3.up) * toMe.normalized;
             Vector3 desiredPos = target.position + aroundDir * Mathf.Clamp(dist, stopDistance, attackRange);
 
-            agent.SetDestination(desiredPos);
+            if (agent.isOnNavMesh)
+            {
+                agent.SetDestination(desiredPos);
+            }
+            
 
             timer += Time.deltaTime;
             yield return null;
@@ -913,6 +918,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private IEnumerator DefensiveLoop()
     {
+        if (!agent.enabled) yield break;
         if (!target)
         {
             SetState(startPatrolling ? State.Patrol : State.Idle);
@@ -947,7 +953,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
             if (NavMesh.SamplePosition(candidate, out NavMeshHit navHit, 1.5f, agent.areaMask))
             {
                 var path = new NavMeshPath();
-                if (agent.CalculatePath(navHit.position, path) && path.status == NavMeshPathStatus.PathComplete)
+                if (agent.isOnNavMesh && agent.CalculatePath(navHit.position, path) && path.status == NavMeshPathStatus.PathComplete)
                     agent.SetDestination(navHit.position);
             }
 

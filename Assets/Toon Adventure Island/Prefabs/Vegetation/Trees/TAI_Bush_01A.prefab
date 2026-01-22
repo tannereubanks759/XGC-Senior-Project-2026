@@ -10,8 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4970645220694891030}
   - component: {fileID: 4970645220715515640}
-  - component: {fileID: 4013920565183844169}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TAI_Bush_01A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,6 +24,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4970645220694984246}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -35,7 +35,6 @@ Transform:
   - {fileID: 4970645220694891736}
   - {fileID: 4970645220694891738}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!205 &4970645220715515640
 LODGroup:
@@ -68,19 +67,6 @@ LODGroup:
     renderers:
     - renderer: {fileID: 4970645220697184570}
   m_Enabled: 1
---- !u!65 &4013920565183844169
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4970645220694984246}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.62857294, y: 0.63687915, z: 0.6961553}
-  m_Center: {x: -0.009813368, y: 0.32842365, z: 0.014197588}
 --- !u!1 &4970645220694984900
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,7 +78,7 @@ GameObject:
   - component: {fileID: 4970645220694891300}
   - component: {fileID: 4970645220698315972}
   - component: {fileID: 4970645220697184516}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TAI_Bush_01A_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,13 +92,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4970645220694984900}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4970645220694891030}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4970645220698315972
 MeshFilter:
@@ -139,6 +125,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -175,7 +164,7 @@ GameObject:
   - component: {fileID: 4970645220694891302}
   - component: {fileID: 4970645220698315974}
   - component: {fileID: 4970645220697184518}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TAI_Bush_01A_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -189,13 +178,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4970645220694984902}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4970645220694891030}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4970645220698315974
 MeshFilter:
@@ -222,6 +211,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -258,7 +250,7 @@ GameObject:
   - component: {fileID: 4970645220694891736}
   - component: {fileID: 4970645220698316024}
   - component: {fileID: 4970645220697184568}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TAI_Bush_01A_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -272,13 +264,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4970645220694984952}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4970645220694891030}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4970645220698316024
 MeshFilter:
@@ -305,6 +297,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -341,7 +336,7 @@ GameObject:
   - component: {fileID: 4970645220694891738}
   - component: {fileID: 4970645220698316026}
   - component: {fileID: 4970645220697184570}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: TAI_Bush_01A_LOD3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -355,13 +350,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4970645220694984954}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4970645220694891030}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4970645220698316026
 MeshFilter:
@@ -388,6 +383,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

@@ -178,7 +178,6 @@ public class SlopeRepaint : MonoBehaviour
 #if UNITY_EDITOR
     private static string SaveAssetDialogDefault(string defaultName)
     {
-        var folder = "Assets";
         var path = EditorUtility.SaveFilePanelInProject(
             "Save Alphamap Backup Asset",
             defaultName,
