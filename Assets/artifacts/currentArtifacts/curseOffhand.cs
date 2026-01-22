@@ -54,7 +54,7 @@ public class curseOffhand : MonoBehaviour
             return;
         }
             //make sure two thingsd arent cursed at once
-        if (cursedEnemy != null || FindObjectOfType<PirateBossAI>()?.isCursed == true || FindObjectOfType<MagmaBossAI>()?.isCursed == true)
+        if (cursedEnemy != null || FindAnyObjectByType<PirateBossAI>()?.isCursed == true || FindAnyObjectByType<MagmaBossAI>()?.isCursed == true)
         {
             return;
         }
