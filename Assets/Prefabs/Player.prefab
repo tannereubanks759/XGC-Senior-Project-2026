@@ -62956,7 +62956,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3473563153703563755
 RectTransform:
   m_ObjectHideFlags: 0
@@ -72299,8 +72299,14 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 77ecc66f169eefd48819dbe835a044e4, type: 3}
   boneChips: {fileID: 6482988337023351770, guid: 8f590b1a747989f4dad7c2c470bcad3b, type: 3}
   ClashEffect: {fileID: 1671413859314177194, guid: b7cf8280539e8c64188802749839c80d, type: 3}
+  chainRadius: 3.5
+  chainDamageMultiplier: 0.2
+  lightningBoltPrefab: {fileID: 222523385688736188, guid: 312873be285086d4db0c8f29e38dc408, type: 3}
+  swordDamage: {fileID: 8260418663489568274}
   col: {fileID: 3651523959833766474}
   damage: 10
+  charge: {fileID: 7072011364156543277}
+  chargePerHit: 10
 --- !u!54 &414781114502182563
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -77881,7 +77887,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &9023682667974105788
 RectTransform:
   m_ObjectHideFlags: 0
