@@ -10,7 +10,6 @@ public class WeaponsManager : MonoBehaviour
     private int currentWeapon = 0;
     public GameObject[] weapons;
     private GameObject[] weaponIcons;
-    private GameObject Crosshair;
     public GameObject lamp;
     public GameObject healthPotion;
     public bool healing = false;
@@ -25,8 +24,6 @@ public class WeaponsManager : MonoBehaviour
         weaponIcons = GameObject.FindGameObjectsWithTag("WeaponIcon");
         //Array.Reverse(weaponIcons);
         InitializeWeapons();
-        Crosshair = GameObject.FindGameObjectWithTag("crosshair");
-        EnableCrosshair(false);
         if (explosionFire)
         {
             explosionFire.SetActive(false);
@@ -82,10 +79,6 @@ public class WeaponsManager : MonoBehaviour
                 SwitchWeapon(1);
             }
 
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                EnableCrosshair(!Crosshair.activeSelf);
-            }
 
             if (Input.GetKeyDown(KeyCode.Alpha0))
             {
@@ -219,9 +212,5 @@ public class WeaponsManager : MonoBehaviour
         icon.gameObject.transform.localScale = Vector3.one / 2;
     }
 
-    void EnableCrosshair(bool enabled)
-    {
-        Crosshair.SetActive(enabled);
-    }
     
 }
