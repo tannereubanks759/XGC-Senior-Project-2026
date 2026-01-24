@@ -61,6 +61,9 @@ public class KrakenTentacle : MonoBehaviour
     private float nextAttackAllowedTime = 0f;
     private float dropElapsed = 0f;
 
+    // NEW: the XZ to keep fixed for the entire drop
+    private Vector2 dropLockedXZ;
+
     void Start()
     {
         originXZ = transform.position;
@@ -122,14 +125,10 @@ public class KrakenTentacle : MonoBehaviour
         {
             dropElapsed += Time.deltaTime;
 
-            Vector3 dropPos = player.position + Vector3.up * dropToHeight;
-            if (!matchPlayerXZ)
-            {
-                // straight vertical stab from current XZ
-                dropPos.x = transform.position.x;
-                dropPos.z = transform.position.z;
-            }
+            // IMPORTANT: X/Z are locked when the drop begins, only Y changes now.
+            float targetY = player.position.y + dropToHeight;
 
+            Vector3 dropPos = new Vector3(dropLockedXZ.x, targetY, dropLockedXZ.y);
             MoveTargetTowards(dropPos, dropSpeed);
 
             // Safety timeout: if no collision happens, recover
@@ -191,6 +190,9 @@ public class KrakenTentacle : MonoBehaviour
     {
         isDropping = true;
         dropElapsed = 0f;
+
+        // NEW: lock the current X/Z so the drop is vertical
+        dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
 
         // don’t reroll while actively dropping
         dropCountdown = Mathf.Infinity;

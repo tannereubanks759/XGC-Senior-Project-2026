@@ -72,6 +72,22 @@ public class offhandHandler : MonoBehaviour
         
 
     }
+    public void unequip_Safe()
+    {
+        
+        fireBall.SetActive(false);
+        lightningSkull.SetActive(false);    
+        curse.SetActive(false);
+        chargeText.SetActive(false);
+        currentOffhand = null;
+        /*foreach (ItemData item in allOffhands)
+        {
+            if (item != null && player!= null)
+                item.OnUnEquip(player);
+        }*/
+        
+
+    }
     public void lightning()
     {
         

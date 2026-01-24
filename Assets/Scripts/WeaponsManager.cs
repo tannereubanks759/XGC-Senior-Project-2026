@@ -16,6 +16,7 @@ public class WeaponsManager : MonoBehaviour
     public bool isPaused;
     public GameObject explosionFire;
     public GameObject invulnerabilityFire;
+    public Transform MainCameraTransform;
     private offhandHandler offhandHandle;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -42,8 +43,13 @@ public class WeaponsManager : MonoBehaviour
     {
         if (isPaused) return;
 
-        if(healing == false)
+        if(healing == false && MainCameraTransform.transform.position.y >= 0f)
         {
+            if (weapons[currentWeapon].activeSelf == false)
+            {
+                weapons[currentWeapon].SetActive(true);
+            }
+
             float scroll = Input.GetAxis("Mouse ScrollWheel");
             if (scroll > 0)
             { //mouse wheel up
@@ -84,6 +90,11 @@ public class WeaponsManager : MonoBehaviour
             {
                 swapLantern();      
             }
+        }
+        else if(MainCameraTransform.position.y < 0f && weapons[currentWeapon].activeSelf == true)
+        {
+            weapons[currentWeapon].SetActive(false);
+            offhandHandle.unequip_Safe();
         }
     }
     public void swapLantern()
@@ -178,7 +189,7 @@ public class WeaponsManager : MonoBehaviour
         weapons[weaponSlot].SetActive(true);
         if (weapons[weaponSlot].GetComponent<Blunderbuss>())
         {
-            offhandHandle.unequip();
+            offhandHandle.unequip_Safe();
         }
         /*if (weaponIcons.Length > 0)
         {

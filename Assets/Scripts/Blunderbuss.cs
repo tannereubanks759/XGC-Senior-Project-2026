@@ -105,7 +105,7 @@ public class Blunderbuss : MonoBehaviour
 
         // ⚠ Using width/2 is usually better than anchoredPosition.x
         // Keep your original if that’s intentional:
-        bulletRadius = ret.GetComponent<RectTransform>().anchoredPosition.x;
+        bulletRadius = 50f;
         
         // Group by damageable component (prevents multi-collider dupes)
         var skullHits = new Dictionary<FloatingSkullAI, int>();
