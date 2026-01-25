@@ -1,8 +1,10 @@
 ﻿// CHANGE LOG
-// 
+//
 // CHANGES || version VERSION
 //
 // "Enable/Disable Headbob, Changed look rotations - should result in reduced camera jitters" || version 1.0.1
+//
+// Sprint system replaced with Slider-based stamina + sprint lock until 50% regen || version 1.0.2
 
 using System.Collections;
 using System.Collections.Generic;
@@ -11,11 +13,9 @@ using UnityEngine.UI;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 
-
-
 #if UNITY_EDITOR
 using UnityEditor;
-    using System.Net;
+using System.Net;
 #endif
 
 public class FirstPersonController : MonoBehaviour
@@ -46,7 +46,6 @@ public class FirstPersonController : MonoBehaviour
     public CombatController healthSystem;
 
     public float speed { get; private set; }
-
 
     private Rigidbody rb;
 
@@ -96,42 +95,55 @@ public class FirstPersonController : MonoBehaviour
     public bool preserveAirMomentum = true;
     public float airAcceleration = 2.5f;  // small accel toward input while airborne
     public float airMaxVelocityChange = 1.5f; // cap per FixedUpdate in air
-                                              // Cache input each frame so Update drives UI and FixedUpdate drives physics
+    // Cache input each frame so Update drives UI and FixedUpdate drives physics
     private Vector3 cachedInput;
     private bool cachedHasInput;
-
-
 
     // Internal Variables
     private bool isWalking = false;
 
-    #region Sprint
+    #region Sprint (Slider-based Stamina)
 
+    [Header("Sprint / Stamina (Slider)")]
     public bool enableSprint = true;
     public bool unlimitedSprint = false;
     public KeyCode sprintKey = KeyCode.LeftShift;
     public float sprintSpeed = 7f;
-    public float sprintDuration = 5f;
-    public float sprintCooldown = .5f;
+
+    [Tooltip("Max stamina (think of this as 'seconds' of sprint if drain rate is 1).")]
+    public float maxStamina = 5f;
+
+    [Tooltip("Stamina drained per second while sprinting.")]
+    public float staminaDrainPerSecond = 1f;
+
+    [Tooltip("Stamina regenerated per second while NOT sprinting.")]
+    public float staminaRegenPerSecond = 1f;
+
+    [Tooltip("Optional delay after any stamina use (sprint or LoseStamina) before regen starts.")]
+    public float regenDelay = 0.15f;
+
+    [Tooltip("If stamina hits 0, player must regen to this % of max before sprint is allowed again.")]
+    [Range(0f, 1f)]
+    public float sprintUnlockPercent = 0.5f;
+
     public float sprintFOV = 80f;
     public float sprintFOVStepTime = 10f;
 
-    // Sprint Bar
-    public bool useSprintBar = true;
-    public bool hideBarWhenFull = true;
-    public Image sprintBarBG;
-    public Image sprintBar;
-    public float sprintBarWidthPercent = .3f;
-    public float sprintBarHeightPercent = .015f;
+    [Header("Stamina UI")]
+    [Tooltip("Assign your Canvas Slider here.")]
+    public Slider staminaSlider;
 
-    // Internal Variables
-    private CanvasGroup sprintBarCG;
+    [Tooltip("Optional root GameObject to hide/show (if null, uses the slider GameObject).")]
+    public GameObject staminaUIRoot;
+
+    [Tooltip("Hide the stamina UI when full.")]
+    public bool hideUIWhenFull = true;
+
+    // Internal
     private bool isSprinting = false;
-    private float sprintRemaining;
-    private float sprintBarWidth;
-    private float sprintBarHeight;
-    private bool isSprintCooldown = false;
-    private float sprintCooldownReset;
+    public float stamina;
+    private bool sprintLocked = false;
+    private float lastStaminaUseTime = -999f;
 
     #endregion
 
@@ -174,7 +186,6 @@ public class FirstPersonController : MonoBehaviour
     private Vector3 jointOriginalPos;
     private float timer = 0;
 
-
     public static bool isPaused = false;
 
     // --- Slope Limit ---
@@ -201,19 +212,15 @@ public class FirstPersonController : MonoBehaviour
     [Header("Fall Damage")]
     public bool enableFallDamage = true;
 
-    // No damage until you fall farther than this (meters)
     [Tooltip("No damage until you fall farther than this (meters).")]
     public float minFallHeight = 3.0f;
 
-    // At/above this height the hit is lethal (set high if you don't want one-shot)
     [Tooltip("At/above this height the impact is lethal.")]
     public float lethalFallHeight = 18f;
 
-    // How much damage per meter beyond the safe threshold
     [Tooltip("Linear damage beyond minFallHeight (damage per extra meter).")]
     public int damagePerExtraMeter = 10;
 
-    // Reduce damage when landing crouched (0.2 = 20% less damage)
     [Range(0f, 1f)]
     public float crouchDamageReduction = 0.2f;
 
@@ -238,7 +245,6 @@ public class FirstPersonController : MonoBehaviour
     private bool isOnLadder = false;
     private Transform currentLadder = null;
 
-
     #endregion
 
     private void Awake()
@@ -253,39 +259,27 @@ public class FirstPersonController : MonoBehaviour
         originalScale = transform.localScale;
         jointOriginalPos = joint.localPosition;
 
-        // In Awake()
-        if (!unlimitedSprint)
-        {
-            sprintRemaining = sprintDuration;
-            sprintCooldownReset = sprintCooldown;
-        }
-        else
-        {
-            // Make sure the gating checks don't block sprint
-            sprintRemaining = sprintDuration;   // harmless placeholder
-            sprintCooldownReset = 0f;
-            isSprintCooldown = false;
-        }
-
+        // Stamina init
+        stamina = Mathf.Max(0.01f, maxStamina);
     }
+
     private void SceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if(this.gameObject != null)
+        if (this.gameObject != null)
         {
             loadingScreen.SetActive(false);
         }
-        
     }
+
     void Start()
     {
         DontDestroyOnLoad(gameObject);
         loadingScreen.SetActive(false);
-        if(lockCursor)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
 
-        if(crosshair)
+        if (lockCursor)
+            Cursor.lockState = CursorLockMode.Locked;
+
+        if (crosshair)
         {
             crosshairObject.sprite = crosshairImage;
             crosshairObject.color = crosshairColor;
@@ -294,76 +288,40 @@ public class FirstPersonController : MonoBehaviour
         {
             crosshairObject.gameObject.SetActive(false);
         }
+
         GameObject waterObject = GameObject.FindGameObjectWithTag("Water");
-        if (waterObject != null)
+        if (waterObject != null) waterSurface = waterObject.gameObject.transform;
+        else waterSurface = this.gameObject.transform;
+
+        // Stamina UI init
+        if (staminaUIRoot == null && staminaSlider != null)
+            staminaUIRoot = staminaSlider.gameObject;
+
+        if (staminaSlider != null)
         {
-            waterSurface = waterObject.gameObject.transform;
+            staminaSlider.minValue = 0f;
+            staminaSlider.maxValue = maxStamina;
+            staminaSlider.value = stamina;
         }
-        else
-        {
-            waterSurface = this.gameObject.transform;
-        }
-
-
-            #region Sprint Bar
-
-            sprintBarCG = GetComponentInChildren<CanvasGroup>();
-
-        if(useSprintBar)
-        {
-            sprintBarBG.gameObject.SetActive(true);
-            sprintBar.gameObject.SetActive(true);
-
-            float screenWidth = Screen.width;
-            float screenHeight = Screen.height;
-
-            sprintBarWidth = screenWidth * sprintBarWidthPercent;
-            sprintBarHeight = screenHeight * sprintBarHeightPercent;
-
-            sprintBarBG.rectTransform.sizeDelta = new Vector3(sprintBarWidth, sprintBarHeight, 0f);
-            sprintBar.rectTransform.sizeDelta = new Vector3(sprintBarWidth - 2, sprintBarHeight - 2, 0f);
-
-            if(hideBarWhenFull)
-            {
-                sprintBarCG.alpha = 0;
-            }
-        }
-        else
-        {
-            sprintBarBG.gameObject.SetActive(false);
-            sprintBar.gameObject.SetActive(false);
-        }
-
-        #endregion
+        UpdateStaminaUI();
 
         healthSystem = GetComponentInChildren<CombatController>();
     }
 
     float camRotation;
 
-
-
     private void Update()
     {
-
         #region Camera
         if (isPaused) return;
-        // Control camera movement
-        if(cameraCanMove)
+
+        if (cameraCanMove)
         {
             yaw = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * mouseSensitivity;
 
-            if (!invertCamera)
-            {
-                pitch -= mouseSensitivity * Input.GetAxis("Mouse Y");
-            }
-            else
-            {
-                // Inverted Y
-                pitch += mouseSensitivity * Input.GetAxis("Mouse Y");
-            }
+            if (!invertCamera) pitch -= mouseSensitivity * Input.GetAxis("Mouse Y");
+            else pitch += mouseSensitivity * Input.GetAxis("Mouse Y");
 
-            // Clamp pitch between lookAngle
             pitch = Mathf.Clamp(pitch, -maxLookAngle, maxLookAngle);
 
             transform.localEulerAngles = new Vector3(0, yaw, 0);
@@ -371,139 +329,38 @@ public class FirstPersonController : MonoBehaviour
         }
 
         #region Camera Zoom
-
         if (enableZoom)
         {
-            // Changes isZoomed when key is pressed
-            // Behavior for toogle zoom
-            if(Input.GetKeyDown(zoomKey) && !holdToZoom && !isSprinting)
+            if (Input.GetKeyDown(zoomKey) && !holdToZoom && !isSprinting)
+                isZoomed = !isZoomed;
+
+            if (holdToZoom && !isSprinting)
             {
-                if (!isZoomed)
-                {
-                    isZoomed = true;
-                }
-                else
-                {
-                    isZoomed = false;
-                }
+                if (Input.GetKeyDown(zoomKey)) isZoomed = true;
+                else if (Input.GetKeyUp(zoomKey)) isZoomed = false;
             }
 
-            // Changes isZoomed when key is pressed
-            // Behavior for hold to zoom
-            if(holdToZoom && !isSprinting)
-            {
-                if(Input.GetKeyDown(zoomKey))
-                {
-                    isZoomed = true;
-                }
-                else if(Input.GetKeyUp(zoomKey))
-                {
-                    isZoomed = false;
-                }
-            }
-
-            // Lerps camera.fieldOfView to allow for a smooth transistion
-            if(isZoomed)
-            {
+            if (isZoomed)
                 playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, zoomFOV, zoomStepTime * Time.deltaTime);
-            }
-            else if(!isZoomed && !isSprinting)
-            {
+            else if (!isZoomed && !isSprinting)
                 playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, fov, zoomStepTime * Time.deltaTime);
-            }
         }
-
         #endregion
         #endregion
 
-        #region Sprint
         // Cache input for both UI logic and physics step
         cachedInput = new Vector3(Input.GetAxisRaw("Horizontal"), 0f, Input.GetAxis("Vertical"));
         cachedHasInput = cachedInput.sqrMagnitude > 0.0001f;
 
-        #region Sprint
-        if (enableSprint)
-        {
-            // Decide sprint state here so FOV/UI respond immediately
-            bool wantsSprint =
-    enableSprint &&
-    Input.GetKey(sprintKey) &&
-    cachedHasInput &&
-    !isSprintCooldown &&
-    (unlimitedSprint || sprintRemaining > 0f);
-
-            isSprinting = wantsSprint;
-
-            if (isSprinting)
-            {
-                // FOV while sprinting
-                isZoomed = false;
-                playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, sprintFOV, sprintFOVStepTime * Time.deltaTime);
-
-                // Drain sprint time
-                if (!unlimitedSprint)
-                {
-                    sprintRemaining -= 1f * Time.deltaTime;
-                    if (sprintRemaining <= 0f)
-                    {
-                        isSprinting = false;
-                        isSprintCooldown = true;
-                    }
-                }
-
-                // Fade bar in while actually moving, if requested
-                if (useSprintBar && hideBarWhenFull)
-                    sprintBarCG.alpha = Mathf.Min(1f, sprintBarCG.alpha + 5f * Time.deltaTime);
-            }
-            else
-            {
-                // Not sprinting: lerp back to base FOV (unless zoom is active)
-                if (!isZoomed)
-                    playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, fov, sprintFOVStepTime * Time.deltaTime);
-
-                // Regain sprint over time
-                if (!unlimitedSprint)
-                    sprintRemaining = Mathf.Clamp(sprintRemaining + 1f * Time.deltaTime, 0f, sprintDuration);
-
-                // Handle cooldown
-                if (isSprintCooldown)
-                {
-                    sprintCooldown -= 1f * Time.deltaTime;
-                    if (sprintCooldown <= 0f) isSprintCooldown = false;
-                }
-                else
-                {
-                    sprintCooldown = sprintCooldownReset;
-                }
-
-                // Fade bar out when fully recharged
-                if (useSprintBar && hideBarWhenFull && sprintRemaining >= sprintDuration - 0.0001f)
-                    sprintBarCG.alpha = Mathf.Max(0f, sprintBarCG.alpha - 3f * Time.deltaTime);
-            }
-
-            // Keep your existing sprint bar fill scaling
-            if (useSprintBar && !unlimitedSprint)
-            {
-                float sprintRemainingPercent = sprintRemaining / sprintDuration;
-                sprintBar.transform.localScale = new Vector3(sprintRemainingPercent, 1f, 1f);
-            }
-        }
-        #endregion
-
-
+        #region Sprint (New Slider Stamina)
+        HandleSprintAndStamina();
         #endregion
 
         #region Jump
-
-        // Gets input and calls jump method
-        // Disable jump while swimming (Space is used to ascend)
-        // Jump: swim uses Space for up; ladder uses jump to dismount
-        // Jump: swim uses Space for up; ladder uses jump to dismount upward a bit
         if (enableJump && Input.GetKeyDown(jumpKey))
         {
             if (isOnLadder)
             {
-                // small upward pop; no horizontal push
                 rb.AddForce(Vector3.up * ladderJumpUpImpulse, ForceMode.Impulse);
                 EndLadder();
             }
@@ -511,115 +368,180 @@ public class FirstPersonController : MonoBehaviour
             {
                 Jump();
             }
-
         }
-
-
-
-
         #endregion
 
         #region Crouch
-
         if (enableCrouch)
         {
-            if(Input.GetKeyDown(crouchKey) && !holdToCrouch)
+            if (Input.GetKeyDown(crouchKey) && !holdToCrouch)
             {
                 Crouch();
             }
-            
-            if(Input.GetKeyDown(crouchKey) && holdToCrouch)
+
+            if (Input.GetKeyDown(crouchKey) && holdToCrouch)
             {
                 isCrouched = false;
                 Crouch();
             }
-            else if(Input.GetKeyUp(crouchKey) && holdToCrouch)
+            else if (Input.GetKeyUp(crouchKey) && holdToCrouch)
             {
                 isCrouched = true;
                 Crouch();
             }
         }
-
         #endregion
 
         CheckGround();
         HandleFallDamage();
 
         if (enableHeadBob && !isSwimming)
-        {
             HeadBob();
-        }
-        isWalking = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).sqrMagnitude > 0.01f;
 
+        isWalking = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z).sqrMagnitude > 0.01f;
+    }
+
+    private void HandleSprintAndStamina()
+    {
+        if (!enableSprint)
+        {
+            isSprinting = false;
+            return;
+        }
+
+        // Unlock sprint once stamina reaches threshold after depletion
+        if (!unlimitedSprint && sprintLocked && stamina >= maxStamina * sprintUnlockPercent)
+            sprintLocked = false;
+
+        bool wantsSprint =
+            Input.GetKey(sprintKey) &&
+            cachedHasInput &&
+            !sprintLocked &&
+            (unlimitedSprint || stamina > 0.0001f);
+
+        isSprinting = wantsSprint;
+
+        if (isSprinting)
+        {
+            // Sprint FOV
+            isZoomed = false;
+            playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, sprintFOV, sprintFOVStepTime * Time.deltaTime);
+
+            // Drain stamina
+            if (!unlimitedSprint)
+            {
+                stamina -= staminaDrainPerSecond * Time.deltaTime;
+                lastStaminaUseTime = Time.time;
+
+                if (stamina <= 0f)
+                {
+                    stamina = 0f;
+                    isSprinting = false;
+                    sprintLocked = true; // lock until we regen to unlock percent
+                }
+            }
+        }
+        else
+        {
+            // Return FOV to normal (unless zoom is active)
+            if (!isZoomed)
+                playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, fov, sprintFOVStepTime * Time.deltaTime);
+
+            // Regen stamina (after delay)
+            if (!unlimitedSprint)
+            {
+                if (Time.time >= lastStaminaUseTime + regenDelay)
+                    stamina = Mathf.Clamp(stamina + staminaRegenPerSecond * Time.deltaTime, 0f, maxStamina);
+            }
+        }
+
+        UpdateStaminaUI();
+    }
+
+    private void UpdateStaminaUI()
+    {
+        if (unlimitedSprint)
+        {
+            if (staminaSlider != null) staminaSlider.value = maxStamina;
+            if (staminaUIRoot != null && hideUIWhenFull) staminaUIRoot.SetActive(false);
+            return;
+        }
+
+        if (staminaSlider != null)
+        {
+            // Keep max synced if you tweak in inspector at runtime
+            staminaSlider.maxValue = Mathf.Max(0.01f, maxStamina);
+            staminaSlider.value = stamina;
+        }
+
+        if (staminaUIRoot != null)
+        {
+            if (hideUIWhenFull)
+                staminaUIRoot.SetActive(stamina < maxStamina - 0.0001f);
+            else
+                staminaUIRoot.SetActive(true);
+        }
+    }
+
+    /// <summary>
+    /// Call this from attacks/abilities/etc. Amount is in the same units as stamina (by default: "seconds" worth).
+    /// Example: LoseStamina(1.25f) removes 1.25 stamina.
+    /// If stamina hits 0, sprint locks until stamina regenerates to sprintUnlockPercent.
+    /// </summary>
+    public void LoseStamina(float amount)
+    {
+        if (unlimitedSprint) return;
+        if (amount <= 0f) return;
+
+        stamina = Mathf.Max(0f, stamina - amount);
+        lastStaminaUseTime = Time.time;
+
+        if (stamina <= 0f)
+            sprintLocked = true;
+
+        UpdateStaminaUI();
     }
 
     void FixedUpdate()
     {
         if (isPaused) return;
         if (!playerCanMove) return;
+
         // --- LADDER MOVEMENT ---
-        // --- LADDER MOVEMENT (MC-style: no position nudges, no XZ meddling) ---
         if (enableLadders && isOnLadder && currentLadder != null)
         {
-            // Use cached WASD
             float v = cachedInput.z; // W/S
             Vector3 vel1 = rb.linearVelocity;
 
-            // 1) Up/down:
-            //    - Holding W => climb up at constant speed
-            //    - Holding S => climb down at constant speed
-            //    - Idle => slide down slowly, but don't exceed -ladderIdleSlideSpeed
-            if (v > 0.01f)
-            {
-                vel1.y = ladderClimbSpeed;
-            }
-            else if (v < -0.01f)
-            {
-                vel1.y = -ladderClimbSpeed;
-            }
+            if (v > 0.01f) vel1.y = ladderClimbSpeed;
+            else if (v < -0.01f) vel1.y = -ladderClimbSpeed;
             else
             {
-                // Let gravity act but clamp maximum downward slide
                 if (vel1.y < -ladderIdleSlideSpeed)
                     vel1.y = -ladderIdleSlideSpeed;
-                // If gravity is strong and pushes us up (rare), allow it—no teleporting or snapping.
             }
 
-            // 2) Leave X/Z completely alone so player can walk into/within the collider naturally
-            //    (No projecting, no removing components, no sticking.)
-
             rb.linearVelocity = vel1;
-
-            // Do NOT return unless you want to fully block other movement.
-            // We only set Y; letting your ground/air code run could fight it.
-            // So we stop here to avoid conflicts:
             return;
         }
 
-
-
-        // --- SWIMMING (camera-relative; Space up, Q down) ---
+        // --- SWIMMING ---
         if (isSwimming && enableSwimming)
         {
             float camY = playerCamera.transform.position.y;
-            // Determine the current water surface height
+
             float waterY = !float.IsNaN(currentWaterSurfaceY)
                 ? currentWaterSurfaceY
-                : (waterSurface != null ? waterSurface.position.y : transform.position.y + 99999f); // fallback if not set
+                : (waterSurface != null ? waterSurface.position.y : transform.position.y + 99999f);
 
-            // If the CAMERA is above the water surface, gently push the player down until submerged.
-            // Allow Space to override (player intentionally swimming up).
             if (playerCamera != null)
             {
-                
                 if (camY > waterY - submergeOffset && !Input.GetKey(swimUpKey))
                 {
-                    // Apply downward acceleration (acts like gravity in water until your head goes under)
                     rb.AddForce(Vector3.down * sinkAcceleration, ForceMode.Acceleration);
                 }
             }
 
-            // --- your existing swim forces (camera-relative WASD + Space/Q) continue here ---
             Transform camT = playerCamera != null ? playerCamera.transform : transform;
             float h = cachedInput.x;
             float v = cachedInput.z;
@@ -630,36 +552,26 @@ public class FirstPersonController : MonoBehaviour
             Vector3 horiz = (right * h + fwd * v);
             if (horiz.sqrMagnitude > 1f) horiz.Normalize();
 
-            // --- Vertical input (with surface clamp) ---
             float upInput = 0f;
-            //float camY = playerCamera.transform.position.y;
             float surfaceY = currentWaterSurfaceY;
             if (waterSurface != null) surfaceY = waterSurface.position.y;
 
-            // Allow rising only if camera is still below surface
-            if (Input.GetKey(swimUpKey) && camY < surfaceY - submergeOffset)
-            {
-                upInput += 1f;
-            }
-
-            // Descend always works
-            if (Input.GetKey(swimDownKey))
-            {
-                upInput -= 1f;
-            }
+            if (Input.GetKey(swimUpKey) && camY < surfaceY - submergeOffset) upInput += 1f;
+            if (Input.GetKey(swimDownKey)) upInput -= 1f;
 
             Vector3 vert = camT.up * upInput;
 
-
             Vector3 swimAccel = horiz * swimSpeed + vert * swimUpForce;
-            if (enableSprint && Input.GetKey(sprintKey)) swimAccel *= 1.15f;
+
+            // Optional: sprint boost in water uses same gating as sprint availability
+            bool canBoost = enableSprint && Input.GetKey(sprintKey) && !sprintLocked && (unlimitedSprint || stamina > 0.0001f);
+            if (canBoost) swimAccel *= 1.15f;
 
             rb.AddForce(swimAccel, ForceMode.Acceleration);
             return;
         }
 
-
-        // --- LAND/AIR MOVEMENT (exact same logic you used before) ---
+        // --- LAND/AIR MOVEMENT ---
         Vector3 wishDir = transform.TransformDirection(cachedInput).normalized;
         bool hasInput = cachedHasInput;
 
@@ -670,47 +582,37 @@ public class FirstPersonController : MonoBehaviour
 
         if (isGrounded)
         {
-            // Instant stop when no input -> zero out along-surface velocity, keep vertical
             if (!hasInput)
             {
-                // Remove velocity along the ground plane (but keep the normal component)
                 Vector3 v = rb.linearVelocity;
                 Vector3 vAlong = Vector3.ProjectOnPlane(v, groundNormal);
-                rb.linearVelocity = v - vAlong; // leaves only the component along groundNormal
-                                                // Optional: small slide if standing on steep slope
+                rb.linearVelocity = v - vAlong;
+
                 if (OnSteepSlope && slideOnSteep)
                 {
                     Vector3 uphill = Vector3.ProjectOnPlane(Vector3.up, groundNormal).normalized;
                     Vector3 downslope = -uphill;
                     Vector3 slide = downslope * slideGravity * Time.fixedDeltaTime;
                     rb.AddForce(slide, ForceMode.VelocityChange);
-                    // simple friction against slide
                     rb.linearVelocity *= (1f - slideFriction * Time.fixedDeltaTime);
                 }
                 return;
             }
 
-            // --- Slope-aware desired direction ---
-            // Start with input in world space
             Vector3 moveDirWorld = transform.TransformDirection(cachedInput).normalized;
-
-            // Project desired motion onto the ground plane so we 'stick' to the surface
             Vector3 alongSurface = Vector3.ProjectOnPlane(moveDirWorld, groundNormal).normalized;
 
-            // If slope limit is exceeded, block uphill component (prevent walking up)
             if (OnSteepSlope)
             {
-                Vector3 uphill = Vector3.ProjectOnPlane(Vector3.up, groundNormal).normalized;   // steepest uphill
+                Vector3 uphill = Vector3.ProjectOnPlane(Vector3.up, groundNormal).normalized;
                 float uphillComp = Vector3.Dot(alongSurface, uphill);
                 if (uphillComp > 0f)
                 {
-                    // remove uphill component; leave sideways/downhill motion
                     alongSurface -= uphill * uphillComp;
                     if (alongSurface.sqrMagnitude > 1e-4f) alongSurface.Normalize();
                     else alongSurface = Vector3.zero;
                 }
 
-                // Optional slide down when on steep slope
                 if (slideOnSteep)
                 {
                     Vector3 downslope = -uphill;
@@ -720,31 +622,19 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
 
-            // Target velocity along the ground plane (respecting slope)
             Vector3 targetVelAlong = alongSurface * targetSpeed;
-
-            // Current velocity along the ground plane
             Vector3 velAlong = Vector3.ProjectOnPlane(rb.linearVelocity, groundNormal);
-
-            // Delta we want to apply (also along plane)
             Vector3 delta = targetVelAlong - velAlong;
 
-            // Clamp the "impulse" magnitude per tick (VelocityChange is in m/s)
             if (delta.sqrMagnitude > 0f)
             {
-                // Clamp by your maxVelocityChange but along the surface
                 delta = Vector3.ClampMagnitude(delta, maxVelocityChange);
-
-                // Ensure we're not adding any component into the ground
                 delta = Vector3.ProjectOnPlane(delta, groundNormal);
-
                 rb.AddForce(delta, ForceMode.VelocityChange);
             }
         }
-
         else
         {
-            // Airborne: preserve momentum when no input; gentle steer when there is
             if (!(preserveAirMomentum && !hasInput))
             {
                 Vector3 targetVelH = wishDir * Mathf.Min(targetSpeed, velH.magnitude + airAcceleration);
@@ -754,11 +644,6 @@ public class FirstPersonController : MonoBehaviour
             }
         }
     }
-
-
-
-
-
 
     private float groundedBufferUntil; // coyote time
     [SerializeField] float groundedSkin = 0.05f;
@@ -773,12 +658,11 @@ public class FirstPersonController : MonoBehaviour
         Vector3 origin = center + Vector3.up * 0.02f;
         float castDist = (col.height * 0.5f) - radius + groundedSkin;
 
-
         RaycastHit hit;
         bool didHit = Physics.SphereCast(origin, radius, Vector3.down, out hit, castDist, ~0, QueryTriggerInteraction.Ignore);
 
-        RawGrounded = didHit;                // <-- NEW
-        GroundHitThisFrame = didHit;         // <-- NEW
+        RawGrounded = didHit;
+        GroundHitThisFrame = didHit;
 
         if (didHit)
         {
@@ -790,83 +674,62 @@ public class FirstPersonController : MonoBehaviour
         }
         else
         {
-            // buffered grounded but NOT valid for jumping
             isGrounded = Time.time < groundedBufferUntil;
         }
     }
 
-
-
-
-
     private void Jump()
     {
-        // Adds force to the player rigidbody to jump
         if (isGrounded)
         {
             rb.AddForce(0f, jumpPower, 0f, ForceMode.Impulse);
             isGrounded = false;
         }
 
-        // When crouched and using toggle system, will uncrouch for a jump
-        if(isCrouched && !holdToCrouch)
-        {
+        if (isCrouched && !holdToCrouch)
             Crouch();
-        }
     }
 
     private void Crouch()
     {
-        // Stands player up to full height
-        // Brings walkSpeed back up to original speed
-        if(isCrouched)
+        if (isCrouched)
         {
             transform.localScale = new Vector3(originalScale.x, originalScale.y, originalScale.z);
             walkSpeed /= speedReduction;
-
             isCrouched = false;
         }
-        // Crouches player down to set height
-        // Reduces walkSpeed
         else
         {
             transform.localScale = new Vector3(originalScale.x, crouchHeight, originalScale.z);
             walkSpeed *= speedReduction;
-
             isCrouched = true;
         }
     }
 
     private void HeadBob()
     {
-        if(isWalking)
+        if (isWalking)
         {
-            // Calculates HeadBob speed during sprint
-            if(isSprinting)
-            {
-                timer += Time.deltaTime * (bobSpeed + sprintSpeed);
-            }
-            // Calculates HeadBob speed during crouched movement
-            else if (isCrouched)
-            {
-                timer += Time.deltaTime * (bobSpeed * speedReduction);
-            }
-            // Calculates HeadBob speed during walking
-            else
-            {
-                timer += Time.deltaTime * bobSpeed;
-            }
-            // Applies HeadBob movement
-            joint.localPosition = new Vector3(jointOriginalPos.x + Mathf.Sin(timer) * bobAmount.x, jointOriginalPos.y + Mathf.Sin(timer) * bobAmount.y, jointOriginalPos.z + Mathf.Sin(timer) * bobAmount.z);
+            if (isSprinting) timer += Time.deltaTime * (bobSpeed + sprintSpeed);
+            else if (isCrouched) timer += Time.deltaTime * (bobSpeed * speedReduction);
+            else timer += Time.deltaTime * bobSpeed;
+
+            joint.localPosition = new Vector3(
+                jointOriginalPos.x + Mathf.Sin(timer) * bobAmount.x,
+                jointOriginalPos.y + Mathf.Sin(timer) * bobAmount.y,
+                jointOriginalPos.z + Mathf.Sin(timer) * bobAmount.z
+            );
         }
         else
         {
-            // Resets when play stops moving
             timer = 0;
-            joint.localPosition = new Vector3(Mathf.Lerp(joint.localPosition.x, jointOriginalPos.x, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.y, jointOriginalPos.y, Time.deltaTime * bobSpeed), Mathf.Lerp(joint.localPosition.z, jointOriginalPos.z, Time.deltaTime * bobSpeed));
+            joint.localPosition = new Vector3(
+                Mathf.Lerp(joint.localPosition.x, jointOriginalPos.x, Time.deltaTime * bobSpeed),
+                Mathf.Lerp(joint.localPosition.y, jointOriginalPos.y, Time.deltaTime * bobSpeed),
+                Mathf.Lerp(joint.localPosition.z, jointOriginalPos.z, Time.deltaTime * bobSpeed)
+            );
         }
     }
-
 
     private void OnTriggerEnter(Collider other)
     {
@@ -884,7 +747,6 @@ public class FirstPersonController : MonoBehaviour
                 currentWaterSurfaceY = (other is BoxCollider) ? other.bounds.max.y : other.transform.position.y;
             BeginSwim();
         }
-        
     }
 
     private void OnTriggerExit(Collider other)
@@ -906,20 +768,15 @@ public class FirstPersonController : MonoBehaviour
             EndSwim();
             currentWaterSurfaceY = float.NaN;
         }
-        
-
     }
+
     private void OnTriggerStay(Collider other)
     {
         if (other.CompareTag("ladderTop") && currentLadder != null)
         {
             currentLadder.GetComponent<BoxCollider>().isTrigger = true;
         }
-        
     }
-
-
-
 
     private void BeginSwim()
     {
@@ -929,17 +786,15 @@ public class FirstPersonController : MonoBehaviour
         isFalling = false;
 
         storedUseGravity = rb.useGravity;
-        storedDrag = rb.linearDamping;           // if you use rb.drag, store that instead
+        storedDrag = rb.linearDamping;
 
         rb.useGravity = false;
         rb.linearDamping = waterDrag;
 
-        // prevent sinking on enter
         Vector3 v = rb.linearVelocity;
         if (v.y < 0f) v.y = 0f;
         rb.linearVelocity = v;
 
-        // Space is used to ascend—don’t trigger jump logic
         isZoomed = false;
     }
 
@@ -949,7 +804,7 @@ public class FirstPersonController : MonoBehaviour
         isSwimming = false;
 
         rb.useGravity = storedUseGravity;
-        rb.linearDamping = storedDrag;           // RESTORE what you had before water
+        rb.linearDamping = storedDrag;
     }
 
     private void BeginLadder(Collider ladderCol)
@@ -958,7 +813,6 @@ public class FirstPersonController : MonoBehaviour
         isOnLadder = true;
         currentLadder = ladderCol.transform;
 
-        // Reset fall tracking on entry so we don't "carry" height into ladder time.
         isFalling = false;
         fallStartY = transform.position.y;
     }
@@ -969,73 +823,54 @@ public class FirstPersonController : MonoBehaviour
         isOnLadder = false;
         currentLadder = null;
 
-        // Reset baseline on exit so the next landing only measures from this moment.
         isFalling = false;
         fallStartY = transform.position.y;
 
-        // Optional: a tiny coyote buffer helps if we instantly touch ground this frame.
         groundedBufferUntil = Time.time + coyoteTime;
     }
-
-
 
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneLoaded;
     }
-    /// <summary>
-    /// Tracks airborne state and applies fall damage the frame we transition to grounded.
-    /// Uses vertical distance from the highest point since leaving ground.
-    /// </summary>
+
     private void HandleFallDamage()
     {
         if (!enableFallDamage || healthSystem == null) { wasGrounded = isGrounded; return; }
         if (isOnLadder)
         {
-            // Treat ladder time as non-falling and continuously reset the baseline,
-            // so sliding down the ladder never accumulates fall distance.
             isFalling = false;
             fallStartY = transform.position.y;
-            wasGrounded = isGrounded; // keep this in sync for later transitions
+            wasGrounded = isGrounded;
             return;
         }
 
-        // If we just left the ground, start tracking a new fall from our current height
         if (wasGrounded && !isGrounded)
         {
-            // Start a new fall if we're actually moving downward or will be soon
             isFalling = true;
-            fallStartY = transform.position.y;   // record the highest Y we were at when we stepped off
+            fallStartY = transform.position.y;
         }
 
-        // While airborne, keep the highest Y as the reference (handles walking off small ledges after going up a ramp)
         if (!isGrounded && isFalling)
         {
             if (transform.position.y > fallStartY)
                 fallStartY = transform.position.y;
         }
 
-        // Landed this frame?
         if (!wasGrounded && isGrounded)
         {
-            if (isFalling && !isSwimming) // ignore water entries
+            if (isFalling && !isSwimming)
             {
                 float fallDistance = fallStartY - transform.position.y;
 
                 if (fallDistance > minFallHeight)
                 {
-                    // Linear damage past the safe threshold
                     float extra = fallDistance - minFallHeight;
                     int dmg = Mathf.CeilToInt(extra * damagePerExtraMeter);
 
-                    // Optional lethal clamp at/above lethalFallHeight
                     if (fallDistance >= lethalFallHeight)
-                    {
-                        // Use a very large number; your CombatController should clamp to current HP
                         dmg = 99999;
-                    }
 
-                    // Crouch landing softens the blow
                     if (isCrouched && crouchDamageReduction > 0f)
                         dmg = Mathf.RoundToInt(dmg * (1f - crouchDamageReduction));
 
@@ -1044,12 +879,9 @@ public class FirstPersonController : MonoBehaviour
                 }
             }
 
-            // reset
             isFalling = false;
         }
 
-        // update latched grounded state for next tick
         wasGrounded = isGrounded;
     }
-
 }

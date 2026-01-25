@@ -176,6 +176,17 @@ public class SkeletonSwordEnemy : MonoBehaviour
     public string animIsBlockingBool = "IsBlocking";
     public bool isBlocking = false;
 
+    [Header("Guard Break")]
+    [Tooltip("How long the skeleton is stunned when its block is broken.")]
+    public float guardBreakStunTime = 1.0f;
+
+    [Tooltip("How long after a guard break the skeleton is not allowed to block.")]
+    public float guardBreakNoBlockTime = 1.25f;
+
+    [Tooltip("Optional: trigger name to play a guard break reaction. If empty, uses animHitTrigger.")]
+    public string animGuardBreakTrigger = "";
+
+
     [Range(0f, 1f)]
     [Tooltip("Chance to enter defensive mode instead of strafing/attacking when close.")]
     public float defensiveModeChance = 0.25f;
@@ -298,6 +309,10 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private bool _hasLastTargetPos;
 
     private bool _blockThisStrafe;
+    private float _blockBrokenUntil = -999f;
+    private float _stunEndTime = -999f;
+
+
 
     private void Reset()
     {
@@ -1020,15 +1035,17 @@ public class SkeletonSwordEnemy : MonoBehaviour
     {
         agent.isStopped = true;
 
-        float t = stunDuration;
-        while (_state == State.Stunned && t > 0f)
-        {
-            t -= Time.deltaTime;
-            yield return null;
-        }
+        // Fallback if something didn't set it
+        if (_stunEndTime < Time.time)
+            _stunEndTime = Time.time + Mathf.Max(0.05f, stunDuration);
 
-        SetState(target ? State.Chase : (startPatrolling ? State.Patrol : State.Idle));
+        while (_state == State.Stunned && Time.time < _stunEndTime)
+            yield return null;
+
+        if (_state == State.Stunned)
+            SetState(target ? State.Chase : (startPatrolling ? State.Patrol : State.Idle));
     }
+
 
     private void FaceTargetOrMovement()
     {
@@ -1090,11 +1107,16 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private void SetBlocking(bool blocking)
     {
-
         if (!animator || string.IsNullOrEmpty(animIsBlockingBool)) return;
+
+        // If block is broken, ignore attempts to enable blocking until lockout expires
+        if (blocking && Time.time < _blockBrokenUntil)
+            blocking = false;
+
         animator.SetBool(animIsBlockingBool, blocking);
         isBlocking = blocking;
     }
+
 
     private void UpdateCombatMoveTuning()
     {
@@ -1144,8 +1166,10 @@ public class SkeletonSwordEnemy : MonoBehaviour
                 if (animator && !string.IsNullOrEmpty(animHitTrigger))
                     animator.SetTrigger(animHitTrigger);
 
+                _stunEndTime = Time.time + Mathf.Max(0.05f, stunDuration);
                 SetState(State.Stunned);
             }
+
         }
         else
         {
@@ -1153,7 +1177,6 @@ public class SkeletonSwordEnemy : MonoBehaviour
         }
        
     }
-
     private void Die()
     {
         if (_state == State.Dead) return;
@@ -1213,8 +1236,31 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     public float GetHealth() => _health;
 
-    
-    
+
+    public void BreakBlock()
+    {
+        if (_state == State.Dead) return;
+
+        // Even if not blocking, you can still use this to force a stun/lockout if you want
+        _blockBrokenUntil = Time.time + guardBreakNoBlockTime;
+
+        // Drop block immediately
+        SetBlocking(false);
+
+        // Optional guard-break animation
+        if (animator)
+        {
+            if (!string.IsNullOrEmpty(animGuardBreakTrigger))
+                animator.SetTrigger(animGuardBreakTrigger);
+            else if (!string.IsNullOrEmpty(animHitTrigger))
+                animator.SetTrigger(animHitTrigger);
+        }
+
+        // Force a longer stun than normal
+        _stunEndTime = Time.time + Mathf.Max(0.05f, guardBreakStunTime);
+        SetState(State.Stunned);
+    }
+
 
     private void OnDrawGizmosSelected()
     {

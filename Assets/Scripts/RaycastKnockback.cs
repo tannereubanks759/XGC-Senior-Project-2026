@@ -85,7 +85,7 @@ public class RaycastKnockback : MonoBehaviour
 
             if (upgradedKnockback)
             {
-                var health = hit.collider.GetComponentInParent<BaseEnemyAI>();
+                var health = hit.collider.GetComponentInParent<DamageRef>();
                 float chargeFactor = 0f;
                 if (chargeBase != null && chargeBase.maxCharge > 0f)
                 {
@@ -96,13 +96,20 @@ public class RaycastKnockback : MonoBehaviour
                 GameObject objToDelete = Instantiate(fxObject, fxSpawnPoint.transform.position, fxRot, fxSpawnPoint.transform);
                 Destroy(objToDelete, .15f);
                 int finalDamage = knockBackDamage + Mathf.RoundToInt(knockBackDamage * chargeFactor);
+                
                 if (health != null)
                 {
                     health.TakeDamage(finalDamage);
                 }
             }
 
-
+            SkeletonSwordEnemy enemy = agent.GetComponent<SkeletonSwordEnemy>();
+            if (enemy && enemy.isBlocking)
+            {
+                this.GetComponentInParent<FirstPersonController>().LoseStamina(3f);
+                enemy.ApplyDamage(0f);
+                enemy.BreakBlock();
+            }
             if (agent == null || agent.enabled == false)
                 return;
 

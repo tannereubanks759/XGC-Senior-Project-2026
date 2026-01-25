@@ -60,6 +60,8 @@ public class DodgeDash : MonoBehaviour
         if (controller != null && (!controller.isGrounded || GetVel().magnitude <= 0.1f))
             return;
 
+        controller.LoseStamina(3f);
+
         Vector3 dir = direction;
         dir.y = 0f;
         if (dir.sqrMagnitude < 1e-4f) return;

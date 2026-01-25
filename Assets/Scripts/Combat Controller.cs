@@ -285,7 +285,7 @@ public class CombatController : MonoBehaviour
                     swordAnim.SetBool("swinging", false);
                 }
 
-                if (Input.GetKey(block_or_aim))
+                if (Input.GetKey(block_or_aim) && controller.stamina > 3f)
                 {
                     blocking = true;
                     swordAnim.SetBool("blocking", true);
@@ -377,12 +377,14 @@ public class CombatController : MonoBehaviour
             else
             {
                 swordSoundScript.PlayClashSound();
+                    
             }
         }
         else
         {
             swordSoundScript.PlayClashSound();
             wInertia.ParryClash(1);
+            controller.LoseStamina(2f);
         }
     }
     public void TakeDamage(int damage, Vector3 Dir)
@@ -424,6 +426,7 @@ public class CombatController : MonoBehaviour
         {
             swordSoundScript.PlayClashSound();
             wInertia.ParryClash(1);
+            controller.LoseStamina(2f);
         }
     }
 
@@ -577,6 +580,7 @@ public class CombatController : MonoBehaviour
             shake.Shake(1);
             swordSoundScript.PlayClashSound();
             wInertia.ParryClash(1);
+            controller.LoseStamina(4f);
         }
     }
     public void TDBB_With_Knockback(int damage, Transform from)
