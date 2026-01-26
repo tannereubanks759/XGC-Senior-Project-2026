@@ -159,7 +159,6 @@ public class BossHealthbar : MonoBehaviour
         {
             StartCoroutine(FadeOutOnDeath());
         }
-        Debug.Log(currentHealth);
     }
 
     private IEnumerator FadeOutOnDeath()

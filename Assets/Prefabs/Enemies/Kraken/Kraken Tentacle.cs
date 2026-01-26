@@ -1,7 +1,25 @@
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class KrakenTentacle : MonoBehaviour
 {
+    [Header("Rig Setup (Option B: never swap target)")]
+    [Tooltip("The ChainIKConstraint on the tentacle rig. Its Target MUST be this transform (the object this script is on).")]
+    public ChainIKConstraint chainIK;
+
+    [Tooltip("The animated/idle target Transform (the one you keyframed/animated).")]
+    public Transform idleAnimatedTarget;
+
+    [Tooltip("While player is NOT in danger area, this scripted target will follow the idleAnimatedTarget.")]
+    public bool followIdleTargetWhenOutOfRange = true;
+
+    [Header("Idle Transition Smoothing")]
+    [Tooltip("How long to blend back to the idleAnimatedTarget when the player leaves the danger area.")]
+    public float blendToIdleTime = 0.35f;
+
+    [Tooltip("Optional easing for the blend (0->1).")]
+    public AnimationCurve blendToIdleCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     [Header("Runtime")]
     public bool isDropping = false;
 
@@ -11,133 +29,149 @@ public class KrakenTentacle : MonoBehaviour
     [Tooltip("Set by KrakenDangerArea.")]
     public bool playerInDangerArea = false;
 
-    private Vector3 originXZ; // keep original XZ for returning when player leaves range
-
     [Header("Water Surface (Hover Y Source)")]
-    [Tooltip("Optional: assign a water surface Transform (recommended). Hover Y will follow this Transform's Y.")]
     public Transform waterSurface;
-
-    [Tooltip("If no waterSurface Transform is provided, this value is used as the water surface Y.")]
     public float waterSurfaceY = 0f;
-
-    [Tooltip("Hover height above the water surface (world units). This becomes the target's Y when not attacking.")]
     public float hoverAboveWater = 6f;
 
     [Header("Follow Settings")]
-    [Tooltip("Optional world-space offset while hovering (X/Z useful; Y is ignored because hover Y comes from water).")]
     public Vector3 hoverOffset = Vector3.zero;
-
-    [Tooltip("How fast the target moves while hovering over the player.")]
     public float followSpeed = 12f;
-
-    [Tooltip("How fast the target moves back upward after an attack.")]
     public float riseSpeed = 12f;
-
-    [Tooltip("If true, X/Z will match the player (plus hoverOffset).")]
     public bool matchPlayerXZ = true;
 
     [Header("Attack Settings")]
-    [Tooltip("How far above the player's position to aim the drop (roughly head height).")]
     public float dropToHeight = 1.6f;
-
-    [Tooltip("How fast the target drops downward.")]
     public float dropSpeed = 25f;
-
-    [Tooltip("Random time (seconds) before dropping once hovering and eligible.")]
     public Vector2 timeBetweenDropsRange = new Vector2(0.75f, 2.5f);
-
-    [Tooltip("Cooldown after an attack ends before another drop can start.")]
     public float attackCooldown = 3.0f;
-
-    [Tooltip("Safety timeout: if we don't collide in this many seconds while dropping, we force GoUp().")]
     public float maxDropTime = 2.0f;
-
-    [Tooltip("Require the target to be at least this much above the player before it can decide to drop.")]
     public float requiredAbovePlayerToDrop = 1.0f;
 
     private bool isReturning = false;
-
     private float dropCountdown = 0f;
     private float nextAttackAllowedTime = 0f;
     private float dropElapsed = 0f;
 
-    // NEW: the XZ to keep fixed for the entire drop
     private Vector2 dropLockedXZ;
+    private bool wasInDangerArea = false;
+
+    // Blend-to-idle state
+    private bool blendingToIdle = false;
+    private float blendTimer = 0f;
+    private Vector3 blendStartPos;
+    private Quaternion blendStartRot;
 
     void Start()
     {
-        originXZ = transform.position;
-        originXZ.y = GetHoverY(); // keep origin's Y locked to water-based hover
-
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p) player = p.transform;
         }
 
+        // Ensure ChainIK is targeting THIS transform
+        if (chainIK != null)
+        {
+            var data = chainIK.data;
+            if (data.target != transform)
+            {
+                data.target = transform;
+                chainIK.data = data;
+            }
+        }
+
+        // Start aligned to idle target so there's no initial snap
+        TeleportToIdleTargetIfAvailable();
+
         ResetDropCountdown();
+        wasInDangerArea = playerInDangerArea;
+
+        // If we start out of range, begin in "already idle" mode (no blend needed)
+        if (!playerInDangerArea) blendingToIdle = false;
     }
 
     void Update()
     {
-        // recover player if needed
+        // Detect enter/exit
+        if (playerInDangerArea != wasInDangerArea)
+        {
+            if (playerInDangerArea)
+            {
+                // ENTER: cancel any blend, teleport to idle target to avoid snap, then run logic
+                blendingToIdle = false;
+                TeleportToIdleTargetIfAvailable();
+
+                isDropping = false;
+                isReturning = false;
+                dropElapsed = 0f;
+                ResetDropCountdown();
+            }
+            else
+            {
+                // EXIT: cancel attacks and smoothly blend back to idle target
+                CancelAttackState();
+                BeginBlendToIdle();
+            }
+
+            wasInDangerArea = playerInDangerArea;
+        }
+
+        // OUT OF RANGE: smoothly blend to idle, then lock-follow idle every frame
+        if (!playerInDangerArea)
+        {
+            if (followIdleTargetWhenOutOfRange && idleAnimatedTarget != null)
+            {
+                if (blendingToIdle && blendToIdleTime > 0f)
+                {
+                    blendTimer += Time.deltaTime;
+                    float t = Mathf.Clamp01(blendTimer / blendToIdleTime);
+                    float eased = (blendToIdleCurve != null) ? blendToIdleCurve.Evaluate(t) : t;
+
+                    // Note: target is moving (animation), which is fine — we blend toward its current pose.
+                    transform.position = Vector3.Lerp(blendStartPos, idleAnimatedTarget.position, eased);
+                    transform.rotation = Quaternion.Slerp(blendStartRot, idleAnimatedTarget.rotation, eased);
+
+                    if (t >= 1f)
+                    {
+                        blendingToIdle = false;
+                        // Now that we've arrived, snap-follow each frame (but now it's not harsh).
+                        transform.position = idleAnimatedTarget.position;
+                        transform.rotation = idleAnimatedTarget.rotation;
+                    }
+                }
+                else
+                {
+                    // No blend requested, or finished blending
+                    transform.position = idleAnimatedTarget.position;
+                    transform.rotation = idleAnimatedTarget.rotation;
+                    blendingToIdle = false;
+                }
+            }
+            return;
+        }
+
+        // IN RANGE: run attack logic
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
             if (p) player = p.transform;
         }
+        if (player == null) return;
 
-        // If no player, just return to origin
-        if (player == null)
-        {
-            isDropping = false;
-            isReturning = false;
-
-            Vector3 home = originXZ;
-            home.y = GetHoverY();
-            MoveTargetTowards(home, riseSpeed);
-            return;
-        }
-
-        // If player leaves while dropping, cancel and go up
-        if (!playerInDangerArea && isDropping)
-        {
-            isDropping = false;
-            GoUp();
-        }
-
-        // Player not in range: return to origin and reset
-        if (!playerInDangerArea)
-        {
-            isDropping = false;
-            isReturning = false;
-
-            Vector3 home = originXZ;
-            home.y = GetHoverY();
-            MoveTargetTowards(home, riseSpeed);
-
-            ResetDropCountdown();
-            return;
-        }
-
-        // In range behavior
         if (isDropping)
         {
             dropElapsed += Time.deltaTime;
 
-            // IMPORTANT: X/Z are locked when the drop begins, only Y changes now.
             float targetY = player.position.y + dropToHeight;
-
             Vector3 dropPos = new Vector3(dropLockedXZ.x, targetY, dropLockedXZ.y);
             MoveTargetTowards(dropPos, dropSpeed);
 
-            // Safety timeout: if no collision happens, recover
             if (dropElapsed >= maxDropTime)
             {
                 isDropping = false;
                 GoUp();
             }
-
             return;
         }
 
@@ -154,7 +188,6 @@ public class KrakenTentacle : MonoBehaviour
             return;
         }
 
-        // Hover follow: fixed Y from water surface, track player XZ
         Vector3 desiredHover = GetHoverPosition();
         MoveTargetTowards(desiredHover, followSpeed);
 
@@ -169,13 +202,10 @@ public class KrakenTentacle : MonoBehaviour
         }
         else
         {
-            // prevent instant drop the moment it becomes eligible
             ResetDropCountdown();
         }
     }
 
-    // called when the tentacle touches a player, or collides with the ground.
-    // Moves the target back up to hover (water-based Y) and starts cooldown.
     public void GoUp()
     {
         nextAttackAllowedTime = Time.time + attackCooldown;
@@ -191,11 +221,37 @@ public class KrakenTentacle : MonoBehaviour
         isDropping = true;
         dropElapsed = 0f;
 
-        // NEW: lock the current X/Z so the drop is vertical
         dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
-
-        // don’t reroll while actively dropping
         dropCountdown = Mathf.Infinity;
+    }
+
+    private void CancelAttackState()
+    {
+        isDropping = false;
+        isReturning = false;
+        dropElapsed = 0f;
+        dropCountdown = 0f;
+    }
+
+    private void BeginBlendToIdle()
+    {
+        if (idleAnimatedTarget == null || blendToIdleTime <= 0f)
+        {
+            blendingToIdle = false;
+            return;
+        }
+
+        blendingToIdle = true;
+        blendTimer = 0f;
+        blendStartPos = transform.position;
+        blendStartRot = transform.rotation;
+    }
+
+    private void TeleportToIdleTargetIfAvailable()
+    {
+        if (idleAnimatedTarget == null) return;
+        transform.position = idleAnimatedTarget.position;
+        transform.rotation = idleAnimatedTarget.rotation;
     }
 
     private float GetHoverY()
@@ -214,7 +270,7 @@ public class KrakenTentacle : MonoBehaviour
             p.z = transform.position.z;
         }
 
-        p.y = GetHoverY(); // <- ALWAYS derived from water surface
+        p.y = GetHoverY();
         return p;
     }
 
