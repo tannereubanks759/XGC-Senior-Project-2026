@@ -52,11 +52,6 @@ public class curseOffhand : MonoBehaviour
                 Destroy(spawnedCurseVfx);
                 spawnedCurseVfx = null;
             }
-            if (activeCurseVfx != null)
-            {
-                Destroy(activeCurseVfx);
-                activeCurseVfx = null;
-            }
             if (cursedFlame != null)
             {
                 cursedFlame.SetActive(true);
@@ -64,12 +59,6 @@ public class curseOffhand : MonoBehaviour
         }
 
         if (!canCurse)
-        {
-            EnsureFlameState();
-            return;
-        }
-
-        if (!Input.GetKeyDown(KeyCode.F))
         {
             EnsureFlameState();
             return;
@@ -104,7 +93,7 @@ public class curseOffhand : MonoBehaviour
                 if (enemyScript.curseVfxPrefab != null)
                 {
                     if (activeCurseVfx != null) Destroy(activeCurseVfx);
-                    activeCurseVfx = Instantiate(enemyScript.curseVfxPrefab, enemy.transform.position + offset, Quaternion.identity, enemy.transform);
+                    spawnedCurseVfx = Instantiate(enemyScript.curseVfxPrefab, enemy.transform.position + offset, Quaternion.identity, enemy.transform);
                     activeCurseVfx.transform.localPosition = offset;
                 }
                 checkUpgrade(enemyScript);
@@ -124,12 +113,12 @@ public class curseOffhand : MonoBehaviour
                 {
                     if (!pirateboss.isCursed)
                     {
-                        Vector3 offset = new Vector3(0f, 2f, 0f);
-                        if (pirateboss.cursedVfxPrefab != null)
+                        if (activeCurseVfx != null)
                         {
-                            if (activeCurseVfx != null) Destroy(activeCurseVfx);
-                            activeCurseVfx = Instantiate(pirateboss.cursedVfxPrefab, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
-                            activeCurseVfx.transform.localPosition = offset;
+                            Vector3 offset = new Vector3(0f, 2f, 0f);
+                            if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                            spawnedCurseVfx.transform.localPosition = offset;
                         }
                     }
 
@@ -145,12 +134,12 @@ public class curseOffhand : MonoBehaviour
                 {
                     if (!magmaBoss.isCursed)
                     {
-                        Vector3 offset = new Vector3(0f, 1.6f, 0f);
-                        if (magmaBoss.cursedVfxPrefab != null)
+                        if (activeCurseVfx != null)
                         {
-                            if (activeCurseVfx != null) Destroy(activeCurseVfx);
-                            activeCurseVfx = Instantiate(magmaBoss.cursedVfxPrefab, magmaBoss.transform.position + offset, Quaternion.identity, magmaBoss.transform);
-                            activeCurseVfx.transform.localPosition = offset;
+                            Vector3 offset = new Vector3(0f, 2f, 0f);
+                            if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                            spawnedCurseVfx.transform.localPosition = offset;
                         }
                     }
 
@@ -166,12 +155,12 @@ public class curseOffhand : MonoBehaviour
                 {
                     if (!ghostBoss.isCursed)
                     {
-                        Vector3 offset = new Vector3(0f, 1.6f, 0f);
-                        if (ghostBoss.cursedVfxPrefab != null)
+                        if (activeCurseVfx != null)
                         {
-                            if (activeCurseVfx != null) Destroy(activeCurseVfx);
-                            activeCurseVfx = Instantiate(ghostBoss.cursedVfxPrefab, ghostBoss.transform.position + offset, Quaternion.identity, ghostBoss.transform);
-                            activeCurseVfx.transform.localPosition = offset;
+                            Vector3 offset = new Vector3(0f, 2f, 0f);
+                            if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                            spawnedCurseVfx.transform.localPosition = offset;
                         }
                     }
 

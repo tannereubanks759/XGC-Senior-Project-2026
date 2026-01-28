@@ -369,6 +369,10 @@ public class PirateBossAI : MonoBehaviour
                 break;
 
             case BossState.Dead:
+                isCursed = false;
+                reflectDamageWhenCursed = false;
+                damageMult = 1;
+                if (agent != null) agent.speed = _baseAgentSpeed;
                 if (_deathHandled) return;
                 IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>().GetComponent<IslandTeleporter>();
                 if (tel != null)
