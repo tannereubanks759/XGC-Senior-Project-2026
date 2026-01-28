@@ -44,6 +44,7 @@ public class offhandWheel : MonoBehaviour
 
     void Update()
     {
+        if (UIM != null && UIM.ModalOpen) return;
         if (Input.GetKeyDown(KeyCode.Q))
         {
             currentPressTime = Time.unscaledTime;
