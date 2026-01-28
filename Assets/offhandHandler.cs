@@ -116,7 +116,7 @@ public class offhandHandler : MonoBehaviour
     }
     public void lightning()
     {
-        skipLastEquiped = true;
+        //skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Lightning)
@@ -157,7 +157,7 @@ public class offhandHandler : MonoBehaviour
     }
     public void chaos()
     {
-        skipLastEquiped = true;
+        //skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Chaos)
@@ -194,7 +194,7 @@ public class offhandHandler : MonoBehaviour
     }
     public void FireBomb()
     {
-        skipLastEquiped = true;
+        //skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.FireBomb)
@@ -269,6 +269,7 @@ public class offhandHandler : MonoBehaviour
     {
         if (wm.weapons[1].activeSelf)
         {
+            skipLastEquiped = true;
             wm.SwitchWeapon(0);
         }
     }
