@@ -28,10 +28,23 @@ public class UImanager : MonoBehaviour
 
     public void OpenPauseScreen()
     {
+        ForceCloseTutorials();
         PreSetup(true, true);
         OptionsScreen.SetActive(false);
         MainPauseScreen.SetActive(true);
         PauseScreen.SetActive(true);
+    }
+    public void ForceCloseTutorials()
+    {
+        lightTut.SetActive(false);
+        curseTut.SetActive(false);
+        fireballTut.SetActive(false);
+        SetModal(false);
+        if (firstPersonController != null)
+        {
+            firstPersonController.playerCanMove = true;
+            firstPersonController.cameraCanMove = true;
+        }
     }
     public void OpenDeathScreen()
     {
@@ -132,6 +145,9 @@ public class UImanager : MonoBehaviour
         PauseScreen.SetActive(false);
         DeathScreen.SetActive(false);
         PlayerUIScreen.SetActive(false);
+        //lightTut.SetActive(false);
+        //fireballTut.SetActive(false);
+        //curseTut.SetActive(false);
         if(OffhandWheelScreen != null)
         {
             OffhandWheelScreen.SetActive(false);
@@ -153,6 +169,8 @@ public class UImanager : MonoBehaviour
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+            firstPersonController.cameraCanMove = true;
+            firstPersonController.playerCanMove = true;
         }
     }
 }
