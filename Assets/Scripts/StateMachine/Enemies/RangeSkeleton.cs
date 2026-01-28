@@ -111,11 +111,11 @@ public class RangeSkeleton : BaseEnemyAI
                 playerController.TakeDamage(damage, hitDir);
 
                 // Curse logic
-                var lantern = FindFirstObjectByType<curseOffhand>();
+                /*var lantern = FindFirstObjectByType<curseOffhand>();
                 if (lantern != null && lantern.reflectionUpgrade && lantern.cursedEnemy == enemyAI)
                 {
                     enemyAI.TakeDamage(5);
-                }
+                }*/
             }
         }
     }

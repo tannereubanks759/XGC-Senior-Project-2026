@@ -8,6 +8,12 @@ using UnityEngine.Animations;
 [RequireComponent(typeof(NavMeshAgent))]
 public class SkeletonSwordEnemy : MonoBehaviour
 {
+    [Header("Curse")]
+    public bool isCursed = false;
+    public int curseDamageMult = 1;
+    public float curseSpeedMult = 1f;
+    public bool curseReflectEnabled = false;
+    [Range(0f, 1f)] public float curseReflectPercent = 0.25f;
     public enum State
     {
         Idle,
@@ -1142,7 +1148,11 @@ public class SkeletonSwordEnemy : MonoBehaviour
             desiredSpeed = defensiveSpeed;
             desiredAccel = defensiveAcceleration;
         }
-
+        if (isCursed)
+        {
+            desiredSpeed *= Mathf.Clamp(curseSpeedMult, 0.05f, 1f);
+            desiredAccel *= Mathf.Clamp(curseSpeedMult, 0.05f, 1f);
+        }
         agent.speed = Mathf.Lerp(agent.speed, desiredSpeed, 1f - Mathf.Exp(-speedBlend * Time.deltaTime));
         agent.acceleration = Mathf.Lerp(agent.acceleration, desiredAccel, 1f - Mathf.Exp(-speedBlend * Time.deltaTime));
     }
@@ -1153,8 +1163,9 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
         if (!isBlocking)
         {
+            amount *= Mathf.Max(1, curseDamageMult);
             _health -= amount;
-
+            
             if (_health <= 0f)
             {
                 Die();

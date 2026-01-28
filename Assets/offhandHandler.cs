@@ -22,7 +22,11 @@ public class offhandHandler : MonoBehaviour
     public bool fireballFirst = true;
     private bool waitingForClose = false;
     private float currentTime = 0f;
-    private float delayTime = 1f;
+    private float delayTime = .65f;
+    public GameObject curseLantern;
+    private curseOffhand curseScript;
+    private bool wasBlunderbussActive = false;
+    private bool skipLastEquiped = false;
     //public GameObject lightningTut;
     //public GameObject curseTut;
     //public GameObject fireballTut;
@@ -34,7 +38,9 @@ public class offhandHandler : MonoBehaviour
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
         player = GameObject.FindWithTag("Player");
-        chl=FindAnyObjectByType<chargeOffHandLatern>(); 
+        chl=FindAnyObjectByType<chargeOffHandLatern>();
+        curseScript = curse.GetComponent<curseOffhand>();
+        wasBlunderbussActive = (wm != null && wm.weapons[1].activeSelf);
         //uiMan = FindAnyObjectByType<UImanager>();
     }
     private void waitingForCloseButton()
@@ -71,6 +77,8 @@ public class offhandHandler : MonoBehaviour
         fireBall.SetActive(false);
         lightningSkull.SetActive(false);    
         curse.SetActive(false);
+        curseLantern.SetActive(false);
+        if (curseScript != null) curseScript.canCurse = false;
         chargeText.SetActive(false);
         currentOffhand = null;
         foreach (ItemData item in allOffhands)
@@ -83,23 +91,32 @@ public class offhandHandler : MonoBehaviour
     }
     public void unequip_Safe()
     {
-        
+        if (currentOffhandType != OffhandType.None)
+        {
+            lastOffhandType = currentOffhandType;
+        }
+        currentOffhandType = OffhandType.None;
         fireBall.SetActive(false);
         lightningSkull.SetActive(false);    
-        curse.SetActive(false);
+        curseLantern.SetActive(false);
         chargeText.SetActive(false);
-        currentOffhand = null;
+        if (curseScript != null)
+        {
+            curseScript.canCurse = false;
+        }
+        
+        // currentOffhand = null;
         /*foreach (ItemData item in allOffhands)
         {
             if (item != null && player!= null)
                 item.OnUnEquip(player);
         }*/
-        
+
 
     }
     public void lightning()
     {
-        
+        skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Lightning)
@@ -140,6 +157,7 @@ public class offhandHandler : MonoBehaviour
     }
     public void chaos()
     {
+        skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Chaos)
@@ -147,6 +165,8 @@ public class offhandHandler : MonoBehaviour
             lastOffhandType = currentOffhandType;
         }
         curse.SetActive(true);
+        curseLantern.SetActive(true);
+        if (curseScript != null) curseScript.canCurse = true;
         currentOffhandType = OffhandType.Chaos;
         if (curseFirst)
         {
@@ -174,6 +194,7 @@ public class offhandHandler : MonoBehaviour
     }
     public void FireBomb()
     {
+        skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.FireBomb)
@@ -217,18 +238,26 @@ public class offhandHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        bool blunderbussActive = (wm != null && wm.weapons[1].activeSelf);
+        if (wasBlunderbussActive && !blunderbussActive)
+        {
+            if (!skipLastEquiped)
+            {
+                quickSwap();
+            }
+            skipLastEquiped = false;
+        }
+        wasBlunderbussActive = blunderbussActive;
         if (!waitingForClose) return;
         if (!uiMan.ModalOpen) 
         { 
             waitingForClose = false; 
             return;
         }
-
         if (Time.unscaledTime - currentTime < delayTime)
         {
             return;
         }
-
         if (Input.anyKeyDown || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
         {
             uiMan.closeTut();

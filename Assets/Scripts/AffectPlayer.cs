@@ -43,7 +43,7 @@ public class AffectPlayer : MonoBehaviour
             combatController.TakeDamage(damage, hitDir);
         }
 
-        var lantern = FindFirstObjectByType<curseOffhand>();
+        /*var lantern = FindFirstObjectByType<curseOffhand>();
         if(lantern != null )
         {
             if (lantern.reflectionUpgrade != true)
@@ -56,7 +56,7 @@ public class AffectPlayer : MonoBehaviour
                 enemyAI.TakeDamage(5);
 
             }
-        }
+        }*/
         
        
     }

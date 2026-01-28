@@ -6,22 +6,38 @@ public class SwordHitbox : MonoBehaviour
     [Header("Damage")]
     public float damage = 10f;
 
+    private SkeletonSwordEnemy ownerSkeleton;
+
+    private void Awake()
+    {
+        ownerSkeleton = GetComponentInParent<SkeletonSwordEnemy>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        
-        // Simple "damage interface": look for something that can take damage.
-        // You can replace this with your own Health component.
-        if (other.tag == "Player")
+        if (other.CompareTag("Player"))
         {
-            var health = other.GetComponentInChildren<CombatController>();
-            if (health != null)
+            var player = other.GetComponentInChildren<CombatController>();
+            if (player != null)
             {
-                health.TakeDamage((int)damage);
+                int dealt = Mathf.RoundToInt(damage);
+                player.TakeDamage(dealt);
+                if (ownerSkeleton != null &&
+                    ownerSkeleton.isCursed &&
+                    ownerSkeleton.curseReflectEnabled)
+                {
+                    int reflected =
+                        Mathf.RoundToInt(dealt * ownerSkeleton.curseReflectPercent);
+
+                    if (reflected > 0)
+                    {
+                        ownerSkeleton.ApplyDamage(reflected, canStun: true);
+                    }
+                }
             }
-            this.GetComponent<Collider>().enabled = false;
+            GetComponent<Collider>().enabled = false;
         }
-        
     }
 }
+
 
