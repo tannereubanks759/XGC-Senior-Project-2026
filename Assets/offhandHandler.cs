@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 public class offhandHandler : MonoBehaviour
@@ -19,6 +20,9 @@ public class offhandHandler : MonoBehaviour
     public bool lightningFirst = true;
     public bool curseFirst = true;
     public bool fireballFirst = true;
+    private bool waitingForClose = false;
+    private float currentTime = 0f;
+    private float delayTime = 1f;
     //public GameObject lightningTut;
     //public GameObject curseTut;
     //public GameObject fireballTut;
@@ -32,6 +36,11 @@ public class offhandHandler : MonoBehaviour
         player = GameObject.FindWithTag("Player");
         chl=FindAnyObjectByType<chargeOffHandLatern>(); 
         //uiMan = FindAnyObjectByType<UImanager>();
+    }
+    private void waitingForCloseButton()
+    {
+        waitingForClose = true;
+        currentTime = Time.unscaledTime;
     }
     public void quickSwap()
     {
@@ -125,7 +134,7 @@ public class offhandHandler : MonoBehaviour
             //Debug.Log("tried to turn on tut");
             //lightningTut.SetActive(true);
             uiMan.openLightTutorial();
-            
+            waitingForCloseButton();
             //Debug.Log("Turned on tut");
         }
     }
@@ -144,6 +153,7 @@ public class offhandHandler : MonoBehaviour
             curseFirst = false;
             //curseTut.SetActive(true);
             uiMan.openCurseTutorial();
+            waitingForCloseButton();
         }
     }
     public void Defense()
@@ -177,6 +187,7 @@ public class offhandHandler : MonoBehaviour
             fireballFirst = false;
             //fireballTut.SetActive(true);
             uiMan.openFireballTut();
+            waitingForCloseButton();
         }
 
     }
@@ -206,7 +217,23 @@ public class offhandHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!waitingForClose) return;
+        if (!uiMan.ModalOpen) 
+        { 
+            waitingForClose = false; 
+            return;
+        }
+
+        if (Time.unscaledTime - currentTime < delayTime)
+        {
+            return;
+        }
+
+        if (Input.anyKeyDown || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1))
+        {
+            uiMan.closeTut();
+            waitingForClose = false;
+        }
     }
 
     void CheckForBlunderbuss()
@@ -221,4 +248,5 @@ public class offhandHandler : MonoBehaviour
         uiMan.closeTut();
     }
     
+
 }
