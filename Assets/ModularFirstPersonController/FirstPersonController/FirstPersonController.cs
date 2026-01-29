@@ -279,15 +279,7 @@ public class FirstPersonController : MonoBehaviour
         if (lockCursor)
             Cursor.lockState = CursorLockMode.Locked;
 
-        if (crosshair)
-        {
-            crosshairObject.sprite = crosshairImage;
-            crosshairObject.color = crosshairColor;
-        }
-        else
-        {
-            crosshairObject.gameObject.SetActive(false);
-        }
+       
 
         GameObject waterObject = GameObject.FindGameObjectWithTag("Water");
         if (waterObject != null) waterSurface = waterObject.gameObject.transform;

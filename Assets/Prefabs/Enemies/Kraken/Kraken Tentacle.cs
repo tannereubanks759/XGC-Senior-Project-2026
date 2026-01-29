@@ -20,6 +20,16 @@ public class KrakenTentacle : MonoBehaviour
     [Tooltip("Optional easing for the blend (0->1).")]
     public AnimationCurve blendToIdleCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    [Header("Death")]
+    [Tooltip("Move the tentacle to this Transform when Death() is called.")]
+    public Transform deathTarget;
+
+    [Tooltip("How long it takes to blend to the death position/rotation.")]
+    public float blendToDeathTime = 0.6f;
+
+    [Tooltip("Optional easing for death blend (0->1).")]
+    public AnimationCurve blendToDeathCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     [Header("Runtime")]
     public bool isDropping = false;
 
@@ -62,6 +72,13 @@ public class KrakenTentacle : MonoBehaviour
     private Vector3 blendStartPos;
     private Quaternion blendStartRot;
 
+    // Death state
+    private bool isDead = false;
+    private bool blendingToDeath = false;
+    private float deathBlendTimer = 0f;
+    private Vector3 deathBlendStartPos;
+    private Quaternion deathBlendStartRot;
+
     void Start()
     {
         if (player == null)
@@ -87,12 +104,18 @@ public class KrakenTentacle : MonoBehaviour
         ResetDropCountdown();
         wasInDangerArea = playerInDangerArea;
 
-        // If we start out of range, begin in "already idle" mode (no blend needed)
         if (!playerInDangerArea) blendingToIdle = false;
     }
 
     void Update()
     {
+        // If dead, ignore all other behavior and just move to death pose
+        if (isDead)
+        {
+            UpdateDeathBlend();
+            return;
+        }
+
         // Detect enter/exit
         if (playerInDangerArea != wasInDangerArea)
         {
@@ -128,21 +151,18 @@ public class KrakenTentacle : MonoBehaviour
                     float t = Mathf.Clamp01(blendTimer / blendToIdleTime);
                     float eased = (blendToIdleCurve != null) ? blendToIdleCurve.Evaluate(t) : t;
 
-                    // Note: target is moving (animation), which is fine — we blend toward its current pose.
                     transform.position = Vector3.Lerp(blendStartPos, idleAnimatedTarget.position, eased);
                     transform.rotation = Quaternion.Slerp(blendStartRot, idleAnimatedTarget.rotation, eased);
 
                     if (t >= 1f)
                     {
                         blendingToIdle = false;
-                        // Now that we've arrived, snap-follow each frame (but now it's not harsh).
                         transform.position = idleAnimatedTarget.position;
                         transform.rotation = idleAnimatedTarget.rotation;
                     }
                 }
                 else
                 {
-                    // No blend requested, or finished blending
                     transform.position = idleAnimatedTarget.position;
                     transform.rotation = idleAnimatedTarget.rotation;
                     blendingToIdle = false;
@@ -284,5 +304,62 @@ public class KrakenTentacle : MonoBehaviour
         float min = Mathf.Max(0f, timeBetweenDropsRange.x);
         float max = Mathf.Max(min, timeBetweenDropsRange.y);
         dropCountdown = Random.Range(min, max);
+    }
+
+    // =========================
+    // Death
+    // =========================
+    // Call this to kill the tentacle: it stops all logic and moves to the deathTarget pose.
+    public void Death()
+    {
+        if (isDead) return;
+
+        isDead = true;
+
+        // Stop any current behavior
+        CancelAttackState();
+        blendingToIdle = false;
+        playerInDangerArea = false;
+
+        // If no death target, just freeze where it is
+        if (deathTarget == null)
+        {
+            blendingToDeath = false;
+            return;
+        }
+
+        // Begin blending to death pose
+        blendingToDeath = true;
+        deathBlendTimer = 0f;
+        deathBlendStartPos = transform.position;
+        deathBlendStartRot = transform.rotation;
+    }
+
+    private void UpdateDeathBlend()
+    {
+        if (!blendingToDeath || deathTarget == null)
+            return;
+
+        if (blendToDeathTime <= 0f)
+        {
+            transform.position = deathTarget.position;
+            transform.rotation = deathTarget.rotation;
+            blendingToDeath = false;
+            return;
+        }
+
+        deathBlendTimer += Time.deltaTime;
+        float t = Mathf.Clamp01(deathBlendTimer / blendToDeathTime);
+        float eased = (blendToDeathCurve != null) ? blendToDeathCurve.Evaluate(t) : t;
+
+        transform.position = Vector3.Lerp(deathBlendStartPos, deathTarget.position, eased);
+        transform.rotation = Quaternion.Slerp(deathBlendStartRot, deathTarget.rotation, eased);
+
+        if (t >= 1f)
+        {
+            blendingToDeath = false;
+            transform.position = deathTarget.position;
+            transform.rotation = deathTarget.rotation;
+        }
     }
 }
