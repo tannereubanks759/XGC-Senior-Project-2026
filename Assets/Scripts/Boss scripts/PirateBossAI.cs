@@ -515,4 +515,14 @@ public class PirateBossAI : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRange);
     }
+    public void RemoveCurse()
+    {
+        isCursed = false;
+        reflectDamageWhenCursed = false;
+        damageMult = 1;
+        if (agent != null)
+        {
+            agent.speed = _baseAgentSpeed;
+        }
+    }
 }

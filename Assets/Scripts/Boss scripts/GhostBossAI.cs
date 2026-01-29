@@ -252,14 +252,12 @@ public class GhostBossAI : MonoBehaviour
     public void CurseBoss(bool slow, bool reflection)
     {
         if (isCursed) return;
-
         isCursed = true;
         reflectDamageWhenCursed = reflection;
         damageMult = 2;
-
-        if (slow)
+        _cursedSpeedMultiplier = slow ? 0.75f : 1f;
+        if (agent != null)
         {
-            _cursedSpeedMultiplier = 0.75f;
             agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         }
     }
@@ -277,7 +275,7 @@ public class GhostBossAI : MonoBehaviour
     void TickIdle()
     {
         agent.isStopped = true;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         SetWalk(false, true);
         animator.SetBool(paramIsAttackin, false);
     }
@@ -338,7 +336,7 @@ public class GhostBossAI : MonoBehaviour
 
         // Move toward player
         agent.isStopped = false;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         agent.SetDestination(player.position);
         FaceTarget();
 
@@ -495,7 +493,7 @@ public class GhostBossAI : MonoBehaviour
         if (agent)
         {
             agent.isStopped = false;
-            agent.speed = _baseAgentSpeed;
+            agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         }
 
         if (applyCooldown)
@@ -546,7 +544,7 @@ public class GhostBossAI : MonoBehaviour
             // got interrupted somehow
             _blinkBusy = false;
             agent.isStopped = false;
-            agent.speed = _baseAgentSpeed;
+            agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
             yield break;
         }
 
@@ -578,7 +576,7 @@ public class GhostBossAI : MonoBehaviour
 
         _blinkBusy = false;
         agent.isStopped = false;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
 
         // Face the player after reappearing
         FaceTarget();
@@ -668,13 +666,13 @@ public class GhostBossAI : MonoBehaviour
         {
             case BossState.Idle:
                 agent.isStopped = true;
-                agent.speed = _baseAgentSpeed;
+                agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
                 SetWalk(false, true);
                 break;
 
             case BossState.Chase:
                 agent.isStopped = false;
-                agent.speed = _baseAgentSpeed;
+                agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
                 break;
 
             case BossState.Attack:
@@ -707,7 +705,7 @@ public class GhostBossAI : MonoBehaviour
 
         // TELEGRAPH
         agent.isStopped = true;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         SetWalk(false, true);
 
         if (!string.IsNullOrEmpty(paramLungeTelegraph))
@@ -779,7 +777,7 @@ public class GhostBossAI : MonoBehaviour
         if (agent)
         {
             agent.isStopped = false;
-            agent.speed = _baseAgentSpeed;
+            agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         }
 
         if (applyCooldown)
@@ -842,7 +840,7 @@ public class GhostBossAI : MonoBehaviour
     {
         _attackBusy = true;
         agent.isStopped = true;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         SetWalk(false, true);
 
         int idx = PickAttackIndex();
@@ -931,6 +929,17 @@ public class GhostBossAI : MonoBehaviour
             _nextDamageAllowedTime = Time.time + hitInvulnerability;
         }
     }
+    public void RemoveCurse()
+    {
+        isCursed = false;
+        reflectDamageWhenCursed = false;
+        damageMult = 1;
+        _cursedSpeedMultiplier = 1f;
+        if (agent != null)
+        {
+            agent.speed = _baseAgentSpeed;
+        }
+    }
 
-    
+
 }

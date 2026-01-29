@@ -206,16 +206,13 @@ public class MagmaBossAI : MonoBehaviour
     public void CurseBoss(bool slow, bool reflection)
     {
         if (isCursed) return;
-
         isCursed = true;
         reflectDamageWhenCursed = reflection;
         damageMult = 2;
-
-        if (slow)
+        _cursedSpeedMultiplier = slow ? 0.75f : 1f;
+        if (agent != null)
         {
-            _cursedSpeedMultiplier = 0.75f;
-            _baseAgentSpeed *= _cursedSpeedMultiplier;
-            agent.speed = _baseAgentSpeed;
+            agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         }
     }
     public void OnDealtDamageToPlayer(int dealtDamage)
@@ -230,7 +227,7 @@ public class MagmaBossAI : MonoBehaviour
     void TickIdle()
     {
         agent.isStopped = true;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         SetWalk(false, true);
         animator.SetBool(paramIsAttackin, false);
         animator.SetBool(paramIsCharging, false);
@@ -281,7 +278,7 @@ public class MagmaBossAI : MonoBehaviour
 
         // Move toward player (original chase logic)
         agent.isStopped = false;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         agent.SetDestination(player.position);
         FaceTarget();
 
@@ -427,13 +424,13 @@ public class MagmaBossAI : MonoBehaviour
         {
             case BossState.Idle:
                 agent.isStopped = true;
-                agent.speed = _baseAgentSpeed;
+                agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
                 SetWalk(false, true);
                 break;
 
             case BossState.Chase:
                 agent.isStopped = false;
-                agent.speed = _baseAgentSpeed;
+                agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
                 break;
 
             case BossState.Attack:
@@ -483,7 +480,7 @@ public class MagmaBossAI : MonoBehaviour
     {
         _attackBusy = true;
         agent.isStopped = true;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         SetWalk(false, true);
 
         int idx = PickAttackIndex();
@@ -517,7 +514,7 @@ public class MagmaBossAI : MonoBehaviour
 
         // TELEGRAPH PHASE
         agent.isStopped = true;
-        agent.speed = _baseAgentSpeed;
+        agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         SetWalk(false, true);
         animator.SetBool(paramIsCharging, false);
 
@@ -655,7 +652,7 @@ public class MagmaBossAI : MonoBehaviour
 
         if (agent)
         {
-            agent.speed = _baseAgentSpeed;
+            agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
             agent.isStopped = false;
         }
     }
@@ -735,7 +732,7 @@ public class MagmaBossAI : MonoBehaviour
 
         if (agent)
         {
-            agent.speed = _baseAgentSpeed;
+            agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
             agent.isStopped = false;
         }
     }
@@ -857,4 +854,17 @@ public class MagmaBossAI : MonoBehaviour
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, spitMaxDistance);
     }
+    public void RemoveCurse()
+    {
+        isCursed = false;
+        reflectDamageWhenCursed = false;
+        damageMult = 1;
+        _cursedSpeedMultiplier = 1f;
+        if (agent != null)
+        {
+            agent.speed = _baseAgentSpeed;
+        }
+
+    }
+
 }
