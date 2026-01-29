@@ -260,8 +260,7 @@ public class GhostBossAI : MonoBehaviour
         if (slow)
         {
             _cursedSpeedMultiplier = 0.75f;
-            _baseAgentSpeed *= _cursedSpeedMultiplier;
-            agent.speed = _baseAgentSpeed;
+            agent.speed = _baseAgentSpeed * _cursedSpeedMultiplier;
         }
     }
 
@@ -271,6 +270,7 @@ public class GhostBossAI : MonoBehaviour
         {
             int reflected = Mathf.RoundToInt(dealtDamage * 0.5f);
             TakeDamage(reflected);
+            Debug.Log("Curse boss took:" + reflected +" damage reflected");
         }
     }
 
@@ -482,7 +482,9 @@ public class GhostBossAI : MonoBehaviour
             var cc = col.GetComponentInChildren<CombatController>();
             if (cc != null)
             {
-                cc.TakeDamageByBoss(30);
+                int dealt = 30;
+                cc.TakeDamageByBoss(dealt);
+                OnDealtDamageToPlayer(dealt);
             }
         }
     }
