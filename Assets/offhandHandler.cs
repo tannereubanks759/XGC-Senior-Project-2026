@@ -114,9 +114,8 @@ public class offhandHandler : MonoBehaviour
 
 
     }
-    public void lightning()
+    public void lightning(bool showTutorial = true)
     {
-        //skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.Lightning)
@@ -132,27 +131,23 @@ public class offhandHandler : MonoBehaviour
             allOffhands[1].OnEquip(player);
             currentOffhand = allOffhands[1];
         }
-
         // upgrade 1
         if (lightningUpgradeCount >= 1 && allOffhands.Length > 2 && allOffhands[2] != null)
         {
             allOffhands[2].OnEquip(player);
         }
-
         // upgrade 2
         if (lightningUpgradeCount >= 2 && allOffhands.Length > 3 && allOffhands[3] != null)
         {
             allOffhands[3].OnEquip(player);
         }
         currentOffhandType = OffhandType.Lightning;
-        if(lightningFirst)
+
+        if (showTutorial && lightningFirst)
         {
             lightningFirst = false;
-            //Debug.Log("tried to turn on tut");
-            //lightningTut.SetActive(true);
             uiMan.openLightTutorial();
             waitingForCloseButton();
-            //Debug.Log("Turned on tut");
         }
     }
     public void chaos()
@@ -217,7 +212,7 @@ public class offhandHandler : MonoBehaviour
         if (num == 1)
         {
             lightningUpgradeCount++;
-            lightning();        
+            lightning(false);
         }
         else if (num == 2)
         {

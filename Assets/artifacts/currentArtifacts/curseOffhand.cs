@@ -138,7 +138,7 @@ public class curseOffhand : MonoBehaviour
                         {
                             Vector3 offset = new Vector3(0f, 2f, 0f);
                             if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
-                            spawnedCurseVfx = Instantiate(activeCurseVfx, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, magmaBoss.transform.position + offset, Quaternion.identity, magmaBoss.transform);
                             spawnedCurseVfx.transform.localPosition = offset;
                         }
                     }
@@ -159,7 +159,7 @@ public class curseOffhand : MonoBehaviour
                         {
                             Vector3 offset = new Vector3(0f, 2f, 0f);
                             if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
-                            spawnedCurseVfx = Instantiate(activeCurseVfx, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, ghostBoss.transform.position + offset, Quaternion.identity, ghostBoss.transform);
                             spawnedCurseVfx.transform.localPosition = offset;
                         }
                     }
