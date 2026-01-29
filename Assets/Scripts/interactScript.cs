@@ -21,7 +21,7 @@ public class interactScript : MonoBehaviour
     private bool healthPotionInteract = false;
     private HealthPotion HealthPotionScript;
     private GoldBank goldRef;
-    public int priceOfHealthPotion = 5;
+    public int priceOfHealthPotion = 0;
     private bool upgrade = false;
     public bool TeleporterInteract = false;
     public GameObject currentUpgradeStation;
@@ -75,7 +75,7 @@ public class interactScript : MonoBehaviour
         else if (other.CompareTag("healthPotion"))
         {
             healthPotionInteract = true;
-            tmpro.text = "E to interact. Price: " + priceOfHealthPotion.ToString();
+            tmpro.text = "E to pickup potion";
             interactText.SetActive(true);
             currentHealthPotion = other.gameObject;
         }
@@ -166,12 +166,12 @@ public class interactScript : MonoBehaviour
             }
             else if (healthPotionInteract)
             {
-                if (goldRef.gold >= priceOfHealthPotion)
-                {
+                //if (goldRef.gold >= priceOfHealthPotion)
+                //{
                     if (HealthPotionScript.GetQuantity() <= 4)
                     {
                         HealthPotionScript.CollectHealthPotion();
-                        goldRef.RemoveGold(priceOfHealthPotion);
+                        //goldRef.RemoveGold(priceOfHealthPotion);
 
                         if (currentHealthPotion != null)
                             Destroy(currentHealthPotion);
@@ -180,7 +180,7 @@ public class interactScript : MonoBehaviour
                         healthPotionInteract = false;
                         tmpro.text = "E to interact"; 
                     }
-                }
+                //}
             }
             else if(upgrade)
             {
