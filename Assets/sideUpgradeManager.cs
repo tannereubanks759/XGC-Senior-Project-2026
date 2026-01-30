@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class sideUpgradeManager : MonoBehaviour
 {
+    private Fireball fireballRef;
+    private SetOnFire fireScriptRef;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -16,19 +19,19 @@ public class sideUpgradeManager : MonoBehaviour
     #region Fireball
     public void increaseFireballRadius()
     {
-
+        fireballRef.splashRadius = 5f;
     }
     public void increaseFireballBurnDamage()
     {
-
+        fireScriptRef.damagePerTick = 7f;
     }
     public void increaseFireballBurnTime()
     {
-
+        fireScriptRef.timeOnFire = 5.5f;
     }
     public void increaseFireballExplosionDamage()
     {
-
+        fireballRef.damage = 35f;
     }
     #endregion
     #region Electric
