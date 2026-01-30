@@ -6,10 +6,17 @@ public class SkeletonAnimEvents : MonoBehaviour
     
     public void EnableSwordCollider()
     {
-        swordCol.enabled = true;
+        if(swordCol != null)
+        {
+            swordCol.enabled = true;
+        }
+        
     }
     public void DisableSwordCollider()
     {
-        swordCol.enabled = false;
+        if (swordCol != null)
+        {
+            swordCol.enabled = false;
+        }
     }
 }

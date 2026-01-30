@@ -6,6 +6,7 @@ public class DamageRef : MonoBehaviour
     private MagmaBossAI magmaBoss;
     private GhostBossAI ghostBoss;
     private SkeletonSwordEnemy swordEnemy;
+    private SkeletonGunEnemy gunEnemy;
     private CrackenTentacleCollider kraken;
 
     public GameObject SoulPrefab;
@@ -20,6 +21,7 @@ public class DamageRef : MonoBehaviour
         ghostBoss = GetComponent<GhostBossAI>();
         swordEnemy = GetComponent<SkeletonSwordEnemy>();
         kraken = GetComponent<CrackenTentacleCollider>();
+        gunEnemy = GetComponent<SkeletonGunEnemy>();
         hasSpawnedSoul = false;
     }
 
@@ -46,6 +48,10 @@ public class DamageRef : MonoBehaviour
         if (kraken)
         {
             kraken.TakeDamage(damage);
+        }
+        if (gunEnemy)
+        {
+            gunEnemy.ApplyDamage(damage);
         }
     }
 
@@ -79,6 +85,13 @@ public class DamageRef : MonoBehaviour
         if (swordEnemy)
         {
             if (swordEnemy.GetHealth() <= damage)
+            {
+                SpawnSoul();
+            }
+        }
+        if (gunEnemy)
+        {
+            if(gunEnemy.GetHealth() <= damage)
             {
                 SpawnSoul();
             }
