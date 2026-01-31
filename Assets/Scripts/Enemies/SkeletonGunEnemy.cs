@@ -40,187 +40,92 @@ public class SkeletonGunEnemy : MonoBehaviour
     public Transform target;
 
     [Header("Player Auto-Find")]
-    [Tooltip("Tag on the player root GameObject (recommended).")]
     public string playerTag = "Player";
-
-    [Tooltip("How often (seconds) we try to find the player if target is missing.")]
     public float findTargetInterval = 0.5f;
-
-    [Tooltip("If true, prefer using Camera.main as the look target when available.")]
     public bool preferMainCameraForLook = true;
 
     [Header("Head Look (LookAtConstraint)")]
-    [Tooltip("LookAtConstraint on the head (or head rig).")]
     public LookAtConstraint headLookConstraint;
-
-    [Tooltip("Optional: player's head/camera. Auto-assigned when player is found.")]
     public Transform targetHead;
-
-    [Tooltip("Max distance for head look.")]
     public float headLookRange = 14f;
 
     [Range(10f, 180f)]
-    [Tooltip("Head look only if enemy forward is within this yaw angle to the target.")]
     public float headLookMaxAngle = 95f;
 
-    [Tooltip("How fast the constraint weight blends in/out.")]
     public float headLookBlendSpeed = 8f;
 
     [Range(0f, 1f)]
-    [Tooltip("Maximum weight the LookAtConstraint is allowed to reach (acts like strength).")]
     public float headLookMaxWeight = 1f;
 
     [Header("Patrol (Random Wander)")]
     public bool startPatrolling = true;
-
-    [Tooltip("How far from spawn point the skeleton is allowed to patrol.")]
     public float patrolRadius = 12f;
-
-    [Tooltip("How close we need to be to consider we've reached the patrol destination.")]
     public float patrolArriveTolerance = 1.1f;
-
-    [Tooltip("How long to stall at a patrol point (seconds).")]
     public Vector2 patrolStallTimeRange = new Vector2(0.6f, 2.0f);
-
-    [Tooltip("How often we check whether the current patrol path is still valid.")]
     public float patrolRepathCheckInterval = 0.35f;
-
-    [Tooltip("How many attempts to find a valid random patrol destination before giving up briefly.")]
     public int patrolFindMaxAttempts = 12;
-
-    [Tooltip("Extra randomness on top of patrolRadius (0 = none).")]
     public float patrolRadiusJitter = 0.0f;
-
-    [Tooltip("NavMeshAgent speed while patrolling.")]
     public float patrolSpeed = 2.0f;
-
-    [Tooltip("NavMeshAgent acceleration while patrolling.")]
     public float patrolAcceleration = 8.0f;
-
-    [Tooltip("How far we stop from patrol destinations.")]
     public float patrolStoppingDistance = 0.4f;
 
     [Header("Perception")]
-    [Tooltip("How far the skeleton can see the player.")]
     public float visionRange = 25f;
 
     [Range(10f, 180f)]
-    [Tooltip("Field of view angle (degrees).")]
     public float visionFov = 120f;
 
-    [Tooltip("Within this range we ignore FOV (still requires line of sight).")]
     public float closeAwarenessRange = 8.0f;
-
-    [Tooltip("If within this range, the skeleton can detect even if not facing (still LOS).")]
     public float autoDetectRange = 3.0f;
-
-    [Tooltip("How thick the vision cast is. Helps prevent tiny gaps/edges breaking vision.")]
     public float sightThickness = 0.12f;
-
-    [Tooltip("Eye height if eyePoint is null.")]
     public float fallbackEyeHeight = 1.6f;
-
-    [Tooltip("Where on the target we aim the sight check (chest/head).")]
     public float targetAimHeight = 1.4f;
-
-    [Tooltip("Only these layers can block vision (WALLS/LEVEL). EXCLUDE Player/Enemy.")]
     public LayerMask occlusionMask;
-
-    [Tooltip("Optional: draw vision debug rays.")]
     public bool debugVision;
-
-    [Tooltip("Seconds the skeleton keeps chasing after losing line of sight.")]
     public float aggroMemoryTime = 4.0f;
 
     [Header("Gun Combat")]
-    [Tooltip("Enemy will approach until it is within this distance, then stop to aim/shoot.")]
     public float preferredShootDistance = 9f;
-
-    [Tooltip("If player is closer than this, the enemy will try to reposition away.")]
     public float tooCloseDistance = 6f;
-
-    [Tooltip("If player is farther than this, enemy will cancel aiming and chase closer.")]
     public float maxEngageDistance = 18f;
-
-    [Tooltip("Time spent aiming before firing.")]
     public float aimDuration = 3f;
-
-    [Tooltip("Small pause after firing before moving again.")]
     public float postFireRecoverTime = 0.6f;
-
-    [Tooltip("Cooldown between shots.")]
     public Vector2 shotCooldownRange = new Vector2(2.0f, 4.0f);
 
-    [Tooltip("Chance to reposition after firing.")]
     [Range(0f, 1f)]
     public float repositionAfterShotChance = 0.55f;
 
-    [Tooltip("How far to try to reposition (around the player) when too close or after shooting.")]
     public float repositionRadius = 4.5f;
-
-    [Tooltip("How long we allow repositioning before returning to chase/aim.")]
     public float repositionMaxTime = 1.25f;
 
     [Header("Movement / Rotation")]
-    [Tooltip("How quickly the body rotates toward facing direction.")]
     public float turnSpeed = 10f;
 
     [Header("Combat Movement Tuning")]
-    [Tooltip("Agent speed when far away (chasing).")]
     public float chaseSpeedFar = 4.0f;
-
-    [Tooltip("Agent speed when close to the player (near engage).")]
     public float chaseSpeedNear = 2.2f;
-
-    [Tooltip("Distance where we start slowing down.")]
     public float slowDownStartDistance = 12.0f;
-
-    [Tooltip("Distance where we are at 'near' speed (around preferred distance).")]
     public float slowDownEndDistance = 8.5f;
-
-    [Tooltip("How quickly speed blends (higher = snappier).")]
     public float speedBlend = 8.0f;
-
-    [Tooltip("Optional: also scale acceleration to reduce twitchiness near player.")]
     public float accelFar = 18f;
-
-    [Tooltip("Optional: also scale acceleration to reduce twitchiness near player.")]
     public float accelNear = 10f;
 
     [Header("Locomotion Animation")]
-    [Tooltip("World speed (m/s) that corresponds to full run in your blend tree.")]
     public float animMaxMoveSpeed = 4.0f;
 
     [Header("Animator Params")]
-    [Tooltip("Animator float param for movement speed (0..1).")]
     public string animSpeedParam = "Speed";
-
-    [Tooltip("Animator bool param for having target / aggro.")]
     public string animAggroBool = "Aggro";
-
-    [Tooltip("Animator trigger for getting hit/stunned.")]
     public string animHitTrigger = "Hit";
-
-    [Tooltip("Animator trigger for death.")]
     public string animDieTrigger = "Die";
-
-    [Tooltip("Gun aiming bool (your controller shows this as 'isAiming').")]
     public string animIsAimingBool = "isAiming";
-
-    [Tooltip("Gun fire trigger (your controller shows this as 'shoot').")]
     public string animShootTrigger = "shoot";
 
-    
-
     [Header("Tuning")]
-    [Tooltip("How often (seconds) we refresh detection checks to save CPU.")]
     public float senseInterval = 0.12f;
-
-    [Tooltip("How often we update destination while chasing.")]
     public float chaseRepathInterval = 0.20f;
 
     [Range(0f, 1f)]
-    [Tooltip("0 = no staggering, 1 = full spreading across the whole interval.")]
     public float staggerStrength = 1f;
 
     [Header("Health")]
@@ -241,7 +146,6 @@ public class SkeletonGunEnemy : MonoBehaviour
     private float _stunEndTime = -999f;
 
     private Coroutine _stateRoutine;
-
     private Vector3 _spawnPos;
 
     private float _sensePhase;
@@ -250,10 +154,21 @@ public class SkeletonGunEnemy : MonoBehaviour
     private float _headLookW;
     private readonly RaycastHit[] _sightHits = new RaycastHit[24];
 
-    
+    // ---------------------------
+    // Reposition fix: persistent reposition mode + small stoppingDistance
+    // ---------------------------
+    private bool _isRepositioning = false;
+    private Vector3 _repositionDest;
+    private float _repositionEndTime = -999f;
+    private float _nextRepositionAttemptTime = -999f;
+    private bool _wantsRepositionAfterShot = false;
 
-    private float _repositionUntil = -999f;
+    [Header("Reposition (Advanced)")]
+    [Tooltip("Stopping distance used ONLY while repositioning (should be small).")]
+    public float repositionStoppingDistance = 0.15f;
 
+    [Tooltip("If reposition fails, wait this long before trying again (prevents spam).")]
+    public float repositionRetryCooldown = 0.25f;
 
     private void Reset()
     {
@@ -268,7 +183,6 @@ public class SkeletonGunEnemy : MonoBehaviour
         _health = maxHealth;
 
         agent.updateRotation = false;
-
         _spawnPos = transform.position;
 
         int id = Mathf.Abs(GetInstanceID());
@@ -282,14 +196,14 @@ public class SkeletonGunEnemy : MonoBehaviour
         _nextRepathTime = Time.time + repathOffset;
         _nextFindTargetTime = Time.time + (findTargetInterval * Mathf.Lerp(0f, _sensePhase, staggerStrength));
 
-        _nextShotAllowedTime = Time.time + Random.Range(shotCooldownRange.x, shotCooldownRange.y);
+        // Aim immediately on first engage; cooldown is applied after first shot.
+        _nextShotAllowedTime = Time.time;
+
 
         if (headLookConstraint != null)
             headLookConstraint.weight = 0f;
 
         SetAiming(false);
-
-        
     }
 
     private void Start()
@@ -375,8 +289,6 @@ public class SkeletonGunEnemy : MonoBehaviour
 
         headLookConstraint.SetSources(list);
         headLookConstraint.constraintActive = true;
-
-        // IMPORTANT: avoid lock flipping issues in builds (leave unlocked)
         headLookConstraint.locked = false;
     }
 
@@ -414,8 +326,6 @@ public class SkeletonGunEnemy : MonoBehaviour
         _headLookW = Mathf.MoveTowards(_headLookW, desired, headLookBlendSpeed * Time.deltaTime);
         headLookConstraint.weight = _headLookW * Mathf.Clamp01(headLookMaxWeight);
     }
-
-    
 
     private void Sense()
     {
@@ -514,17 +424,20 @@ public class SkeletonGunEnemy : MonoBehaviour
         switch (s)
         {
             case State.Idle:
+                CancelReposition();
                 agent.isStopped = true;
                 SetAiming(false);
                 yield break;
 
             case State.Patrol:
+                CancelReposition();
                 agent.isStopped = false;
                 SetAiming(false);
                 yield return PatrolLoop();
                 yield break;
 
             case State.Investigate:
+                CancelReposition();
                 agent.isStopped = false;
                 SetAiming(false);
                 yield return InvestigateLoop();
@@ -537,18 +450,22 @@ public class SkeletonGunEnemy : MonoBehaviour
                 yield break;
 
             case State.Aim:
+                CancelReposition();
                 yield return AimLoop();
                 yield break;
 
             case State.Fire:
+                CancelReposition();
                 yield return FireOnce();
                 yield break;
 
             case State.Recover:
+                CancelReposition();
                 yield return RecoverBriefly();
                 yield break;
 
             case State.Stunned:
+                CancelReposition();
                 yield return StunnedBriefly();
                 yield break;
 
@@ -647,15 +564,47 @@ public class SkeletonGunEnemy : MonoBehaviour
 
     private IEnumerator ChaseLoop()
     {
+        // restore default chase stop distance
+        agent.stoppingDistance = preferredShootDistance;
+
         while (_state == State.Chase)
         {
             if (!target)
             {
+                CancelReposition();
                 SetState(startPatrolling ? State.Patrol : State.Idle);
                 yield break;
             }
 
             float dist = Vector3.Distance(transform.position, target.position);
+
+            // If we are currently repositioning, keep doing it until done/timeout.
+            if (_isRepositioning)
+            {
+                if (Time.time >= _repositionEndTime)
+                {
+                    EndReposition();
+                }
+                else if (!agent.pathPending && agent.hasPath)
+                {
+                    float arriveDist = Mathf.Max(0.15f, agent.stoppingDistance + 0.05f);
+                    if (agent.remainingDistance <= arriveDist && agent.velocity.sqrMagnitude < 0.03f)
+                        EndReposition();
+                }
+
+                // While repositioning, do NOT override destination every frame.
+                yield return null;
+                continue;
+            }
+
+            // After-shot requested reposition
+            if (_wantsRepositionAfterShot)
+            {
+                _wantsRepositionAfterShot = false;
+                BeginRepositionAwayFromTarget();
+                yield return null;
+                continue;
+            }
 
             // Too far: move closer
             if (dist > preferredShootDistance)
@@ -669,19 +618,17 @@ public class SkeletonGunEnemy : MonoBehaviour
                     agent.SetDestination(target.position);
                 }
             }
-            // Too close: reposition away (Sea of Thieves-ish)
+            // Too close: reposition away (fixed)
             else if (dist < tooCloseDistance)
             {
-                agent.isStopped = false;                 // IMPORTANT
-                agent.stoppingDistance = preferredShootDistance;
+                BeginRepositionAwayFromTarget();
 
-                if (TryRepositionAwayFromTarget())
+                // If reposition couldn't start, fallback to simple chase update (so it never freezes)
+                if (!_isRepositioning)
                 {
-                    _repositionUntil = Time.time + repositionMaxTime;
-                }
-                else
-                {
-                    // Fallback: if reposition fails, just keep chasing so it doesn't freeze
+                    agent.isStopped = false;
+                    agent.stoppingDistance = preferredShootDistance;
+
                     if (Time.time >= _nextRepathTime)
                     {
                         _nextRepathTime = Time.time + chaseRepathInterval;
@@ -689,14 +636,13 @@ public class SkeletonGunEnemy : MonoBehaviour
                     }
                 }
             }
-
-            // In the “gun range window”: aim / fire if ready
+            // In the “gun range window”
             else
             {
                 agent.isStopped = true;
                 agent.ResetPath();
 
-                if (Time.time >= _repositionUntil && dist <= maxEngageDistance && Time.time >= _nextShotAllowedTime)
+                if (dist <= maxEngageDistance)
                 {
                     SetState(State.Aim);
                     yield break;
@@ -721,8 +667,9 @@ public class SkeletonGunEnemy : MonoBehaviour
         agent.ResetPath();
         SetAiming(true);
 
-        float t = 0f;
-        while (_state == State.Aim && t < aimDuration)
+        float aimT = 0f;
+
+        while (_state == State.Aim)
         {
             if (!target)
             {
@@ -741,7 +688,7 @@ public class SkeletonGunEnemy : MonoBehaviour
                 yield break;
             }
 
-            // If player pushes too close, cancel aim and reposition
+            // If player pushes too close, cancel aim and reposition/chase
             if (dist < tooCloseDistance)
             {
                 SetAiming(false);
@@ -749,13 +696,26 @@ public class SkeletonGunEnemy : MonoBehaviour
                 yield break;
             }
 
-            t += Time.deltaTime;
+            // Spend time aiming
+            if (aimT < aimDuration)
+            {
+                aimT += Time.deltaTime;
+            }
+            else
+            {
+                // Aim finished: wait until cooldown allows firing
+                if (Time.time >= _nextShotAllowedTime)
+                {
+                    SetState(State.Fire);
+                    yield break;
+                }
+                // else: keep holding aim pose until allowed
+            }
+
             yield return null;
         }
-
-        if (_state == State.Aim)
-            SetState(State.Fire);
     }
+
 
     private IEnumerator FireOnce()
     {
@@ -773,16 +733,14 @@ public class SkeletonGunEnemy : MonoBehaviour
         if (animator && !string.IsNullOrEmpty(animShootTrigger))
             animator.SetTrigger(animShootTrigger);
 
-        // You handle actual projectile/trace; this is just animation timing
         yield return new WaitForSeconds(0.15f);
 
         SetAiming(false);
 
         _nextShotAllowedTime = Time.time + Random.Range(shotCooldownRange.x, shotCooldownRange.y);
 
-        // Optional reposition after shot
-        if (Random.value < repositionAfterShotChance)
-            TryRepositionAwayFromTarget();
+        // Defer reposition until we get back to Chase (so Recover doesn't instantly cancel it)
+        _wantsRepositionAfterShot = (Random.value < repositionAfterShotChance);
 
         SetState(State.Recover);
     }
@@ -815,13 +773,35 @@ public class SkeletonGunEnemy : MonoBehaviour
         SetState(target ? State.Chase : (startPatrolling ? State.Patrol : State.Idle));
     }
 
-    private bool TryRepositionAwayFromTarget()
+    // ---------------------------
+    // Reposition (FIXED)
+    // ---------------------------
+    private void BeginRepositionAwayFromTarget()
     {
-        if (!target || !agent || !agent.enabled || !agent.isOnNavMesh) return false;
+        if (Time.time < _nextRepositionAttemptTime) return;
+        _nextRepositionAttemptTime = Time.time + Mathf.Max(0.01f, repositionRetryCooldown);
 
-        agent.isStopped = false;                 // IMPORTANT
-        agent.ResetPath();
-        agent.stoppingDistance = preferredShootDistance;
+        if (!target || !agent || !agent.enabled || !agent.isOnNavMesh) return;
+
+        if (TryPickRepositionDestination(out Vector3 dest))
+        {
+            _isRepositioning = true;
+            _repositionDest = dest;
+            _repositionEndTime = Time.time + Mathf.Max(0.1f, repositionMaxTime);
+
+            agent.isStopped = false;
+            agent.ResetPath();
+
+            // CRITICAL FIX: small stopping distance during reposition (NOT preferredShootDistance)
+            agent.stoppingDistance = Mathf.Max(0.01f, repositionStoppingDistance);
+
+            agent.SetDestination(_repositionDest);
+        }
+    }
+
+    private bool TryPickRepositionDestination(out Vector3 destination)
+    {
+        destination = transform.position;
 
         Vector3 away = (transform.position - target.position);
         away.y = 0f;
@@ -830,15 +810,14 @@ public class SkeletonGunEnemy : MonoBehaviour
 
         Vector3 side = Vector3.Cross(Vector3.up, away).normalized;
 
-        // Try a few candidate offsets: back, back-left, back-right, side-left, side-right
         Vector3[] dirs =
         {
-        away,
-        (away + side * 0.6f).normalized,
-        (away - side * 0.6f).normalized,
-        side,
-        -side
-    };
+            away,
+            (away + side * 0.6f).normalized,
+            (away - side * 0.6f).normalized,
+            side,
+            -side
+        };
 
         for (int i = 0; i < dirs.Length; i++)
         {
@@ -851,22 +830,28 @@ public class SkeletonGunEnemy : MonoBehaviour
             if (!agent.CalculatePath(navHit.position, path)) continue;
             if (path.status != NavMeshPathStatus.PathComplete) continue;
 
-            agent.SetDestination(navHit.position);
+            destination = navHit.position;
             return true;
         }
 
         return false;
     }
 
-
-    private IEnumerator RepositionTimeout()
+    private void EndReposition()
     {
-        float t = 0f;
-        while (_state == State.Chase && t < repositionMaxTime)
+        _isRepositioning = false;
+
+        if (agent && agent.enabled)
         {
-            t += Time.deltaTime;
-            yield return null;
+            // Restore normal combat stopping distance
+            agent.stoppingDistance = preferredShootDistance;
         }
+    }
+
+    private void CancelReposition()
+    {
+        _isRepositioning = false;
+        _wantsRepositionAfterShot = false;
     }
 
     private void FaceTargetOnly()
@@ -889,7 +874,6 @@ public class SkeletonGunEnemy : MonoBehaviour
 
         if (target && (_state == State.Chase))
         {
-            // In chase, prefer facing player (Sea of Thieves feel)
             lookDir = target.position - transform.position;
         }
         else
@@ -936,6 +920,7 @@ public class SkeletonGunEnemy : MonoBehaviour
         bool engaging = _state == State.Chase || _state == State.Investigate;
         if (!engaging) return;
 
+        // While repositioning, don't fight the movement tuning (but it's safe either way)
         float dist = Vector3.Distance(transform.position, target.position);
 
         float nearDist = Mathf.Min(slowDownStartDistance, slowDownEndDistance);
@@ -1037,10 +1022,9 @@ public class SkeletonGunEnemy : MonoBehaviour
 
         return false;
     }
-    public float GetHealth()
-    {
-        return _health;
-    }
+
+    public float GetHealth() => _health;
+
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
@@ -1053,6 +1037,13 @@ public class SkeletonGunEnemy : MonoBehaviour
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(eyePoint.position, visionRange);
+        }
+
+        if (_isRepositioning)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(_repositionDest, 0.25f);
+            Gizmos.DrawLine(transform.position, _repositionDest);
         }
     }
 }
