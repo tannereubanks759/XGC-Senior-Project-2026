@@ -25,7 +25,14 @@ public class UImanager : MonoBehaviour
     {
         OpenPlayerUIScreen();
     }
-
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.U)) //used for creating the trailer.
+        {
+            Debug.Log("Closing all ui");
+            DisableScreens();
+        }
+    }
     public void OpenPauseScreen()
     {
         ForceCloseTutorials();
