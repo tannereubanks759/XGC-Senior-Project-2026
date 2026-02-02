@@ -4952,6 +4952,7 @@ GameObject:
   - component: {fileID: 5550710987984571188}
   - component: {fileID: 5674688239381579447}
   - component: {fileID: 4816952264731170772}
+  - component: {fileID: 3277304329847307610}
   - component: {fileID: 8470590642080349687}
   m_Layer: 9
   m_Name: SkeletonSwordEnemyPrototype
@@ -5025,6 +5026,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 100680d93c87472419ec0eff390cdb63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isCursed: 0
+  curseDamageMult: 1
+  curseSpeedMult: 1
+  curseReflectEnabled: 0
+  curseReflectPercent: 0.25
   animator: {fileID: 6341627379890626326}
   agent: {fileID: 4214430075176681893}
   eyePoint: {fileID: 8517551308334516711}
@@ -5075,6 +5081,9 @@ MonoBehaviour:
   attackRecovery: 0.25
   animIsBlockingBool: IsBlocking
   isBlocking: 0
+  guardBreakStunTime: 1
+  guardBreakNoBlockTime: 1.25
+  animGuardBreakTrigger: 
   defensiveModeChance: 0.153
   defensiveDurationRange: {x: 0.6, y: 1.4}
   defensiveBackUpDistance: 2
@@ -5134,6 +5143,25 @@ CapsuleCollider:
   m_Height: 1.58
   m_Direction: 1
   m_Center: {x: 0, y: 0.91, z: 0}
+--- !u!114 &3277304329847307610
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 309375680190190056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f618a5c5e6b83d4ba1b7c87249fb0ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  swordAudioSource: {fileID: 7823494911089954083}
+  headAudioSource: {fileID: 0}
+  swingClips:
+  - {fileID: 8300000, guid: 43225000268f4eb4684ea605f6c42c20, type: 3}
+  - {fileID: 8300000, guid: 1adcc04add5a7d5409e74bad21d572b6, type: 3}
+  - {fileID: 8300000, guid: d81e3f990146ed14aab1ef5c53344e93, type: 3}
+  - {fileID: 8300000, guid: 89745ab057d75f14ba387b7298586a12, type: 3}
 --- !u!114 &8470590642080349687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12883,7 +12911,7 @@ AudioSource:
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.5
-  m_Pitch: 1
+  m_Pitch: 0.8
   Loop: 0
   Mute: 0
   Spatialize: 0

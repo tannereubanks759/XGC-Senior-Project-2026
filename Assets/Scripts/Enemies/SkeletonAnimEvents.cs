@@ -3,7 +3,11 @@ using UnityEngine;
 public class SkeletonAnimEvents : MonoBehaviour
 {
     public Collider swordCol;
-    
+    private SkeletonSoundManager SM;
+    private void Start()
+    {
+        SM = GetComponentInParent<SkeletonSoundManager>();
+    }
     public void EnableSwordCollider()
     {
         if(swordCol != null)
@@ -11,6 +15,10 @@ public class SkeletonAnimEvents : MonoBehaviour
             swordCol.enabled = true;
         }
         
+    }
+    public void PlaySwordSound()
+    {
+        SM.PlaySwingSound();
     }
     public void DisableSwordCollider()
     {

@@ -8,6 +8,7 @@ public class SwordHitbox : MonoBehaviour
 
     private SkeletonSwordEnemy ownerSkeleton;
 
+    
     private void Awake()
     {
         ownerSkeleton = GetComponentInParent<SkeletonSwordEnemy>();
