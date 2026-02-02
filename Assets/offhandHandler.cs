@@ -20,6 +20,9 @@ public class offhandHandler : MonoBehaviour
     public bool lightningFirst = true;
     public bool curseFirst = true;
     public bool fireballFirst = true;
+
+    
+
     private bool waitingForClose = false;
     private float currentTime = 0f;
     private float delayTime = .65f;
@@ -34,6 +37,12 @@ public class offhandHandler : MonoBehaviour
     private OffhandType currentOffhandType = OffhandType.None;
     private OffhandType lastOffhandType = OffhandType.None;
     public UImanager uiMan;
+
+    [Header("Sounds")]
+    public AudioSource soundSource;
+    public AudioClip flameOn;
+    public AudioClip flameOff;
+    public float flameVolume = 1f;
     void Start()
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
@@ -73,7 +82,10 @@ public class offhandHandler : MonoBehaviour
     }
     public void unequip()
     {
-        
+        if (fireBall.activeSelf) //Play flame off sound
+        {
+            soundSource.PlayOneShot(flameOff, flameVolume);
+        }
         fireBall.SetActive(false);
         lightningSkull.SetActive(false);    
         curse.SetActive(false);
@@ -192,11 +204,13 @@ public class offhandHandler : MonoBehaviour
         //skipLastEquiped = true;
         CheckForBlunderbuss();
         unequip();
+
         if (currentOffhandType != OffhandType.None && currentOffhandType != OffhandType.FireBomb)
         {
             lastOffhandType = currentOffhandType;
         }
         fireBall.SetActive(true);
+        soundSource.PlayOneShot(flameOn,flameVolume);
         currentOffhandType = OffhandType.FireBomb;
         if (fireballFirst)
         {

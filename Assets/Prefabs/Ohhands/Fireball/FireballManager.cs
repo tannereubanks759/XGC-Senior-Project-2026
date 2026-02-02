@@ -18,6 +18,10 @@ public class FireballManager : MonoBehaviour
     public float chargingSimSpeed = 0.35f;   // while < 60% scale
     public float fullSimSpeed = 1f;          // at 100% scale
 
+    [Header("Sounds")]
+    public AudioSource soundSource;
+    public AudioClip flameShoot;
+
     private Vector3 targetScale;
 
     private bool fireball_1_active = true;
@@ -240,6 +244,11 @@ public class FireballManager : MonoBehaviour
                 fireball_1_active = false;
                 ActivateThrow(fireball_1, ps1, rend1, ref fireball1ChargeTimer);
             }
+        }
+
+        if (soundSource)
+        {
+            soundSource.PlayOneShot(flameShoot);
         }
     }
 
