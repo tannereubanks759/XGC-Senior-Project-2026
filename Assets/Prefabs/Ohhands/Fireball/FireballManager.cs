@@ -21,6 +21,7 @@ public class FireballManager : MonoBehaviour
     [Header("Sounds")]
     public AudioSource soundSource;
     public AudioClip flameShoot;
+    public AudioClip flameCharge;
 
     private Vector3 targetScale;
 
@@ -194,6 +195,7 @@ public class FireballManager : MonoBehaviour
             {
                 rend.material.color = baseColor;
             }
+            soundSource.PlayOneShot(flameCharge, 2f);
         }
     }
 

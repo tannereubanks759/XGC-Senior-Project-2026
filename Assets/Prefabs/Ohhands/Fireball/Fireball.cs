@@ -16,7 +16,6 @@ public class Fireball : MonoBehaviour
 
     void Explode()
     {
-        Destroy(Instantiate(ExplosionPref, this.transform.position, Quaternion.identity), 3f);
         Collider[] colliders = Physics.OverlapSphere(this.transform.position, splashRadius);
         for (int i = 0; i < colliders.Length; i++)
         {
@@ -24,7 +23,7 @@ public class Fireball : MonoBehaviour
             {
                 BaseEnemyAI ai = colliders[i].GetComponent<BaseEnemyAI>();
                 ai.TakeDamage((int)damage);
-                if(ai!= null && ai.GetComponent<SetOnFire>() && setEnemiesOnFire)
+                if (ai != null && ai.GetComponent<SetOnFire>() && setEnemiesOnFire)
                 {
                     ai.GetComponent<SetOnFire>().SetEnemyOnFire();
                 }
@@ -47,6 +46,8 @@ public class Fireball : MonoBehaviour
                 }
             }
         }
+        Destroy(Instantiate(ExplosionPref, this.transform.position, Quaternion.identity), 3f);
+        
     }
 
     private void OnCollisionEnter(Collision collision)
