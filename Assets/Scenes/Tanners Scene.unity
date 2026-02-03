@@ -5754,6 +5754,63 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.000001, y: 0.1, z: 10}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1001 &1651757548
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 171.05687
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 6.4032326
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 104.31774
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.05499847
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.99848646
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -186.306
+      objectReference: {fileID: 0}
+    - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7139717786012736093, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: m_Name
+      value: SkeletonGunEnemyPrototype
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
 --- !u!1 &1715902717
 GameObject:
   m_ObjectHideFlags: 0
@@ -10972,6 +11029,10 @@ PrefabInstance:
       propertyPath: LightsModule.rangeCurve.maxCurve.m_Curve.Array.data[1].outWeight
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3347783823356518405, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0.00048828125
+      objectReference: {fileID: 0}
     - target: {fileID: 4040646375121057485, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
       propertyPath: flameVolume
       value: 3
@@ -15810,3 +15871,4 @@ SceneRoots:
   - {fileID: 88798945}
   - {fileID: 930099870}
   - {fileID: 1953411253}
+  - {fileID: 1651757548}
