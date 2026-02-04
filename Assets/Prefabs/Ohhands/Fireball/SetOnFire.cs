@@ -10,10 +10,10 @@ public class SetOnFire : MonoBehaviour
     public bool OnFire = false;
     public bool InLava = false;
     public float lavaDamage = 30f;
-
-    public float timeOnFire = 3f;
+    public burnUpgradeManager burnUpgradeManRef;
+    //public float timeOnFired = 3f;
     public float tickInterval = 1f;
-    public float damagePerTick = 5f;
+    //public float damagePerTickd = 5f;
 
     private float nextTick = 0f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -21,6 +21,7 @@ public class SetOnFire : MonoBehaviour
     {
         aiRef = GetComponent<BaseEnemyAI>();
         dmgRef = GetComponent<DamageRef>();
+        burnUpgradeManRef = FindAnyObjectByType<burnUpgradeManager>();
     }
 
     // Update is called once per frame
@@ -33,7 +34,7 @@ public class SetOnFire : MonoBehaviour
         }
         if (OnFire && Time.time > nextTick) //Logic for being on fire
         {
-            ApplyDamage((int)damagePerTick);
+            ApplyDamage((int)burnUpgradeManRef.damagePerTick);
             nextTick = Time.time + tickInterval;
         }
     }
@@ -72,7 +73,7 @@ public class SetOnFire : MonoBehaviour
                 emission.enabled = true;
             }
         }
-        yield return new WaitForSeconds(timeOnFire);
+        yield return new WaitForSeconds(burnUpgradeManRef.timeOnFire);
 
         if(system)
         {

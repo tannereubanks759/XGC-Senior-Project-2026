@@ -8,7 +8,8 @@ public class FireballManager : MonoBehaviour
     public GameObject fireball_1;
     public GameObject fireball_2;
     public int activeFireballs = 2;
-
+    private bool subRadiusUpgrade = false;
+    private bool subDamageUpgrade = false;  
     [Header("Charging / Scale")]
     public float totalChargeTime = 8f;                 // seconds from 0 → 100%
     [Range(0f, 1f)] public float scaleAtPopStart = 0.6f;       // 60% size before pop
@@ -267,7 +268,14 @@ public class FireballManager : MonoBehaviour
         {
             fb.setEnemiesOnFire = true;
         }
-
+        if(subRadiusUpgrade)
+        {
+            fb.splashRadius *= 1.1f;
+        }
+        if(subDamageUpgrade) 
+        {
+            fb.damage *= 1.1f;
+        }
         Destroy(fireball, 5f);
 
         // reset held orb for recharge
@@ -280,5 +288,13 @@ public class FireballManager : MonoBehaviour
         {
             rend.material.color = Color.black;
         }
+    }
+    public void upgradeSplashRadius()
+    {
+        subRadiusUpgrade = true;
+    }
+    public void upgradeDamage()
+    {
+       subDamageUpgrade = true;
     }
 }

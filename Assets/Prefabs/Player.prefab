@@ -51901,6 +51901,7 @@ GameObject:
   - component: {fileID: 6007496857955723791}
   - component: {fileID: 6230349697370413922}
   - component: {fileID: 6183583974348778513}
+  - component: {fileID: 6842257775140837287}
   m_Layer: 0
   m_Name: Weapons
   m_TagString: Untagged
@@ -52110,6 +52111,20 @@ MonoBehaviour:
   soundSource: {fileID: 8524340187920834651}
   flameShoot: {fileID: 8300000, guid: 51a02f4e028bd5340a3a9ee9d677b118, type: 3}
   flameCharge: {fileID: 8300000, guid: 51a02f4e028bd5340a3a9ee9d677b118, type: 3}
+--- !u!114 &6842257775140837287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6199241630844518463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82cdadeafeb1be641a6d9a000f52289e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeOnFire: 3
+  damagePerTick: 5
 --- !u!1 &6203221231945686468
 GameObject:
   m_ObjectHideFlags: 0
@@ -53669,10 +53684,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ceb2ff1be29dfc74b8012b9d45bf7a6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fireballRef: {fileID: 0}
-  fireScriptRef: {fileID: 0}
-  curseRef: {fileID: 0}
-  damageRef: {fileID: 0}
+  fireballManager: {fileID: 6183583974348778513}
+  curseRef: {fileID: 1741420818005438438}
+  burnUpgradeManager: {fileID: 6842257775140837287}
+  knockbackRef: {fileID: 5230912486499667837}
+  playerSwordScript: {fileID: 4603577665270097772}
 --- !u!1 &6450579590065900363
 GameObject:
   m_ObjectHideFlags: 0
