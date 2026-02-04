@@ -13338,6 +13338,10 @@ MonoBehaviour:
   aimDuration: 3
   postFireRecoverTime: 3
   shotCooldownRange: {x: 3, y: 3}
+  aimStrafeSpeed: 2
+  aimStrafeRadius: 1.5
+  aimStrafeRepathInterval: 3
+  aimDistanceCorrection: 0.65
   repositionAfterShotChance: 1
   repositionRadius: 4.5
   repositionMaxTime: 3
@@ -13416,9 +13420,8 @@ MonoBehaviour:
   OnFire: 0
   InLava: 0
   lavaDamage: 30
-  timeOnFire: 3
+  burnUpgradeManRef: {fileID: 0}
   tickInterval: 1
-  damagePerTick: 5
 --- !u!1 &7576789454707018127
 GameObject:
   m_ObjectHideFlags: 0

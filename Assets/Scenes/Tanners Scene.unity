@@ -5762,6 +5762,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2471662819111956884, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: aimStrafeSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2471662819111956884, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: aimStrafeRadius
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2471662819111956884, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: aimStrafeRepathInterval
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3864146201932571346, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
       propertyPath: m_LocalPosition.x
       value: 171.05687
@@ -14363,9 +14375,8 @@ MonoBehaviour:
   OnFire: 0
   InLava: 0
   lavaDamage: 30
-  timeOnFire: 6
+  burnUpgradeManRef: {fileID: 0}
   tickInterval: 1
-  damagePerTick: 5
 --- !u!54 &7027132255037625100
 Rigidbody:
   m_ObjectHideFlags: 0

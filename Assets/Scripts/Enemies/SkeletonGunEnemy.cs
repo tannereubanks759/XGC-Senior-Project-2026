@@ -14,8 +14,9 @@ public class SkeletonGunEnemy : MonoBehaviour
         Patrol,
         Investigate,
         Chase,
-        Aim,
+        Aim,        // aims while strafing left/right (NOT stationary)
         Fire,
+        Reposition, // after shooting, explicitly reposition here (so it can’t be “canceled” by Recover)
         Recover,
         Stunned,
         Dead
@@ -48,14 +49,9 @@ public class SkeletonGunEnemy : MonoBehaviour
     public LookAtConstraint headLookConstraint;
     public Transform targetHead;
     public float headLookRange = 14f;
-
-    [Range(10f, 180f)]
-    public float headLookMaxAngle = 95f;
-
+    [Range(10f, 180f)] public float headLookMaxAngle = 95f;
     public float headLookBlendSpeed = 8f;
-
-    [Range(0f, 1f)]
-    public float headLookMaxWeight = 1f;
+    [Range(0f, 1f)] public float headLookMaxWeight = 1f;
 
     [Header("Patrol (Random Wander)")]
     public bool startPatrolling = true;
@@ -71,10 +67,7 @@ public class SkeletonGunEnemy : MonoBehaviour
 
     [Header("Perception")]
     public float visionRange = 25f;
-
-    [Range(10f, 180f)]
-    public float visionFov = 120f;
-
+    [Range(10f, 180f)] public float visionFov = 120f;
     public float closeAwarenessRange = 8.0f;
     public float autoDetectRange = 3.0f;
     public float sightThickness = 0.12f;
@@ -85,17 +78,39 @@ public class SkeletonGunEnemy : MonoBehaviour
     public float aggroMemoryTime = 4.0f;
 
     [Header("Gun Combat")]
+    [Tooltip("Skeleton tries to stay around this distance while fighting.")]
     public float preferredShootDistance = 9f;
+
+    [Tooltip("If closer than this, it will back off/reposition instead of aiming.")]
     public float tooCloseDistance = 6f;
+
+    [Tooltip("If farther than this, it won’t aim; it will chase.")]
     public float maxEngageDistance = 18f;
+
+    [Tooltip("Time spent aiming before firing (while strafing).")]
     public float aimDuration = 3f;
+
     public float postFireRecoverTime = 0.6f;
     public Vector2 shotCooldownRange = new Vector2(2.0f, 4.0f);
 
-    [Range(0f, 1f)]
-    public float repositionAfterShotChance = 0.55f;
+    [Header("Aim Strafing")]
+    [Tooltip("How fast the skeleton strafes while aiming.")]
+    public float aimStrafeSpeed = 2.2f;
 
-    public float repositionRadius = 4.5f;
+    [Tooltip("How far left/right it tries to move while aiming.")]
+    public float aimStrafeRadius = 3.0f;
+
+    [Tooltip("How often we refresh the strafe destination while aiming.")]
+    public float aimStrafeRepathInterval = 0.20f;
+
+    [Tooltip("If target distance drifts, we pull it back toward preferred distance (0 = no correction).")]
+    public float aimDistanceCorrection = 0.65f;
+
+    [Header("Reposition After Shot")]
+    [Range(0f, 1f)]
+    public float repositionAfterShotChance = 0.75f;
+
+    public float repositionRadius = 5.0f;
     public float repositionMaxTime = 1.25f;
 
     [Header("Movement / Rotation")]
@@ -124,13 +139,18 @@ public class SkeletonGunEnemy : MonoBehaviour
     [Header("Tuning")]
     public float senseInterval = 0.12f;
     public float chaseRepathInterval = 0.20f;
-
-    [Range(0f, 1f)]
-    public float staggerStrength = 1f;
+    [Range(0f, 1f)] public float staggerStrength = 1f;
 
     [Header("Health")]
     public float maxHealth = 100f;
     public float stunDuration = 0.6f;
+
+    [Header("Reposition (Advanced)")]
+    [Tooltip("Stopping distance used ONLY while repositioning (should be small).")]
+    public float repositionStoppingDistance = 0.15f;
+
+    [Tooltip("If reposition fails, wait this long before trying again (prevents spam).")]
+    public float repositionRetryCooldown = 0.25f;
 
     private State _state;
     private float _health;
@@ -154,21 +174,17 @@ public class SkeletonGunEnemy : MonoBehaviour
     private float _headLookW;
     private readonly RaycastHit[] _sightHits = new RaycastHit[24];
 
-    // ---------------------------
-    // Reposition fix: persistent reposition mode + small stoppingDistance
-    // ---------------------------
+    // Aim strafing runtime
+    private int _aimStrafeSide = 1;
+    private float _aimStartTime;
+    private float _nextAimStrafeRepath;
+
+    // Reposition runtime
     private bool _isRepositioning = false;
     private Vector3 _repositionDest;
     private float _repositionEndTime = -999f;
     private float _nextRepositionAttemptTime = -999f;
-    private bool _wantsRepositionAfterShot = false;
-
-    [Header("Reposition (Advanced)")]
-    [Tooltip("Stopping distance used ONLY while repositioning (should be small).")]
-    public float repositionStoppingDistance = 0.15f;
-
-    [Tooltip("If reposition fails, wait this long before trying again (prevents spam).")]
-    public float repositionRetryCooldown = 0.25f;
+    private bool _forceRepositionAfterShot = false;
 
     private void Reset()
     {
@@ -196,9 +212,7 @@ public class SkeletonGunEnemy : MonoBehaviour
         _nextRepathTime = Time.time + repathOffset;
         _nextFindTargetTime = Time.time + (findTargetInterval * Mathf.Lerp(0f, _sensePhase, staggerStrength));
 
-        // Aim immediately on first engage; cooldown is applied after first shot.
         _nextShotAllowedTime = Time.time;
-
 
         if (headLookConstraint != null)
             headLookConstraint.weight = 0f;
@@ -227,10 +241,13 @@ public class SkeletonGunEnemy : MonoBehaviour
         UpdateAnimatorLocomotion();
         UpdateHeadLookConstraint();
 
-        if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase)
-            FaceTargetOrMovement();
-        else if (_state == State.Aim || _state == State.Fire || _state == State.Recover)
+        // Facing:
+        // - Aim/Fire/Reposition: always face target while moving/acting
+        // - Chase/Patrol/Investigate: face target or movement
+        if (_state == State.Aim || _state == State.Fire || _state == State.Reposition || _state == State.Recover)
             FaceTargetOnly();
+        else if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase)
+            FaceTargetOrMovement();
     }
 
     private void AcquireTargetIfNeeded()
@@ -276,12 +293,6 @@ public class SkeletonGunEnemy : MonoBehaviour
     {
         if (headLookConstraint == null || lookTarget == null) return;
 
-        if (headLookConstraint.sourceCount == 1)
-        {
-            var s = headLookConstraint.GetSource(0);
-            if (s.sourceTransform == lookTarget) return;
-        }
-
         var list = new System.Collections.Generic.List<ConstraintSource>(1)
         {
             new ConstraintSource { sourceTransform = lookTarget, weight = 1f }
@@ -297,11 +308,11 @@ public class SkeletonGunEnemy : MonoBehaviour
         if (headLookConstraint == null) return;
 
         float desired = 0f;
-
         bool engaged =
             _state == State.Chase ||
             _state == State.Aim ||
             _state == State.Fire ||
+            _state == State.Reposition ||
             _state == State.Recover;
 
         if (engaged && target != null)
@@ -345,7 +356,7 @@ public class SkeletonGunEnemy : MonoBehaviour
         {
             bool hasMemory = (Time.time - _lastSeenTime) <= aggroMemoryTime;
 
-            if (!hasMemory && (_state == State.Chase || _state == State.Aim || _state == State.Fire || _state == State.Recover))
+            if (!hasMemory && (_state == State.Chase || _state == State.Aim || _state == State.Fire || _state == State.Reposition || _state == State.Recover))
             {
                 if (_lastSeenTime > -998f) SetState(State.Investigate);
                 else SetState(startPatrolling ? State.Patrol : State.Idle);
@@ -419,53 +430,60 @@ public class SkeletonGunEnemy : MonoBehaviour
 
     private IEnumerator RunState(State s)
     {
-        SetAnimatorAggro(s == State.Chase || s == State.Aim || s == State.Fire || s == State.Recover);
+        SetAnimatorAggro(s == State.Chase || s == State.Aim || s == State.Fire || s == State.Reposition || s == State.Recover);
 
         switch (s)
         {
             case State.Idle:
-                CancelReposition();
+                CancelRepositionHard();
                 agent.isStopped = true;
                 SetAiming(false);
                 yield break;
 
             case State.Patrol:
-                CancelReposition();
+                CancelRepositionHard();
                 agent.isStopped = false;
                 SetAiming(false);
                 yield return PatrolLoop();
                 yield break;
 
             case State.Investigate:
-                CancelReposition();
+                CancelRepositionHard();
                 agent.isStopped = false;
                 SetAiming(false);
                 yield return InvestigateLoop();
                 yield break;
 
             case State.Chase:
+                // do not hard-cancel _forceRepositionAfterShot here; Chase uses it
                 agent.isStopped = false;
                 SetAiming(false);
                 yield return ChaseLoop();
                 yield break;
 
             case State.Aim:
-                CancelReposition();
-                yield return AimLoop();
+                CancelRepositionHard();
+                yield return AimStrafeLoop();
                 yield break;
 
             case State.Fire:
-                CancelReposition();
+                CancelRepositionHard();
                 yield return FireOnce();
                 yield break;
 
+            case State.Reposition:
+                yield return RepositionLoop();
+                yield break;
+
             case State.Recover:
-                CancelReposition();
+                agent.isStopped = true;
+                agent.ResetPath();
+                SetAiming(false);
                 yield return RecoverBriefly();
                 yield break;
 
             case State.Stunned:
-                CancelReposition();
+                CancelRepositionHard();
                 yield return StunnedBriefly();
                 yield break;
 
@@ -564,49 +582,28 @@ public class SkeletonGunEnemy : MonoBehaviour
 
     private IEnumerator ChaseLoop()
     {
-        // restore default chase stop distance
         agent.stoppingDistance = preferredShootDistance;
 
         while (_state == State.Chase)
         {
             if (!target)
             {
-                CancelReposition();
+                CancelRepositionHard();
                 SetState(startPatrolling ? State.Patrol : State.Idle);
                 yield break;
             }
 
             float dist = Vector3.Distance(transform.position, target.position);
 
-            // If we are currently repositioning, keep doing it until done/timeout.
-            if (_isRepositioning)
+            // After-shot forced reposition request goes FIRST (so it always happens)
+            if (_forceRepositionAfterShot)
             {
-                if (Time.time >= _repositionEndTime)
-                {
-                    EndReposition();
-                }
-                else if (!agent.pathPending && agent.hasPath)
-                {
-                    float arriveDist = Mathf.Max(0.15f, agent.stoppingDistance + 0.05f);
-                    if (agent.remainingDistance <= arriveDist && agent.velocity.sqrMagnitude < 0.03f)
-                        EndReposition();
-                }
-
-                // While repositioning, do NOT override destination every frame.
-                yield return null;
-                continue;
+                _forceRepositionAfterShot = false;
+                SetState(State.Reposition);
+                yield break;
             }
 
-            // After-shot requested reposition
-            if (_wantsRepositionAfterShot)
-            {
-                _wantsRepositionAfterShot = false;
-                BeginRepositionAwayFromTarget();
-                yield return null;
-                continue;
-            }
-
-            // Too far: move closer
+            // Too far -> move closer
             if (dist > preferredShootDistance)
             {
                 agent.isStopped = false;
@@ -618,25 +615,13 @@ public class SkeletonGunEnemy : MonoBehaviour
                     agent.SetDestination(target.position);
                 }
             }
-            // Too close: reposition away (fixed)
+            // Too close -> reposition away (so it doesn't freeze)
             else if (dist < tooCloseDistance)
             {
-                BeginRepositionAwayFromTarget();
-
-                // If reposition couldn't start, fallback to simple chase update (so it never freezes)
-                if (!_isRepositioning)
-                {
-                    agent.isStopped = false;
-                    agent.stoppingDistance = preferredShootDistance;
-
-                    if (Time.time >= _nextRepathTime)
-                    {
-                        _nextRepathTime = Time.time + chaseRepathInterval;
-                        agent.SetDestination(target.position);
-                    }
-                }
+                SetState(State.Reposition);
+                yield break;
             }
-            // In the “gun range window”
+            // In fight range window -> aim/strafe if cooldown allows soon
             else
             {
                 agent.isStopped = true;
@@ -647,14 +632,16 @@ public class SkeletonGunEnemy : MonoBehaviour
                     SetState(State.Aim);
                     yield break;
                 }
-
             }
 
             yield return null;
         }
     }
 
-    private IEnumerator AimLoop()
+    // ---------------------------
+    // AIM: strafe left/right while holding aim pose
+    // ---------------------------
+    private IEnumerator AimStrafeLoop()
     {
         if (!target)
         {
@@ -663,11 +650,23 @@ public class SkeletonGunEnemy : MonoBehaviour
             yield break;
         }
 
-        agent.isStopped = true;
-        agent.ResetPath();
+        // pick a strafe side for this aim cycle
+        _aimStrafeSide = (Random.value < 0.5f) ? -1 : 1;
+        _aimStartTime = Time.time;
+        _nextAimStrafeRepath = Time.time;
+
+        // keep aiming pose the whole time
         SetAiming(true);
 
-        float aimT = 0f;
+        // allow movement while aiming
+        agent.isStopped = false;
+        agent.ResetPath();
+
+        // Aiming strafe uses its own speed
+        agent.speed = aimStrafeSpeed;
+
+        // Keep a small stopping distance so it actually moves
+        agent.stoppingDistance = 0.10f;
 
         while (_state == State.Aim)
         {
@@ -680,42 +679,87 @@ public class SkeletonGunEnemy : MonoBehaviour
 
             float dist = Vector3.Distance(transform.position, target.position);
 
-            // If player runs out of engagement distance, cancel aim and chase
-            if (dist > maxEngageDistance || dist > preferredShootDistance + 6f)
+            // If player runs out of engagement distance -> chase
+            if (dist > maxEngageDistance || dist > preferredShootDistance + 8f)
             {
                 SetAiming(false);
                 SetState(State.Chase);
                 yield break;
             }
 
-            // If player pushes too close, cancel aim and reposition/chase
+            // If player pushes too close -> reposition
             if (dist < tooCloseDistance)
             {
                 SetAiming(false);
-                SetState(State.Chase);
+                SetState(State.Reposition);
                 yield break;
             }
 
-            // Spend time aiming
-            if (aimT < aimDuration)
+            // Refresh strafe destination periodically
+            if (Time.time >= _nextAimStrafeRepath)
             {
-                aimT += Time.deltaTime;
+                _nextAimStrafeRepath = Time.time + Mathf.Max(0.05f, aimStrafeRepathInterval);
+                Vector3 strafeDest = ComputeAimStrafeDestination(_aimStrafeSide);
+
+                // If we failed to find a good one, flip side once and try again next tick
+                if (strafeDest == transform.position)
+                    _aimStrafeSide *= -1;
+                else
+                    agent.SetDestination(strafeDest);
             }
-            else
+
+            // Count up aim time
+            float elapsed = Time.time - _aimStartTime;
+
+            // Only fire after aimDuration AND cooldown is ready
+            if (elapsed >= aimDuration && Time.time >= _nextShotAllowedTime)
             {
-                // Aim finished: wait until cooldown allows firing
-                if (Time.time >= _nextShotAllowedTime)
-                {
-                    SetState(State.Fire);
-                    yield break;
-                }
-                // else: keep holding aim pose until allowed
+                // stop movement right before firing so the shot animation looks clean
+                agent.isStopped = true;
+                agent.ResetPath();
+
+                SetState(State.Fire);
+                yield break;
             }
 
             yield return null;
         }
     }
 
+    private Vector3 ComputeAimStrafeDestination(int sideSign)
+    {
+        if (!target || !agent || !agent.enabled || !agent.isOnNavMesh)
+            return transform.position;
+
+        Vector3 toMe = (transform.position - target.position);
+        toMe.y = 0f;
+        if (toMe.sqrMagnitude < 0.0001f) toMe = transform.forward;
+        toMe.Normalize();
+
+        // perpendicular direction around target
+        Vector3 side = Vector3.Cross(Vector3.up, toMe).normalized * Mathf.Sign(sideSign);
+
+        // base orbit point: stay near preferred distance
+        float desiredRadius = preferredShootDistance;
+
+        // small correction pushes you toward/away to keep distance stable
+        float dist = Vector3.Distance(transform.position, target.position);
+        float delta = (desiredRadius - dist);
+        Vector3 radialCorrection = (delta * aimDistanceCorrection) * (-toMe); // -toMe points from target to us? actually toMe is (me-target), so -toMe points toward target
+        // We want: if we're too far (delta positive), pull inward toward target: (-toMe) works
+        // if too close (delta negative), push outward: (-toMe) * negative pushes outward. Good.
+
+        Vector3 candidate = target.position + (toMe * desiredRadius) + (side * aimStrafeRadius) + radialCorrection;
+
+        if (!NavMesh.SamplePosition(candidate, out NavMeshHit navHit, 2.0f, agent.areaMask))
+            return transform.position;
+
+        var path = new NavMeshPath();
+        if (!agent.CalculatePath(navHit.position, path)) return transform.position;
+        if (path.status != NavMeshPathStatus.PathComplete) return transform.position;
+
+        return navHit.position;
+    }
 
     private IEnumerator FireOnce()
     {
@@ -733,23 +777,22 @@ public class SkeletonGunEnemy : MonoBehaviour
         if (animator && !string.IsNullOrEmpty(animShootTrigger))
             animator.SetTrigger(animShootTrigger);
 
+        // short delay so animation/IK settles for the shot
         yield return new WaitForSeconds(0.15f);
 
         SetAiming(false);
 
         _nextShotAllowedTime = Time.time + Random.Range(shotCooldownRange.x, shotCooldownRange.y);
 
-        // Defer reposition until we get back to Chase (so Recover doesn't instantly cancel it)
-        _wantsRepositionAfterShot = (Random.value < repositionAfterShotChance);
+        // Decide reposition after shot, then go Reposition (not Chase) so it ALWAYS happens
+        if (Random.value < repositionAfterShotChance)
+            _forceRepositionAfterShot = true;
 
         SetState(State.Recover);
     }
 
     private IEnumerator RecoverBriefly()
     {
-        agent.isStopped = true;
-        agent.ResetPath();
-
         float t = 0f;
         while (_state == State.Recover && t < postFireRecoverTime)
         {
@@ -757,27 +800,81 @@ public class SkeletonGunEnemy : MonoBehaviour
             yield return null;
         }
 
+        // If we decided to reposition after shot, do it now (guaranteed)
+        if (_forceRepositionAfterShot)
+        {
+            _forceRepositionAfterShot = false;
+            SetState(State.Reposition);
+            yield break;
+        }
+
         SetState(State.Chase);
     }
 
-    private IEnumerator StunnedBriefly()
+    // ---------------------------
+    // REPOSITION: explicit state so it doesn’t get canceled by Recover/Aim
+    // ---------------------------
+    private IEnumerator RepositionLoop()
     {
-        agent.isStopped = true;
+        if (!target)
+        {
+            CancelRepositionHard();
+            SetState(startPatrolling ? State.Patrol : State.Idle);
+            yield break;
+        }
 
-        if (_stunEndTime < Time.time)
-            _stunEndTime = Time.time + Mathf.Max(0.05f, stunDuration);
+        if (!agent || !agent.enabled || !agent.isOnNavMesh)
+        {
+            SetState(State.Chase);
+            yield break;
+        }
 
-        while (_state == State.Stunned && Time.time < _stunEndTime)
+        // Try to start a reposition move (side step or back step)
+        BeginRepositionAroundTarget();
+
+        // If we couldn't start, just chase (never freeze)
+        if (!_isRepositioning)
+        {
+            SetState(State.Chase);
+            yield break;
+        }
+
+        // Wait until arrive or timeout
+        while (_state == State.Reposition)
+        {
+            if (!target)
+            {
+                CancelRepositionHard();
+                SetState(startPatrolling ? State.Patrol : State.Idle);
+                yield break;
+            }
+
+            if (Time.time >= _repositionEndTime)
+            {
+                EndReposition();
+                SetState(State.Chase);
+                yield break;
+            }
+
+            if (!agent.pathPending && agent.hasPath)
+            {
+                float arriveDist = Mathf.Max(0.15f, agent.stoppingDistance + 0.05f);
+                if (agent.remainingDistance <= arriveDist && agent.velocity.sqrMagnitude < 0.03f)
+                {
+                    EndReposition();
+                    SetState(State.Chase);
+                    yield break;
+                }
+            }
+
             yield return null;
-
-        SetState(target ? State.Chase : (startPatrolling ? State.Patrol : State.Idle));
+        }
     }
 
-    // ---------------------------
-    // Reposition (FIXED)
-    // ---------------------------
-    private void BeginRepositionAwayFromTarget()
+    private void BeginRepositionAroundTarget()
     {
+        _isRepositioning = false;
+
         if (Time.time < _nextRepositionAttemptTime) return;
         _nextRepositionAttemptTime = Time.time + Mathf.Max(0.01f, repositionRetryCooldown);
 
@@ -791,10 +888,7 @@ public class SkeletonGunEnemy : MonoBehaviour
 
             agent.isStopped = false;
             agent.ResetPath();
-
-            // CRITICAL FIX: small stopping distance during reposition (NOT preferredShootDistance)
             agent.stoppingDistance = Mathf.Max(0.01f, repositionStoppingDistance);
-
             agent.SetDestination(_repositionDest);
         }
     }
@@ -802,6 +896,7 @@ public class SkeletonGunEnemy : MonoBehaviour
     private bool TryPickRepositionDestination(out Vector3 destination)
     {
         destination = transform.position;
+        if (!target) return false;
 
         Vector3 away = (transform.position - target.position);
         away.y = 0f;
@@ -810,18 +905,24 @@ public class SkeletonGunEnemy : MonoBehaviour
 
         Vector3 side = Vector3.Cross(Vector3.up, away).normalized;
 
+        // prefer lateral moves (Sea of Thieves-ish), then diagonals, then straight back
         Vector3[] dirs =
         {
-            away,
-            (away + side * 0.6f).normalized,
-            (away - side * 0.6f).normalized,
             side,
-            -side
+            -side,
+            (away + side * 0.65f).normalized,
+            (away - side * 0.65f).normalized,
+            away
         };
+
+        // If we're too close, bias to "away"
+        float dist = Vector3.Distance(transform.position, target.position);
+        float distBias = Mathf.InverseLerp(preferredShootDistance, tooCloseDistance, dist); // 0 far, 1 too close
+        float backExtra = Mathf.Lerp(0f, repositionRadius * 0.75f, Mathf.Clamp01(distBias));
 
         for (int i = 0; i < dirs.Length; i++)
         {
-            Vector3 candidate = transform.position + dirs[i] * repositionRadius;
+            Vector3 candidate = transform.position + dirs[i] * repositionRadius + away * backExtra;
 
             if (!NavMesh.SamplePosition(candidate, out NavMeshHit navHit, 2.0f, agent.areaMask))
                 continue;
@@ -843,15 +944,27 @@ public class SkeletonGunEnemy : MonoBehaviour
 
         if (agent && agent.enabled)
         {
-            // Restore normal combat stopping distance
             agent.stoppingDistance = preferredShootDistance;
         }
     }
 
-    private void CancelReposition()
+    private void CancelRepositionHard()
     {
         _isRepositioning = false;
-        _wantsRepositionAfterShot = false;
+        _forceRepositionAfterShot = false;
+    }
+
+    private IEnumerator StunnedBriefly()
+    {
+        agent.isStopped = true;
+
+        if (_stunEndTime < Time.time)
+            _stunEndTime = Time.time + Mathf.Max(0.05f, stunDuration);
+
+        while (_state == State.Stunned && Time.time < _stunEndTime)
+            yield return null;
+
+        SetState(target ? State.Chase : (startPatrolling ? State.Patrol : State.Idle));
     }
 
     private void FaceTargetOnly()
@@ -872,7 +985,7 @@ public class SkeletonGunEnemy : MonoBehaviour
 
         Vector3 lookDir;
 
-        if (target && (_state == State.Chase))
+        if (target && _state == State.Chase)
         {
             lookDir = target.position - transform.position;
         }
@@ -917,10 +1030,10 @@ public class SkeletonGunEnemy : MonoBehaviour
     {
         if (!agent || !target) return;
 
+        // Chase tuning only (Aim/Reposition have their own speed)
         bool engaging = _state == State.Chase || _state == State.Investigate;
         if (!engaging) return;
 
-        // While repositioning, don't fight the movement tuning (but it's safe either way)
         float dist = Vector3.Distance(transform.position, target.position);
 
         float nearDist = Mathf.Min(slowDownStartDistance, slowDownEndDistance);
