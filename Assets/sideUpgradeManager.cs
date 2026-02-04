@@ -2,9 +2,10 @@ using UnityEngine;
 
 public class sideUpgradeManager : MonoBehaviour
 {
-    private Fireball fireballRef;
-    private SetOnFire fireScriptRef;
-
+    public Fireball fireballRef;
+    public SetOnFire fireScriptRef;
+    public curseOffhand curseRef;
+    public DamageRef damageRef;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -55,19 +56,19 @@ public class sideUpgradeManager : MonoBehaviour
     #region curse
     public void increaseCurseTimeFirst()
     {
-
+        curseRef.curseDuration += 2f;
     }
     public void increaseCurseTimeMax()
     {
-
+        curseRef.curseDuration += 2f;
     }
     public void increasedDamageReflection()
     {
-
+        curseRef.curseReflectPercentL += .10f;
     }
     public void increaseSlowEffect()
     {
-
+        curseRef.slowSpeedMultiplier += .5f;
     }
     #endregion
 }

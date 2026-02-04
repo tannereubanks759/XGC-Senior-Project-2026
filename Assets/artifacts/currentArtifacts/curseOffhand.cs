@@ -20,6 +20,7 @@ public class curseOffhand : MonoBehaviour
     [Header("Curse Timeout")]
     public float curseDuration = 8f;
     private float curseExpireTime = 0f;
+    public float curseReflectPercentL = .25f;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -177,7 +178,8 @@ public class curseOffhand : MonoBehaviour
                     swordEnemy.curseDamageMult = damageMult;
                     swordEnemy.curseSpeedMult = slowUpgrade ? slowSpeedMultiplier : 1f;
                     swordEnemy.curseReflectEnabled = reflectionUpgrade;
-                    swordEnemy.curseReflectPercent = 0.25f;
+                    
+                    swordEnemy.curseReflectPercent = curseReflectPercentL;
                     if (activeCurseVfx != null)
                     {
                         Vector3 offset = new Vector3(0f, 1.3f, 0f);
