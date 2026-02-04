@@ -13297,14 +13297,14 @@ MonoBehaviour:
   isCursed: 0
   curseDamageMult: 1
   curseSpeedMult: 1
-  animator: {fileID: 3748523898002154443}
-  agent: {fileID: 1691911732088979777}
-  eyePoint: {fileID: 3864146201932571346}
+  animator: {fileID: 0}
+  agent: {fileID: 0}
+  eyePoint: {fileID: 0}
   target: {fileID: 0}
   playerTag: Player
   findTargetInterval: 0.5
   preferMainCameraForLook: 1
-  headLookConstraint: {fileID: 4122408267287944596}
+  headLookConstraint: {fileID: 0}
   targetHead: {fileID: 0}
   headLookRange: 14
   headLookMaxAngle: 95
@@ -13333,7 +13333,7 @@ MonoBehaviour:
   debugVision: 0
   aggroMemoryTime: 4
   preferredShootDistance: 9
-  tooCloseDistance: 4
+  tooCloseDistance: 0
   maxEngageDistance: 13
   aimDuration: 3
   postFireRecoverTime: 3
@@ -13353,7 +13353,7 @@ MonoBehaviour:
   speedBlend: 8
   accelFar: 18
   accelNear: 10
-  animMaxMoveSpeed: 7
+  animMaxMoveSpeed: 6
   animSpeedParam: Speed
   animAggroBool: Aggro
   animHitTrigger: Hit
