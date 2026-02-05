@@ -128,6 +128,7 @@ public class SkeletonGunEnemy : MonoBehaviour
     [Header("Locomotion Animation")]
     public float animMaxMoveSpeed = 4.0f;
 
+
     [Header("Animator Params")]
     public string animSpeedParam = "Speed";
     public string animAggroBool = "Aggro";

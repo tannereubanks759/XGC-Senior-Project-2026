@@ -188,6 +188,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9dba0b9286cdda04e806b1c653079594, type: 3}
+--- !u!95 &116176750 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3748523898002154443, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+  m_PrefabInstance: {fileID: 1651757548}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &230717781
 GameObject:
   m_ObjectHideFlags: 0
@@ -5546,6 +5551,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!195 &1458075357 stripped
+NavMeshAgent:
+  m_CorrespondingSourceObject: {fileID: 1691911732088979777, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+  m_PrefabInstance: {fileID: 1651757548}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1599687925
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5762,6 +5772,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2471662819111956884, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: agent
+      value: 
+      objectReference: {fileID: 1458075357}
+    - target: {fileID: 2471662819111956884, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 116176750}
     - target: {fileID: 2471662819111956884, guid: 757e1c319a37ce94c8bb43905b487a91, type: 3}
       propertyPath: aimStrafeSpeed
       value: 2
