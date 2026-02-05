@@ -273,7 +273,7 @@ public class FireballManager : MonoBehaviour
             fb.splashRadius *= 1.1f;
         }
         if(subDamageUpgrade) 
-        {
+        { //was 1.1f
             fb.damage *= 1.1f;
         }
         Destroy(fireball, 5f);

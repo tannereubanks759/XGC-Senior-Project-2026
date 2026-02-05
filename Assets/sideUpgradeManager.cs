@@ -26,6 +26,7 @@ public class sideUpgradeManager : MonoBehaviour
     {
         //fireballRef.splashRadius = 5f;
         fireballManager.upgradeSplashRadius();
+        
     }
     public void increaseFireballBurnDamage()
     {

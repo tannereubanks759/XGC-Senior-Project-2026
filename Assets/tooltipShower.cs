@@ -8,10 +8,10 @@ public class tooltipShower : MonoBehaviour
     {
         current = this; 
     }
-    public static void Show(string description, string name = "")
+    public static void Show(string description, string name = "", string price="")
     {
         //Debug.Log("Recieved Call");
-        current.tooltipR.SetText(description, name);
+        current.tooltipR.SetText(description, name, price);
         current.tooltipR.gameObject.SetActive(true);
         Debug.Log("Updated");
     }

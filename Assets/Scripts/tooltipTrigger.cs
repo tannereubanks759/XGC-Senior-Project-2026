@@ -5,10 +5,11 @@ public class tooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 {
     public string nameOf;
     public string description;
+    public string price;
     public void OnPointerEnter(PointerEventData eventData)
     {
         
-        tooltipShower.Show(description, nameOf);
+        tooltipShower.Show(description, nameOf, price);
     }
 
     public void OnPointerExit(PointerEventData eventData)

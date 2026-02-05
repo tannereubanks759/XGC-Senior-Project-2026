@@ -8,20 +8,25 @@ public class tooltip : MonoBehaviour
     public TextMeshProUGUI nameField;
 
     public TextMeshProUGUI descriptionField;
+    public TextMeshProUGUI priceField;
     public LayoutElement layoutelement;
     public int charLimit;
+    public float maxWidth = 650f;
     public RectTransform rect;
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
     }
-    public void SetText(string description, string name = "")
+    public void SetText(string description, string name = "", string price ="")
     {
         nameField.text = name;
         descriptionField.text = description;
-        int titleLength = nameField.text.Length;
-        int descriptionLength = descriptionField.text.Length;
-        layoutelement.enabled = (titleLength > charLimit || descriptionLength > charLimit) ? true : false;
+        priceField.text = price;
+        //int titleLength = nameField.text.Length;
+        //int descriptionLength = descriptionField.text.Length;
+        //layoutelement.enabled = (titleLength > charLimit || descriptionLength > charLimit) ? true : false;
+        layoutelement.enabled = true;
+        layoutelement.preferredWidth = maxWidth;
     }
     // Update is called once per frame
     void Update()
@@ -32,13 +37,7 @@ public class tooltip : MonoBehaviour
         //rect.pivot = new Vector2(x,y);
         //transform.position = position;
         Vector2 mousePos = Input.mousePosition;
-
-        // set pivot based on screen position
-        rect.pivot = new Vector2(
-            mousePos.x / Screen.width > 0.5f ? 1f : 0f,   // right half -> pivot right
-            mousePos.y / Screen.height > 0.5f ? 1f : 0f   // top half -> pivot top
-        );
-
+        rect.pivot = new Vector2(mousePos.x / Screen.width > 0.5f ? 1f : 0f, mousePos.y / Screen.height > 0.5f ? 1f : 0f);
         transform.position = mousePos;
     }
 }
