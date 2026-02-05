@@ -48,18 +48,19 @@ public class curseOffhand : MonoBehaviour
 
     void Update()
     {
-        if (cursedTarget != null && IsDead(cursedTarget))
+        if (cursedTarget == null)
         {
-            cursedTarget = null;
             if (spawnedCurseVfx != null)
             {
                 Destroy(spawnedCurseVfx);
                 spawnedCurseVfx = null;
             }
-            if (cursedFlame != null)
-            {
-                cursedFlame.SetActive(true);
-            }
+            EnsureFlameState();
+        }
+        if (cursedTarget != null && IsDead(cursedTarget))
+        {
+            ClearCurse();
+            return;
         }
         if (cursedTarget != null && Time.time >= curseExpireTime)
         {
