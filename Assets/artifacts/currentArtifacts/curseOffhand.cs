@@ -120,10 +120,13 @@ public class curseOffhand : MonoBehaviour
                     {
                         if (activeCurseVfx != null)
                         {
-                            Vector3 offset = new Vector3(0f, 2f, 0f);
+                            Vector3 offset = new Vector3(0f, 0f, 0f);
                             if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
-                            spawnedCurseVfx = Instantiate(activeCurseVfx, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                            Transform follow = getChest(pirateboss.transform);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
                             spawnedCurseVfx.transform.localPosition = offset;
+                            /*spawnedCurseVfx = Instantiate(activeCurseVfx, pirateboss.transform.position + offset, Quaternion.identity, pirateboss.transform);
+                            spawnedCurseVfx.transform.localPosition = offset;*/
                         }
                     }
                     pirateboss.curseBoss(slowUpgrade, reflectionUpgrade);
@@ -139,9 +142,10 @@ public class curseOffhand : MonoBehaviour
                     {
                         if (activeCurseVfx != null)
                         {
-                            Vector3 offset = new Vector3(0f, 2f, 0f);
+                            Vector3 offset = new Vector3(0f, 0f, 0f);
                             if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
-                            spawnedCurseVfx = Instantiate(activeCurseVfx, magmaBoss.transform.position + offset, Quaternion.identity, magmaBoss.transform);
+                            Transform follow = getChest(magmaBoss.transform);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
                             spawnedCurseVfx.transform.localPosition = offset;
                         }
                     }
@@ -158,9 +162,10 @@ public class curseOffhand : MonoBehaviour
                     {
                         if (activeCurseVfx != null)
                         {
-                            Vector3 offset = new Vector3(0f, 2f, 0f);
+                            Vector3 offset = new Vector3(0f, 0f, 0f);
                             if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
-                            spawnedCurseVfx = Instantiate(activeCurseVfx, ghostBoss.transform.position + offset, Quaternion.identity, ghostBoss.transform);
+                            Transform follow = getChest(ghostBoss.transform);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
                             spawnedCurseVfx.transform.localPosition = offset;
                         }
                     }
@@ -182,13 +187,14 @@ public class curseOffhand : MonoBehaviour
                     swordEnemy.curseReflectPercent = curseReflectPercentL;
                     if (activeCurseVfx != null)
                     {
-                        Vector3 offset = new Vector3(0f, 1.3f, 0f);
+                        Vector3 offset = new Vector3(0f, 0f, 0f);
                         if (spawnedCurseVfx != null)
                         {
                             Destroy(spawnedCurseVfx);
                             spawnedCurseVfx = null;
                         }
-                        spawnedCurseVfx = Instantiate(activeCurseVfx, swordEnemy.transform.position + offset, Quaternion.identity, swordEnemy.transform);
+                        Transform follow = getChest(swordEnemy.transform);
+                        spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
                         spawnedCurseVfx.transform.localPosition = offset;
                     }
                     if (cursedFlame != null)
@@ -267,4 +273,16 @@ public class curseOffhand : MonoBehaviour
         cursedTarget = null;
         EnsureFlameState();
     }
+    private Transform getChest(Transform enemyRoot)
+    {
+        Animator anim = enemyRoot.GetComponentInChildren<Animator>();
+        if (anim != null)
+        {
+            Transform t = anim.GetBoneTransform(HumanBodyBones.Chest);
+            if (t != null) return t;
+            return anim.transform;
+        }
+        return enemyRoot;
+    }
+
 }
