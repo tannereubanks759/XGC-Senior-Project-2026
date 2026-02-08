@@ -8,6 +8,7 @@ public class UImanager : MonoBehaviour
     public GameObject OptionsScreen;
     public GameObject MainPauseScreen;
     public GameObject DeathScreen;
+    public GameObject WinScreen;
     public GameObject PlayerUIScreen;
     public GameObject OffhandWheelScreen;
     public GameObject UpgradeStationScreen;
@@ -35,6 +36,7 @@ public class UImanager : MonoBehaviour
     }
     public void OpenPauseScreen()
     {
+        if (WinScreen.activeSelf) return;
         ForceCloseTutorials();
         PreSetup(true, true);
         OptionsScreen.SetActive(false);
@@ -55,6 +57,7 @@ public class UImanager : MonoBehaviour
     }
     public void OpenDeathScreen()
     {
+        if (WinScreen.activeSelf) return;
         PreSetup(true, true);
         DeathScreen.SetActive(true);
     }
@@ -70,6 +73,7 @@ public class UImanager : MonoBehaviour
     }
     public void OpenOffhandWheelScreen()
     {
+        if (WinScreen.activeSelf) return;
         PreSetup(true);
         Cursor.visible = false;
         OffhandWheelScreen.SetActive(true);
@@ -86,7 +90,7 @@ public class UImanager : MonoBehaviour
         lightTut.SetActive(true);
         firstPersonController.playerCanMove = false;
         firstPersonController.cameraCanMove = false;
-        
+
     }
     public void openCurseTutorial()
     {
@@ -115,6 +119,13 @@ public class UImanager : MonoBehaviour
         firstPersonController.cameraCanMove = true;
         OpenPlayerUIScreen();
     }
+
+    public void OpenWinScreen()
+    {
+        PreSetup(true, true);
+        WinScreen.SetActive(true);
+    }
+
     void PreSetup(bool hasCursor)
     {
         if (hasCursor)
@@ -149,9 +160,11 @@ public class UImanager : MonoBehaviour
     }
     void DisableScreens()
     {
+        WinScreen.SetActive(false);
         PauseScreen.SetActive(false);
         DeathScreen.SetActive(false);
         PlayerUIScreen.SetActive(false);
+
         //lightTut.SetActive(false);
         //fireballTut.SetActive(false);
         //curseTut.SetActive(false);

@@ -6,6 +6,7 @@ public class IslandTeleporter : MonoBehaviour
 {
     [Header("Teleporter Settings")]
     public string nextIsland;
+    public bool isFinalTeleporter = false;
 
     //Internals 
     private GameObject loadingScreen;
@@ -17,6 +18,7 @@ public class IslandTeleporter : MonoBehaviour
     {
         this.GetComponent<Collider>().enabled = false;
         doorAnim = this.GetComponent<Animator>();
+        
     }
     public void OpenDoor()
     {
@@ -25,21 +27,28 @@ public class IslandTeleporter : MonoBehaviour
     }
     public void Teleport()
     {
-        this.GetComponent<Collider>().enabled = false;
-        loadingScreen = FindAnyObjectByType<FirstPersonController>().loadingScreen;
-        slider = loadingScreen.GetComponentInChildren<Slider>();
-        if (loadingScreen == null)
+        if (!isFinalTeleporter) //Go to next island
         {
-            Debug.Log("Unable to find loading screen, aborting teleport");
-            return;
+            this.GetComponent<Collider>().enabled = false;
+            loadingScreen = FindAnyObjectByType<FirstPersonController>().loadingScreen;
+            slider = loadingScreen.GetComponentInChildren<Slider>();
+            if (loadingScreen == null)
+            {
+                Debug.Log("Unable to find loading screen, aborting teleport");
+                return;
+            }
+            if (slider == null)
+            {
+                Debug.Log("Unable to find loading slider, aborting teleport");
+                return;
+            }
+            loadingScreen.SetActive(true);
+            StartCoroutine(LoadLevelAsync(nextIsland));
         }
-        if(slider == null)
+        else //beat game
         {
-            Debug.Log("Unable to find loading slider, aborting teleport");
-            return;
+            GameObject.FindAnyObjectByType<UImanager>().OpenWinScreen();
         }
-        loadingScreen.SetActive(true);
-        StartCoroutine(LoadLevelAsync(nextIsland));
     }
     IEnumerator LoadLevelAsync(string level)
     {

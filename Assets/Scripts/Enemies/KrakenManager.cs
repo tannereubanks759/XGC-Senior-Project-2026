@@ -38,7 +38,8 @@ public class KrakenManager : MonoBehaviour
     void Die()
     {
         headAnim.SetTrigger("Dead");
-
+        IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?.GetComponent<IslandTeleporter>();
+        if (tel != null) tel.OpenDoor();
     }
     public void WakeUpKraken()
     {

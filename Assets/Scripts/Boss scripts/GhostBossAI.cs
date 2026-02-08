@@ -826,9 +826,7 @@ public class GhostBossAI : MonoBehaviour
 
         _deathHandled = true;
 
-        IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?
-            .GetComponent<IslandTeleporter>();
-        if (tel != null) tel.OpenDoor();
+        
 
         agent.isStopped = true;
         agent.updatePosition = false;
