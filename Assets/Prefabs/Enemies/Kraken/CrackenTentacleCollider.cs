@@ -10,15 +10,23 @@ public class CrackenTentacleCollider : MonoBehaviour
 
     public float health = 50f;
 
+    private KrakenManager km;
+
+    private void Start()
+    {
+        km = GameObject.FindAnyObjectByType<KrakenManager>();
+    }
     public void TakeDamage(float damage)
     {
         Debug.Log("Damage given to kracken tentacle");
-        if(health >= damage)
+        if(health > damage)
         {
             health -= damage;
+            km.TakeDamage(damage);
         }
         else
         {
+            km.TakeDamage(damage);
             Die();
         }
     }
@@ -26,8 +34,7 @@ public class CrackenTentacleCollider : MonoBehaviour
     {
         Debug.Log("Kracken is dead");
         tentacle.Death();
-        KrakenManager km = GameObject.FindAnyObjectByType<KrakenManager>();
-        km.TakeDamage();
+        
     }
     private void OnCollisionEnter(Collision collision)
     {

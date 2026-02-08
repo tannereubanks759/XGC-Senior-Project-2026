@@ -6,12 +6,16 @@ public class KrakenManager : MonoBehaviour
     public Animator headAnim;
     public Animator leftArmAnim;
     public Animator rightArmAnim;
-    public int health = 2;
+    public float health = 100;
     public KrakenDangerArea[] dangerAreas;
     public RayfireRigid rock;
+    public BossHealthbar healthbar;
+    public string bossName = "The Kraken";
+    public Color KrakenHealthBarColor;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        
         dangerAreas = GameObject.FindObjectsByType<KrakenDangerArea>(FindObjectsSortMode.None);
     }
 
@@ -27,10 +31,13 @@ public class KrakenManager : MonoBehaviour
         }
 #endif
     }
-    public void TakeDamage()
+    public void TakeDamage(float dmg)
     {
-        health -= 1;
-        if(health <= 0)
+        Debug.Log("Kraken took " + dmg + " damage");
+        
+        health -= dmg;
+        healthbar.TakeDamage((int) health);
+        if (health <= 0)
         {
             Die();
         }
@@ -43,6 +50,19 @@ public class KrakenManager : MonoBehaviour
     }
     public void WakeUpKraken()
     {
+        healthbar = GameObject.FindAnyObjectByType<BossHealthbar>();
+        if (!healthbar) return;
+        
+        healthbar.maxHealth = (int) health;
+        healthbar.currentHealth = (int) health;
+        healthbar.text.text = bossName;
+        healthbar.text.color = KrakenHealthBarColor;
+        healthbar.fill.color = KrakenHealthBarColor;
+        //healthbar.ShowHealthbarOnBossTriggered();
+        healthbar.ResetHealthbar();
+        healthbar.ShowHealthbarOnBossTriggered();
+        healthbar.bossHealthGroup.alpha = 1f;
+
         headAnim.SetTrigger("Awake");
         leftArmAnim.SetTrigger("Awake");
         rightArmAnim.SetTrigger("Awake");

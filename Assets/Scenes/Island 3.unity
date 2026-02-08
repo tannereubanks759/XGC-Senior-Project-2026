@@ -39550,7 +39550,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentacle: {fileID: 1056922980}
-  health: 10
+  health: 50
 --- !u!114 &669477203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43709,9 +43709,12 @@ MonoBehaviour:
   headAnim: {fileID: 886958788}
   leftArmAnim: {fileID: 556431594}
   rightArmAnim: {fileID: 1877266341}
-  health: 2
+  health: 100
   dangerAreas: []
   rock: {fileID: 6751386418472704825}
+  healthbar: {fileID: 0}
+  bossName: The Kraken
+  KrakenHealthBarColor: {r: 0, g: 0.90562105, b: 1, a: 1}
 --- !u!1 &731001140
 GameObject:
   m_ObjectHideFlags: 0
@@ -137011,7 +137014,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentacle: {fileID: 319969396}
-  health: 10
+  health: 50
 --- !u!114 &2038907452
 MonoBehaviour:
   m_ObjectHideFlags: 0

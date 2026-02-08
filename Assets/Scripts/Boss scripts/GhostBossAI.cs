@@ -844,6 +844,7 @@ public class GhostBossAI : MonoBehaviour
             k.WakeUpKraken();
         }
 
+
         StartCoroutine(DieRoutine());
     }
 
