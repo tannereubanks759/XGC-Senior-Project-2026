@@ -193,6 +193,13 @@ public class GhostBossAI : MonoBehaviour
     {
         if (State == BossState.Dead) return;
 
+#if UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            this.TakeDamage(10000);
+        }
+
+#endif
         switch (State)
         {
             case BossState.Idle: TickIdle(); break;
@@ -832,6 +839,12 @@ public class GhostBossAI : MonoBehaviour
 
         foreach (var col in GetComponentsInChildren<Collider>())
             col.enabled = false;
+
+        KrakenManager k = GameObject.FindAnyObjectByType<KrakenManager>();
+        if (k)
+        {
+            k.WakeUpKraken();
+        }
 
         StartCoroutine(DieRoutine());
     }

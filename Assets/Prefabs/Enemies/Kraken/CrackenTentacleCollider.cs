@@ -9,6 +9,7 @@ public class CrackenTentacleCollider : MonoBehaviour
 
 
     public float health = 50f;
+
     public void TakeDamage(float damage)
     {
         Debug.Log("Damage given to kracken tentacle");
@@ -25,9 +26,12 @@ public class CrackenTentacleCollider : MonoBehaviour
     {
         Debug.Log("Kracken is dead");
         tentacle.Death();
+        KrakenManager km = GameObject.FindAnyObjectByType<KrakenManager>();
+        km.TakeDamage();
     }
     private void OnCollisionEnter(Collision collision)
     {
+        
         if(collision.gameObject.tag == "Player" && Time.time > nextHit && tentacle.isDropping)
         {
             collision.gameObject.GetComponentInChildren<CombatController>().TakeDamageByBoss(30);
