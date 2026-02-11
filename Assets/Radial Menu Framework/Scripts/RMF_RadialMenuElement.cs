@@ -111,6 +111,7 @@ public class RMF_RadialMenuElement : MonoBehaviour {
 
         ExecuteEvents.Execute(button.gameObject, p, ExecuteEvents.selectHandler);
         active = true;
+        transform.localScale = Vector3.one * 1.05f;
         disableAllInfo();
         setParentMenuLable(label);
 
@@ -132,7 +133,7 @@ public class RMF_RadialMenuElement : MonoBehaviour {
 
         ExecuteEvents.Execute(button.gameObject, p, ExecuteEvents.deselectHandler);
         active = false;
-
+        transform.localScale = Vector3.one;
         if (!parentRM.useLazySelection)
             setParentMenuLable(" ");
 
