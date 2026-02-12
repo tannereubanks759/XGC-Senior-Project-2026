@@ -14,7 +14,8 @@ public class RMF_RadialMenu : MonoBehaviour {
     public RectTransform rt;
     //public RectTransform baseCircleRT;
     //public Image selectionFollowerImage;
-
+    public float deadzonePixels = 90f;
+    public bool keepLastSelectionInDeadzone = true;
     [Tooltip("Adjusts the radial menu for use with a gamepad or joystick. You might need to edit this script if you're not using the default horizontal and vertical input axes.")]
     public bool useGamepad = false;
 
@@ -99,58 +100,53 @@ public class RMF_RadialMenu : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
-
-        //If your gamepad uses different horizontal and vertical joystick inputs, change them here!
-        //==============================================================================================
-        bool joystickMoved = Input.GetAxis("Horizontal") != 0.0 || Input.GetAxis("Vertical") != 0.0;
-        //==============================================================================================
-
-
-        float rawAngle;
-        
+    void Update()
+    {
+        bool joystickMoved = Input.GetAxis("Horizontal") != 0.0f || Input.GetAxis("Vertical") != 0.0f;
+        Vector2 delta;
         if (!useGamepad)
-            rawAngle = Mathf.Atan2(Input.mousePosition.y - rt.position.y, Input.mousePosition.x - rt.position.x) * Mathf.Rad2Deg;
+        {
+            delta = (Vector2)Input.mousePosition - (Vector2)rt.position;
+        }
         else
-            rawAngle = Mathf.Atan2(Input.GetAxis("Vertical"), Input.GetAxis("Horizontal")) * Mathf.Rad2Deg;
-
-        //If no gamepad, update the angle always. Otherwise, only update it if we've moved the joystick.
+        {
+            delta = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        }
         if (!useGamepad)
-            currentAngle = normalizeAngle(-rawAngle + 90 - globalOffset + (angleOffset / 2f));
-        else if (joystickMoved)
-            currentAngle = normalizeAngle(-rawAngle + 90 - globalOffset + (angleOffset / 2f));
-
-        //Handles lazy selection. Checks the current angle, matches it to the index of an element, and then highlights that element.
-        if (angleOffset != 0 && useLazySelection) {
-
-            //Current element index we're pointing at.
+        {
+            // For mouse: use pixel distance from center
+            if (delta.magnitude < deadzonePixels)
+                return;
+        }
+        else
+        {
+            // For joystick: small stick movement ignored
+            if (!joystickMoved || delta.magnitude < 0.2f)
+                return;
+        }
+        float rawAngle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
+        currentAngle = normalizeAngle(-rawAngle + 90 - globalOffset + (angleOffset / 2f));
+        if (angleOffset != 0 && useLazySelection)
+        {
             index = (int)(currentAngle / angleOffset);
+            index = Mathf.Clamp(index, 0, elementCount - 1);
 
-            if (elements[index] != null) {
-
-                //Select it.
+            if (elements[index] != null)
+            {
                 selectButton(index);
 
-                //If we click or press a "submit" button (Button on joystick, enter, or spacebar), then we'll execut the OnClick() function for the button.
-                if (Input.GetMouseButtonDown(0) || Input.GetButtonDown("Submit")) {
-
+                if (Input.GetMouseButtonDown(0) || Input.GetButtonDown("Submit"))
+                {
                     buttonPress();
-
-
                 }
             }
-
         }
-
-        //Updates the selection follower if we're using one.
-        if (useSelectionFollower && selectionFollowerContainer != null) {
-            if (!useGamepad || joystickMoved)
-                selectionFollowerContainer.rotation = Quaternion.Euler(0, 0, rawAngle + 270);
-           
-
-        } 
-
+        if (useSelectionFollower && selectionFollowerContainer != null)
+        {
+            selectionFollowerContainer.rotation = Quaternion.Euler(0, 0, rawAngle + 270);
+        }
     }
+
 
     public void buttonPress()
     {
