@@ -135,7 +135,7 @@ public class RMF_RadialMenu : MonoBehaviour {
             {
                 selectButton(index);
 
-                if (Input.GetMouseButtonDown(0) || Input.GetButtonDown("Submit"))
+                if (Input.GetButtonDown("Submit"))
                 {
                     buttonPress();
                 }

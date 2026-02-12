@@ -20579,9 +20579,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rt: {fileID: 0}
+  deadzonePixels: 90
+  keepLastSelectionInDeadzone: 0
   useGamepad: 0
   useLazySelection: 1
-  useSelectionFollower: 1
+  useSelectionFollower: 0
   selectionFollowerContainer: {fileID: 7361797028013596224}
   textLabel: {fileID: 542092956887812988}
   elements:
@@ -58481,7 +58483,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7361797028013596224
 RectTransform:
   m_ObjectHideFlags: 0
