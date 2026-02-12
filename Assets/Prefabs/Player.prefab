@@ -1807,8 +1807,9 @@ GameObject:
   - component: {fileID: 1462370747436588334}
   - component: {fileID: 2527354162691251678}
   - component: {fileID: 4559535378077748143}
+  - component: {fileID: 8832975886941627212}
   m_Layer: 5
-  m_Name: Button
+  m_Name: bottomSideTwo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1918,33 +1919,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1199671892480749945}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1118220922528142164}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseCurseTimeMax
+      - m_Target: {fileID: 8832975886941627212}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1968,7 +1945,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increases The Time A Curse Lasts To The Maximum
   description: 
-  price: 'Price: 10'
+  price: 'Price: 5'
+--- !u!114 &8832975886941627212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113690606906135931}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 914337642218842958}
+  - {fileID: 610575307103241507}
+  - {fileID: 7975982409363731710}
+  - {fileID: 4373966445894374365}
+  columnProgress: {fileID: 7190014165188919240}
+  buttonToDisable: {fileID: 113690606906135931}
+  price: 5
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseCurseTimeMax
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &158038019058387313
 GameObject:
   m_ObjectHideFlags: 0
@@ -5353,8 +5371,9 @@ GameObject:
   - component: {fileID: 6671961271342564034}
   - component: {fileID: 687728341664965169}
   - component: {fileID: 2719256149323944494}
+  - component: {fileID: 3957644281084622573}
   m_Layer: 5
-  m_Name: Button
+  m_Name: mainButtonTwo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5464,21 +5483,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 610575307103241507}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1741420818005438438}
-        m_TargetAssemblyTypeName: curseOffhand, Assembly-CSharp
-        m_MethodName: reflectionUpgradae
+      - m_Target: {fileID: 3957644281084622573}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5487,30 +5494,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 4113315246486753249}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7181705801579242887}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &2719256149323944494
 MonoBehaviour:
@@ -5527,7 +5510,47 @@ MonoBehaviour:
   nameOf: Reversal Charm
   description: A fraction of incoming damage will be reflected upon the enemy that
     dealt it.
-  price: 'Price: 15'
+  price: 'Price: 14'
+--- !u!114 &3957644281084622573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 610575307103241507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 914337642218842958}
+  - {fileID: 7975982409363731710}
+  - {fileID: 4373966445894374365}
+  columnProgress: {fileID: 7190014165188919240}
+  buttonToDisable: {fileID: 610575307103241507}
+  price: 14
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 4113315246486753249}
+  offhandCheck: {fileID: 7181705801579242887}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 1
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1741420818005438438}
+        m_TargetAssemblyTypeName: curseOffhand, Assembly-CSharp
+        m_MethodName: reflectionUpgradae
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &611454757442561920
 GameObject:
   m_ObjectHideFlags: 0
@@ -13001,8 +13024,9 @@ GameObject:
   - component: {fileID: 4238595092552836500}
   - component: {fileID: 1615343623515023220}
   - component: {fileID: 902046240708275009}
+  - component: {fileID: 7262345876938125672}
   m_Layer: 5
-  m_Name: Button
+  m_Name: mainButtonOne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13112,21 +13136,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 914337642218842958}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1741420818005438438}
-        m_TargetAssemblyTypeName: curseOffhand, Assembly-CSharp
-        m_MethodName: slowUpgradae
+      - m_Target: {fileID: 7262345876938125672}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -13135,30 +13147,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7606292366414692286}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7580811516172488627}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &902046240708275009
 MonoBehaviour:
@@ -13174,7 +13162,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Weighted Demise
   description: Enemies marked with the curse will be slowed.
-  price: 'Price: 10'
+  price: 'Price: 7'
+--- !u!114 &7262345876938125672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 914337642218842958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades: []
+  columnProgress: {fileID: 7190014165188919240}
+  buttonToDisable: {fileID: 914337642218842958}
+  price: 7
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 7606292366414692286}
+  offhandCheck: {fileID: 7580811516172488627}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 1
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1741420818005438438}
+        m_TargetAssemblyTypeName: curseOffhand, Assembly-CSharp
+        m_MethodName: slowUpgradae
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &935216959358721707
 GameObject:
   m_ObjectHideFlags: 0
@@ -14060,8 +14085,9 @@ GameObject:
   - component: {fileID: 8368429095516801114}
   - component: {fileID: 7401775589181927390}
   - component: {fileID: 9012917233944233944}
+  - component: {fileID: 633091260824272061}
   m_Layer: 5
-  m_Name: Button
+  m_Name: topSideButton2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14171,33 +14197,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3842147130879810550}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7124209373668653050}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseFireballExplosionDamage
+      - m_Target: {fileID: 633091260824272061}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -14221,7 +14223,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Explosion Damage
   description: 
-  price: 'Price: 5'
+  price: 'Price: 2'
+--- !u!114 &633091260824272061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1081154857378781996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 2301427249658854730}
+  columnProgress: {fileID: 6121967739863056618}
+  buttonToDisable: {fileID: 1081154857378781996}
+  price: 2
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseFireballExplosionDamage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &1081333019198433052
 GameObject:
   m_ObjectHideFlags: 0
@@ -18122,7 +18162,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8322842305627421751
 RectTransform:
   m_ObjectHideFlags: 0
@@ -21056,6 +21096,7 @@ GameObject:
   - component: {fileID: 2322815064110608262}
   - component: {fileID: 5619793391258566007}
   - component: {fileID: 4588088931793462271}
+  - component: {fileID: 3470956990099530202}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -21167,33 +21208,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 615439580204208809}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 4455294400293612569}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseElectricShockRange
+      - m_Target: {fileID: 3470956990099530202}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -21217,7 +21234,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Electric Shock Range
   description: 
-  price: 'Price: 10'
+  price: 'Price: 5'
+--- !u!114 &3470956990099530202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031103289086774691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 5602284398737333993}
+  - {fileID: 3629435284376087313}
+  - {fileID: 2803436942890472156}
+  - {fileID: 6258649481472265189}
+  columnProgress: {fileID: 97375973171241623}
+  buttonToDisable: {fileID: 2031103289086774691}
+  price: 5
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseElectricShockRange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &2067294175013003093
 GameObject:
   m_ObjectHideFlags: 0
@@ -22319,8 +22377,9 @@ GameObject:
   - component: {fileID: 3738979445492286337}
   - component: {fileID: 3066585538887818778}
   - component: {fileID: 5623106692492226355}
+  - component: {fileID: 895442555872465347}
   m_Layer: 5
-  m_Name: Button
+  m_Name: MAINBUTTONone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22430,21 +22489,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2301427249658854730}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 6183583974348778513}
-        m_TargetAssemblyTypeName: FireballManager, Assembly-CSharp
-        m_MethodName: UpgradeOne
+      - m_Target: {fileID: 895442555872465347}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -22453,30 +22500,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2537014122851870225}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 4876607505907593698}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &5623106692492226355
 MonoBehaviour:
@@ -22492,7 +22515,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Explosive Radius
   description: Increases the splash range of each fireball.
-  price: 'Price: 10'
+  price: 'Price: 7'
+--- !u!114 &895442555872465347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2301427249658854730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades: []
+  columnProgress: {fileID: 6121967739863056618}
+  buttonToDisable: {fileID: 2301427249658854730}
+  price: 7
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 2537014122851870225}
+  offhandCheck: {fileID: 4876607505907593698}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 1
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6183583974348778513}
+        m_TargetAssemblyTypeName: FireballManager, Assembly-CSharp
+        m_MethodName: UpgradeOne
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &2313176340815658319
 GameObject:
   m_ObjectHideFlags: 0
@@ -24860,8 +24920,9 @@ GameObject:
   - component: {fileID: 3180097075395912301}
   - component: {fileID: 5643588777911644245}
   - component: {fileID: 1046091740039435602}
+  - component: {fileID: 376666404541578893}
   m_Layer: 5
-  m_Name: Button
+  m_Name: sideBottomOne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24971,33 +25032,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2739621942991400143}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 8441010703520791554}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increasedDamageReflection
+      - m_Target: {fileID: 376666404541578893}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -25021,7 +25058,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increase The % Of Damage Reflected
   description: 
-  price: 'Price: 10'
+  price: 'Price: 5'
+--- !u!114 &376666404541578893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2712087194209935283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 914337642218842958}
+  - {fileID: 610575307103241507}
+  - {fileID: 7975982409363731710}
+  - {fileID: 4373966445894374365}
+  columnProgress: {fileID: 7190014165188919240}
+  buttonToDisable: {fileID: 2712087194209935283}
+  price: 5
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increasedDamageReflection
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &2714572069106433551
 GameObject:
   m_ObjectHideFlags: 0
@@ -25500,6 +25578,7 @@ GameObject:
   - component: {fileID: 2729067999218714678}
   - component: {fileID: 398682315010734918}
   - component: {fileID: 6751014187155036378}
+  - component: {fileID: 8909000177206789624}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -25611,33 +25690,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 8700134743421027281}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7517749832084596240}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseKnockBackRange
+      - m_Target: {fileID: 8909000177206789624}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -25661,7 +25716,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Knockback Distance
   description: 
-  price: 'Price: 5'
+  price: 'Price: 2'
+--- !u!114 &8909000177206789624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2803436942890472156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 6258649481472265189}
+  columnProgress: {fileID: 97375973171241623}
+  buttonToDisable: {fileID: 2803436942890472156}
+  price: 2
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseKnockBackRange
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &2834091397946951814
 GameObject:
   m_ObjectHideFlags: 0
@@ -26227,8 +26320,9 @@ GameObject:
   - component: {fileID: 5171406766493089276}
   - component: {fileID: 198586366718954728}
   - component: {fileID: 8510630808428160579}
+  - component: {fileID: 4719817472906646669}
   m_Layer: 5
-  m_Name: Button
+  m_Name: bottomSideButton2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26338,33 +26432,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 4222198232125505847}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2448550639543371873}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseFireballBurnDamage
+      - m_Target: {fileID: 4719817472906646669}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -26388,7 +26458,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Burn Damage
   description: 
-  price: 'Price: 10'
+  price: 'Price: 5'
+--- !u!114 &4719817472906646669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2904879520345493767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 2301427249658854730}
+  - {fileID: 5794982008947669927}
+  - {fileID: 7521140797628197405}
+  - {fileID: 1081154857378781996}
+  columnProgress: {fileID: 6121967739863056618}
+  buttonToDisable: {fileID: 2904879520345493767}
+  price: 5
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseFireballBurnDamage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &2912706733681649029
 GameObject:
   m_ObjectHideFlags: 0
@@ -32025,6 +32136,7 @@ GameObject:
   - component: {fileID: 8783762738145148415}
   - component: {fileID: 4993403423542687838}
   - component: {fileID: 7518766917178643869}
+  - component: {fileID: 7620496665135091028}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -32136,33 +32248,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1418786333226135276}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 8197638887791994749}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseKnockBackDamage
+      - m_Target: {fileID: 7620496665135091028}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -32186,7 +32274,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Knockback Damage
   description: 
-  price: 'Price: 5'
+  price: 'Price: 2'
+--- !u!114 &7620496665135091028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3629435284376087313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 6258649481472265189}
+  columnProgress: {fileID: 97375973171241623}
+  buttonToDisable: {fileID: 3629435284376087313}
+  price: 2
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseKnockBackDamage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &3635354191755801650
 GameObject:
   m_ObjectHideFlags: 0
@@ -39353,8 +39479,9 @@ GameObject:
   - component: {fileID: 5517189002258152651}
   - component: {fileID: 3933477952812518343}
   - component: {fileID: 5085221369277077081}
+  - component: {fileID: 2858431248876699657}
   m_Layer: 5
-  m_Name: Button
+  m_Name: bottomSideBotton1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -39464,33 +39591,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2925758795501156915}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2090768583812223054}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseFireballBurnTime
+      - m_Target: {fileID: 2858431248876699657}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -39514,7 +39617,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Burning Time
   description: 
-  price: 'Price: 10'
+  price: 'Price: 5'
+--- !u!114 &2858431248876699657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4132436918630690998}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 5794982008947669927}
+  - {fileID: 2301427249658854730}
+  - {fileID: 7521140797628197405}
+  - {fileID: 1081154857378781996}
+  columnProgress: {fileID: 6121967739863056618}
+  buttonToDisable: {fileID: 4132436918630690998}
+  price: 5
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseFireballBurnTime
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &4162649096917505086
 GameObject:
   m_ObjectHideFlags: 0
@@ -40501,8 +40645,9 @@ GameObject:
   - component: {fileID: 222404602618835722}
   - component: {fileID: 6137714133560781933}
   - component: {fileID: 8499065495350348574}
+  - component: {fileID: 4883781996385099771}
   m_Layer: 5
-  m_Name: Button
+  m_Name: sideTopTwo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40612,33 +40757,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1928460525193021833}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 6686944050385220086}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseCurseTimeFirst
+      - m_Target: {fileID: 4883781996385099771}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -40662,7 +40783,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Time Curse Lasts
   description: 
-  price: 'Price: 5'
+  price: 'Price: 2'
+--- !u!114 &4883781996385099771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4373966445894374365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 914337642218842958}
+  columnProgress: {fileID: 7190014165188919240}
+  buttonToDisable: {fileID: 4373966445894374365}
+  price: 2
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseCurseTimeFirst
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &4396210738641767385
 GameObject:
   m_ObjectHideFlags: 0
@@ -49133,6 +49292,7 @@ GameObject:
   - component: {fileID: 9108503503171863007}
   - component: {fileID: 7027533536944056741}
   - component: {fileID: 4792638036726293142}
+  - component: {fileID: 6197321563924947549}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -49244,10 +49404,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5602284398737333993}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 6197321563924947549}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -49255,42 +49415,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 4040646375121057485}
-        m_TargetAssemblyTypeName: offhandHandler, Assembly-CSharp
-        m_MethodName: increaseUpgradeStatus
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1969830428692775172}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7568638207455240895}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &4792638036726293142
 MonoBehaviour:
@@ -49307,7 +49431,47 @@ MonoBehaviour:
   nameOf: Electric Shock
   description: "Use your charge by pressing \u201CF\u201D to send a large lighting
     explosion to kill nearby enemies."
-  price: 'Price: 15'
+  price: 'Price: 14'
+--- !u!114 &6197321563924947549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5602284398737333993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 6258649481472265189}
+  - {fileID: 3629435284376087313}
+  - {fileID: 2803436942890472156}
+  columnProgress: {fileID: 97375973171241623}
+  buttonToDisable: {fileID: 5602284398737333993}
+  price: 14
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 1969830428692775172}
+  offhandCheck: {fileID: 7568638207455240895}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 1
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4040646375121057485}
+        m_TargetAssemblyTypeName: offhandHandler, Assembly-CSharp
+        m_MethodName: increaseUpgradeStatus
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &5617527848445007331
 GameObject:
   m_ObjectHideFlags: 0
@@ -50056,8 +50220,9 @@ GameObject:
   - component: {fileID: 3064982982417914353}
   - component: {fileID: 5383634776191218915}
   - component: {fileID: 8546709453509973890}
+  - component: {fileID: 9200839597903571199}
   m_Layer: 5
-  m_Name: Button
+  m_Name: MAINBUTTONtwo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50167,21 +50332,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5794982008947669927}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 6183583974348778513}
-        m_TargetAssemblyTypeName: FireballManager, Assembly-CSharp
-        m_MethodName: UpgradeTwo
+      - m_Target: {fileID: 9200839597903571199}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -50190,30 +50343,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 9141508459691398972}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 4077856403007602347}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &8546709453509973890
 MonoBehaviour:
@@ -50230,7 +50359,47 @@ MonoBehaviour:
   nameOf: Ignition
   description: Enemies in the radius of the fireball explosion will now catch on
     fire.
-  price: 'Price: 15'
+  price: 'Price: 14'
+--- !u!114 &9200839597903571199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5794982008947669927}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 2301427249658854730}
+  - {fileID: 7521140797628197405}
+  - {fileID: 1081154857378781996}
+  columnProgress: {fileID: 6121967739863056618}
+  buttonToDisable: {fileID: 5794982008947669927}
+  price: 14
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 9141508459691398972}
+  offhandCheck: {fileID: 4077856403007602347}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 1
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6183583974348778513}
+        m_TargetAssemblyTypeName: FireballManager, Assembly-CSharp
+        m_MethodName: UpgradeTwo
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &5814393899728162690
 GameObject:
   m_ObjectHideFlags: 0
@@ -52238,6 +52407,7 @@ GameObject:
   - component: {fileID: 6360898435356664823}
   - component: {fileID: 7915576970542782416}
   - component: {fileID: 3272203187215880689}
+  - component: {fileID: 6121967739863056618}
   m_Layer: 5
   m_Name: Fire Top
   m_TagString: Untagged
@@ -52335,6 +52505,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &6121967739863056618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6033737545205281375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0d4d9c931cbd8748b1a7ac8f979e7cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boughtUpgrades: []
 --- !u!1 &6062648328124169275
 GameObject:
   m_ObjectHideFlags: 0
@@ -53748,6 +53931,7 @@ GameObject:
   - component: {fileID: 2856968553735304577}
   - component: {fileID: 4270703029660623122}
   - component: {fileID: 9182966909686125012}
+  - component: {fileID: 2874091221909151694}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -53859,10 +54043,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6258649481472265189}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 2874091221909151694}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -53870,42 +54054,6 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 4040646375121057485}
-        m_TargetAssemblyTypeName: offhandHandler, Assembly-CSharp
-        m_MethodName: increaseUpgradeStatus
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 5781516278561533670}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 2298707504845575081}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &9182966909686125012
 MonoBehaviour:
@@ -53921,7 +54069,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Electric Knockback
   description: Apply a powerful knockback with lighting effect that does damage.
-  price: 'Price: 10'
+  price: 'Price: 7'
+--- !u!114 &2874091221909151694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6258649481472265189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades: []
+  columnProgress: {fileID: 97375973171241623}
+  buttonToDisable: {fileID: 6258649481472265189}
+  price: 7
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 5781516278561533670}
+  offhandCheck: {fileID: 2298707504845575081}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 1
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4040646375121057485}
+        m_TargetAssemblyTypeName: offhandHandler, Assembly-CSharp
+        m_MethodName: increaseUpgradeStatus
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &6260985848316276956
 GameObject:
   m_ObjectHideFlags: 0
@@ -61581,8 +61766,9 @@ GameObject:
   - component: {fileID: 8786710250545598545}
   - component: {fileID: 2467875949892119316}
   - component: {fileID: 2545626070272324111}
+  - component: {fileID: 6551260133611145014}
   m_Layer: 5
-  m_Name: Button
+  m_Name: sideTopButton1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -61692,33 +61878,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 409185867211475608}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7767393539723832898}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseFireballRadius
+      - m_Target: {fileID: 6551260133611145014}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -61742,7 +61904,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Explosion Radius Increased
   description: 
-  price: 'Price: 5'
+  price: 'Price: 2'
+--- !u!114 &6551260133611145014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7521140797628197405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 2301427249658854730}
+  columnProgress: {fileID: 6121967739863056618}
+  buttonToDisable: {fileID: 7521140797628197405}
+  price: 2
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseFireballRadius
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &7525595337763482492
 GameObject:
   m_ObjectHideFlags: 0
@@ -64221,6 +64421,7 @@ GameObject:
   - component: {fileID: 3821780788013337282}
   - component: {fileID: 1887222388878221164}
   - component: {fileID: 5337549384822708542}
+  - component: {fileID: 7190014165188919240}
   m_Layer: 5
   m_Name: Chaos Top
   m_TagString: Untagged
@@ -64318,6 +64519,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &7190014165188919240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7862049653925043217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0d4d9c931cbd8748b1a7ac8f979e7cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boughtUpgrades: []
 --- !u!1 &7877966096770358057
 GameObject:
   m_ObjectHideFlags: 0
@@ -69898,8 +70112,9 @@ GameObject:
   - component: {fileID: 3950501578185674877}
   - component: {fileID: 6554384332522203548}
   - component: {fileID: 5413586780088925727}
+  - component: {fileID: 9028296753925307104}
   m_Layer: 5
-  m_Name: Button
+  m_Name: sideTopOne
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -70009,33 +70224,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1322338936400004422}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7942214951920991761}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseSlowEffect
+      - m_Target: {fileID: 9028296753925307104}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -70059,7 +70250,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Stronger Slowing Effect
   description: 
-  price: 'Price: 5'
+  price: 'Price: 2'
+--- !u!114 &9028296753925307104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7975982409363731710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 914337642218842958}
+  columnProgress: {fileID: 7190014165188919240}
+  buttonToDisable: {fileID: 7975982409363731710}
+  price: 2
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseSlowEffect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &7981620290837080443
 GameObject:
   m_ObjectHideFlags: 0
@@ -70817,6 +71046,7 @@ GameObject:
   - component: {fileID: 2971392424109409797}
   - component: {fileID: 289539533562922040}
   - component: {fileID: 911783739189011203}
+  - component: {fileID: 97375973171241623}
   m_Layer: 5
   m_Name: Lightning Top
   m_TagString: Untagged
@@ -70914,6 +71144,19 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &97375973171241623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8109068174580501851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0d4d9c931cbd8748b1a7ac8f979e7cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boughtUpgrades: []
 --- !u!1 &8116765034227080128
 GameObject:
   m_ObjectHideFlags: 0
@@ -80439,6 +80682,7 @@ GameObject:
   - component: {fileID: 4012292545984408741}
   - component: {fileID: 528751623851775467}
   - component: {fileID: 2973244913219808247}
+  - component: {fileID: 8650178960979878213}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -80550,33 +80794,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 6768693139163935929}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 317393419650684932}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
-      - m_Target: {fileID: 4116362769709068339}
-        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
-        m_MethodName: increaseElectricShockDamage
+      - m_Target: {fileID: 8650178960979878213}
+        m_TargetAssemblyTypeName: purchaseScript, Assembly-CSharp
+        m_MethodName: purchase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -80600,7 +80820,48 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nameOf: Increased Electric Shock Damage
   description: 
-  price: 'Price: 10'
+  price: 'Price: 5'
+--- !u!114 &8650178960979878213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8899794770273730527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5386cf92f75f5747a7908c71c6dd706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prevUpgrades:
+  - {fileID: 5602284398737333993}
+  - {fileID: 2803436942890472156}
+  - {fileID: 3629435284376087313}
+  - {fileID: 6258649481472265189}
+  columnProgress: {fileID: 97375973171241623}
+  buttonToDisable: {fileID: 8899794770273730527}
+  price: 5
+  gb: {fileID: 8329541187511738591}
+  offhandX: {fileID: 0}
+  offhandCheck: {fileID: 0}
+  goldText: {fileID: 8944635845840949407}
+  isMajorUpgrade: 0
+  onPurchaseSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4116362769709068339}
+        m_TargetAssemblyTypeName: sideUpgradeManager, Assembly-CSharp
+        m_MethodName: increaseElectricShockDamage
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  tooltipUI: {fileID: 77441821110451356}
 --- !u!1 &8940215946547547658
 GameObject:
   m_ObjectHideFlags: 0
