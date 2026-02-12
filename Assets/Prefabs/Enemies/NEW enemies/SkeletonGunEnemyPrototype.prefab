@@ -260,7 +260,7 @@ MonoBehaviour:
   - {x: 2, y: -1}
   - {x: -2, y: 1}
   - {x: 2, y: 1}
-  randomAngleJitter: 11.84
+  randomAngleJitter: 5
   tracerPrefab: {fileID: 0}
   tracerLife: 0.05
   tracerWidth: 0.02
@@ -13354,9 +13354,6 @@ MonoBehaviour:
   accelFar: 18
   accelNear: 10
   animMaxMoveSpeed: 6
-  locomotionAnimator: {fileID: 0}
-  gunAnimator: {fileID: 0}
-  debugAnimatorSpeed: 0
   animSpeedParam: Speed
   animAggroBool: Aggro
   animHitTrigger: Hit

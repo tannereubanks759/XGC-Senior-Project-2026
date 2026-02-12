@@ -42,7 +42,7 @@ public class BossHealthbar : MonoBehaviour
             bossHealthSlider.value = displayedHealth;
         }
 
-        /*if (bossHealthGroup != null)
+        if (bossHealthGroup != null)
             bossHealthGroup.alpha = 0f; // Start hidden until damaged*/
     }
 
