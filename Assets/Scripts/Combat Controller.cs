@@ -91,6 +91,7 @@ public class CombatController : MonoBehaviour
 
     public BossHealthbar boss_healthbar;
     public LavaDamage lavaDMG;
+
     void Start()
     {
 
@@ -133,74 +134,14 @@ public class CombatController : MonoBehaviour
 
     }
 
-    void EnemiesSceneChange(Scene scene1, Scene scene2)
-    {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-
-        if(enemies.Length > 0)
-        {
-            foreach (var enemy in enemies)
-            {
-                BaseEnemyAI ai = enemy.GetComponent<BaseEnemyAI>();
-                if (ai != null)
-                {
-                    ai.Player = this.transform;
-                    ai.playerController = this;
-                }
-            }
-        }
-    }
-
-    void EnemiesLoaded(Scene scene1, LoadSceneMode loadSceneMode)
-    {
-        if (lavaDMG)
-        {
-            lavaDMG.inLava = false;
-        }
-        if (boss_healthbar != null)
-        {
-            boss_healthbar.gameObject.SetActive(true);
-            boss_healthbar.ResetHealthbar();
-        }
-
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-
-        if (enemies.Length > 0)
-        {
-            foreach (var enemy in enemies)
-            {
-                BaseEnemyAI ai = enemy.GetComponent<BaseEnemyAI>();
-                if (ai != null)
-                {
-                    ai.Player = this.transform;
-                    ai.playerController = this;
-                }
-            }
-        }
-    }
-
-    private void Awake()
-    {
-        SceneManager.activeSceneChanged += EnemiesSceneChange;
-        SceneManager.sceneLoaded += EnemiesLoaded;
-    }
-
-    private void OnDestroy()
-    {
-        SceneManager.activeSceneChanged -= EnemiesSceneChange;
-        SceneManager.sceneLoaded -= EnemiesLoaded;
-
-    }
-
-
     void Update()
     {
         if (FirstPersonController.isPaused || isPaused) return;
 
-        if (Input.GetKeyDown(KeyCode.O)) 
+        /*if (Input.GetKeyDown(KeyCode.O)) 
         {
             GetStaggered();
-        }
+        }*/
         
 
         EnsureSlider();
@@ -285,7 +226,7 @@ public class CombatController : MonoBehaviour
                     swordAnim.SetBool("swinging", false);
                 }
 
-                if (Input.GetKey(block_or_aim) && controller.stamina > 3f)
+                if (Input.GetKey(block_or_aim) && !swordAnim.GetBool("Staggered"))
                 {
                     blocking = true;
                     swordAnim.SetBool("blocking", true);
@@ -382,8 +323,17 @@ public class CombatController : MonoBehaviour
         }
         else
         {
+            if(controller.stamina < 2f)
+            {
+                swordAnim.SetBool("Staggered", true);
+                swordAnim.SetTrigger("Stagger");
+                DamageForced(damage);
+            }
+            else 
+            {
+                wInertia.ParryClash(1);
+            }
             swordSoundScript.PlayClashSound();
-            wInertia.ParryClash(1);
             controller.LoseStamina(2f);
         }
     }
@@ -424,8 +374,18 @@ public class CombatController : MonoBehaviour
         }
         else
         {
+            if (controller.stamina < 2f)
+            {
+                swordAnim.SetBool("Staggered", true);
+                swordAnim.SetTrigger("Stagger");
+                
+                DamageForced(damage);
+            }
+            else
+            {
+                wInertia.ParryClash(1);
+            }
             swordSoundScript.PlayClashSound();
-            wInertia.ParryClash(1);
             controller.LoseStamina(2f);
         }
     }
@@ -451,6 +411,29 @@ public class CombatController : MonoBehaviour
         }
     }
 
+    void DamageForced(int damage)
+    {
+        damage /= (int)(100f / blockEffectiveness);
+        //health = Mathf.Max(health - damage, 0);
+        lastDamageTime = Time.time;   // reset regen cooldown
+        regenAccumulator = 0f;        // reset regen tick build-up
+
+        // Kick off damage flash
+        damageAlpha = 1f;             // fully visible red
+        damageAlphaVel = 0f;          // reset ease
+        int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
+        if (actuallyApplied <= 0) return;
+
+        int old = health;
+        health = Mathf.Max(0, health - actuallyApplied);
+
+        // --- HURT FX: make sure this always runs when damage is applied ---
+        Mathf.Clamp(old, 0, maxHealth);
+        float severity = actuallyApplied / (float)old;   // FLOAT division!
+        if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
+        hurtFX?.Pulse(severity);
+        shake.Shake(1);
+    }
     private IEnumerator FireEffect()
     {
         float duration = 5f;
@@ -558,26 +541,7 @@ public class CombatController : MonoBehaviour
         }
         else
         {
-            damage /= (int)(100f/blockEffectiveness);
-            //health = Mathf.Max(health - damage, 0);
-            lastDamageTime = Time.time;   // reset regen cooldown
-            regenAccumulator = 0f;        // reset regen tick build-up
-
-            // Kick off damage flash
-            damageAlpha = 1f;             // fully visible red
-            damageAlphaVel = 0f;          // reset ease
-            int actuallyApplied = Mathf.Clamp(damage, 0, health); // change if you do armor/block reduction
-            if (actuallyApplied <= 0) return;
-
-            int old = health;
-            health = Mathf.Max(0, health - actuallyApplied);
-
-            // --- HURT FX: make sure this always runs when damage is applied ---
-            Mathf.Clamp(old, 0, maxHealth);
-            float severity = actuallyApplied / (float)old;   // FLOAT division!
-            if (!hurtFX) hurtFX = FindFirstObjectByType<HurtPostFXURP>();
-            hurtFX?.Pulse(severity);
-            shake.Shake(1);
+            DamageForced(damage);
             swordSoundScript.PlayClashSound();
             wInertia.ParryClash(1);
             controller.LoseStamina(4f);
