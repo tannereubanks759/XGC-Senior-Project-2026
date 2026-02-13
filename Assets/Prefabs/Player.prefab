@@ -44354,7 +44354,7 @@ MonoBehaviour:
   PauseKey: 9
   isPaused: 0
   SceneCamera: {fileID: 0}
-  amb: {fileID: 4005951020069433729}
+  amb: {fileID: 6041245088129583097}
   combatController: {fileID: 6230349697370413922}
   wm: {fileID: 7945717937085838674}
   UIM: {fileID: 5887467224634678997}
@@ -73519,6 +73519,135 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &8441971604596009065
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8567722358128661708}
+  - component: {fileID: 18086465620444042}
+  m_Layer: 7
+  m_Name: Underwater
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8567722358128661708
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8441971604596009065}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6035273703967888150}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &18086465620444042
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8441971604596009065}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 892be2e49cff145499e0595615ac33cb, type: 2}
+  m_audioClip: {fileID: 8300000, guid: d8464845cb4d527449ff34f48f0fd16e, type: 3}
+  m_Resource: {fileID: 8300000, guid: d8464845cb4d527449ff34f48f0fd16e, type: 3}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &8449742805349782188
 GameObject:
   m_ObjectHideFlags: 0
@@ -81948,7 +82077,6 @@ GameObject:
   - component: {fileID: 6035273703967888150}
   - component: {fileID: 6400821867888498456}
   - component: {fileID: 6041245088129583097}
-  - component: {fileID: 4005951020069433729}
   m_Layer: 7
   m_Name: Ambience
   m_TagString: Untagged
@@ -81971,6 +82099,7 @@ Transform:
   m_Children:
   - {fileID: 5728132313452408796}
   - {fileID: 8156579880329520010}
+  - {fileID: 8567722358128661708}
   m_Father: {fileID: 5827558795891769500}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &6400821867888498456
@@ -82083,41 +82212,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 6035273703967888150}
+  playerTag: Player
+  underwaterCheckTransform: {fileID: 0}
+  fallbackToMainCamera: 1
+  seaLevelY: 0
+  underwaterHysteresis: 0.15
   beachSource: {fileID: 2105796240577056996}
   windSource: {fileID: 6400821867888498456}
   caveSource: {fileID: 2144304985770748734}
-  waterLevelY: 0
-  windStartY: 8
+  underwaterSource: {fileID: 18086465620444042}
+  windStartY: 7
   windFullY: 25
-  beachNearWaterRange: 12
+  beachNearWaterRange: 8
   blendSpeed: 2.5
-  masterVolume: 1
-  showDebug: 0
---- !u!114 &4005951020069433729
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9129864099931293183}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 332fe226138dbbd4d9ea09af7c65e990, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ambienceClips:
-  - {fileID: 8300000, guid: e7d4844cb638ff64bb1b4cf9577c933f, type: 3}
-  - {fileID: 8300000, guid: 32195a721dd7b8244981e41961cc5852, type: 3}
-  - {fileID: 8300000, guid: 08ec26f5d80742d4084f8076a7f91849, type: 3}
-  - {fileID: 8300000, guid: ce4ec909d57440240a96bdda6cd93426, type: 3}
-  - {fileID: 8300000, guid: 86922dba987d09d43b5461d6e817ede5, type: 3}
-  - {fileID: 8300000, guid: 44948f9a0224acb4d9b255d0e230cba4, type: 3}
-  crossfadeDuration: 3
-  leadInBeforeEnd: 3
-  equalPowerFade: 1
-  masterVolume: 0.25
-  disableIfNoClips: 0
-  paused: 0
+  masterVolume: 0.5
+  autoRestartSources: 1
+  resetCaveStateOnSceneLoad: 1
+  forceBeachOnSceneLoad: 1
+  showDebugLogs: 0
 --- !u!1 &9141508459691398972
 GameObject:
   m_ObjectHideFlags: 0

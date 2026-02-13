@@ -8,7 +8,7 @@ public class UI : MonoBehaviour
     public KeyCode PauseKey = KeyCode.Tab;
     public bool isPaused = false;
     public Camera SceneCamera;
-    public Ambience amb;
+    public AmbientZoneBlender amb;
     public CombatController combatController;
     public WeaponsManager wm;
     public UImanager UIM;
@@ -38,7 +38,7 @@ public class UI : MonoBehaviour
     void Pause()
     {
         wm.isPaused = true;
-        amb.paused = true;
+        amb.PauseAmbience();
         combatController.isPaused = true;
         FirstPersonController.isPaused = true;
         isPaused = true;
@@ -48,7 +48,7 @@ public class UI : MonoBehaviour
     public void Resume()
     {
         wm.isPaused = false;
-        amb.paused = false;
+        amb.UnpauseAmbience();
         combatController.isPaused = false;
         FirstPersonController.isPaused = false;
         isPaused = false;

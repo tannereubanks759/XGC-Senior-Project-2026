@@ -1,215 +1,371 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Ambience system that blends between Beach, Wind, and Cave ambience.
-/// Priority: Cave overrides everything while inside cave trigger.
-/// Otherwise blends Beach <-> Wind based on player Y relative to water level.
-/// </summary>
 [DisallowMultipleComponent]
 public class AmbientZoneBlender : MonoBehaviour
 {
     [Header("Player")]
-    [Tooltip("Player transform used to read world position.")]
     public Transform player;
+    public string playerTag = "Player";
+
+    [Header("Underwater Detection")]
+    [Tooltip("If assigned, this transform decides underwater status (usually player camera).")]
+    public Transform underwaterCheckTransform;
+
+    [Tooltip("Fallback to Camera.main when underwaterCheckTransform is null.")]
+    public bool fallbackToMainCamera = true;
+
+    [Tooltip("Sea level / water surface Y. Underwater when checkTransform.y < this value.")]
+    public float seaLevelY = 0f;
+
+    [Tooltip("Small buffer around sea level to avoid rapid toggling.")]
+    public float underwaterHysteresis = 0.15f;
 
     [Header("Audio Sources (looping)")]
-    [Tooltip("Beach ambience AudioSource (set clip + loop=true).")]
     public AudioSource beachSource;
-
-    [Tooltip("Wind ambience AudioSource (set clip + loop=true).")]
     public AudioSource windSource;
-
-    [Tooltip("Cave ambience AudioSource (set clip + loop=true).")]
     public AudioSource caveSource;
+    public AudioSource underwaterSource;
 
-    [Header("Water / Height Settings")]
-    [Tooltip("World-space water line Y (e.g. ocean surface at y=0).")]
-    public float waterLevelY = 0f;
-
-    [Tooltip("Below this height, Beach can dominate. Above this, Wind begins blending in.")]
+    [Header("Height Blend Settings")]
+    [Tooltip("Wind starts blending in at this height.")]
     public float windStartY = 8f;
 
-    [Tooltip("At/above this height, Wind reaches full intensity (unless in cave).")]
+    [Tooltip("Wind reaches full at/above this height.")]
     public float windFullY = 25f;
 
-    [Tooltip("How far above/below water line still counts as 'near water' for beach presence.")]
+    [Tooltip("How far from sea level still counts as near-water for beach presence.")]
     public float beachNearWaterRange = 12f;
 
     [Header("Transitions")]
-    [Tooltip("How quickly source volumes move toward targets. Higher = faster.")]
-    [Range(0.1f, 10f)]
-    public float blendSpeed = 2.5f;
+    [Range(0.05f, 20f)] public float blendSpeed = 2.5f;
+    [Range(0f, 1f)] public float masterVolume = 1f;
 
-    [Tooltip("Global ambience multiplier for all 3 tracks.")]
-    [Range(0f, 1f)]
-    public float masterVolume = 1f;
+    [Header("Safety")]
+    public bool autoRestartSources = true;
+
+    [Header("Scene Handling")]
+    public bool resetCaveStateOnSceneLoad = true;
+    public bool forceBeachOnSceneLoad = true;
 
     [Header("Debug")]
-    public bool showDebug = false;
+    public bool showDebugLogs = false;
 
-    // Cave trigger bookkeeping (supports overlapping cave triggers)
+    // Cave trigger bookkeeping
     private int caveTriggerCount = 0;
 
-    // Internal current volumes (0..1), multiplied by masterVolume on output
-    private float currentBeach;
-    private float currentWind;
-    private float currentCave;
+    // Smoothed weights [0..1]
+    private float currentBeach = 0f;
+    private float currentWind = 0f;
+    private float currentCave = 0f;
+    private float currentUnderwater = 0f;
 
-    private void Reset()
+    private bool isPaused = false;
+    private bool wasUnderwater = false;
+
+    private void OnValidate()
     {
-        // Try auto-fill player to this object if useful
-        if (player == null) player = transform;
+        if (windFullY <= windStartY) windFullY = windStartY + 0.01f;
+        beachNearWaterRange = Mathf.Max(0.01f, beachNearWaterRange);
+        blendSpeed = Mathf.Max(0.01f, blendSpeed);
+        underwaterHysteresis = Mathf.Max(0f, underwaterHysteresis);
     }
 
     private void Awake()
     {
-        ValidateSources();
+        ValidateSource(beachSource, "Beach");
+        ValidateSource(windSource, "Wind");
+        ValidateSource(caveSource, "Cave");
+        ValidateSource(underwaterSource, "Underwater");
 
-        // Start all sources muted and playing for seamless crossfade
-        currentBeach = 0f;
-        currentWind = 0f;
-        currentCave = 0f;
+        TryFindPlayerIfMissing();
+        TryResolveUnderwaterCheckTransform();
 
         ForcePlayLoop(beachSource);
         ForcePlayLoop(windSource);
         ForcePlayLoop(caveSource);
+        ForcePlayLoop(underwaterSource);
 
-        ApplyVolumesImmediate();
+        // Start silent; first Update computes correct targets
+        SetRawSourceVolume(beachSource, 0f);
+        SetRawSourceVolume(windSource, 0f);
+        SetRawSourceVolume(caveSource, 0f);
+        SetRawSourceVolume(underwaterSource, 0f);
     }
 
-    private void Update()
+    private void OnEnable() => SceneManager.sceneLoaded += OnSceneLoaded;
+    private void OnDisable() => SceneManager.sceneLoaded -= OnSceneLoaded;
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (player == null)
+        TryFindPlayerIfMissing(force: true);
+        TryResolveUnderwaterCheckTransform(force: true);
+
+        if (resetCaveStateOnSceneLoad)
+            caveTriggerCount = 0;
+
+        if (forceBeachOnSceneLoad)
         {
-            if (showDebug) Debug.LogWarning("[AmbientZoneBlender] Player reference missing.");
-            return;
+            // Immediate nudge to beach on new scene
+            currentBeach = 1f;
+            currentWind = 0f;
+            currentCave = 0f;
+            currentUnderwater = 0f;
+            ApplyVolumes();
         }
-
-        // 1) Compute target weights
-        float targetBeach, targetWind, targetCave;
-        ComputeTargetWeights(out targetBeach, out targetWind, out targetCave);
-
-        // 2) Smooth toward targets
-        float t = 1f - Mathf.Exp(-blendSpeed * Time.deltaTime); // framerate-independent smoothing
-        currentBeach = Mathf.Lerp(currentBeach, targetBeach, t);
-        currentWind = Mathf.Lerp(currentWind, targetWind, t);
-        currentCave = Mathf.Lerp(currentCave, targetCave, t);
 
         KeepSourceAlive(beachSource);
         KeepSourceAlive(windSource);
         KeepSourceAlive(caveSource);
+        KeepSourceAlive(underwaterSource);
 
+        if (showDebugLogs)
+            Debug.Log($"[AmbientZoneBlender] Scene loaded: {scene.name}");
+    }
 
-        // 3) Apply to AudioSources
+    private void Update()
+    {
+        if (isPaused) return;
+
+        if (player == null)
+        {
+            TryFindPlayerIfMissing();
+            if (player == null) return;
+        }
+
+        TryResolveUnderwaterCheckTransform();
+
+        ComputeTargetWeights(out float targetBeach, out float targetWind, out float targetCave, out float targetUnderwater);
+
+        float t = 1f - Mathf.Exp(-blendSpeed * Time.deltaTime);
+        currentBeach = Mathf.Lerp(currentBeach, targetBeach, t);
+        currentWind = Mathf.Lerp(currentWind, targetWind, t);
+        currentCave = Mathf.Lerp(currentCave, targetCave, t);
+        currentUnderwater = Mathf.Lerp(currentUnderwater, targetUnderwater, t);
+
+        KeepSourceAlive(beachSource);
+        KeepSourceAlive(windSource);
+        KeepSourceAlive(caveSource);
+        KeepSourceAlive(underwaterSource);
+
         ApplyVolumes();
 
-        if (showDebug)
+        if (showDebugLogs)
         {
+            float uy = underwaterCheckTransform ? underwaterCheckTransform.position.y : float.NaN;
             Debug.Log(
-                $"[AmbientZoneBlender] y={player.position.y:F2} cave={IsInCave()} | " +
-                $"Beach={currentBeach:F2} Wind={currentWind:F2} Cave={currentCave:F2}");
+                $"[Ambience] y={player.position.y:F2} checkY={uy:F2} " +
+                $"UW={currentUnderwater:F2} Cave={currentCave:F2} Beach={currentBeach:F2} Wind={currentWind:F2} " +
+                $"caveCount={caveTriggerCount}"
+            );
         }
-    }
-    private void KeepSourceAlive(AudioSource src)
-    {
-        if (src == null) return;
-        if (!src.enabled) src.enabled = true;
-        if (src.clip == null) return;
-
-        // If something stopped it, restart.
-        if (!src.isPlaying)
-            src.Play();
     }
 
     /// <summary>
-    /// Cave has highest priority. If in cave, Cave=1 and others=0.
-    /// Else blend Beach/Wind by height and near-water shaping.
+    /// Priority:
+    /// 1) Underwater
+    /// 2) Cave
+    /// 3) Beach/Wind blend
     /// </summary>
-    private void ComputeTargetWeights(out float beach, out float wind, out float cave)
+    private void ComputeTargetWeights(out float beach, out float wind, out float cave, out float underwater)
     {
-        bool inCave = IsInCave();
-        if (inCave)
+        bool underwaterNow = IsUnderwater();
+
+        if (underwaterNow)
         {
+            underwater = 1f;
+            cave = 0f;
             beach = 0f;
             wind = 0f;
-            cave = 1f;
             return;
         }
 
+        if (IsInCave())
+        {
+            underwater = 0f;
+            cave = 1f;
+            beach = 0f;
+            wind = 0f;
+            return;
+        }
+
+        underwater = 0f;
+        cave = 0f;
+
         float y = player.position.y;
+        float windByHeight = Mathf.Clamp01(Mathf.InverseLerp(windStartY, windFullY, y));
 
-        // Wind factor by height
-        float windByHeight = 0f;
-        if (windFullY > windStartY)
-            windByHeight = Mathf.InverseLerp(windStartY, windFullY, y);
-        windByHeight = Mathf.Clamp01(windByHeight);
+        float distToWater = Mathf.Abs(y - seaLevelY);
+        float beachNearWater = 1f - Mathf.Clamp01(distToWater / beachNearWaterRange);
 
-        // Beach factor by proximity to water level (1 near water, fades with vertical distance)
-        float distToWater = Mathf.Abs(y - waterLevelY);
-        float beachNearWater = 1f - Mathf.Clamp01(distToWater / Mathf.Max(0.001f, beachNearWaterRange));
-
-        // Combine so beach is strong near water and weak at high elevations
-        // As wind rises, beach gets suppressed.
         beach = beachNearWater * (1f - windByHeight);
         wind = windByHeight;
 
-        // Normalize Beach/Wind pair so sum <= 1, then cave fills none (0 outside cave)
         float sum = beach + wind;
         if (sum > 1f)
         {
             beach /= sum;
             wind /= sum;
         }
+    }
 
-        cave = 0f;
+    /// <summary>
+    /// Uses hysteresis to reduce flickering right around sea level.
+    /// </summary>
+    private bool IsUnderwater()
+    {
+        Transform check = underwaterCheckTransform;
+        if (check == null) return false;
+
+        float y = check.position.y;
+        bool result;
+
+        if (!wasUnderwater)
+        {
+            // Must go slightly below sea level to enter underwater
+            result = y < (seaLevelY - underwaterHysteresis);
+        }
+        else
+        {
+            // Must go slightly above sea level to exit underwater
+            result = y < (seaLevelY + underwaterHysteresis);
+        }
+
+        wasUnderwater = result;
+        return result;
     }
 
     private void ApplyVolumes()
     {
-        if (beachSource != null) beachSource.volume = Mathf.Clamp01(currentBeach) * masterVolume;
-        if (windSource != null) windSource.volume = Mathf.Clamp01(currentWind) * masterVolume;
-        if (caveSource != null) caveSource.volume = Mathf.Clamp01(currentCave) * masterVolume;
+        SetRawSourceVolume(beachSource, Mathf.Clamp01(currentBeach) * masterVolume);
+        SetRawSourceVolume(windSource, Mathf.Clamp01(currentWind) * masterVolume);
+        SetRawSourceVolume(caveSource, Mathf.Clamp01(currentCave) * masterVolume);
+        SetRawSourceVolume(underwaterSource, Mathf.Clamp01(currentUnderwater) * masterVolume);
     }
 
-    private void ApplyVolumesImmediate()
+    private void SetRawSourceVolume(AudioSource src, float vol)
     {
-        if (beachSource != null) beachSource.volume = 0f;
-        if (windSource != null) windSource.volume = 0f;
-        if (caveSource != null) caveSource.volume = 0f;
+        if (src == null) return;
+        src.volume = Mathf.Clamp01(vol);
     }
 
-    private void ValidateSources()
+    private void ValidateSource(AudioSource src, string label)
     {
-        // Optional warnings to help setup
-        if (beachSource == null) Debug.LogWarning("[AmbientZoneBlender] Beach source missing.");
-        if (windSource == null) Debug.LogWarning("[AmbientZoneBlender] Wind source missing.");
-        if (caveSource == null) Debug.LogWarning("[AmbientZoneBlender] Cave source missing.");
+        if (src == null)
+        {
+            Debug.LogWarning($"[AmbientZoneBlender] {label} source is missing.");
+            return;
+        }
+
+        src.loop = true;
+        src.playOnAwake = false;
+        // Recommended for global ambience:
+        // src.spatialBlend = 0f;
     }
 
     private void ForcePlayLoop(AudioSource src)
     {
-        if (src == null) return;
+        if (src == null || src.clip == null) return;
         src.loop = true;
+        if (!src.isPlaying) src.Play();
+    }
+
+    private void KeepSourceAlive(AudioSource src)
+    {
+        if (!autoRestartSources || src == null) return;
+        if (!src.enabled) src.enabled = true;
+        if (src.clip == null) return;
         if (!src.isPlaying) src.Play();
     }
 
     private bool IsInCave() => caveTriggerCount > 0;
 
-    /// <summary>
-    /// Called by cave trigger script when player enters.
-    /// </summary>
     public void EnterCave()
     {
         caveTriggerCount++;
-        if (showDebug) Debug.Log($"[AmbientZoneBlender] EnterCave -> count={caveTriggerCount}");
+        if (showDebugLogs) Debug.Log($"[AmbientZoneBlender] EnterCave -> {caveTriggerCount}");
     }
 
-    /// <summary>
-    /// Called by cave trigger script when player exits.
-    /// </summary>
     public void ExitCave()
     {
         caveTriggerCount = Mathf.Max(0, caveTriggerCount - 1);
-        if (showDebug) Debug.Log($"[AmbientZoneBlender] ExitCave -> count={caveTriggerCount}");
+        if (showDebugLogs) Debug.Log($"[AmbientZoneBlender] ExitCave -> {caveTriggerCount}");
+    }
+
+    public void ForceExitAllCaves()
+    {
+        caveTriggerCount = 0;
+        if (showDebugLogs) Debug.Log("[AmbientZoneBlender] ForceExitAllCaves()");
+    }
+
+    // ---- Pause/Unpause requested ----
+    public void PauseAmbience()
+    {
+        if (isPaused) return;
+        isPaused = true;
+
+        if (beachSource != null) beachSource.Pause();
+        if (windSource != null) windSource.Pause();
+        if (caveSource != null) caveSource.Pause();
+        if (underwaterSource != null) underwaterSource.Pause();
+
+        if (showDebugLogs) Debug.Log("[AmbientZoneBlender] Ambience paused.");
+    }
+
+    public void UnpauseAmbience()
+    {
+        if (!isPaused) return;
+        isPaused = false;
+
+        UnpauseOrRestart(beachSource);
+        UnpauseOrRestart(windSource);
+        UnpauseOrRestart(caveSource);
+        UnpauseOrRestart(underwaterSource);
+
+        ApplyVolumes();
+
+        if (showDebugLogs) Debug.Log("[AmbientZoneBlender] Ambience unpaused.");
+    }
+
+    public void SetPaused(bool paused)
+    {
+        if (paused) PauseAmbience();
+        else UnpauseAmbience();
+    }
+
+    private void UnpauseOrRestart(AudioSource src)
+    {
+        if (src == null || src.clip == null) return;
+        src.UnPause();
+        if (!src.isPlaying) src.Play();
+    }
+
+    private void TryFindPlayerIfMissing(bool force = false)
+    {
+        if (!force && player != null) return;
+
+        GameObject p = GameObject.FindGameObjectWithTag(playerTag);
+        if (p != null) player = p.transform;
+    }
+
+    private void TryResolveUnderwaterCheckTransform(bool force = false)
+    {
+        if (!force && underwaterCheckTransform != null) return;
+
+        // Prefer player camera child if possible
+        if (player != null)
+        {
+            Camera camInChildren = player.GetComponentInChildren<Camera>(true);
+            if (camInChildren != null)
+            {
+                underwaterCheckTransform = camInChildren.transform;
+                return;
+            }
+        }
+
+        if (fallbackToMainCamera && Camera.main != null)
+        {
+            underwaterCheckTransform = Camera.main.transform;
+        }
     }
 }
