@@ -11,6 +11,7 @@ public class SetOnFire : MonoBehaviour
     public bool InLava = false;
     public float lavaDamage = 30f;
     public burnUpgradeManager burnUpgradeManRef;
+    public AudioSource fireSource;
     //public float timeOnFired = 3f;
     public float tickInterval = 1f;
     //public float damagePerTickd = 5f;
@@ -63,6 +64,10 @@ public class SetOnFire : MonoBehaviour
         OnFire = true;
         if (system)
         {
+            if (fireSource && fireSource.isPlaying == false)
+            {
+                fireSource.Play();
+            }
             var emission = system.emission;
             if (system.isStopped)
             {
@@ -79,7 +84,13 @@ public class SetOnFire : MonoBehaviour
         {
             var emission = system.emission;
             emission.enabled = false;
+
+            if (fireSource && fireSource.isPlaying == true)
+            {
+                fireSource.Stop();
+            }
         }
+
         
         OnFire = false;
         nextTick = 0f;

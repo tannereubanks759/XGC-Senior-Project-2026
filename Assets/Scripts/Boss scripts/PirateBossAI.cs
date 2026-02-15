@@ -6,7 +6,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class PirateBossAI : MonoBehaviour
 {
-    public enum BossState { Idle, Chase, Attack, AnchorThrow, Dead }
+    public enum BossState { Idle, Chase, Attack, Block, AnchorThrow, Dead } // <-- added Block
     public string BossName = "Anchor Boss";
 
     [Header("References")]
@@ -14,6 +14,7 @@ public class PirateBossAI : MonoBehaviour
     public NavMeshAgent agent;
     public Transform player;
     public BossHealthbar healthbar;
+
     [Header("Curse")]
     public int damageMult = 1;
     public float cursedSpeedMultiplier = 0.4f;
@@ -21,14 +22,27 @@ public class PirateBossAI : MonoBehaviour
     float _baseAgentSpeed;
     public bool isCursed;
     public GameObject cursedVfxPrefab;
+
     [Header("Tuning")]
     public float attackRange = 3.5f;
     public float turnSpeed = 360f;
     [Tooltip("How fast the boss can spin specifically during AnchorThrow.")]
-    public float throwTurnSpeed = 900f;          // <-- NEW
+    public float throwTurnSpeed = 900f;
     public float attackDuration = 1.2f;
     public float attackCooldown = 0.6f;
     public float stopEpsilon = 0.05f;
+
+    [Header("Blocking")]
+    [Range(0f, 1f)] public float blockChance = 0.22f;
+    [Tooltip("Boss can attempt block when within this range from player.")]
+    public float blockRange = 6f;
+    public float blockDurationMin = 0.45f;
+    public float blockDurationMax = 1.1f;
+    public float blockCooldown = 1.25f;
+    [Tooltip("Damage multiplier while blocking. 0 = fully negate, 0.2 = takes 20% damage.")]
+    [Range(0f, 1f)] public float blockedDamageMultiplier = 0f;
+    [Tooltip("If false, cursed boss won't enter Block state.")]
+    public bool canBlockWhileCursed = true;
 
     [Header("Locomotion")]
     [Tooltip("If speed is above this, we want walk anim ON.")]
@@ -67,6 +81,7 @@ public class PirateBossAI : MonoBehaviour
     [SerializeField] string paramIsAttackin = "isAttackin";
     [SerializeField] string paramAttackIdx = "attack";     // int
     [SerializeField] string paramIsDead = "isDead";
+    [SerializeField] string paramIsBlocking = "isBlocking"; // <-- added
 
     [Header("Attack Selection")]
     [Min(1)] public int numAttackAnims = 5;
@@ -80,13 +95,14 @@ public class PirateBossAI : MonoBehaviour
     [Tooltip("How long the boss stays in the AnchorThrow state (seconds).")]
     public float throwTime = 1.2f;
     public bool canRotate = true;
-    [SerializeField] string paramThrowTrigger = "throw"; // Animator trigger name
+    [SerializeField] string paramThrowTrigger = "throw";
 
     // --- Death guards ---
     bool _deathHandled = false;
     int _deathHash;
 
     float _sqrThrowDist;
+    float _sqrBlockDist; // <-- added
 
     public BossState State { get; private set; } = BossState.Idle;
 
@@ -96,6 +112,11 @@ public class PirateBossAI : MonoBehaviour
     float _sqrAttackExit;
     float _attackCooldownUntil;
     int _lastAttack = 0;
+
+    // block internals
+    bool _blockBusy;
+    float _blockCooldownUntil;
+    Coroutine _blockCo;
 
     // locomotion smoothing
     bool _walkState;
@@ -115,14 +136,17 @@ public class PirateBossAI : MonoBehaviour
         agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
         _baseAgentSpeed = agent.speed;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+
         animator?.SetBool(paramIsWalking, false);
         animator?.SetBool(paramIsRunning, false);
         animator?.SetBool(paramIsAttackin, false);
+        animator?.SetBool(paramIsBlocking, false); // <-- added
         animator?.ResetTrigger(paramIsDead);
 
         RecalcRanges();
         _deathHash = Animator.StringToHash("Base Layer.Death");
     }
+
     public void curseBoss(bool slow, bool reflection)
     {
         if (isCursed) return;
@@ -134,6 +158,7 @@ public class PirateBossAI : MonoBehaviour
         }
         reflectDamageWhenCursed = reflection;
     }
+
     void RecalcRanges()
     {
         _sqrAttackEnter = attackRange * attackRange;
@@ -141,6 +166,7 @@ public class PirateBossAI : MonoBehaviour
         _sqrAttackExit = exitR * exitR;
 
         _sqrThrowDist = Mathf.Max(0f, throwDistance) * Mathf.Max(0f, throwDistance);
+        _sqrBlockDist = Mathf.Max(0f, blockRange) * Mathf.Max(0f, blockRange); // <-- added
     }
 
     void OnValidate()
@@ -148,6 +174,7 @@ public class PirateBossAI : MonoBehaviour
         if (agent) agent.stoppingDistance = Mathf.Max(0f, attackRange - 0.1f);
         if (numAttackAnims < 1) numAttackAnims = 1;
         if (walkExitSpeed > walkEnterSpeed) walkExitSpeed = walkEnterSpeed * 0.6f;
+        if (blockDurationMax < blockDurationMin) blockDurationMax = blockDurationMin;
         RecalcRanges();
     }
 
@@ -156,7 +183,6 @@ public class PirateBossAI : MonoBehaviour
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
-            
             if (p) player = p.transform;
         }
         TransitionTo(BossState.Idle);
@@ -164,7 +190,6 @@ public class PirateBossAI : MonoBehaviour
 
     void Update()
     {
-        //Debug.Log(State);
         if (State == BossState.Dead) return;
 
         switch (State)
@@ -172,6 +197,7 @@ public class PirateBossAI : MonoBehaviour
             case BossState.Idle: TickIdle(); break;
             case BossState.Chase: TickChase(); break;
             case BossState.Attack: TickAttack(); break;
+            case BossState.Block: TickBlock(); break; // <-- added
             case BossState.AnchorThrow: TickAnchorThrow(); break;
         }
     }
@@ -187,20 +213,31 @@ public class PirateBossAI : MonoBehaviour
         healthbar.text.text = BossName;
         healthbar.gameObject.SetActive(true);
         healthbar.ShowHealthbarOnBossTriggered();
-        
+
         TransitionTo(BossState.Chase);
     }
 
     public void TakeDamage(int amount)
     {
-        
         if (State == BossState.Dead) return;
-        int finalDamage = amount * damageMult;
-        
-        currentHealth = Mathf.Max(0, currentHealth - Mathf.Abs(finalDamage));
-        animator.SetTrigger("Impacted");
 
-        healthbar.TakeDamage(currentHealth);
+        int incoming = Mathf.Abs(amount);
+
+        // Block mitigation
+        if (State == BossState.Block && animator != null && animator.GetBool(paramIsBlocking))
+        {
+            incoming = Mathf.RoundToInt(incoming * blockedDamageMultiplier);
+            if (debugDamage) Debug.Log($"{name} blocked hit. Reduced damage to {incoming}");
+        }
+
+        int finalDamage = incoming * damageMult;
+
+        currentHealth = Mathf.Max(0, currentHealth - finalDamage);
+
+        if (finalDamage > 0)
+            animator.SetTrigger("Impacted");
+
+        healthbar?.TakeDamage(currentHealth);
 
         if (currentHealth <= 0) TransitionTo(BossState.Dead);
     }
@@ -210,6 +247,7 @@ public class PirateBossAI : MonoBehaviour
         if (!agent.isStopped) agent.isStopped = true;
         SetWalk(false, force: true);
         animator.SetBool(paramIsAttackin, false);
+        animator.SetBool(paramIsBlocking, false);
     }
 
     void TickChase()
@@ -223,9 +261,25 @@ public class PirateBossAI : MonoBehaviour
 
         Vector3 toPlayer = player.position - transform.position;
         float sqrDist = toPlayer.sqrMagnitude;
+        float dist = Mathf.Sqrt(sqrDist);
+
+        // Block check (before attack, so boss sometimes guards instead of instantly swinging)
+        bool blockAllowed = (canBlockWhileCursed || !isCursed);
+        if (blockAllowed &&
+            Time.time >= _blockCooldownUntil &&
+            !_blockBusy &&
+            sqrDist <= _sqrBlockDist &&
+            sqrDist > (_sqrAttackEnter * 0.45f)) // don't block when basically touching
+        {
+            if (Random.value < blockChance)
+            {
+                TransitionTo(BossState.Block);
+                return;
+            }
+        }
 
         // Throw if distance is in range [throwDistance .. maxThrowDistance]
-        if (sqrDist >= _sqrThrowDist && toPlayer.magnitude <= maxThrowDistance)
+        if (sqrDist >= _sqrThrowDist && dist <= maxThrowDistance)
         {
             if (Random.value < throwChance)
             {
@@ -244,9 +298,8 @@ public class PirateBossAI : MonoBehaviour
         // Move toward player
         agent.isStopped = false;
         agent.SetDestination(player.position);
-        FaceTarget(); // normal turn speed
+        FaceTarget();
 
-        // speed smoothing -> walk anim blend logic
         float rawSpeed = agent.velocity.magnitude;
         float alpha = 1f - Mathf.Exp(-speedSmoothing * Time.deltaTime);
         _speedLPF = Mathf.Lerp(_speedLPF, rawSpeed, alpha);
@@ -255,41 +308,40 @@ public class PirateBossAI : MonoBehaviour
         bool planning = agent.pathPending;
         bool hasIntent = agent.hasPath || planning || agent.desiredVelocity.sqrMagnitude > 0.01f;
 
-        bool wantWalk =
-            hasIntent && (
-                planning ||
-                farFromStop ||
-                _speedLPF > walkEnterSpeed
-            );
-
-        bool wantIdle =
-            !planning && !farFromStop && _speedLPF < walkExitSpeed;
+        bool wantWalk = hasIntent && (planning || farFromStop || _speedLPF > walkEnterSpeed);
+        bool wantIdle = !planning && !farFromStop && _speedLPF < walkExitSpeed;
 
         if (Time.time >= _nextWalkToggleTime)
         {
-            if (!_walkState && wantWalk)
-            {
-                SetWalk(true);
-            }
-            else if (_walkState && wantIdle)
-            {
-                SetWalk(false);
-            }
+            if (!_walkState && wantWalk) SetWalk(true);
+            else if (_walkState && wantIdle) SetWalk(false);
         }
 
         animator.SetBool(paramIsRunning, false);
         animator.SetBool(paramIsAttackin, false);
+        animator.SetBool(paramIsBlocking, false);
     }
 
     void TickAttack()
     {
-        FaceTarget(); // normal turnSpeed
+        FaceTarget();
         if (player)
         {
             float sqrDist = (player.position - transform.position).sqrMagnitude;
             if (sqrDist > _sqrAttackExit && !_attackBusy)
                 TransitionTo(BossState.Chase);
         }
+    }
+
+    void TickBlock()
+    {
+        if (!agent.isStopped) agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+        SetWalk(false, force: true);
+        animator.SetBool(paramIsAttackin, false);
+        animator.SetBool(paramIsBlocking, true);
+
+        FaceTarget(turnSpeed * 1.35f);
     }
 
     void SetWalk(bool value, bool force = false)
@@ -300,13 +352,8 @@ public class PirateBossAI : MonoBehaviour
         _nextWalkToggleTime = Time.time + walkToggleDebounce;
     }
 
-    // Overload 1: default turn speed
-    void FaceTarget()
-    {
-        FaceTarget(turnSpeed);
-    }
+    void FaceTarget() => FaceTarget(turnSpeed);
 
-    // Overload 2: custom turn speed (used for throw spin)
     void FaceTarget(float customTurnSpeed)
     {
         if (!player) return;
@@ -315,11 +362,7 @@ public class PirateBossAI : MonoBehaviour
         if (dir.sqrMagnitude < 0.0001f) return;
 
         Quaternion targetRot = Quaternion.LookRotation(dir, Vector3.up);
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            targetRot,
-            customTurnSpeed * Time.deltaTime
-        );
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, customTurnSpeed * Time.deltaTime);
     }
 
     Coroutine _throwCo;
@@ -338,6 +381,14 @@ public class PirateBossAI : MonoBehaviour
             animator.SetBool(paramIsAttackin, false);
             _attackBusy = false;
         }
+
+        if (State == BossState.Block)
+        {
+            animator.SetBool(paramIsBlocking, false);
+            _blockBusy = false;
+            if (_blockCo != null) { StopCoroutine(_blockCo); _blockCo = null; }
+        }
+
         if (State == BossState.AnchorThrow && _throwCo != null)
         {
             StopCoroutine(_throwCo);
@@ -351,17 +402,25 @@ public class PirateBossAI : MonoBehaviour
             case BossState.Idle:
                 agent.isStopped = true;
                 SetWalk(false, force: true);
+                animator.SetBool(paramIsBlocking, false);
                 break;
 
             case BossState.Chase:
                 agent.isStopped = false;
+                animator.SetBool(paramIsBlocking, false);
                 break;
 
             case BossState.Attack:
+                animator.SetBool(paramIsBlocking, false);
                 if (!_attackBusy) StartCoroutine(AttackRoutine());
                 break;
 
+            case BossState.Block:
+                if (!_blockBusy) _blockCo = StartCoroutine(BlockRoutine());
+                break;
+
             case BossState.AnchorThrow:
+                animator.SetBool(paramIsBlocking, false);
                 agent.isStopped = true;
                 SetWalk(false, force: true);
                 agent.velocity = Vector3.zero;
@@ -372,13 +431,14 @@ public class PirateBossAI : MonoBehaviour
                 isCursed = false;
                 reflectDamageWhenCursed = false;
                 damageMult = 1;
+                animator.SetBool(paramIsBlocking, false);
+
                 if (agent != null) agent.speed = _baseAgentSpeed;
                 if (_deathHandled) return;
-                IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>().GetComponent<IslandTeleporter>();
-                if (tel != null)
-                {
-                    tel.OpenDoor();
-                }
+
+                IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?.GetComponent<IslandTeleporter>();
+                if (tel != null) tel.OpenDoor();
+
                 _deathHandled = true;
 
                 agent.isStopped = true;
@@ -395,6 +455,34 @@ public class PirateBossAI : MonoBehaviour
         }
     }
 
+    IEnumerator BlockRoutine()
+    {
+        _blockBusy = true;
+        agent.isStopped = true;
+        agent.velocity = Vector3.zero;
+        SetWalk(false, force: true);
+
+        animator.SetBool(paramIsAttackin, false);
+        animator.SetBool(paramIsBlocking, true);
+
+        float dur = Random.Range(blockDurationMin, blockDurationMax);
+        float end = Time.time + dur;
+
+        while (Time.time < end && State == BossState.Block)
+        {
+            FaceTarget(turnSpeed * 1.35f);
+            yield return null;
+        }
+
+        animator.SetBool(paramIsBlocking, false);
+        _blockCooldownUntil = Time.time + blockCooldown;
+        _blockBusy = false;
+        _blockCo = null;
+
+        if (State != BossState.Dead)
+            TransitionTo(BossState.Chase);
+    }
+
     public void AnchorThrowSet()
     {
         animator.ResetTrigger(paramThrowTrigger);
@@ -403,15 +491,11 @@ public class PirateBossAI : MonoBehaviour
 
     void TickAnchorThrow()
     {
-        // keep agent frozen in place
         if (!agent.isStopped) agent.isStopped = true;
         agent.velocity = Vector3.zero;
 
-        // spin FAST to face player while throwing
         if (canRotate)
-        {
-            FaceTarget(throwTurnSpeed); // <-- fast turn during throw
-        }
+            FaceTarget(throwTurnSpeed);
     }
 
     public void AnchorThrowLeave()
@@ -462,13 +546,9 @@ public class PirateBossAI : MonoBehaviour
         animator.SetTrigger(paramIsDead);
 
         Collider[] cols = GetComponentsInChildren<Collider>();
-        foreach (var col in cols)
-        {
-            col.enabled = false;
-        }
+        foreach (var col in cols) col.enabled = false;
 
         yield return new WaitForSeconds(.01f);
-
         enabled = false;
     }
 
@@ -482,47 +562,44 @@ public class PirateBossAI : MonoBehaviour
     void OnTriggerEnter(Collider other)
     {
         if (!enabled || State == BossState.Dead) return;
-        if (other.CompareTag(swordTag))
-        {
-            if (Time.time < _nextDamageAllowedTime) return;
-            int dmg = ResolveDamageFrom(other);
-            GetComponent<DamageRef>().TakeDamage(dmg);
-            var lantern = GameObject.FindAnyObjectByType<chargeOffHandLatern>();
-            if (lantern != null && lantern.enabled)
-            {
-               // Debug.Log("Boss hit by sword, notifying lantern");
-                lantern.hitRegistered();
-            }
+        if (!other.CompareTag(swordTag)) return;
+        if (Time.time < _nextDamageAllowedTime) return;
 
-            _nextDamageAllowedTime = Time.time + hitInvulnerability;
-        }
+        int dmg = ResolveDamageFrom(other);
+        GetComponent<DamageRef>().TakeDamage(dmg);
+
+        var lantern = GameObject.FindAnyObjectByType<chargeOffHandLatern>();
+        if (lantern != null && lantern.enabled)
+            lantern.hitRegistered();
+
+        _nextDamageAllowedTime = Time.time + hitInvulnerability;
     }
 
     void OnCollisionEnter(Collision collision)
     {
         if (!enabled || State == BossState.Dead) return;
-        if (collision.collider.CompareTag(swordTag))
-        {
-            if (Time.time < _nextDamageAllowedTime) return;
-            int dmg = ResolveDamageFrom(collision.collider);
-            TakeDamage(dmg);
-            _nextDamageAllowedTime = Time.time + hitInvulnerability;
-        }
+        if (!collision.collider.CompareTag(swordTag)) return;
+        if (Time.time < _nextDamageAllowedTime) return;
+
+        int dmg = ResolveDamageFrom(collision.collider);
+        TakeDamage(dmg);
+        _nextDamageAllowedTime = Time.time + hitInvulnerability;
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, blockRange);
     }
+
     public void RemoveCurse()
     {
         isCursed = false;
         reflectDamageWhenCursed = false;
         damageMult = 1;
-        if (agent != null)
-        {
-            agent.speed = _baseAgentSpeed;
-        }
+        if (agent != null) agent.speed = _baseAgentSpeed;
     }
 }

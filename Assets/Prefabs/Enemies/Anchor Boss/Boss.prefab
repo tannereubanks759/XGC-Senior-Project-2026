@@ -4555,6 +4555,13 @@ MonoBehaviour:
   attackDuration: 1.2
   attackCooldown: 0.6
   stopEpsilon: 0.05
+  blockChance: 0.22
+  blockRange: 3
+  blockDurationMin: 2
+  blockDurationMax: 4
+  blockCooldown: 1.25
+  blockedDamageMultiplier: 0
+  canBlockWhileCursed: 1
   walkEnterSpeed: 0.25
   walkExitSpeed: 0.1
   walkToggleDebounce: 0.18
@@ -4571,6 +4578,7 @@ MonoBehaviour:
   paramIsAttackin: isAttack
   paramAttackIdx: attack
   paramIsDead: isDead
+  paramIsBlocking: isBlocking
   numAttackAnims: 2
   avoidImmediateRepeat: 1
   throwChance: 0.1
@@ -4655,6 +4663,7 @@ MonoBehaviour:
   InLava: 0
   lavaDamage: 30
   burnUpgradeManRef: {fileID: 0}
+  fireSource: {fileID: 7602343716283464212}
   tickInterval: 1
 --- !u!114 &1686838908572114402
 MonoBehaviour:
@@ -5366,5 +5375,10 @@ Transform:
 --- !u!198 &7229738224221888764 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 2659234915664784369, guid: 370f4a337ee868744b196ee3726f86a0, type: 3}
+  m_PrefabInstance: {fileID: 4661982684913650445}
+  m_PrefabAsset: {fileID: 0}
+--- !u!82 &7602343716283464212 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 2968509705929060633, guid: 370f4a337ee868744b196ee3726f86a0, type: 3}
   m_PrefabInstance: {fileID: 4661982684913650445}
   m_PrefabAsset: {fileID: 0}

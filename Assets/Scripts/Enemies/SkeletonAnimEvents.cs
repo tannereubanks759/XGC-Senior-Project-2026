@@ -4,6 +4,9 @@ public class SkeletonAnimEvents : MonoBehaviour
 {
     public Collider swordCol;
     private SkeletonSoundManager SM;
+    public AudioSource gunSource;
+    public AudioClip aimSound;
+    public AudioClip shootSound;
     private void Start()
     {
         SM = GetComponentInParent<SkeletonSoundManager>();
@@ -15,6 +18,20 @@ public class SkeletonAnimEvents : MonoBehaviour
             swordCol.enabled = true;
         }
         
+    }
+    public void PlayAimSound()
+    {
+        if (gunSource && aimSound)
+        {
+            gunSource.PlayOneShot(aimSound);
+        }
+    }
+    public void PlayShootSound()
+    {
+        if (gunSource && shootSound)
+        {
+            gunSource.PlayOneShot(shootSound);
+        }
     }
     public void PlaySwordSound()
     {

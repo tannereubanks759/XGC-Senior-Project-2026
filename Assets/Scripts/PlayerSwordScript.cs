@@ -26,12 +26,19 @@ public class PlayerSwordScript : MonoBehaviour
         {
             Transform enemyRoot = other.transform.root;
             SkeletonSwordEnemy skeleton = other.GetComponent<SkeletonSwordEnemy>();
+            PirateBossAI boss = other.GetComponent<PirateBossAI>();
             bool blocked = (skeleton != null && skeleton.isBlocking);
             if (skeleton != null && ClashEffect && skeleton.isBlocking == true)
             {
                 Collider enemySword = skeleton.GetComponentInChildren<SkeletonAnimEvents>().swordCol;
                 Destroy(Instantiate(ClashEffect, enemySword.ClosestPoint(this.transform.position), Quaternion.identity), 3);
                 col.enabled = false;
+                other.GetComponent<DamageRef>().TakeDamage(damage);
+            }
+            else if (boss && boss.State == PirateBossAI.BossState.Block)
+            {
+                Collider AnchorCol = boss.GetComponentInChildren<AnchorWeapon>().GetComponent<Collider>();
+                Destroy(Instantiate(ClashEffect, AnchorCol.ClosestPoint(this.transform.position), Quaternion.identity), 3);
                 other.GetComponent<DamageRef>().TakeDamage(damage);
             }
             else //Didnt hit basic skeleton
