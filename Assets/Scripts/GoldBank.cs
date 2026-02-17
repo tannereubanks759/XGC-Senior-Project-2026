@@ -25,7 +25,7 @@ public class GoldBank : MonoBehaviour
         UpdateGold();
     }
 
-    void UpdateGold()
+    public void UpdateGold()
     {
         goldText.text = gold.ToString();
     }

@@ -8,8 +8,9 @@ public class FireballManager : MonoBehaviour
     public GameObject fireball_1;
     public GameObject fireball_2;
     public int activeFireballs = 2;
-    private bool subRadiusUpgrade = false;
-    private bool subDamageUpgrade = false;  
+    public bool subRadiusUpgrade = false;
+    public bool subDamageUpgrade = false;  
+    public upgradeTracker upgradeTracker;
     [Header("Charging / Scale")]
     public float totalChargeTime = 8f;                 // seconds from 0 → 100%
     [Range(0f, 1f)] public float scaleAtPopStart = 0.6f;       // 60% size before pop
@@ -33,8 +34,8 @@ public class FireballManager : MonoBehaviour
     private float fireball1ChargeTimer = 0f;
     private float fireball2ChargeTimer = 0f;
 
-    private bool upgradeOne = false; //"Increase Splash Range"
-    private bool upgradeTwo = false; //"Set Enemies On Fire For A Few Seconds"
+    public bool upgradeOne = false; //"Increase Splash Range"
+    public bool upgradeTwo = false; //"Set Enemies On Fire For A Few Seconds"
 
     // Particle systems for the held fireballs
     private ParticleSystem ps1;
@@ -210,11 +211,13 @@ public class FireballManager : MonoBehaviour
     public void UpgradeOne()
     {
         upgradeOne = true;
+        upgradeTracker.fireRadiusM = true;
     }
 
     public void UpgradeTwo()
     {
         upgradeTwo = true;
+        upgradeTracker.FireFire = true;
     }
 
     void Throw()

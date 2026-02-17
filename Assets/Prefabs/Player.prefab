@@ -18162,7 +18162,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8322842305627421751
 RectTransform:
   m_ObjectHideFlags: 0
@@ -24909,6 +24909,7 @@ MonoBehaviour:
   slowSpeedMultiplier: 0.55
   curseDuration: 8
   curseReflectPercentL: 0.25
+  upgradeTracker: {fileID: 275458218781037875}
 --- !u!1 &2712087194209935283
 GameObject:
   m_ObjectHideFlags: 0
@@ -30908,6 +30909,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8995023233098599983}
   - component: {fileID: 4040646375121057485}
+  - component: {fileID: 4409845819862042906}
   m_Layer: 0
   m_Name: OffhandHandler
   m_TagString: Untagged
@@ -30959,12 +30961,50 @@ MonoBehaviour:
   lightningFirst: 1
   curseFirst: 1
   fireballFirst: 1
+  upgradeTracker: {fileID: 275458218781037875}
   curseLantern: {fileID: 5244810971069178824}
+  currentOffhandType: 0
+  lastOffhandType: 0
   uiMan: {fileID: 5887467224634678997}
   soundSource: {fileID: 8524340187920834651}
   flameOn: {fileID: 8300000, guid: 031bf01e56ae93749ac556301d0dada8, type: 3}
   flameOff: {fileID: 8300000, guid: 51a02f4e028bd5340a3a9ee9d677b118, type: 3}
   flameVolume: 1
+--- !u!114 &4409845819862042906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497845782263602845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bdb429224bba89845b39358a682f1ccf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiupdater: {fileID: 1611624788782028562}
+  gb: {fileID: 8329541187511738591}
+  healthPotion: {fileID: 7370287746018848930}
+  current:
+    gold: 0
+    healthPotions: 0
+    lightningUpgradeCount: 0
+    curseSlow: 0
+    curseReflect: 0
+    fireRadiusM: 0
+    FireFire: 0
+    fireSide1_1: 0
+    fireSide1_2: 0
+    fireSide2_1: 0
+    fireSide2_2: 0
+    lightningSide1_1: 0
+    lightningSide1_2: 0
+    lightningSide2_1: 0
+    lightningSide2_2: 0
+    curseSide1_1: 0
+    curseSide1_2: 0
+    curseSide2_1: 0
+    curseSide2_2: 0
 --- !u!1 &3517035798997151314
 GameObject:
   m_ObjectHideFlags: 0
@@ -44360,6 +44400,7 @@ MonoBehaviour:
   wm: {fileID: 7945717937085838674}
   UIM: {fileID: 5887467224634678997}
   deathUI: {fileID: 3523824120393014897}
+  levelSavingManager: {fileID: 4409845819862042906}
 --- !u!114 &4942476317824111401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53869,6 +53910,9 @@ MonoBehaviour:
   fireball_1: {fileID: 3757368228119819915}
   fireball_2: {fileID: 838562964997630056}
   activeFireballs: 2
+  subRadiusUpgrade: 0
+  subDamageUpgrade: 0
+  upgradeTracker: {fileID: 275458218781037875}
   totalChargeTime: 8
   scaleAtPopStart: 0.6
   popStartTimeFraction: 0.95
@@ -53877,6 +53921,8 @@ MonoBehaviour:
   soundSource: {fileID: 8524340187920834651}
   flameShoot: {fileID: 8300000, guid: 51a02f4e028bd5340a3a9ee9d677b118, type: 3}
   flameCharge: {fileID: 8300000, guid: 51a02f4e028bd5340a3a9ee9d677b118, type: 3}
+  upgradeOne: 0
+  upgradeTwo: 0
 --- !u!114 &6842257775140837287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55458,6 +55504,7 @@ MonoBehaviour:
   burnUpgradeManager: {fileID: 6842257775140837287}
   knockbackRef: {fileID: 5230912486499667837}
   playerSwordScript: {fileID: 4603577665270097772}
+  upgradeTracker: {fileID: 275458218781037875}
 --- !u!1 &6450579590065900363
 GameObject:
   m_ObjectHideFlags: 0
@@ -62720,6 +62767,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5474184981670709865}
   - component: {fileID: 5104766986128591613}
+  - component: {fileID: 275458218781037875}
+  - component: {fileID: 1611624788782028562}
   m_Layer: 0
   m_Name: UpgradeUIHandler
   m_TagString: Untagged
@@ -62756,6 +62805,81 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   goldText: {fileID: 8944635845840949407}
   UIM: {fileID: 5887467224634678997}
+--- !u!114 &275458218781037875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7595799774796726200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 513875c8cf2cc99439d17f36bc68ebb0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sideUpgradeManager: {fileID: 4116362769709068339}
+  fireballManager: {fileID: 6183583974348778513}
+  burnUpgradeManager: {fileID: 6842257775140837287}
+  lightningUpgradeCount: 0
+  curseSlow: 0
+  curseReflect: 0
+  fireRadiusM: 0
+  FireFire: 0
+  fireSide1_1: 0
+  fireSide1_2: 0
+  fireSide2_1: 0
+  fireSide2_2: 0
+  lightningSide1_1: 0
+  lightningSide1_2: 0
+  lightningSide2_1: 0
+  lightningSide2_2: 0
+  curseSide1_1: 0
+  curseSide1_2: 0
+  curseSide2_1: 0
+  curseSide2_2: 0
+--- !u!114 &1611624788782028562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7595799774796726200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea5e1581fec136849a9804f2626fecab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tracker: {fileID: 275458218781037875}
+  lightM1: {fileID: 6258649481472265189}
+  lightM1Check: {fileID: 2298707504845575081}
+  lightM1X: {fileID: 5781516278561533670}
+  lightM2: {fileID: 5602284398737333993}
+  lightM2Check: {fileID: 7568638207455240895}
+  lightM2X: {fileID: 1969830428692775172}
+  lightSideTop1: {fileID: 3629435284376087313}
+  lightSideTop2: {fileID: 2803436942890472156}
+  lightSideBottom1: {fileID: 2031103289086774691}
+  lightSideBottom2: {fileID: 8899794770273730527}
+  fireM1: {fileID: 2301427249658854730}
+  fireM1Check: {fileID: 4876607505907593698}
+  fireM1X: {fileID: 2537014122851870225}
+  fireM2: {fileID: 5794982008947669927}
+  fireM2Check: {fileID: 4077856403007602347}
+  fireM2X: {fileID: 9141508459691398972}
+  fireSideTop1: {fileID: 7521140797628197405}
+  fireSideTop2: {fileID: 1081154857378781996}
+  fireSideBottom1: {fileID: 4132436918630690998}
+  fireSideBottom2: {fileID: 2904879520345493767}
+  curseM1: {fileID: 914337642218842958}
+  curseM1Check: {fileID: 7580811516172488627}
+  curseM1X: {fileID: 7606292366414692286}
+  curseM2: {fileID: 610575307103241507}
+  curseM2Check: {fileID: 7181705801579242887}
+  curseM2X: {fileID: 4113315246486753249}
+  curseSideTop1: {fileID: 7975982409363731710}
+  curseSideTop2: {fileID: 4373966445894374365}
+  curseSideBottom1: {fileID: 2712087194209935283}
+  curseSideBottom2: {fileID: 113690606906135931}
 --- !u!1 &7606292366414692286
 GameObject:
   m_ObjectHideFlags: 0

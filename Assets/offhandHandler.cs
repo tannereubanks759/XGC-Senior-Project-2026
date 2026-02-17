@@ -20,7 +20,7 @@ public class offhandHandler : MonoBehaviour
     public bool lightningFirst = true;
     public bool curseFirst = true;
     public bool fireballFirst = true;
-
+    public upgradeTracker upgradeTracker;
     
 
     private bool waitingForClose = false;
@@ -33,9 +33,9 @@ public class offhandHandler : MonoBehaviour
     //public GameObject lightningTut;
     //public GameObject curseTut;
     //public GameObject fireballTut;
-    private enum OffhandType { None, Lightning, Chaos, Defense, FireBomb }
-    private OffhandType currentOffhandType = OffhandType.None;
-    private OffhandType lastOffhandType = OffhandType.None;
+    public enum OffhandType { None, Lightning, Chaos, Defense, FireBomb }
+    public OffhandType currentOffhandType = OffhandType.None;
+    public OffhandType lastOffhandType = OffhandType.None;
     public UImanager uiMan;
 
     [Header("Sounds")]
@@ -147,11 +147,13 @@ public class offhandHandler : MonoBehaviour
         if (lightningUpgradeCount >= 1 && allOffhands.Length > 2 && allOffhands[2] != null)
         {
             allOffhands[2].OnEquip(player);
+            upgradeTracker.lightningUpgradeCount = 1;
         }
         // upgrade 2
         if (lightningUpgradeCount >= 2 && allOffhands.Length > 3 && allOffhands[3] != null)
         {
             allOffhands[3].OnEquip(player);
+            upgradeTracker.lightningUpgradeCount = 2;
         }
         currentOffhandType = OffhandType.Lightning;
 

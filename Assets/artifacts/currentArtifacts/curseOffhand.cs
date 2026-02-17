@@ -21,6 +21,7 @@ public class curseOffhand : MonoBehaviour
     public float curseDuration = 8f;
     private float curseExpireTime = 0f;
     public float curseReflectPercentL = .25f;
+    public upgradeTracker upgradeTracker;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -30,11 +31,13 @@ public class curseOffhand : MonoBehaviour
     public void slowUpgradae()
     {
         slowUpgrade = true;
+        upgradeTracker.curseSlow = true;
     }
 
     public void reflectionUpgradae()
     {
         reflectionUpgrade = true;
+        upgradeTracker.curseReflect = true;
     }
 
     private void checkUpgrade(BaseEnemyAI baseAI)

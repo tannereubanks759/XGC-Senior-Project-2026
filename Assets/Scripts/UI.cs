@@ -13,6 +13,7 @@ public class UI : MonoBehaviour
     public WeaponsManager wm;
     public UImanager UIM;
     public GameObject deathUI;
+    public levelSavingManager levelSavingManager;
     void Start()
     {
         Resume();
@@ -103,5 +104,6 @@ public class UI : MonoBehaviour
         UIM.OpenPlayerUIScreen();
         player.playerCanMove = true;
         FirstPersonController.isPaused = false;
+        levelSavingManager.RestoreToLevelStart();
     }
 }
