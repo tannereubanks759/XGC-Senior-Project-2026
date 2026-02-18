@@ -54,7 +54,7 @@ public class RMF_RadialMenu : MonoBehaviour {
     private int previousActiveIndex = 0; //Used to determine which buttons to unhighlight in lazy selection.
 
     private PointerEventData pointer;
-
+    public GameObject[] iconsToDisable;
     void Awake() {
 
         pointer = new PointerEventData(EventSystem.current);
@@ -150,6 +150,12 @@ public class RMF_RadialMenu : MonoBehaviour {
 
     public void buttonPress()
     {
+        for (int i = 0; i < iconsToDisable.Length; i++)
+        {
+            Debug.Log($"BEFORE {iconsToDisable[i].name} activeSelf={iconsToDisable[i].activeSelf}");
+            iconsToDisable[i].SetActive(false);
+            Debug.Log($"AFTER  {iconsToDisable[i].name} activeSelf={iconsToDisable[i].activeSelf}");
+        }
         ExecuteEvents.Execute(elements[index].button.gameObject, pointer, ExecuteEvents.submitHandler);
     }
 
