@@ -22,7 +22,8 @@ public class RaycastKnockback : MonoBehaviour
     public float upAngleDeg = 12f;
     [Tooltip("Optional extra downward pull during the push (m/s^2). 0 to ignore.")]
     public float extraGravity = 0f;
-
+    public AudioClip upgradedKnockbackClip;
+    public AudioSource audioSource;
     [Header("Rigidbody (optional)")]
     [Tooltip("If the enemy has a non-kinematic Rigidbody, use AddForce instead of transform moves.")]
     public bool preferRigidbodyWhenAvailable = true;
@@ -85,6 +86,7 @@ public class RaycastKnockback : MonoBehaviour
 
             if (upgradedKnockback)
             {
+                audioSource.PlayOneShot(upgradedKnockbackClip);
                 var health = hit.collider.GetComponentInParent<DamageRef>();
                 float chargeFactor = 0f;
                 if (chargeBase != null && chargeBase.maxCharge > 0f)

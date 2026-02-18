@@ -7,6 +7,7 @@ public class PlayerSwordScript : MonoBehaviour
     public AudioClip[] hitSkeleton;
     public GameObject boneChips;
     public GameObject ClashEffect;
+    public AudioClip chainLightningStart;
     public float chainRadius = 6f;
     [Range(0f, 1f)] public float chainDamageMultiplier = 0.5f;
     public GameObject lightningBoltPrefab;
@@ -66,6 +67,7 @@ public class PlayerSwordScript : MonoBehaviour
     private void ChainLightning(Transform firstTarget, int baseDamage)
     {
         if (firstTarget == null || lightningBoltPrefab == null) return;
+        source.PlayOneShot(chainLightningStart, 0.9f);
         int chainedDamage = Mathf.RoundToInt(baseDamage * chainDamageMultiplier);
         Transform lastDamaged = firstTarget;
         Collider[] closeEnemies = Physics.OverlapSphere(firstTarget.position, chainRadius, ~0, QueryTriggerInteraction.Ignore);
