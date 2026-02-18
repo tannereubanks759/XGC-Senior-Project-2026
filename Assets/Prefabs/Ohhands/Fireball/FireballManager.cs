@@ -101,10 +101,7 @@ public class FireballManager : MonoBehaviour
 
         // ------------------------------------------------------------------------------
 
-        if (Input.GetKeyDown(KeyCode.Alpha7)) //DEBUG KEY TO OPEN FIRE OBJECT
-        {
-            parent.SetActive(!parent.activeSelf);
-        }
+        
 
         if (!parent.activeSelf) return; //wont work if fireballs disabled past this point
 
