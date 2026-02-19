@@ -391,5 +391,8 @@ public class curseOffhand : MonoBehaviour
         if (sword != null) return sword.transform;
         return hitRef.transform.root;
     }
-
+    private void OnDisable()
+    {
+        ClearPreview();
+    }
 }
