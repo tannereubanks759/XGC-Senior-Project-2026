@@ -17,6 +17,7 @@ public class curseOffhand : MonoBehaviour
     public GameObject activeCurseVfx;
     private GameObject spawnedCurseVfx;
     public bool canCurse = false;
+    private bool curseActive = false;
     [Range(0.5f, 1f)] public float slowSpeedMultiplier = 0.55f;
     [Header("Curse Timeout")]
     public float curseDuration = 8f;
@@ -74,10 +75,26 @@ public class curseOffhand : MonoBehaviour
 
         }*/
     }
-
+    private void EndCurseEffectsOnly()
+    {
+        if (!curseActive) return;
+        curseActive = false;
+        PlaySound(expireClip, expireVol);
+        if (spawnedCurseVfx != null)
+        {
+            Destroy(spawnedCurseVfx);
+            spawnedCurseVfx = null;
+        }
+        EnsureFlameState();
+    }
     void Update()
     {
         HandleCursePreview();
+        if (curseActive && cursedTarget == null)
+        {
+            EndCurseEffectsOnly();
+            return;
+        }
         if (cursedTarget == null)
         {
             if (spawnedCurseVfx != null)
@@ -125,6 +142,7 @@ public class curseOffhand : MonoBehaviour
                 Debug.Log("Applied curse");
                 var enemyScript = enemy.GetComponent<BaseEnemyAI>();
                 cursedTarget = hitRef;
+                curseActive = true;
                 PlaySound(applyClip, applyVol);
                 ClearPreview();
                 curseExpireTime = Time.time + curseDuration;
@@ -164,6 +182,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     pirateboss.curseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    curseActive = true;
                     PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
@@ -186,6 +205,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     magmaBoss.CurseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    curseActive = true;
                     PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
@@ -208,6 +228,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     ghostBoss.CurseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    curseActive = true;
                     PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
@@ -217,6 +238,7 @@ public class curseOffhand : MonoBehaviour
                 if (swordEnemy != null)
                 {
                     cursedTarget = hitRef;
+                    curseActive = true;
                     PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
@@ -282,36 +304,36 @@ public class curseOffhand : MonoBehaviour
     }
     private void ClearCurse()
     {
-        if (cursedTarget == null) return;
+        if (!curseActive) return;
+        curseActive = false;
         PlaySound(expireClip, expireVol);
-        var pirate = cursedTarget.GetComponentInParent<PirateBossAI>();
-        if (pirate != null)
+        if (cursedTarget != null)
         {
-            pirate.RemoveCurse();
+            var pirate = cursedTarget.GetComponentInParent<PirateBossAI>();
+            if (pirate != null) pirate.RemoveCurse();
+
+            var magma = cursedTarget.GetComponentInParent<MagmaBossAI>();
+            if (magma != null) magma.RemoveCurse();
+
+            var ghost = cursedTarget.GetComponentInParent<GhostBossAI>();
+            if (ghost != null) ghost.RemoveCurse();
+
+            var swordEnemy = cursedTarget.GetComponentInParent<SkeletonSwordEnemy>();
+            if (swordEnemy != null)
+            {
+                swordEnemy.isCursed = false;
+                swordEnemy.curseDamageMult = 1;
+                swordEnemy.curseSpeedMult = 1f;
+                swordEnemy.curseReflectEnabled = false;
+            }
         }
-        var magma = cursedTarget.GetComponentInParent<MagmaBossAI>();
-        if (magma != null)
-        {
-            magma.RemoveCurse();
-        }
-        var ghost = cursedTarget.GetComponentInParent<GhostBossAI>();
-        if (ghost != null)
-        {
-            ghost.RemoveCurse();
-        }
-        var swordEnemy = cursedTarget.GetComponentInParent<SkeletonSwordEnemy>();
-        if (swordEnemy != null)
-        {
-            swordEnemy.isCursed = false;
-            swordEnemy.curseDamageMult = 1;
-            swordEnemy.curseSpeedMult = 1f;
-            swordEnemy.curseReflectEnabled = false;
-        }
+
         if (spawnedCurseVfx != null)
         {
             Destroy(spawnedCurseVfx);
             spawnedCurseVfx = null;
         }
+
         cursedTarget = null;
         EnsureFlameState();
     }
