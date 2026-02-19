@@ -15,6 +15,7 @@ public class PlayerSwordScript : MonoBehaviour
     public Collider col;
     public int damage = 10;
     public chargeBaseScript charge;
+    
     public float chargePerHit = 10f;
     public void PlaySound(AudioClip clip)
     {
