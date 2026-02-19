@@ -23,17 +23,37 @@ public class curseOffhand : MonoBehaviour
     private float curseExpireTime = 0f;
     public float curseReflectPercentL = .25f;
     public upgradeTracker upgradeTracker;
-    [Header("Curse Preview")]
+    [Header("Curse Selection")]
     public GameObject cursePreviewVfxPrefab;
     private GameObject previewInstance;
     private DamageRef previewTarget;
-
+    [Header("Audio")]
+    public AudioSource source;
+    public AudioClip equipClip;
+    [Range(0f, 1f)] public float equipVol = 0.8f;
+    public AudioClip previewClip;
+    [Range(0f, 1f)] public float previewVol = 0.5f;
+    public AudioClip applyClip;
+    [Range(0f, 1f)] public float applyVol = 0.9f;
+    public AudioClip expireClip;
+    [Range(0f, 1f)] public float expireVol = 0.7f;
+    private bool played = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
 
     }
-
+    private void PlaySound(AudioClip clip, float vol = 1f)
+    {
+        if (source != null && clip != null)
+            source.PlayOneShot(clip, vol);
+    }
+    private void OnEnable()
+    {
+        ClearPreview();
+        played = true;
+        PlaySound(equipClip, equipVol);
+    }
     public void slowUpgradae()
     {
         slowUpgrade = true;
@@ -105,6 +125,7 @@ public class curseOffhand : MonoBehaviour
                 Debug.Log("Applied curse");
                 var enemyScript = enemy.GetComponent<BaseEnemyAI>();
                 cursedTarget = hitRef;
+                PlaySound(applyClip, applyVol);
                 ClearPreview();
                 curseExpireTime = Time.time + curseDuration;
                 enemyScript.damageMult = damageMult;
@@ -143,6 +164,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     pirateboss.curseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     if (cursedFlame != null) cursedFlame.SetActive(false);
@@ -164,6 +186,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     magmaBoss.CurseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     if (cursedFlame != null) cursedFlame.SetActive(false);
@@ -185,6 +208,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     ghostBoss.CurseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     if (cursedFlame != null) cursedFlame.SetActive(false);
@@ -193,6 +217,7 @@ public class curseOffhand : MonoBehaviour
                 if (swordEnemy != null)
                 {
                     cursedTarget = hitRef;
+                    PlaySound(applyClip, applyVol);
                     ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     swordEnemy.isCursed = true;
@@ -258,6 +283,7 @@ public class curseOffhand : MonoBehaviour
     private void ClearCurse()
     {
         if (cursedTarget == null) return;
+        PlaySound(expireClip, expireVol);
         var pirate = cursedTarget.GetComponentInParent<PirateBossAI>();
         if (pirate != null)
         {
@@ -343,8 +369,8 @@ public class curseOffhand : MonoBehaviour
             previewInstance = Instantiate(cursePreviewVfxPrefab, follow.position, Quaternion.identity, follow);
             previewInstance.transform.localPosition = Vector3.zero;
             previewInstance.transform.localRotation = Quaternion.identity;
+            PlaySound(previewClip, previewVol);
             //previewInstance.transform.localScale = Vector3.one;
-            Debug.Log($"[CursePreview] Hit: {hit.collider.name} dist={hit.distance:F2} | enemyRoot={enemyRoot.name} | follow={follow.name}");
         }
     }
 
