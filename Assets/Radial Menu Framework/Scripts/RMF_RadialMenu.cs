@@ -55,6 +55,7 @@ public class RMF_RadialMenu : MonoBehaviour {
 
     private PointerEventData pointer;
     public GameObject[] iconsToDisable;
+    private int lastHoverIndex = -1;
     void Awake() {
 
         pointer = new PointerEventData(EventSystem.current);
@@ -86,7 +87,18 @@ public class RMF_RadialMenu : MonoBehaviour {
         }
 
     }
+    private void UpdateCenterIcon(int newIndex)
+    {
+        if (iconsToDisable == null || iconsToDisable.Length == 0) return;
+        newIndex = Mathf.Clamp(newIndex, 0, iconsToDisable.Length - 1);
 
+        for (int i = 0; i < iconsToDisable.Length; i++)
+            if (iconsToDisable[i] != null)
+                iconsToDisable[i].SetActive(false);
+
+        if (iconsToDisable[newIndex] != null)
+            iconsToDisable[newIndex].SetActive(true);
+    }
 
     void Start() {
 
@@ -130,7 +142,11 @@ public class RMF_RadialMenu : MonoBehaviour {
         {
             index = (int)(currentAngle / angleOffset);
             index = Mathf.Clamp(index, 0, elementCount - 1);
-
+            if (index != lastHoverIndex)
+            {
+                lastHoverIndex = index;
+                UpdateCenterIcon(index);
+            }
             if (elements[index] != null)
             {
                 selectButton(index);
@@ -150,12 +166,12 @@ public class RMF_RadialMenu : MonoBehaviour {
 
     public void buttonPress()
     {
-        for (int i = 0; i < iconsToDisable.Length; i++)
+       /* for (int i = 0; i < iconsToDisable.Length; i++)
         {
-            Debug.Log($"BEFORE {iconsToDisable[i].name} activeSelf={iconsToDisable[i].activeSelf}");
+            
             iconsToDisable[i].SetActive(false);
-            Debug.Log($"AFTER  {iconsToDisable[i].name} activeSelf={iconsToDisable[i].activeSelf}");
-        }
+            
+        }*/
         ExecuteEvents.Execute(elements[index].button.gameObject, pointer, ExecuteEvents.submitHandler);
     }
 
