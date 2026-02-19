@@ -20,6 +20,11 @@ public class FireballManager : MonoBehaviour
     public float chargingSimSpeed = 0.35f;   // while < 60% scale
     public float fullSimSpeed = 1f;          // at 100% scale
 
+    [Header("Start Settings")]
+    [Tooltip("Time until fireballs can be shot after they have been equipped.")]
+    public float equipCooldown = 1f;
+    public float nextTime = 0;
+
     [Header("Sounds")]
     public AudioSource soundSource;
     public AudioClip flameShoot;
@@ -69,9 +74,11 @@ public class FireballManager : MonoBehaviour
         SetParticleSimSpeed(ps1, fullSimSpeed);
         SetParticleSimSpeed(ps2, fullSimSpeed);
     }
-
+    
     void Update()
     {
+
+        
         // --- ONLY ONE CAN CHARGE AT A TIME, PRIORITIZE WHICHEVER STARTED FIRST ---
 
         bool fb1NeedsCharge = !fireball_1_active;
@@ -104,6 +111,8 @@ public class FireballManager : MonoBehaviour
         
 
         if (!parent.activeSelf) return; //wont work if fireballs disabled past this point
+
+        if (Time.time < nextTime) return; //Wont work if 
 
         if (Input.GetKeyDown(useKey) && activeFireballs > 0)
         {
