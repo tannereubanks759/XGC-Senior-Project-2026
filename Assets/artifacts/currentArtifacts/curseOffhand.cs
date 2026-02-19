@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -22,6 +23,11 @@ public class curseOffhand : MonoBehaviour
     private float curseExpireTime = 0f;
     public float curseReflectPercentL = .25f;
     public upgradeTracker upgradeTracker;
+    [Header("Curse Preview")]
+    public GameObject cursePreviewVfxPrefab;
+    private GameObject previewInstance;
+    private DamageRef previewTarget;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -51,6 +57,7 @@ public class curseOffhand : MonoBehaviour
 
     void Update()
     {
+        HandleCursePreview();
         if (cursedTarget == null)
         {
             if (spawnedCurseVfx != null)
@@ -98,6 +105,7 @@ public class curseOffhand : MonoBehaviour
                 Debug.Log("Applied curse");
                 var enemyScript = enemy.GetComponent<BaseEnemyAI>();
                 cursedTarget = hitRef;
+                ClearPreview();
                 curseExpireTime = Time.time + curseDuration;
                 enemyScript.damageMult = damageMult;
                 Vector3 offset = new Vector3(0f, 1.3f, 0f);
@@ -135,6 +143,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     pirateboss.curseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     if (cursedFlame != null) cursedFlame.SetActive(false);
                     return;
@@ -155,6 +164,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     magmaBoss.CurseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     if (cursedFlame != null) cursedFlame.SetActive(false);
                     return;
@@ -175,6 +185,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     ghostBoss.CurseBoss(slowUpgrade, reflectionUpgrade);
                     cursedTarget = hitRef;
+                    ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     if (cursedFlame != null) cursedFlame.SetActive(false);
                     return;
@@ -182,6 +193,7 @@ public class curseOffhand : MonoBehaviour
                 if (swordEnemy != null)
                 {
                     cursedTarget = hitRef;
+                    ClearPreview();
                     curseExpireTime = Time.time + curseDuration;
                     swordEnemy.isCursed = true;
                     swordEnemy.curseDamageMult = damageMult;
@@ -287,6 +299,97 @@ public class curseOffhand : MonoBehaviour
             return anim.transform;
         }
         return enemyRoot;
+    }
+    private void HandleCursePreview()
+    {
+        if (cursePreviewVfxPrefab == null || Camera.main == null)
+        {
+            ClearPreview();
+            return;
+        }
+
+        if (!canCurse || cursedTarget != null || AnyBossCursed())
+        {
+            ClearPreview();
+            return;
+        }
+
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        if (!Physics.Raycast(ray, out RaycastHit hit, curseRange, enemyMask, QueryTriggerInteraction.Ignore))
+        {
+            ClearPreview();
+            return;
+        }
+
+        DamageRef hitRef = hit.collider.GetComponentInParent<DamageRef>();
+        if (hitRef == null || IsAlreadyCursed(hitRef))
+        {
+            ClearPreview();
+            return;
+        }
+
+        Transform enemyRoot = GetEnemyRootFromHitRef(hitRef);
+        if (enemyRoot == null)
+        {
+            ClearPreview();
+            return;
+        }
+
+        if (previewTarget != hitRef)
+        {
+            ClearPreview();
+            previewTarget = hitRef;
+            Transform follow = getChest(enemyRoot);
+            previewInstance = Instantiate(cursePreviewVfxPrefab, follow.position, Quaternion.identity, follow);
+            previewInstance.transform.localPosition = Vector3.zero;
+            previewInstance.transform.localRotation = Quaternion.identity;
+            //previewInstance.transform.localScale = Vector3.one;
+            Debug.Log($"[CursePreview] Hit: {hit.collider.name} dist={hit.distance:F2} | enemyRoot={enemyRoot.name} | follow={follow.name}");
+        }
+    }
+
+
+    private void ClearPreview()
+    {
+        previewTarget = null;
+
+        if (previewInstance != null)
+        {
+            Destroy(previewInstance);
+            previewInstance = null;
+        }
+    }
+    private bool AnyBossCursed()
+    {
+        return FindAnyObjectByType<PirateBossAI>()?.isCursed == true || FindAnyObjectByType<MagmaBossAI>()?.isCursed == true || FindAnyObjectByType<GhostBossAI>()?.isCursed == true;
+    }
+    private bool IsAlreadyCursed(DamageRef target)
+    {
+        if (target == null) return true;
+        var pirate = target.GetComponentInParent<PirateBossAI>();
+        if (pirate != null) return pirate.isCursed;
+        var magma = target.GetComponentInParent<MagmaBossAI>();
+        if (magma != null) return magma.isCursed;
+        var ghost = target.GetComponentInParent<GhostBossAI>();
+        if (ghost != null) return ghost.isCursed;
+        var sword = target.GetComponentInParent<SkeletonSwordEnemy>();
+        if (sword != null) return sword.isCursed;
+        return false;
+    }
+    private Transform GetEnemyRootFromHitRef(DamageRef hitRef)
+    {
+        if (hitRef == null) return null;
+        var baseEnemy = hitRef.GetComponentInParent<BaseEnemyAI>();
+        if (baseEnemy != null) return baseEnemy.transform;
+        var pirate = hitRef.GetComponentInParent<PirateBossAI>();
+        if (pirate != null) return pirate.transform;
+        var magma = hitRef.GetComponentInParent<MagmaBossAI>();
+        if (magma != null) return magma.transform;
+        var ghost = hitRef.GetComponentInParent<GhostBossAI>();
+        if (ghost != null) return ghost.transform;
+        var sword = hitRef.GetComponentInParent<SkeletonSwordEnemy>();
+        if (sword != null) return sword.transform;
+        return hitRef.transform.root;
     }
 
 }
