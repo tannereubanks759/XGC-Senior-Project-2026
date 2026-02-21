@@ -286,6 +286,7 @@ public class CombatController : MonoBehaviour
     
     public void Die()
     {
+        GetComponentInParent<LavaDamage>().inLava = false;
         GameObject.FindAnyObjectByType<UI>().ShowDeathScreen();
     }
     public void TakeDamage(int damage)
