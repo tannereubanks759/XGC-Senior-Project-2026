@@ -7,6 +7,7 @@ public class BossAnimatorEvents : MonoBehaviour
     public ParticleSystem lavaPs;
     public Collider chargeAttackCol;
     public ParticleSystem spitPs;
+    public TrailRenderer anchorTrail;
     private void Start()
     {
         weapon = GetComponentInChildren<AnchorWeapon>();
@@ -121,5 +122,16 @@ public class BossAnimatorEvents : MonoBehaviour
             chargeAttackCol.enabled = false;
         }
         
+    }
+
+    public void SetAnchorTrailOn()
+    {
+        if (!anchorTrail) return;
+        anchorTrail.emitting = true;
+    }
+    public void SetAnchorTrailOff()
+    {
+        if (!anchorTrail) return;
+        anchorTrail.emitting = false;
     }
 }

@@ -15,6 +15,7 @@ public class PlayerSwordScript : MonoBehaviour
     public Collider col;
     public int damage = 10;
     public chargeBaseScript charge;
+    public SwordSounds swordSounds;
     
     public float chargePerHit = 10f;
     public void PlaySound(AudioClip clip)
@@ -42,6 +43,7 @@ public class PlayerSwordScript : MonoBehaviour
                 Collider AnchorCol = boss.GetComponentInChildren<AnchorWeapon>().GetComponent<Collider>();
                 Destroy(Instantiate(ClashEffect, AnchorCol.ClosestPoint(this.transform.position), Quaternion.identity), 3);
                 other.GetComponent<DamageRef>().TakeDamage(damage);
+                swordSounds.PlayClashSound();
             }
             else //Didnt hit basic skeleton
             {
