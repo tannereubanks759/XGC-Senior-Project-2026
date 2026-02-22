@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.VFX;
 
 public class BossAnimatorEvents : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class BossAnimatorEvents : MonoBehaviour
     public Collider chargeAttackCol;
     public ParticleSystem spitPs;
     public TrailRenderer anchorTrail;
+    public VisualEffect chargeFX;
     private void Start()
     {
         weapon = GetComponentInChildren<AnchorWeapon>();
@@ -133,5 +135,16 @@ public class BossAnimatorEvents : MonoBehaviour
     {
         if (!anchorTrail) return;
         anchorTrail.emitting = false;
+    }
+    public void SetChargeTrailOn()
+    {
+        if (!chargeFX) return;
+        
+        chargeFX.Play();
+    }
+    public void SetChargeTrailOff()
+    {
+        if (!chargeFX) return;
+        chargeFX.Stop();
     }
 }
