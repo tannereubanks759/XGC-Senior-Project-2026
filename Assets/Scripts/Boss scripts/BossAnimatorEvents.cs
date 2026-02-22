@@ -10,6 +10,7 @@ public class BossAnimatorEvents : MonoBehaviour
     public ParticleSystem spitPs;
     public TrailRenderer anchorTrail;
     public VisualEffect chargeFX;
+    public ParticleSystem chargeParticle;
     private void Start()
     {
         weapon = GetComponentInChildren<AnchorWeapon>();
@@ -138,13 +139,25 @@ public class BossAnimatorEvents : MonoBehaviour
     }
     public void SetChargeTrailOn()
     {
-        if (!chargeFX) return;
+        if (chargeFX)
+        {
+            chargeFX.Play();
+        }
+        if (chargeParticle)
+        {
+            chargeParticle.Play();
+        }
         
-        chargeFX.Play();
     }
     public void SetChargeTrailOff()
     {
-        if (!chargeFX) return;
-        chargeFX.Stop();
+        if (chargeFX)
+        {
+            chargeFX.Stop();
+        }
+        if (chargeParticle)
+        {
+            chargeParticle.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+        }
     }
 }
