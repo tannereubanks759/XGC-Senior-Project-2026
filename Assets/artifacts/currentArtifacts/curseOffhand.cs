@@ -28,6 +28,7 @@ public class curseOffhand : MonoBehaviour
     public GameObject cursePreviewVfxPrefab;
     private GameObject previewInstance;
     private DamageRef previewTarget;
+    public float curseCastRadius = 0.35f;
     [Header("Audio")]
     public AudioSource source;
     public AudioClip equipClip;
@@ -120,7 +121,7 @@ public class curseOffhand : MonoBehaviour
             EnsureFlameState();
             return;
         }
-        // only run when f is pressed
+        // when f is pressed
         if (!Input.GetKeyDown(KeyCode.F))
         {
             EnsureFlameState();
@@ -131,7 +132,7 @@ public class curseOffhand : MonoBehaviour
             return;
         }
         Ray curseRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-        if (Physics.Raycast(curseRay, out RaycastHit hit, curseRange, enemyMask))
+        if (Physics.SphereCast(curseRay, curseCastRadius, out RaycastHit hit, curseRange, enemyMask, QueryTriggerInteraction.Ignore))
         {
             DamageRef hitRef = hit.collider.GetComponentInParent<DamageRef>();
             if (hitRef == null) return;
@@ -164,6 +165,7 @@ public class curseOffhand : MonoBehaviour
                 MagmaBossAI magmaBoss = hitRef.GetComponentInParent<MagmaBossAI>();
                 GhostBossAI ghostBoss = hitRef.GetComponentInParent<GhostBossAI>();
                 SkeletonSwordEnemy swordEnemy = hitRef.GetComponentInParent<SkeletonSwordEnemy>();
+                SkeletonGunEnemy gunEnemy= hitRef.GetComponentInParent<SkeletonGunEnemy>();
                 // Pirate boss
                 if (pirateboss != null)
                 {
@@ -257,6 +259,36 @@ public class curseOffhand : MonoBehaviour
                             spawnedCurseVfx = null;
                         }
                         Transform follow = getChest(swordEnemy.transform);
+                        spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
+                        spawnedCurseVfx.transform.localPosition = offset;
+                    }
+                    if (cursedFlame != null)
+                    {
+                        cursedFlame.SetActive(false);
+                    }
+                    return;
+                }
+                if (gunEnemy != null)
+                {
+                    cursedTarget = hitRef;
+                    curseActive = true;
+                    PlaySound(applyClip, applyVol);
+                    ClearPreview();
+                    curseExpireTime = Time.time + curseDuration;
+                    gunEnemy.isCursed = true;
+                    gunEnemy.curseDamageMult = damageMult;
+                    gunEnemy.curseSpeedMult = slowUpgrade ? slowSpeedMultiplier : 1f;
+                    //gunEnemy.curseReflectEnabled = reflectionUpgrade;
+                    //gunEnemy.curseReflectPercent = curseReflectPercentL;
+                    if (activeCurseVfx != null)
+                    {
+                        Vector3 offset = new Vector3(0f, 0f, 0f);
+                        if (spawnedCurseVfx != null)
+                        {
+                            Destroy(spawnedCurseVfx);
+                            spawnedCurseVfx = null;
+                        }
+                        Transform follow = getChest(gunEnemy.transform);
                         spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
                         spawnedCurseVfx.transform.localPosition = offset;
                     }
@@ -363,7 +395,7 @@ public class curseOffhand : MonoBehaviour
         }
 
         Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
-        if (!Physics.Raycast(ray, out RaycastHit hit, curseRange, enemyMask, QueryTriggerInteraction.Ignore))
+        if (!Physics.SphereCast(ray, curseCastRadius, out RaycastHit hit, curseRange, enemyMask, QueryTriggerInteraction.Ignore))
         {
             ClearPreview();
             return;
@@ -422,6 +454,8 @@ public class curseOffhand : MonoBehaviour
         if (ghost != null) return ghost.isCursed;
         var sword = target.GetComponentInParent<SkeletonSwordEnemy>();
         if (sword != null) return sword.isCursed;
+        var gun = target.GetComponentInParent<SkeletonGunEnemy>();
+        if (gun != null) return gun.isCursed;
         return false;
     }
     private Transform GetEnemyRootFromHitRef(DamageRef hitRef)
@@ -437,6 +471,8 @@ public class curseOffhand : MonoBehaviour
         if (ghost != null) return ghost.transform;
         var sword = hitRef.GetComponentInParent<SkeletonSwordEnemy>();
         if (sword != null) return sword.transform;
+        var gun = hitRef.GetComponentInParent<SkeletonGunEnemy>();
+        if (gun != null) return gun.transform;
         return hitRef.transform.root;
     }
     private void OnDisable()
