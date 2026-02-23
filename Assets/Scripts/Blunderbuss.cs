@@ -132,20 +132,21 @@ public class Blunderbuss : MonoBehaviour
                 else if (PelletHitEffect)
                     Destroy(Instantiate(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal)), 3f);
 
-                // Use collider's hierarchy, NOT root tag
-                Transform t = hit.collider.attachedRigidbody ? hit.collider.attachedRigidbody.transform : hit.transform;
                 
                 
-                var boss = t.GetComponentInParent<DamageRef>();
-                if (!boss)
-                {
-                    boss = t.GetComponent<DamageRef>();
-                }
+                DamageRef boss = hit.collider.GetComponent<DamageRef>();
+
+
+                Debug.Log(
+    $"HIT: {hit.collider.name} | GO: {hit.collider.gameObject.name} | " +
+    $"Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)} ({hit.collider.gameObject.layer}) | " +
+    $"Trigger: {hit.collider.isTrigger} | HasDamageRef: {boss != null}"
+);
+
                 if (boss)
                 {
                     if (bossHits.TryGetValue(boss, out int c)) bossHits[boss] = c + 1;
                     else bossHits[boss] = 1;
-                    Debug.Log($"Pellet hit Boss: {t.name} via {hit.collider.name}");
                 }
                 
             }
