@@ -55835,9 +55835,11 @@ MonoBehaviour:
   subRadiusUpgrade: 0
   subDamageUpgrade: 0
   upgradeTracker: {fileID: 275458218781037875}
-  totalChargeTime: 8
-  scaleAtPopStart: 0.6
-  popStartTimeFraction: 0.95
+  totalChargeTime: 1.5
+  scaleAtPopStart: 0.454
+  popStartTimeFraction: 0.755
+  unchargedScale: 0.5
+  unchargedColor: {r: 0.15, g: 0.15, b: 0.15, a: 1}
   chargingSimSpeed: 0.35
   fullSimSpeed: 1
   equipCooldown: 0.5
@@ -55847,6 +55849,7 @@ MonoBehaviour:
   flameCharge: {fileID: 8300000, guid: 51a02f4e028bd5340a3a9ee9d677b118, type: 3}
   upgradeOne: 0
   upgradeTwo: 0
+  bothReadyOrRecharging: 0
 --- !u!114 &6842257775140837287
 MonoBehaviour:
   m_ObjectHideFlags: 0
