@@ -20,7 +20,7 @@ public class DamageRef : MonoBehaviour
         magmaBoss = GetComponent<MagmaBossAI>();
         ghostBoss = GetComponent<GhostBossAI>();
         swordEnemy = GetComponent<SkeletonSwordEnemy>();
-        kraken = GetComponent<CrackenTentacleCollider>();
+        kraken = GetComponentInParent<CrackenTentacleCollider>();
         gunEnemy = GetComponent<SkeletonGunEnemy>();
         hasSpawnedSoul = false;
     }

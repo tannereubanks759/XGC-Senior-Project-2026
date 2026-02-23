@@ -36,18 +36,26 @@ public class CrackenTentacleCollider : MonoBehaviour
         tentacle.Death();
         
     }
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collision)
     {
-        
-        if(collision.gameObject.tag == "Player" && Time.time > nextHit && tentacle.isDropping)
+        if (collision.gameObject.tag == "Player" && Time.time > nextHit && tentacle.isDropping)
         {
             collision.gameObject.GetComponentInChildren<CombatController>().TakeDamageByBoss(30);
             nextHit = Time.time + 5f;
         }
-        if (tentacle.isDropping)
+
+        this.GetComponent<Collider>().enabled = false;
+
+        if (tentacle.isDropping == true)
         {
-            tentacle.isDropping = false;
             tentacle.GoUp();
         }
+        tentacle.isDropping = false;
+        
+        
+            
+        
+        
+        
     }
 }

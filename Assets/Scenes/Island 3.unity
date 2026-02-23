@@ -19435,6 +19435,8 @@ MonoBehaviour:
   attackCooldown: 10
   maxDropTime: 5
   requiredAbovePlayerToDrop: 1
+  goUpDelay: 2
+  tentacleCol: {fileID: 2038907449}
 --- !u!1 &321247618
 GameObject:
   m_ObjectHideFlags: 0
@@ -19769,6 +19771,74 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 331002658}
   m_Mesh: {fileID: 4300008, guid: 6ac978b4efc32b345b22cab0d2015053, type: 3}
+--- !u!1 &332900674
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 332900675}
+  - component: {fileID: 332900677}
+  - component: {fileID: 332900676}
+  m_Layer: 22
+  m_Name: DamageCollider
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &332900675
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332900674}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 669477200}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &332900676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332900674}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a53af6c22395ac145ae939fe9682c900, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SoulPrefab: {fileID: 0}
+  OverrideSoulAmount: 0
+--- !u!65 &332900677
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 332900674}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.67830276, y: 2.5142195, z: 0.98836094}
+  m_Center: {x: 0.16084939, y: 0.5168678, z: -0.00581711}
 --- !u!1 &335874168
 GameObject:
   m_ObjectHideFlags: 0
@@ -25780,7 +25850,7 @@ GameObject:
   - component: {fileID: 443671074}
   - component: {fileID: 443671073}
   - component: {fileID: 443671072}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27739,7 +27809,7 @@ GameObject:
   - component: {fileID: 473669850}
   - component: {fileID: 473669849}
   - component: {fileID: 473669852}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Tentacle Area 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29635,6 +29705,74 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 504759215}
   m_Mesh: {fileID: 4300002, guid: 96d38dcc9f384264c9345e36e3306d75, type: 3}
+--- !u!1 &504993467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 504993468}
+  - component: {fileID: 504993470}
+  - component: {fileID: 504993469}
+  m_Layer: 22
+  m_Name: Damage Collider
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &504993468
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504993467}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2038907448}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &504993469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504993467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a53af6c22395ac145ae939fe9682c900, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SoulPrefab: {fileID: 0}
+  OverrideSoulAmount: 0
+--- !u!65 &504993470
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 504993467}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.6116437, y: 2.2330801, z: 0.8100684}
+  m_Center: {x: 0.00075614935, y: 0.6165729, z: 0.027836032}
 --- !u!1 &505298468
 GameObject:
   m_ObjectHideFlags: 0
@@ -32238,7 +32376,7 @@ GameObject:
   - component: {fileID: 550024320}
   - component: {fileID: 550024319}
   - component: {fileID: 550024321}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Terrain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39731,12 +39869,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.67830276, y: 2.8158174, z: 0.98836094}
-  m_Center: {x: 0.16084944, y: 0.6676702, z: -0.0058177193}
+  m_Size: {x: 0.8356427, y: 2.6258688, z: 1.11}
+  m_Center: {x: 0.118031844, y: 0.54059696, z: -0.0058130086}
 --- !u!114 &669477202
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39750,7 +39888,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentacle: {fileID: 1056922980}
-  health: 50
+  health: 100
 --- !u!114 &669477203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39769,20 +39907,33 @@ MonoBehaviour:
   AdditionalConstantStrength: 0
   Offset: {x: 0.16, y: 1.28, z: 0}
   MeshIntersectionThreshold: 0.1
---- !u!114 &669477204
-MonoBehaviour:
+--- !u!54 &669477204
+Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 669477199}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a53af6c22395ac145ae939fe9682c900, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SoulPrefab: {fileID: 0}
-  OverrideSoulAmount: 0
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
 --- !u!1 &670102344
 GameObject:
   m_ObjectHideFlags: 0
@@ -43234,7 +43385,7 @@ GameObject:
   - component: {fileID: 718544740}
   - component: {fileID: 718544739}
   - component: {fileID: 718544738}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Tentacle Area 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43909,7 +44060,7 @@ MonoBehaviour:
   headAnim: {fileID: 886958788}
   leftArmAnim: {fileID: 556431594}
   rightArmAnim: {fileID: 1877266341}
-  health: 100
+  health: 200
   dangerAreas: []
   rock: {fileID: 6751386418472704825}
   healthbar: {fileID: 0}
@@ -47279,7 +47430,7 @@ GameObject:
   - component: {fileID: 790549551}
   - component: {fileID: 790549550}
   - component: {fileID: 790549549}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52991,6 +53142,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -34.031
       objectReference: {fileID: 0}
+    - target: {fileID: -5293213793990123803, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
+      propertyPath: m_Layer
+      value: 21
+      objectReference: {fileID: 0}
     - target: {fileID: -4065336344590689400, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.158
@@ -53785,7 +53940,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4099821229763676956, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 4199027198130249510, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -54331,6 +54486,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -7562618696266280491, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1626818284}
+    - targetCorrespondingSourceObject: {fileID: 3832813648585476729, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 504993468}
     - targetCorrespondingSourceObject: {fileID: -4065336344590689400, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 971150935}
@@ -54340,6 +54498,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -6978684881341801327, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 794173929}
+    - targetCorrespondingSourceObject: {fileID: 7188816881430749838, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 332900675}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 86356c16a97a1094db368df0dda019e4, type: 3}
       insertIndex: -1
@@ -60501,7 +60662,7 @@ GameObject:
   - component: {fileID: 988459720}
   - component: {fileID: 988459719}
   - component: {fileID: 988459718}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -64051,6 +64212,8 @@ MonoBehaviour:
   attackCooldown: 10
   maxDropTime: 5
   requiredAbovePlayerToDrop: 1
+  goUpDelay: 2
+  tentacleCol: {fileID: 669477201}
 --- !u!1 &1056970933
 GameObject:
   m_ObjectHideFlags: 0
@@ -73898,7 +74061,7 @@ GameObject:
   - component: {fileID: 1229463581}
   - component: {fileID: 1229463580}
   - component: {fileID: 1229463579}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (7)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -91208,7 +91371,7 @@ GameObject:
   - component: {fileID: 1405766488}
   - component: {fileID: 1405766487}
   - component: {fileID: 1405766486}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98535,7 +98698,7 @@ GameObject:
   - component: {fileID: 1527443936}
   - component: {fileID: 1527443935}
   - component: {fileID: 1527443934}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108047,7 +108210,7 @@ GameObject:
   - component: {fileID: 1687293532}
   - component: {fileID: 1687293531}
   - component: {fileID: 1687293530}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113509,7 +113672,7 @@ GameObject:
   - component: {fileID: 1756641504}
   - component: {fileID: 1756641503}
   - component: {fileID: 1756641502}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (8)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130066,7 +130229,7 @@ GameObject:
   - component: {fileID: 1935848146}
   - component: {fileID: 1935848145}
   - component: {fileID: 1935848144}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Cube (9)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137177,12 +137340,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.8065852, y: 2.3826716, z: 1}
-  m_Center: {x: -0.0967074, y: 0.6913406, z: 0.00000020014993}
+  m_Size: {x: 1.1464653, y: 2.332074, z: 1.1500001}
+  m_Center: {x: 0.031527765, y: 0.62238437, z: 0.00000020231208}
 --- !u!114 &2038907450
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137214,21 +137377,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tentacle: {fileID: 319969396}
-  health: 50
---- !u!114 &2038907452
-MonoBehaviour:
+  health: 100
+--- !u!54 &2038907452
+Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1955713762}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a53af6c22395ac145ae939fe9682c900, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SoulPrefab: {fileID: 0}
-  OverrideSoulAmount: 0
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
 --- !u!1 &2043337232
 GameObject:
   m_ObjectHideFlags: 0

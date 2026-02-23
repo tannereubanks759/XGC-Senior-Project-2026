@@ -108,8 +108,7 @@ public class Blunderbuss : MonoBehaviour
         bulletRadius = 50f;
         
         // Group by damageable component (prevents multi-collider dupes)
-        var skullHits = new Dictionary<FloatingSkullAI, int>();
-        var gruntHits = new Dictionary<BaseEnemyAI, int>();
+        
         var bossHits = new Dictionary<DamageRef, int>();
         int pelletsThatHitAnything = 0;
 
@@ -122,10 +121,11 @@ public class Blunderbuss : MonoBehaviour
             Vector3 screenPos = Input.mousePosition + (new Vector3(randomInsideaCircle.x, randomInsideaCircle.y, 0f) * bulletRadius);
             Ray ray = Camera.main.ScreenPointToRay(screenPos);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layers))
+            if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, layers, QueryTriggerInteraction.Ignore))
             {
                 pelletsThatHitAnything++;
 
+                Debug.Log(hit.collider.name);
                 // Impact FX
                 if (fxPool && PelletHitEffect)
                     fxPool.Spawn(PelletHitEffect, hit.point, Quaternion.FromToRotation(transform.up, hit.normal), 3f);
@@ -135,61 +135,28 @@ public class Blunderbuss : MonoBehaviour
                 // Use collider's hierarchy, NOT root tag
                 Transform t = hit.collider.attachedRigidbody ? hit.collider.attachedRigidbody.transform : hit.transform;
                 
-                // Prefer components over tags
-                var skull = t.GetComponentInParent<FloatingSkullAI>();
-                var grunt = t.GetComponentInParent<BaseEnemyAI>();
+                
                 var boss = t.GetComponentInParent<DamageRef>();
-                if (skull)
+                if (!boss)
                 {
-                    if (skullHits.TryGetValue(skull, out int c)) skullHits[skull] = c + 1;
-                    else skullHits[skull] = 1;
-                    // Debug
-                    Debug.Log($"Pellet hit SKULL: {skull.name} via {hit.collider.name}");
+                    boss = t.GetComponent<DamageRef>();
                 }
-                else if (grunt)
-                {
-                    if (gruntHits.TryGetValue(grunt, out int c)) gruntHits[grunt] = c + 1;
-                    else gruntHits[grunt] = 1;
-                    Debug.Log($"Pellet hit ENEMY: {grunt.name} via {hit.collider.name}");
-                }
-                else if (boss)
+                if (boss)
                 {
                     if (bossHits.TryGetValue(boss, out int c)) bossHits[boss] = c + 1;
                     else bossHits[boss] = 1;
-                    ///Debug.Log($"Pellet hit Boss: {grunt.name} via {hit.collider.name}");
-                }
-                else
-                {
-                    // Optional: Debug what we hit that isn’t damageable
-                    // Debug.Log($"Pellet hit non-damageable: {t.name} (layer {t.gameObject.layer})");
+                    Debug.Log($"Pellet hit Boss: {t.name} via {hit.collider.name}");
                 }
                 
             }
         }
 
-        // Apply batched damage
-        foreach (var kvp in skullHits)
-        {
-            int totalDamage = kvp.Value * DamagePerPellet;
-            // Your FloatingSkullAI.ApplyDamage must be public
-            kvp.Key.ApplyDamage(totalDamage);
-            Debug.Log($"Applied {totalDamage} dmg to SKULL {kvp.Key.name} (pellets {kvp.Value})");
-        }
-        
-        foreach (var kvp in gruntHits)
-        {
-            int totalDamage = kvp.Value * DamagePerPellet;
-            kvp.Key.TakeDamage(totalDamage);
-            Debug.Log($"Applied {totalDamage} dmg to ENEMY {kvp.Key.name} (pellets {kvp.Value})");
-        }
         foreach (var kvp in bossHits)
         {
             int totalDamage = kvp.Value * DamagePerPellet;
             kvp.Key.TakeDamage(totalDamage);
             Debug.Log($"Applied {totalDamage} dmg to ENEMY {kvp.Key.name} (pellets {kvp.Value})");
         }
-        
-
         // Scale recoil by pellets connected (caps at 4)
         if (wIntertia)
             wIntertia.FireRecoil(Mathf.Clamp(pelletsThatHitAnything, 1, 4));

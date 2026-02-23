@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
+using System.Collections;
 
 public class KrakenTentacle : MonoBehaviour
 {
@@ -58,6 +59,11 @@ public class KrakenTentacle : MonoBehaviour
     public float maxDropTime = 2.0f;
     public float requiredAbovePlayerToDrop = 1.0f;
 
+    [Header("Go Up Delay")]
+    [Tooltip("When GoUp() is called, wait this long before starting the return/rise movement.")]
+    [Min(0f)] public float goUpDelay = 0.35f;
+    public Collider tentacleCol;
+
     private bool isReturning = false;
     private float dropCountdown = 0f;
     private float nextAttackAllowedTime = 0f;
@@ -78,6 +84,10 @@ public class KrakenTentacle : MonoBehaviour
     private float deathBlendTimer = 0f;
     private Vector3 deathBlendStartPos;
     private Quaternion deathBlendStartRot;
+
+    // GoUp delay state
+    private bool pendingGoUp = false;
+    private Coroutine goUpDelayCo;
 
     void Start()
     {
@@ -128,12 +138,17 @@ public class KrakenTentacle : MonoBehaviour
                 isDropping = false;
                 isReturning = false;
                 dropElapsed = 0f;
+
+                // cancel any pending GoUp delay
+                CancelPendingGoUp();
+
                 ResetDropCountdown();
             }
             else
             {
                 // EXIT: cancel attacks and smoothly blend back to idle target
                 CancelAttackState();
+                CancelPendingGoUp();
                 BeginBlendToIdle();
             }
 
@@ -190,8 +205,14 @@ public class KrakenTentacle : MonoBehaviour
             if (dropElapsed >= maxDropTime)
             {
                 isDropping = false;
-                GoUp();
+                GoUp(); // now delayed
             }
+            return;
+        }
+
+        // While waiting for GoUp delay, do nothing movement-wise (prevents weird re-following)
+        if (pendingGoUp)
+        {
             return;
         }
 
@@ -230,17 +251,72 @@ public class KrakenTentacle : MonoBehaviour
     {
         nextAttackAllowedTime = Time.time + attackCooldown;
 
+        // Start delayed return
+        if (goUpDelay <= 0f)
+        {
+            
+            BeginReturnNow();
+            return;
+        }
+
+        // restart the delay if called again
+        CancelPendingGoUp();
+        goUpDelayCo = StartCoroutine(GoUpDelayRoutine(goUpDelay));
+    }
+
+    private IEnumerator GoUpDelayRoutine(float delay)
+    {
+        pendingGoUp = true;
+
+        // lock out drops during delay
+        isDropping = false;
+        isReturning = false;
+        dropElapsed = 0f;
+        dropCountdown = Mathf.Infinity;
+
+        float t = 0f;
+        while (t < delay)
+        {
+            // If something invalidates the delay, stop cleanly
+            if (isDead || !playerInDangerArea)
+            {
+                pendingGoUp = false;
+                goUpDelayCo = null;
+                yield break;
+            }
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        pendingGoUp = false;
+        goUpDelayCo = null;
+
+        BeginReturnNow();
+    }
+
+    private void BeginReturnNow()
+    {
         isReturning = true;
         dropElapsed = 0f;
-
         ResetDropCountdown();
+    }
+
+    private void CancelPendingGoUp()
+    {
+        pendingGoUp = false;
+        if (goUpDelayCo != null)
+        {
+            StopCoroutine(goUpDelayCo);
+            goUpDelayCo = null;
+        }
     }
 
     private void StartDrop()
     {
         isDropping = true;
         dropElapsed = 0f;
-
+        tentacleCol.enabled = true;
         dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
         dropCountdown = Mathf.Infinity;
     }
@@ -318,6 +394,7 @@ public class KrakenTentacle : MonoBehaviour
 
         // Stop any current behavior
         CancelAttackState();
+        CancelPendingGoUp();
         blendingToIdle = false;
         playerInDangerArea = false;
 
