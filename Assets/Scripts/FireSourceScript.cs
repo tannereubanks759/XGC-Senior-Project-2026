@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Animations;
 
 [DisallowMultipleComponent]
 public class FireSourceScript : MonoBehaviour
@@ -45,6 +46,7 @@ public class FireSourceScript : MonoBehaviour
 
     public bool isCollected = false;
     public FireLamp lamp;
+    public LookAtConstraint constraint;
     private void Awake()
     {
         lamp = GetComponentInParent<FireLamp>();
