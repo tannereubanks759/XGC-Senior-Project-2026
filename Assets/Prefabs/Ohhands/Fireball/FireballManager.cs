@@ -12,7 +12,7 @@ public class FireballManager : MonoBehaviour
     public bool subRadiusUpgrade = false;
     public bool subDamageUpgrade = false;
     public upgradeTracker upgradeTracker;
-
+    public FirstPersonController firstPersonController;
     [Header("Charging / Scale")]
     public float totalChargeTime = 8f;                         // seconds from 0 → 100%
     [Range(0f, 1f)] public float scaleAtPopStart = 0.6f;        // before pop
@@ -115,7 +115,7 @@ public class FireballManager : MonoBehaviour
         if (!parent.activeSelf) return;
         if (Time.time < nextTime) return;
 
-        if (Input.GetKeyDown(useKey) && activeFireballs > 0)
+        if (Input.GetKeyDown(useKey) && activeFireballs > 0 && firstPersonController.stamina>=3.5f)
         {
             Throw();
         }
@@ -269,6 +269,7 @@ public class FireballManager : MonoBehaviour
     void Throw()
     {
         activeFireballs--;
+        firstPersonController.LoseStamina(3.5f);
         int random = Random.Range(0, 2);
 
         if (random == 0)
