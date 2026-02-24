@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using static Unity.VisualScripting.Member;
 
 
 [AddComponentMenu("Radial Menu Framework/RMF Core Script")]
@@ -52,7 +53,9 @@ public class RMF_RadialMenu : MonoBehaviour {
     private float angleOffset; //The base offset. For example, if there are 4 elements, then our offset is 360/4 = 90
 
     private int previousActiveIndex = 0; //Used to determine which buttons to unhighlight in lazy selection.
-
+    public AudioSource source;
+    public AudioClip swapSound;
+    [Range(0f, 1f)] public float swapVolume;
     private PointerEventData pointer;
     public GameObject[] iconsToDisable;
     private int lastHoverIndex = -1;
@@ -86,6 +89,11 @@ public class RMF_RadialMenu : MonoBehaviour {
 
         }
 
+    }
+    private void PlaySound(AudioClip clip, float vol = 1f)
+    {
+        if (source != null && clip != null)
+            source.PlayOneShot(clip, vol);
     }
     private void UpdateCenterIcon(int newIndex)
     {
@@ -153,6 +161,7 @@ public class RMF_RadialMenu : MonoBehaviour {
 
                 if (Input.GetButtonDown("Submit"))
                 {
+                    
                     buttonPress();
                 }
             }
@@ -166,13 +175,16 @@ public class RMF_RadialMenu : MonoBehaviour {
 
     public void buttonPress()
     {
-       /* for (int i = 0; i < iconsToDisable.Length; i++)
-        {
-            
-            iconsToDisable[i].SetActive(false);
-            
-        }*/
+        /* for (int i = 0; i < iconsToDisable.Length; i++)
+         {
+
+             iconsToDisable[i].SetActive(false);
+
+         }*/
+        //PlaySound(swapSound, swapVolume);
+        //AudioSource.PlayClipAtPoint(swapSound, Camera.main.transform.position, swapVolume);
         ExecuteEvents.Execute(elements[index].button.gameObject, pointer, ExecuteEvents.submitHandler);
+        
     }
 
     //Selects the button with the specified index.

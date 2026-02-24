@@ -32,6 +32,9 @@ public class RMF_RadialMenuElement : MonoBehaviour {
     public GameObject infoPanel;
     public GameObject[] allPanels;
     private CanvasGroup cg;
+    public AudioSource source;
+    public AudioClip selectionSound;
+    [Range(0f, 1f)] public float selectionVolume;
 
     void Awake() {
 
@@ -49,6 +52,11 @@ public class RMF_RadialMenuElement : MonoBehaviour {
         if (button == null)
             Debug.LogError("Radial Menu: No button attached to " + gameObject.name + "!");
 
+    }
+    private void PlaySound(AudioClip clip, float vol = 1f)
+    {
+        if (source != null && clip != null)
+            source.PlayOneShot(clip, vol);
     }
 
     void Start () {
@@ -112,6 +120,7 @@ public class RMF_RadialMenuElement : MonoBehaviour {
         ExecuteEvents.Execute(button.gameObject, p, ExecuteEvents.selectHandler);
         active = true;
         transform.localScale = Vector3.one * 1.05f;
+        PlaySound(selectionSound, selectionVolume);
         disableAllInfo();
         setParentMenuLable(label);
 

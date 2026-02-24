@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 public class offhandWheel : MonoBehaviour
 {
@@ -9,16 +10,40 @@ public class offhandWheel : MonoBehaviour
     private float minHoldTime = 0.15f;
     private bool quickSwap = false;
     private bool wheelOpen = false;
-
+    public AudioSource source;
+    public AudioClip openingOffhandWheel;
+    [Range(0f, 1f)] public float openVolume;
+   // public AudioClip closingOffhandWheel;
+   // [Range(0f, 1f)] public float closeVolume;
+   // public AudioClip whileOpen;
+    //[Range(0f, 1f)] public float whileOpenVolume;
     void Start()
     {
         handler = GameObject.FindAnyObjectByType<offhandHandler>();
     }
-
+    private void PlaySound(AudioClip sound, float volume, bool isLooping)
+    {
+        if(source!=null && sound !=null) 
+        {
+            source.clip = sound;
+            source.volume = volume;
+            source.pitch = 0.5f;
+            source.loop = isLooping;
+            source.Play();
+        }
+    }
+    private void StopSound()
+    {
+        if (source == null) return;
+        source.loop = false;
+        source.pitch = 1f;
+        source.Stop();
+    }
     public void openWheel()
     {
         if (wheelOpen) return;
         wheelOpen = true;
+        PlaySound(openingOffhandWheel, openVolume, true);
         UIM.OpenOffhandWheelScreen();
         var controllerRef = FindAnyObjectByType<FirstPersonController>();
         controllerRef.playerCanMove = false;
@@ -30,7 +55,9 @@ public class offhandWheel : MonoBehaviour
 
     public void closeWheel()
     {
+        if (!wheelOpen) return;
         wheelOpen = false;
+        StopSound();
         var controllerRef = FindAnyObjectByType<FirstPersonController>();
         controllerRef.playerCanMove = true;
         controllerRef.cameraCanMove = true;
