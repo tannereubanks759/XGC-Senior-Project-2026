@@ -121,7 +121,7 @@ public class curseOffhand : MonoBehaviour
             EnsureFlameState();
             return;
         }
-        // when f is pressed
+        
         if (!Input.GetKeyDown(KeyCode.F))
         {
             EnsureFlameState();
@@ -134,9 +134,10 @@ public class curseOffhand : MonoBehaviour
         Ray curseRay = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         if (Physics.SphereCast(curseRay, curseCastRadius, out RaycastHit hit, curseRange, enemyMask, QueryTriggerInteraction.Ignore))
         {
+            
             DamageRef hitRef = hit.collider.GetComponentInParent<DamageRef>();
             if (hitRef == null) return;
-
+            // old enemies
             BaseEnemyAI enemy = hitRef.GetComponentInParent<BaseEnemyAI>();
             if (enemy != null)
             {
@@ -237,6 +238,7 @@ public class curseOffhand : MonoBehaviour
                     if (cursedFlame != null) cursedFlame.SetActive(false);
                     return;
                 }
+                // reg sword enemies
                 if (swordEnemy != null)
                 {
                     cursedTarget = hitRef;
@@ -268,6 +270,7 @@ public class curseOffhand : MonoBehaviour
                     }
                     return;
                 }
+                //gun enemies
                 if (gunEnemy != null)
                 {
                     cursedTarget = hitRef;
@@ -307,14 +310,20 @@ public class curseOffhand : MonoBehaviour
     private bool IsDead(DamageRef target)
     {
         if (target == null) return true;
+
         var magma = target.GetComponentInParent<MagmaBossAI>();
         if (magma != null) return magma.currentHealth <= 0;
+
         var pirate = target.GetComponentInParent<PirateBossAI>();
         if (pirate != null) return pirate.currentHealth <= 0;
+
         var ghost = target.GetComponentInParent<GhostBossAI>();
         if (ghost != null) return ghost.currentHealth <= 0;
+
         var sword = target.GetComponentInParent<SkeletonSwordEnemy>();
         if (sword != null) return sword.GetHealth() <= 0;
+
+        // old enemies
         var baseEnemy = target.GetComponentInParent<BaseEnemyAI>();
         if (baseEnemy != null) return baseEnemy.currentHealth <= 0;
 
@@ -324,7 +333,9 @@ public class curseOffhand : MonoBehaviour
     private void EnsureFlameState()
     {
         if (cursedFlame == null) return;
+
         bool anyBossCursed = FindAnyObjectByType<PirateBossAI>()?.isCursed == true || FindAnyObjectByType<MagmaBossAI>()?.isCursed == true || FindAnyObjectByType<GhostBossAI>()?.isCursed == true;
+
         if (cursedTarget == null && !anyBossCursed)
         {
             if (!cursedFlame.activeSelf) cursedFlame.SetActive(true);
@@ -446,33 +457,46 @@ public class curseOffhand : MonoBehaviour
     private bool IsAlreadyCursed(DamageRef target)
     {
         if (target == null) return true;
+
         var pirate = target.GetComponentInParent<PirateBossAI>();
         if (pirate != null) return pirate.isCursed;
+
         var magma = target.GetComponentInParent<MagmaBossAI>();
         if (magma != null) return magma.isCursed;
+
         var ghost = target.GetComponentInParent<GhostBossAI>();
         if (ghost != null) return ghost.isCursed;
+
         var sword = target.GetComponentInParent<SkeletonSwordEnemy>();
         if (sword != null) return sword.isCursed;
+
         var gun = target.GetComponentInParent<SkeletonGunEnemy>();
         if (gun != null) return gun.isCursed;
+
         return false;
     }
     private Transform GetEnemyRootFromHitRef(DamageRef hitRef)
     {
         if (hitRef == null) return null;
         var baseEnemy = hitRef.GetComponentInParent<BaseEnemyAI>();
+
         if (baseEnemy != null) return baseEnemy.transform;
         var pirate = hitRef.GetComponentInParent<PirateBossAI>();
+
         if (pirate != null) return pirate.transform;
         var magma = hitRef.GetComponentInParent<MagmaBossAI>();
+
         if (magma != null) return magma.transform;
         var ghost = hitRef.GetComponentInParent<GhostBossAI>();
+
         if (ghost != null) return ghost.transform;
         var sword = hitRef.GetComponentInParent<SkeletonSwordEnemy>();
+
         if (sword != null) return sword.transform;
         var gun = hitRef.GetComponentInParent<SkeletonGunEnemy>();
+
         if (gun != null) return gun.transform;
+
         return hitRef.transform.root;
     }
     private void OnDisable()

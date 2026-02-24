@@ -16,7 +16,8 @@ public class PlayerSwordScript : MonoBehaviour
     public int damage = 10;
     public chargeBaseScript charge;
     public SwordSounds swordSounds;
-    
+    //private int currentChain = 0;
+    public int maxSkeletonChaining = 3;
     public float chargePerHit = 10f;
     public void PlaySound(AudioClip clip)
     {
@@ -74,8 +75,14 @@ public class PlayerSwordScript : MonoBehaviour
         int chainedDamage = Mathf.RoundToInt(baseDamage * chainDamageMultiplier);
         Transform lastDamaged = firstTarget;
         Collider[] closeEnemies = Physics.OverlapSphere(firstTarget.position, chainRadius, ~0, QueryTriggerInteraction.Ignore);
+        int currentChain = 0;
         foreach (Collider c in closeEnemies)
         {
+            //limit of chaining
+            if (currentChain > maxSkeletonChaining)
+            {
+                break;
+            }
             if (!c.CompareTag("Enemy")) continue;
             if (c.transform == firstTarget) continue;
             DamageRef dr = c.GetComponent<DamageRef>();
@@ -91,6 +98,7 @@ public class PlayerSwordScript : MonoBehaviour
             Destroy(startAnchor.gameObject, 0.1f);
             Destroy(endAnchor.gameObject, 0.1f);
             lastDamaged = c.transform;
+            currentChain++;
         }
     }
     private void SpawnLightningArc(Transform start, Transform end)
