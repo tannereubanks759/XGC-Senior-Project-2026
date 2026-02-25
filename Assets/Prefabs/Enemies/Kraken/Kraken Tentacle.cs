@@ -59,9 +59,67 @@ public class KrakenTentacle : MonoBehaviour
     public float maxDropTime = 2.0f;
     public float requiredAbovePlayerToDrop = 1.0f;
 
+    [Header("Warmup (Wind-up before strike)")]
+    [Min(0f)] public float warmupExtraHeight = 2.5f;
+
+    [Tooltip("How long the wind-up takes (seconds).")]
+    [Min(0.01f)] public float warmupDuration = 0.45f;
+
+    [Tooltip("Curve used for warmup motion (0->1 time, 0->1 position).")]
+    public AnimationCurve warmupCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    [Tooltip("Optional small pause at the top of the warmup before dropping (seconds).")]
+    [Min(0f)] public float warmupHoldTime = 0.10f;
+
+    [Header("Triple Strike Attack (every 2 normal attacks)")]
+    [Tooltip("After this many NORMAL attacks, do one triple strike.")]
+    [Min(1)] public int tripleEveryNormalAttacks = 2;
+
+    [Tooltip("How many slams in the triple strike.")]
+    [Min(2)] public int tripleStrikes = 3;
+
+    [Tooltip("Warmup duration for each slam in triple strike.")]
+    [Min(0.01f)] public float tripleWarmupDuration = 0.18f;
+
+    [Tooltip("Optional tiny hold at top per slam in triple strike.")]
+    [Min(0f)] public float tripleWarmupHold = 0.02f;
+
+    [Tooltip("Drop speed during triple strike.")]
+    [Min(0.01f)] public float tripleDropSpeed = 34f;
+
+    [Tooltip("Max time allowed for each slam drop in triple strike (failsafe).")]
+    [Min(0.05f)] public float tripleMaxDropTime = 0.55f;
+
+    [Tooltip("How fast it pops back up to apex between slams (seconds).")]
+    [Min(0.01f)] public float triplePopUpDuration = 0.14f;
+
+    [Tooltip("Curve for pop-up movement between slams.")]
+    public AnimationCurve triplePopUpCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    [Header("Triple Visual Separation")]
+    [Tooltip("How much higher than hover Y the triple strike apex goes (adds extra readability).")]
+    [Min(0f)] public float tripleExtraApexHeight = 1.5f;
+
+    [Tooltip("How close (meters) counts as 'reached' during slam/pop.")]
+    [Min(0.001f)] public float reachEpsilon = 0.08f;
+
+    [Header("Targeting")]
+    [Tooltip("Lock slam XZ to the player's position at the moment the slam starts (normal + each triple slam).")]
+    public bool lockToPlayerAtSlamStart = true;
+
+    [Tooltip("Optional XZ offset from player when slamming (0,0 = dead center).")]
+    public Vector2 slamXZOffset = Vector2.zero;
+
+    [Header("Debug")]
+    public bool debugLogs = true;
+
+    [Tooltip("Shows current state in Inspector for quick sanity checks.")]
+    public string debugState = "Idle";
+
     [Header("Go Up Delay")]
     [Tooltip("When GoUp() is called, wait this long before starting the return/rise movement.")]
     [Min(0f)] public float goUpDelay = 0.35f;
+
     public Collider tentacleCol;
 
     private bool isReturning = false;
@@ -69,8 +127,24 @@ public class KrakenTentacle : MonoBehaviour
     private float nextAttackAllowedTime = 0f;
     private float dropElapsed = 0f;
 
+    // Warmup state (normal attack)
+    private bool isWarmingUp = false;
+    private float warmupT = 0f;
+    private float warmupHoldElapsed = 0f;
+
     private Vector2 dropLockedXZ;
     private bool wasInDangerArea = false;
+
+    // Warmup lerp endpoints (normal attack)
+    private Vector3 warmupStartPos;
+    private Vector3 warmupApexPos;
+
+    // Triple strike scheduling: counts normals since last triple (based on ATTACK START)
+    private int normalsSinceTriple = 0;
+
+    // Triple sequence state
+    private bool sequenceActive = false;
+    private Coroutine sequenceCo;
 
     // Blend-to-idle state
     private bool blendingToIdle = false;
@@ -108,18 +182,18 @@ public class KrakenTentacle : MonoBehaviour
             }
         }
 
-        // Start aligned to idle target so there's no initial snap
         TeleportToIdleTargetIfAvailable();
 
         ResetDropCountdown();
         wasInDangerArea = playerInDangerArea;
 
         if (!playerInDangerArea) blendingToIdle = false;
+
+        if (tentacleCol) tentacleCol.enabled = false;
     }
 
     void Update()
     {
-        // If dead, ignore all other behavior and just move to death pose
         if (isDead)
         {
             UpdateDeathBlend();
@@ -131,22 +205,17 @@ public class KrakenTentacle : MonoBehaviour
         {
             if (playerInDangerArea)
             {
-                // ENTER: cancel any blend, teleport to idle target to avoid snap, then run logic
                 blendingToIdle = false;
                 TeleportToIdleTargetIfAvailable();
 
-                isDropping = false;
+                CancelAttackState();
                 isReturning = false;
-                dropElapsed = 0f;
 
-                // cancel any pending GoUp delay
                 CancelPendingGoUp();
-
                 ResetDropCountdown();
             }
             else
             {
-                // EXIT: cancel attacks and smoothly blend back to idle target
                 CancelAttackState();
                 CancelPendingGoUp();
                 BeginBlendToIdle();
@@ -155,9 +224,10 @@ public class KrakenTentacle : MonoBehaviour
             wasInDangerArea = playerInDangerArea;
         }
 
-        // OUT OF RANGE: smoothly blend to idle, then lock-follow idle every frame
+        // OUT OF RANGE: blend/follow idle target
         if (!playerInDangerArea)
         {
+            debugState = "OutOfRange";
             if (followIdleTargetWhenOutOfRange && idleAnimatedTarget != null)
             {
                 if (blendingToIdle && blendToIdleTime > 0f)
@@ -186,7 +256,7 @@ public class KrakenTentacle : MonoBehaviour
             return;
         }
 
-        // IN RANGE: run attack logic
+        // IN RANGE
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
@@ -194,30 +264,69 @@ public class KrakenTentacle : MonoBehaviour
         }
         if (player == null) return;
 
+        // If we’re in a scripted sequence (triple strike), do nothing else.
+        if (sequenceActive)
+        {
+            debugState = "TripleSequence";
+            return;
+        }
+
+        // While waiting for GoUp delay, do nothing movement-wise
+        if (pendingGoUp)
+        {
+            debugState = "GoUpDelay";
+            return;
+        }
+
+        // 1) NORMAL WARMUP (curve)
+        if (isWarmingUp)
+        {
+            debugState = "Warmup";
+            warmupT += Time.deltaTime;
+
+            float dur = Mathf.Max(0.01f, warmupDuration);
+            float t01 = Mathf.Clamp01(warmupT / dur);
+
+            float eased = (warmupCurve != null) ? warmupCurve.Evaluate(t01) : t01;
+            transform.position = Vector3.LerpUnclamped(warmupStartPos, warmupApexPos, eased);
+
+            if (t01 >= 1f)
+            {
+                if (warmupHoldTime > 0f)
+                {
+                    warmupHoldElapsed += Time.deltaTime;
+                    if (warmupHoldElapsed < warmupHoldTime)
+                        return;
+                }
+
+                BeginStrikeDropNow();
+            }
+            return;
+        }
+
+        // 2) NORMAL DROP
         if (isDropping)
         {
+            debugState = "NormalDrop";
             dropElapsed += Time.deltaTime;
 
             float targetY = player.position.y + dropToHeight;
             Vector3 dropPos = new Vector3(dropLockedXZ.x, targetY, dropLockedXZ.y);
             MoveTargetTowards(dropPos, dropSpeed);
 
-            if (dropElapsed >= maxDropTime)
+            if (Mathf.Abs(transform.position.y - targetY) <= reachEpsilon || dropElapsed >= maxDropTime)
             {
                 isDropping = false;
-                GoUp(); // now delayed
+                if (tentacleCol) tentacleCol.enabled = false;
+                GoUp();
             }
             return;
         }
 
-        // While waiting for GoUp delay, do nothing movement-wise (prevents weird re-following)
-        if (pendingGoUp)
-        {
-            return;
-        }
-
+        // 3) RETURNING
         if (isReturning)
         {
+            debugState = "Returning";
             Vector3 hoverPos = GetHoverPosition();
             MoveTargetTowards(hoverPos, riseSpeed);
 
@@ -229,6 +338,8 @@ public class KrakenTentacle : MonoBehaviour
             return;
         }
 
+        // 4) FOLLOW
+        debugState = "Following";
         Vector3 desiredHover = GetHoverPosition();
         MoveTargetTowards(desiredHover, followSpeed);
 
@@ -239,7 +350,21 @@ public class KrakenTentacle : MonoBehaviour
         {
             dropCountdown -= Time.deltaTime;
             if (dropCountdown <= 0f)
-                StartDrop();
+            {
+                // Pattern: N, N, TRIPLE, N, N, TRIPLE...
+                if (normalsSinceTriple >= tripleEveryNormalAttacks)
+                {
+                    normalsSinceTriple = 0;
+                    if (debugLogs) Debug.Log($"[{name}] TRIPLE STRIKE TRIGGERED (scheduled).");
+                    StartTripleStrike();
+                }
+                else
+                {
+                    normalsSinceTriple++;
+                    if (debugLogs) Debug.Log($"[{name}] Normal attack triggered. normalsSinceTriple={normalsSinceTriple}/{tripleEveryNormalAttacks}");
+                    StartWarmup();
+                }
+            }
         }
         else
         {
@@ -247,107 +372,13 @@ public class KrakenTentacle : MonoBehaviour
         }
     }
 
-    public void GoUp()
+    // =========================
+    // Targeting Helpers
+    // =========================
+    private Vector2 GetPlayerXZLocked()
     {
-        nextAttackAllowedTime = Time.time + attackCooldown;
-
-        // Start delayed return
-        if (goUpDelay <= 0f)
-        {
-            
-            BeginReturnNow();
-            return;
-        }
-
-        // restart the delay if called again
-        CancelPendingGoUp();
-        goUpDelayCo = StartCoroutine(GoUpDelayRoutine(goUpDelay));
-    }
-
-    private IEnumerator GoUpDelayRoutine(float delay)
-    {
-        pendingGoUp = true;
-
-        // lock out drops during delay
-        isDropping = false;
-        isReturning = false;
-        dropElapsed = 0f;
-        dropCountdown = Mathf.Infinity;
-
-        float t = 0f;
-        while (t < delay)
-        {
-            // If something invalidates the delay, stop cleanly
-            if (isDead || !playerInDangerArea)
-            {
-                pendingGoUp = false;
-                goUpDelayCo = null;
-                yield break;
-            }
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        pendingGoUp = false;
-        goUpDelayCo = null;
-
-        BeginReturnNow();
-    }
-
-    private void BeginReturnNow()
-    {
-        isReturning = true;
-        dropElapsed = 0f;
-        ResetDropCountdown();
-    }
-
-    private void CancelPendingGoUp()
-    {
-        pendingGoUp = false;
-        if (goUpDelayCo != null)
-        {
-            StopCoroutine(goUpDelayCo);
-            goUpDelayCo = null;
-        }
-    }
-
-    private void StartDrop()
-    {
-        isDropping = true;
-        dropElapsed = 0f;
-        tentacleCol.enabled = true;
-        dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
-        dropCountdown = Mathf.Infinity;
-    }
-
-    private void CancelAttackState()
-    {
-        isDropping = false;
-        isReturning = false;
-        dropElapsed = 0f;
-        dropCountdown = 0f;
-    }
-
-    private void BeginBlendToIdle()
-    {
-        if (idleAnimatedTarget == null || blendToIdleTime <= 0f)
-        {
-            blendingToIdle = false;
-            return;
-        }
-
-        blendingToIdle = true;
-        blendTimer = 0f;
-        blendStartPos = transform.position;
-        blendStartRot = transform.rotation;
-    }
-
-    private void TeleportToIdleTargetIfAvailable()
-    {
-        if (idleAnimatedTarget == null) return;
-        transform.position = idleAnimatedTarget.position;
-        transform.rotation = idleAnimatedTarget.rotation;
+        if (player == null) return new Vector2(transform.position.x, transform.position.z);
+        return new Vector2(player.position.x + slamXZOffset.x, player.position.z + slamXZOffset.y);
     }
 
     private float GetHoverY()
@@ -383,29 +414,309 @@ public class KrakenTentacle : MonoBehaviour
     }
 
     // =========================
+    // GoUp / Return (NORMAL ONLY)
+    // =========================
+    public void GoUp()
+    {
+        nextAttackAllowedTime = Time.time + attackCooldown;
+
+        if (goUpDelay <= 0f)
+        {
+            BeginReturnNow();
+            return;
+        }
+
+        CancelPendingGoUp();
+        goUpDelayCo = StartCoroutine(GoUpDelayRoutine(goUpDelay));
+    }
+
+    private IEnumerator GoUpDelayRoutine(float delay)
+    {
+        pendingGoUp = true;
+
+        // Lock out attacks during delay
+        CancelAttackState();
+        isReturning = false;
+        dropCountdown = Mathf.Infinity;
+
+        float t = 0f;
+        while (t < delay)
+        {
+            if (isDead || !playerInDangerArea)
+            {
+                pendingGoUp = false;
+                goUpDelayCo = null;
+                yield break;
+            }
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        pendingGoUp = false;
+        goUpDelayCo = null;
+
+        BeginReturnNow();
+    }
+
+    private void BeginReturnNow()
+    {
+        isReturning = true;
+        dropElapsed = 0f;
+        ResetDropCountdown();
+    }
+
+    private void CancelPendingGoUp()
+    {
+        pendingGoUp = false;
+        if (goUpDelayCo != null)
+        {
+            StopCoroutine(goUpDelayCo);
+            goUpDelayCo = null;
+        }
+    }
+
+    // =========================
+    // NORMAL Warmup + Strike
+    // =========================
+    private void StartWarmup()
+    {
+        isWarmingUp = true;
+        warmupT = 0f;
+        warmupHoldElapsed = 0f;
+
+        isDropping = false;
+        isReturning = false;
+        dropElapsed = 0f;
+
+        if (tentacleCol) tentacleCol.enabled = false;
+
+        // Warmup can be from current spot; apex uses current XZ so it doesn't "teleport"
+        dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
+
+        warmupStartPos = transform.position;
+
+        float apexY = GetHoverY() + warmupExtraHeight;
+        warmupApexPos = new Vector3(dropLockedXZ.x, apexY, dropLockedXZ.y);
+
+        dropCountdown = Mathf.Infinity;
+    }
+
+    private void BeginStrikeDropNow()
+    {
+        isWarmingUp = false;
+
+        // IMPORTANT: lock slam XZ to PLAYER at the moment the slam begins
+        if (lockToPlayerAtSlamStart)
+            dropLockedXZ = GetPlayerXZLocked();
+
+        isDropping = true;
+        dropElapsed = 0f;
+
+        if (tentacleCol) tentacleCol.enabled = true;
+
+        dropCountdown = Mathf.Infinity;
+    }
+
+    // =========================
+    // TRIPLE STRIKE (NO GoUpDelay)
+    // =========================
+    private void StartTripleStrike()
+    {
+        CancelAttackState();
+        CancelPendingGoUp();
+
+        if (sequenceCo != null)
+            StopCoroutine(sequenceCo);
+
+        sequenceCo = StartCoroutine(TripleStrikeRoutine());
+    }
+
+    private IEnumerator TripleStrikeRoutine()
+    {
+        sequenceActive = true;
+        debugState = "TripleSequence";
+
+        if (tentacleCol) tentacleCol.enabled = false;
+        dropCountdown = Mathf.Infinity;
+
+        for (int i = 0; i < tripleStrikes; i++)
+        {
+            if (isDead || !playerInDangerArea || player == null)
+                break;
+
+            // IMPORTANT: re-aim EACH slam at player's current XZ
+            if (lockToPlayerAtSlamStart)
+                dropLockedXZ = GetPlayerXZLocked();
+            else
+                dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
+
+            if (debugLogs) Debug.Log($"[{name}] Triple slam {i + 1}/{tripleStrikes}");
+
+            float apexY = GetHoverY() + warmupExtraHeight + tripleExtraApexHeight;
+            Vector3 apex = new Vector3(dropLockedXZ.x, apexY, dropLockedXZ.y);
+
+            // ---- Wind up to apex (curve)
+            Vector3 start = transform.position;
+            float windDur = Mathf.Max(0.01f, tripleWarmupDuration);
+            float t = 0f;
+            while (t < windDur)
+            {
+                if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+
+                float t01 = Mathf.Clamp01(t / windDur);
+                float eased = (warmupCurve != null) ? warmupCurve.Evaluate(t01) : t01;
+                transform.position = Vector3.LerpUnclamped(start, apex, eased);
+
+                t += Time.deltaTime;
+                yield return null;
+            }
+            transform.position = apex;
+
+            // tiny hold at top
+            if (tripleWarmupHold > 0f)
+            {
+                float hold = 0f;
+                while (hold < tripleWarmupHold)
+                {
+                    if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+                    hold += Time.deltaTime;
+                    yield return null;
+                }
+            }
+
+            // ---- Drop / slam UNTIL REACHED (or timeout)
+            if (tentacleCol) tentacleCol.enabled = true;
+
+            float slamTimer = 0f;
+            while (slamTimer < tripleMaxDropTime)
+            {
+                if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+
+                float slamY = player.position.y + dropToHeight;
+                Vector3 slamPos = new Vector3(dropLockedXZ.x, slamY, dropLockedXZ.y);
+
+                transform.position = Vector3.MoveTowards(transform.position, slamPos, tripleDropSpeed * Time.deltaTime);
+
+                if (Mathf.Abs(transform.position.y - slamY) <= reachEpsilon)
+                    break;
+
+                slamTimer += Time.deltaTime;
+                yield return null;
+            }
+
+            if (tentacleCol) tentacleCol.enabled = false;
+
+            // small beat at the bottom helps it read as distinct impacts
+            yield return null;
+
+            // ---- Pop back up to apex (curve)
+            Vector3 popStart = transform.position;
+            float popDur = Mathf.Max(0.01f, triplePopUpDuration);
+            float popT = 0f;
+            while (popT < popDur)
+            {
+                if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+
+                float t01 = Mathf.Clamp01(popT / popDur);
+                float eased = (triplePopUpCurve != null) ? triplePopUpCurve.Evaluate(t01) : t01;
+                transform.position = Vector3.LerpUnclamped(popStart, apex, eased);
+
+                popT += Time.deltaTime;
+                yield return null;
+            }
+            transform.position = apex;
+        }
+
+        // Cooldown like any other attack
+        nextAttackAllowedTime = Time.time + attackCooldown;
+
+        // IMPORTANT: triple does NOT use GoUpDelay; return immediately
+        pendingGoUp = false;
+        if (goUpDelayCo != null)
+        {
+            StopCoroutine(goUpDelayCo);
+            goUpDelayCo = null;
+        }
+
+        isReturning = true;
+
+        CleanupTriple();
+        ResetDropCountdown();
+    }
+
+    private void CleanupTriple()
+    {
+        sequenceActive = false;
+        sequenceCo = null;
+        debugState = "PostTriple";
+    }
+
+    private void CancelAttackState()
+    {
+        sequenceActive = false;
+        if (sequenceCo != null)
+        {
+            StopCoroutine(sequenceCo);
+            sequenceCo = null;
+        }
+
+        isWarmingUp = false;
+        warmupT = 0f;
+        warmupHoldElapsed = 0f;
+
+        isDropping = false;
+        dropElapsed = 0f;
+
+        if (tentacleCol) tentacleCol.enabled = false;
+
+        dropCountdown = 0f;
+    }
+
+    // =========================
+    // Idle Blend Helpers
+    // =========================
+    private void BeginBlendToIdle()
+    {
+        if (idleAnimatedTarget == null || blendToIdleTime <= 0f)
+        {
+            blendingToIdle = false;
+            return;
+        }
+
+        blendingToIdle = true;
+        blendTimer = 0f;
+        blendStartPos = transform.position;
+        blendStartRot = transform.rotation;
+    }
+
+    private void TeleportToIdleTargetIfAvailable()
+    {
+        if (idleAnimatedTarget == null) return;
+        transform.position = idleAnimatedTarget.position;
+        transform.rotation = idleAnimatedTarget.rotation;
+    }
+
+    // =========================
     // Death
     // =========================
-    // Call this to kill the tentacle: it stops all logic and moves to the deathTarget pose.
     public void Death()
     {
         if (isDead) return;
 
         isDead = true;
 
-        // Stop any current behavior
         CancelAttackState();
         CancelPendingGoUp();
         blendingToIdle = false;
         playerInDangerArea = false;
 
-        // If no death target, just freeze where it is
         if (deathTarget == null)
         {
             blendingToDeath = false;
             return;
         }
 
-        // Begin blending to death pose
         blendingToDeath = true;
         deathBlendTimer = 0f;
         deathBlendStartPos = transform.position;

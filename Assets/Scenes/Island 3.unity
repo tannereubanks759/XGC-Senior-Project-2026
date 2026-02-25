@@ -19435,7 +19435,69 @@ MonoBehaviour:
   attackCooldown: 10
   maxDropTime: 5
   requiredAbovePlayerToDrop: 1
-  goUpDelay: 2
+  warmupExtraHeight: 4
+  warmupDuration: 2
+  warmupCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  warmupHoldTime: 0.1
+  tripleEveryNormalAttacks: 2
+  tripleStrikes: 3
+  tripleWarmupDuration: 1
+  tripleWarmupHold: 0.1
+  tripleDropSpeed: 25
+  tripleMaxDropTime: 5
+  triplePopUpDuration: 1
+  triplePopUpCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  tripleExtraApexHeight: 4
+  reachEpsilon: 0.08
+  debugLogs: 1
+  debugState: Idle
+  goUpDelay: 3
   tentacleCol: {fileID: 2038907449}
 --- !u!1 &321247618
 GameObject:
@@ -64383,7 +64445,69 @@ MonoBehaviour:
   attackCooldown: 10
   maxDropTime: 5
   requiredAbovePlayerToDrop: 1
-  goUpDelay: 2
+  warmupExtraHeight: 4
+  warmupDuration: 2
+  warmupCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  warmupHoldTime: 0.1
+  tripleEveryNormalAttacks: 2
+  tripleStrikes: 3
+  tripleWarmupDuration: 1
+  tripleWarmupHold: 0.1
+  tripleDropSpeed: 25
+  tripleMaxDropTime: 5
+  triplePopUpDuration: 1
+  triplePopUpCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  tripleExtraApexHeight: 4
+  reachEpsilon: 0.08
+  debugLogs: 1
+  debugState: Idle
+  goUpDelay: 3
   tentacleCol: {fileID: 669477201}
 --- !u!1 &1056970933
 GameObject:
