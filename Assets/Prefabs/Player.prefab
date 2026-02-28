@@ -56000,9 +56000,11 @@ MonoBehaviour:
   subDamageUpgrade: 0
   upgradeTracker: {fileID: 275458218781037875}
   firstPersonController: {fileID: 2269966192252265701}
-  totalChargeTime: 1.5
-  scaleAtPopStart: 0.454
-  popStartTimeFraction: 0.755
+  lowStaminaThreshold: 3.5
+  lowStaminaBlendTime: 0.18
+  totalChargeTime: 0.3
+  scaleAtPopStart: 0.075
+  popStartTimeFraction: 0.114
   unchargedScale: 0.5
   unchargedColor: {r: 0.15, g: 0.15, b: 0.15, a: 1}
   chargingSimSpeed: 0.35
