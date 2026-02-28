@@ -180,6 +180,10 @@ public class interactScript : MonoBehaviour
                         healthPotionInteract = false;
                         tmpro.text = "E to interact"; 
                     }
+                else
+                {
+                    GetComponentInChildren<PopUpMessage>().ShowMessage("Cannot carry anymore potions");
+                }
                 //}
             }
             else if(upgrade)
