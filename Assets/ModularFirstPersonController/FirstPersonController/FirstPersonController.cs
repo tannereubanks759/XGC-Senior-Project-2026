@@ -138,7 +138,18 @@ public class FirstPersonController : MonoBehaviour
 
     [Tooltip("Hide the stamina UI when full.")]
     public bool hideUIWhenFull = true;
+    [Header("Stamina UI Colors")]
+    [Tooltip("Image used as the slider Fill (usually: StaminaSlider/Fill Area/Fill). If left null, we'll try to find it automatically.")]
+    public RawImage staminaFillImage;
 
+    [Tooltip("Color when sprint is available.")]
+    public Color staminaNormalColor = Color.white;
+
+    [Tooltip("Color when stamina is empty / sprint is locked.")]
+    public Color staminaLockedColor = new Color(0.55f, 0.55f, 0.55f, 1f); // gray
+
+    // Internal
+    private bool _staminaWasLockedVisual = false;
     // Internal
     private bool isSprinting = false;
     public float stamina;
@@ -246,7 +257,7 @@ public class FirstPersonController : MonoBehaviour
     private Transform currentLadder = null;
 
     #endregion
-
+    
     private void Awake()
     {
         SceneManager.sceneLoaded += SceneLoaded;
@@ -279,7 +290,16 @@ public class FirstPersonController : MonoBehaviour
         if (lockCursor)
             Cursor.lockState = CursorLockMode.Locked;
 
-       
+        // Try to auto-find the slider fill image if not assigned
+        if (staminaFillImage == null && staminaSlider != null)
+        {
+            var fill = staminaSlider.fillRect;
+            if (fill != null) staminaFillImage = fill.GetComponent<RawImage>();
+        }
+
+        // Initialize to normal color on start
+        if (staminaFillImage != null)
+            staminaFillImage.color = staminaNormalColor;
 
         GameObject waterObject = GameObject.FindGameObjectWithTag("Water");
         if (waterObject != null) waterSurface = waterObject.gameObject.transform;
@@ -464,6 +484,18 @@ public class FirstPersonController : MonoBehaviour
             // Keep max synced if you tweak in inspector at runtime
             staminaSlider.maxValue = Mathf.Max(0.01f, maxStamina);
             staminaSlider.value = stamina;
+
+            // --- Color switching: gray when sprint can't be used ---
+            bool shouldLookLocked =
+                !unlimitedSprint &&
+                enableSprint &&
+                (sprintLocked || stamina <= 0.0001f);
+
+            if (staminaFillImage != null && _staminaWasLockedVisual != shouldLookLocked)
+            {
+                staminaFillImage.color = shouldLookLocked ? staminaLockedColor : staminaNormalColor;
+                _staminaWasLockedVisual = shouldLookLocked;
+            }
         }
 
         if (staminaUIRoot != null)

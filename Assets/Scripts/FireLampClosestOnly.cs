@@ -7,25 +7,22 @@ public class FireLampClosestOnly : MonoBehaviour
     // ----- Static gating across ALL lamps -----
     private static readonly List<FireLampClosestOnly> All = new List<FireLampClosestOnly>(128);
     private static Transform PlayerRoot;
-    private static Transform PlayerLook; // camera preferred
+    private static Transform PlayerLook;
     private static FireLampClosestOnly ClosestEligible;
+
+    // Hard guarantee: only 1 collect can happen per frame
+    private static int LastCollectFrame = -999999;
 
     // Recompute throttling
     private static bool DirtyClosest = true;
-    private static int PlayersInsideCount = 0;   // # of lamps that currently contain the player
+    private static int PlayersInsideCount = 0;
     private static int NextRecomputeFrame = 0;
 
     [Header("Closest Check Throttle")]
-    [Tooltip("Recompute closest eligible lamp every N frames while player is inside any lamp trigger.")]
-    [Range(1, 30)]
-    public int recomputeEveryNFrames = 3;
+    [Range(1, 30)] public int recomputeEveryNFrames = 3;
 
     [Header("Look Gating")]
-    [Tooltip("Player must be looking at the lamp within this cone (degrees) to be eligible.")]
-    [Range(1f, 180f)]
-    public float maxLookAngle = 25f;
-
-    [Tooltip("If true, uses the lamp's prompt/text position (if assigned) for the look target; otherwise uses lamp transform.")]
+    [Range(1f, 180f)] public float maxLookAngle = 25f;
     public bool useTextAsLookTarget = true;
 
     [Header("Fire Lamp")]
@@ -34,7 +31,7 @@ public class FireLampClosestOnly : MonoBehaviour
     public KeyCode collectKey = KeyCode.E;
 
     [Header("Runtime")]
-    public bool playerInRange = false; // TRUE only for the single active lamp
+    public bool playerInRange = false;
     public bool hasCollected = false;
 
     private FireballManager fm;
@@ -43,9 +40,8 @@ public class FireLampClosestOnly : MonoBehaviour
     public LookAtConstraint constraint;
     private Transform currentSource;
 
-    // Local trigger state
     private bool playerInsideTrigger = false;
-    private bool baseEligible = false; // "can collect" ignoring closest gating
+    private bool baseEligible = false;
 
     void OnEnable()
     {
@@ -73,11 +69,7 @@ public class FireLampClosestOnly : MonoBehaviour
         if (text != null) text.SetActive(false);
 
         constraint = GetComponentInChildren<LookAtConstraint>(true);
-        if (constraint == null)
-        {
-            Debug.LogError($"FireLampClosestOnly on '{name}' couldn't find a LookAtConstraint in children.", this);
-        }
-        else
+        if (constraint != null)
         {
             constraint.constraintActive = false;
             ClearConstraintSources();
@@ -92,45 +84,48 @@ public class FireLampClosestOnly : MonoBehaviour
             return;
         }
 
-        // Only compute closest while player is inside at least one lamp trigger
+        // Compute closest only while player is in at least one lamp trigger
         if (PlayersInsideCount > 0)
         {
             int f = Time.frameCount;
-            bool cadenceHit = f >= NextRecomputeFrame;
-
-            if (DirtyClosest || cadenceHit)
+            if (DirtyClosest || f >= NextRecomputeFrame)
             {
                 RecomputeClosestEligible();
-
-                int n = Mathf.Max(1, recomputeEveryNFrames);
-                NextRecomputeFrame = f + n;
+                NextRecomputeFrame = f + Mathf.Max(1, recomputeEveryNFrames);
             }
         }
         else
         {
-            // nobody is inside any lamp triggers
             ClosestEligible = null;
         }
 
-        // IMPORTANT: Only the chosen lamp is "active" (text shown + collect allowed)
         bool isActiveLamp = (ClosestEligible == this);
 
-        // If not active, force everything off no matter what our trigger says
+        // Non-active lamps are forced OFF (no prompt, no collect)
         if (!isActiveLamp)
         {
             SetActiveLamp(false);
             return;
         }
 
-        // Active lamp must still be eligible (baseEligible) to show prompt + allow collect
-        bool canCollect = baseEligible && !hasCollected && fire != null && !fire.isCollected;
+        bool canCollect =
+            baseEligible &&
+            !hasCollected &&
+            fire != null &&
+            !fire.isCollected;
 
         SetActiveLamp(canCollect);
 
-        // Only the one WITH text shown can be collected:
-        // We require text.activeSelf to be true as the final gate.
-        if (text != null && text.activeSelf && Input.GetKeyDown(collectKey))
+        // FINAL GUARANTEE:
+        // - must be the active lamp (ClosestEligible == this)
+        // - must be showing prompt (playerInRange true, not text.activeSelf)
+        // - must not have already consumed the collect this frame
+        if (playerInRange &&
+            Input.GetKeyDown(collectKey) &&
+            LastCollectFrame != Time.frameCount)
         {
+            LastCollectFrame = Time.frameCount;
+
             fire.isCollected = true;
             hasCollected = true;
 
@@ -147,7 +142,10 @@ public class FireLampClosestOnly : MonoBehaviour
     private void SetActiveLamp(bool on)
     {
         playerInRange = on;
-        if (text != null && text.activeSelf != on) text.SetActive(on);
+
+        // Showing prompt is purely visual; collection uses playerInRange.
+        if (text != null && text.activeSelf != on)
+            text.SetActive(on);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -207,7 +205,6 @@ public class FireLampClosestOnly : MonoBehaviour
             fm != null &&
             !fm.bothReadyOrRecharging;
 
-        // Note: do NOT show/hide text here. Only Update() controls the prompt.
         SetBaseEligible(canCollectIgnoringClosest);
     }
 
@@ -222,8 +219,6 @@ public class FireLampClosestOnly : MonoBehaviour
         }
 
         SetBaseEligible(false);
-
-        // If we were active, hide prompt immediately
         SetActiveLamp(false);
 
         if (other.transform == currentSource)
@@ -240,7 +235,7 @@ public class FireLampClosestOnly : MonoBehaviour
     {
         PlayerRoot = playerCollider.transform;
 
-        // Prefer camera for "looking at" checks
+        // Prefer camera for "looking at"
         var cam = playerCollider.GetComponentInChildren<Camera>(true);
         PlayerLook = (cam != null) ? cam.transform : PlayerRoot;
     }
@@ -266,11 +261,10 @@ public class FireLampClosestOnly : MonoBehaviour
 
         Vector3 lookPos = PlayerLook.position;
         Vector3 lookFwd = PlayerLook.forward;
+        Vector3 playerPos = PlayerRoot.position;
 
         float bestSqr = float.PositiveInfinity;
         FireLampClosestOnly best = null;
-
-        Vector3 playerPos = PlayerRoot.position;
 
         for (int i = 0; i < All.Count; i++)
         {
@@ -297,7 +291,7 @@ public class FireLampClosestOnly : MonoBehaviour
                 if (dot < cosLimit) continue;
             }
 
-            // Closest among eligible (distance from player root)
+            // Closest
             Vector3 d = lamp.transform.position - playerPos;
             float distSqr = d.sqrMagnitude;
 
