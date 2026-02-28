@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 432436751883887}
   - component: {fileID: 5026553291687102411}
   - component: {fileID: 5751990747759086127}
-  m_Layer: 5
+  m_Layer: 24
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,7 +147,7 @@ GameObject:
   - component: {fileID: 6550841554928210197}
   - component: {fileID: 5452351012752166197}
   - component: {fileID: 2968247757727935505}
-  m_Layer: 0
+  m_Layer: 24
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 7143369110793061030}
   - component: {fileID: 5655404831846277640}
   - component: {fileID: 7937806774706121445}
-  m_Layer: 0
+  m_Layer: 24
   m_Name: TAI_Fire_Quad_01A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -405,7 +405,7 @@ GameObject:
   - component: {fileID: 4443445292174677949}
   - component: {fileID: 1444492861954019421}
   - component: {fileID: 2472896023795781596}
-  m_Layer: 0
+  m_Layer: 24
   m_Name: TAI_Torch_01A_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -493,7 +493,8 @@ GameObject:
   - component: {fileID: 347843693329254514}
   - component: {fileID: 5612376565721425179}
   - component: {fileID: 2525340594785112175}
-  m_Layer: 0
+  - component: {fileID: 6705727191083349419}
+  m_Layer: 24
   m_Name: FireTorch
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -554,7 +555,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7523852096660837576}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ec2f32ce375abfc4a83f16e111dfdfcc, type: 3}
   m_Name: 
@@ -606,6 +607,23 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 13.48
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6705727191083349419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7523852096660837576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abf79d5208481364e8401a94619073e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: {fileID: 7651552691004785396}
+  collectKey: 101
+  playerInRange: 0
+  hasCollected: 0
+  constraint: {fileID: 0}
 --- !u!1 &7651552691004785396
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,7 +637,7 @@ GameObject:
   - component: {fileID: 2756207398565035717}
   - component: {fileID: 4931054746553978545}
   - component: {fileID: 3358783209858165512}
-  m_Layer: 5
+  m_Layer: 24
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -740,7 +758,7 @@ GameObject:
   - component: {fileID: 4448451743343633322}
   - component: {fileID: 582243143400140420}
   - component: {fileID: 738257623195326523}
-  m_Layer: 0
+  m_Layer: 24
   m_Name: TAI_Torch_01A_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -826,7 +844,7 @@ GameObject:
   - component: {fileID: 6491167380057614418}
   - component: {fileID: 176396990182221044}
   - component: {fileID: 3726026315871965805}
-  m_Layer: 0
+  m_Layer: 24
   m_Name: TAI_Torch_01A_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
