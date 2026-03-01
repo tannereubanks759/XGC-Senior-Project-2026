@@ -12,6 +12,7 @@ public class KrakenManager : MonoBehaviour
     public BossHealthbar healthbar;
     public string bossName = "The Kraken";
     public Color KrakenHealthBarColor;
+    public RaiseLowerMover krakenWalls;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -45,6 +46,9 @@ public class KrakenManager : MonoBehaviour
     void Die()
     {
         headAnim.SetTrigger("Dead");
+
+        krakenWalls.Lower();
+
         IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?.GetComponent<IslandTeleporter>();
         if (tel != null) tel.OpenDoor();
     }
