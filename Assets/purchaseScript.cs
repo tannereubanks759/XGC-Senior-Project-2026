@@ -18,30 +18,48 @@ public class purchaseScript : MonoBehaviour
     public bool isMajorUpgrade;
     public UnityEvent onPurchaseSuccess;
     public GameObject tooltipUI;
+    public bool isSecondUpgrade;
     void Start()
     {
         //buttonToDisable = this.gameObject;
     }
     public void purchase()
     {
-        // prereq check
-        foreach (var req in prevUpgrades)
+        if (prevUpgrades != null && prevUpgrades.Length > 0)
         {
-            //if a previous upgrade is not present then return
-            if (!columnProgress.boughtUpgrades.Contains(req))
+            if (isSecondUpgrade)
             {
-                return;
+                int owned = 0;
+                foreach (var req in prevUpgrades)
+                {
+                    if (columnProgress.boughtUpgrades.Contains(req))
+                        owned++;
+                }
+                if (owned < 2)
+                    return;
+            }
+            else
+            {
+                foreach (var req in prevUpgrades)
+                {
+                    if (!columnProgress.boughtUpgrades.Contains(req))
+                        return;
+                }
             }
         }
+
         if (gb.gold < price) return;
         gb.RemoveGold(price);
         goldText.text = gb.gold.ToString();
+
         buttonToDisable.SetActive(false);
         tooltipUI.SetActive(false);
+
         if (isMajorUpgrade)
         {
             offhandWheelUpdate();
         }
+
         columnProgress.boughtUpgrades.Add(gameObject);
         onPurchaseSuccess?.Invoke();
     }
