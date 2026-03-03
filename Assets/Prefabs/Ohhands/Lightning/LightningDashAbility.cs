@@ -27,6 +27,7 @@ public class LightningDashAbility : MonoBehaviour
     public Rigidbody rb;
     public FirstPersonController controller;
     public string dashingLayerName = "Dashing";
+    public string defaultLayer = "Player";
     public Collider playerCollider;
     private bool canDash = true;
     private float cooldownTimer = 0f;
@@ -35,7 +36,7 @@ public class LightningDashAbility : MonoBehaviour
 
     private void Awake()
     {
-        normalLayer = gameObject.layer;
+        normalLayer = LayerMask.NameToLayer(defaultLayer);
         dashingLayer = LayerMask.NameToLayer(dashingLayerName);
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -128,7 +129,9 @@ public class LightningDashAbility : MonoBehaviour
                     rb.linearVelocity.y,
                     hVel.normalized.z * maxHorizontalSpeed
                 );
-
+            
+            if (rb.linearVelocity.y > 0f)
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
             DoDashDamage(transform.position, damage, hitAlready);
         }
 
