@@ -7,7 +7,7 @@ public class levelStartSaving
     [Header("Currencies / consumables")]
     public int gold;
     public int healthPotions;
-
+    public int health;
     [Header("Upgrades")]
     public int lightningUpgradeCount;
     //public bool lightningKnockBack;
@@ -38,6 +38,7 @@ public class levelStartSaving
             healthPotions = this.healthPotions,
             curseSlow = this.curseSlow,
             curseReflect = this.curseReflect,
+            health = this.health,
            // lightningKnockBack = this.lightningKnockBack,
             //lightningExplosion = this.lightningExplosion,
             lightningUpgradeCount = this.lightningUpgradeCount,
