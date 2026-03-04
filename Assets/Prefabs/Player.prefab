@@ -23303,38 +23303,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 257251c07a146944eba1e6e6af4c7c90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashSpeedChange: 30
-  dashAccelDuration: 0.28
-  maxHorizontalSpeed: 30
-  speedCurve:
+  blinkDistance: 10
+  groundCheckRayHeight: 3
+  groundCheckRayDepth: 10
+  groundOffset: 0.5
+  blockingMask:
     serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+    m_Bits: 2112
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  playerRadius: 0.4
   damageMask:
     serializedVersion: 2
     m_Bits: 2130432
-  damageRadius: 1.5
-  baseDamage: 20
+  damageRadius: 2
+  baseDamage: 15
   bonusDamageAtFullCharge: 40
   chargeSource: {fileID: 7072011364156543277}
   cooldownSeconds: 1
@@ -23346,8 +23330,6 @@ MonoBehaviour:
       m_Calls: []
   rb: {fileID: 1420623192248123361}
   controller: {fileID: 2269966192252265701}
-  dashingLayerName: Dashing
-  defaultLayer: Player
   playerCollider: {fileID: 6543476946709764180}
 --- !u!1 &2250742705893025093
 GameObject:
