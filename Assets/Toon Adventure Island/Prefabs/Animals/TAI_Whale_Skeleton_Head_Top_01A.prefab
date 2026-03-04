@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1410037495163471521}
   - component: {fileID: 4802845193885713051}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TAI_Whale_Skeleton_Head_Top_01_MeshCollider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24,13 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410037495163574913}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1410037495163471529}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!64 &4802845193885713051
 MeshCollider:
@@ -40,9 +40,17 @@ MeshCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410037495163574913}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 4
+  serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4300006, guid: 0848804e78163c840a5f932a06d3f82d, type: 3}
@@ -56,7 +64,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1410037495163471529}
   - component: {fileID: 1410037495144223241}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TAI_Whale_Skeleton_Head_Top_01A
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,6 +78,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410037495163574921}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -80,7 +89,6 @@ Transform:
   - {fileID: 1410037495163471533}
   - {fileID: 1410037495163471535}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!205 &1410037495144223241
 LODGroup:
@@ -120,7 +128,7 @@ GameObject:
   - component: {fileID: 1410037495163471531}
   - component: {fileID: 1410037495160571529}
   - component: {fileID: 1410037495161570377}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TAI_Whale_Skeleton_Head_Top_01A_LOD0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,13 +142,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410037495163574923}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1410037495163471529}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1410037495160571529
 MeshFilter:
@@ -167,6 +175,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -203,7 +214,7 @@ GameObject:
   - component: {fileID: 1410037495163471533}
   - component: {fileID: 1410037495160571531}
   - component: {fileID: 1410037495161570379}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TAI_Whale_Skeleton_Head_Top_01A_LOD1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -217,13 +228,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410037495163574925}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1410037495163471529}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1410037495160571531
 MeshFilter:
@@ -250,6 +261,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -286,7 +300,7 @@ GameObject:
   - component: {fileID: 1410037495163471535}
   - component: {fileID: 1410037495160571533}
   - component: {fileID: 1410037495161570381}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: TAI_Whale_Skeleton_Head_Top_01A_LOD2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -300,13 +314,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410037495163574927}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1410037495163471529}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &1410037495160571533
 MeshFilter:
@@ -333,6 +347,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
