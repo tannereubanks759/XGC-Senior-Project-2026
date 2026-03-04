@@ -68,29 +68,12 @@ public class SkeletonSpawnManager : MonoBehaviour
     public void SpawnSkeleton()
     {
         Vector3 location = PickLocation(playerPos, spawnDistanceMin, spawnDistanceMax, 0f);
-        if (location == null) return;
+        if (location == null || location == Vector3.zero) return;
 
         var prefab = PickSkeleton();
         if (!prefab) return;
 
-        var go = Instantiate(prefab, location, Quaternion.identity);
-
-        var agent = go.GetComponent<NavMeshAgent>();
-        if (agent)
-        {
-            // Important: place transform first
-            go.transform.position = location;
-
-            // Enable agent after it's already at a valid point
-            agent.enabled = true;
-
-            // Warp to force registration
-            agent.Warp(location);
-
-            // Optional safety
-            agent.ResetPath();
-            agent.isStopped = false;
-        }
+        Instantiate(prefab, location, Quaternion.identity);
 
         spawnedInWave++;
     }
@@ -121,7 +104,7 @@ public Vector3 PickLocation(Transform center, float minDistance, float maxDistan
         }
     }
 
-    return Vector3.positiveInfinity; // failed
+        return Vector3.zero;
 }
 
 GameObject PickSkeleton()

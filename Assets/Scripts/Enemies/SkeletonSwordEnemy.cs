@@ -318,7 +318,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private float _blockBrokenUntil = -999f;
     private float _stunEndTime = -999f;
 
-
+    private bool _lookSourceInitialized;
 
     private void Reset()
     {
@@ -329,6 +329,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private void Awake()
     {
+        
         if (!agent) agent = GetComponent<NavMeshAgent>();
         _health = maxHealth;
 
@@ -357,14 +358,35 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private void Start()
     {
         SetState(startPatrolling ? State.Patrol : State.Idle);
+        StartCoroutine(DelayedLookInit());
     }
 
+    private IEnumerator DelayedLookInit()
+    {
+        yield return null;
+        yield return new WaitForSeconds(0.15f);
+        AcquireTargetIfNeeded(force: true);
+    }
+    private void TrySnapToNavMesh()
+    {
+        if (!agent || !agent.enabled) return;
+        if (agent.isOnNavMesh) return;
+
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2.0f, agent.areaMask))
+        {
+            agent.Warp(hit.position);
+        }
+    }
     private void Update()
     {
-        if (!agent.enabled && !agent.isOnNavMesh) return;
         if (_state == State.Dead) return;
 
-        AcquireTargetIfNeeded();
+        // ALWAYS try to acquire target even if agent isn't ready/on navmesh yet
+        AcquireTargetIfNeeded(force: false);
+        TrySnapToNavMesh();
+        // If agent isn't valid yet, bail after trying target acquire
+        if (!agent || !agent.enabled || !agent.isOnNavMesh) return;
+
         UpdateTargetVelocityEstimate();
 
         if (Time.time >= _nextSenseTime)
@@ -377,7 +399,8 @@ public class SkeletonSwordEnemy : MonoBehaviour
         UpdateAnimatorLocomotion();
         UpdateHeadLookConstraint();
 
-        if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase || _state == State.Strafe || _state == State.Defensive || _state == State.Attack || _state == State.Recover)
+        if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase ||
+            _state == State.Strafe || _state == State.Defensive || _state == State.Attack || _state == State.Recover)
             FaceTargetOrMovement();
 
         if ((_state == State.Chase || _state == State.Recover) && target && Time.time >= _nextAttackAllowedTime)
@@ -400,31 +423,34 @@ public class SkeletonSwordEnemy : MonoBehaviour
         }
     }
 
-    private void AcquireTargetIfNeeded()
+    private void AcquireTargetIfNeeded(bool force)
     {
-        if (target != null && targetHead != null) return;
-        if (Time.time < _nextFindTargetTime) return;
+        if (target != null) return;
 
-        _nextFindTargetTime = Time.time + findTargetInterval;
+        if (!force)
+        {
+            if (Time.time < _nextFindTargetTime) return;
+            _nextFindTargetTime = Time.time + findTargetInterval;
+        }
 
-        Transform foundPlayer = target;
+        Transform foundPlayer = null;
 
-        if (foundPlayer == null && !string.IsNullOrEmpty(playerTag))
+        // Prefer explicit player tag for gameplay target
+        if (!string.IsNullOrEmpty(playerTag))
         {
             var go = GameObject.FindGameObjectWithTag(playerTag);
             if (go != null) foundPlayer = go.transform;
         }
 
-        Transform foundCam = null;
-        if (preferMainCameraForLook && Camera.main != null)
-            foundCam = Camera.main.transform;
-
-        if (foundPlayer == null && foundCam != null)
-            foundPlayer = foundCam.root;
-
         if (foundPlayer == null) return;
 
         target = foundPlayer;
+
+        // Head/camera target for looking only (doesn't affect gameplay targeting)
+        Transform foundCam = null;
+
+        if (preferMainCameraForLook && Camera.main != null)
+            foundCam = Camera.main.transform;
 
         if (foundCam == null)
         {
@@ -438,25 +464,28 @@ public class SkeletonSwordEnemy : MonoBehaviour
             SetLookAtConstraintSource(foundCam);
         }
     }
-
     private void SetLookAtConstraintSource(Transform lookTarget)
     {
         if (headLookConstraint == null || lookTarget == null) return;
+        if (_lookSourceInitialized) return;
 
-        if (headLookConstraint.sourceCount == 1)
-        {
-            var s = headLookConstraint.GetSource(0);
-            if (s.sourceTransform == lookTarget) return;
-        }
+        // If the constraint is locked in the inspector, unlock before touching sources.
+        if (headLookConstraint.locked)
+            headLookConstraint.locked = false;
 
+        // Clear and set exactly 1 source.
         var list = new System.Collections.Generic.List<ConstraintSource>(1)
-        {
-            new ConstraintSource { sourceTransform = lookTarget, weight = 1f }
-        };
+    {
+        new ConstraintSource { sourceTransform = lookTarget, weight = 1f }
+    };
 
         headLookConstraint.SetSources(list);
         headLookConstraint.constraintActive = true;
-        headLookConstraint.locked = true;
+
+        // DO NOT lock at runtime (locking can cause instability / rebuild issues).
+        // headLookConstraint.locked = true;
+
+        _lookSourceInitialized = true;
     }
 
     private void UpdateHeadLookConstraint()
