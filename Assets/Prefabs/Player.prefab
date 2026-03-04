@@ -1431,6 +1431,7 @@ GameObject:
   - component: {fileID: 6575134760197894670}
   - component: {fileID: 4195945961465735229}
   - component: {fileID: 4071601378851153213}
+  - component: {fileID: 3784882395202164397}
   m_Layer: 5
   m_Name: ToolTip
   m_TagString: Untagged
@@ -1589,6 +1590,103 @@ CanvasGroup:
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
+--- !u!82 &3784882395202164397
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 77441821110451356}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 812e327c71e351b4db2a9117c914fe35, type: 2}
+  m_audioClip: {fileID: 8300000, guid: 6186ddc7dcb1fb74cbcfcedbf3188aad, type: 3}
+  m_Resource: {fileID: 8300000, guid: 6186ddc7dcb1fb74cbcfcedbf3188aad, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0.65
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &84347670406368716
 GameObject:
   m_ObjectHideFlags: 0
@@ -2026,6 +2124,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &115663097200247288
 GameObject:
   m_ObjectHideFlags: 0
@@ -5907,6 +6010,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 1
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &611454757442561920
 GameObject:
   m_ObjectHideFlags: 0
@@ -13572,6 +13680,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &935216959358721707
 GameObject:
   m_ObjectHideFlags: 0
@@ -14725,6 +14838,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &1081333019198433052
 GameObject:
   m_ObjectHideFlags: 0
@@ -18819,6 +18937,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8322842305627421751}
+  - component: {fileID: 5534395843791822418}
   m_Layer: 5
   m_Name: UpgradeScreen
   m_TagString: Untagged
@@ -18849,6 +18968,103 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!82 &5534395843791822418
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1579046334523334369}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 24300002, guid: 812e327c71e351b4db2a9117c914fe35, type: 2}
+  m_audioClip: {fileID: 8300000, guid: fe5e24bde8642ca45b41913676bcd8a3, type: 3}
+  m_Resource: {fileID: 8300000, guid: fe5e24bde8642ca45b41913676bcd8a3, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 0.85
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1587188030564725071
 GameObject:
   m_ObjectHideFlags: 0
@@ -21950,6 +22166,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &2033391652895651075
 GameObject:
   m_ObjectHideFlags: 0
@@ -22733,6 +22954,7 @@ GameObject:
   - component: {fileID: 1270688553980332195}
   - component: {fileID: 3574927825819039017}
   - component: {fileID: 1291798490088520635}
+  - component: {fileID: 4900749112331736122}
   m_Layer: 18
   m_Name: LightingParent
   m_TagString: Untagged
@@ -23069,6 +23291,46 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4900749112331736122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2232083423495473721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 257251c07a146944eba1e6e6af4c7c90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blinkDistance: 10
+  groundCheckRayHeight: 3
+  groundCheckRayDepth: 10
+  groundOffset: 0.5
+  blockingMask:
+    serializedVersion: 2
+    m_Bits: 2112
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 64
+  playerRadius: 0.4
+  damageMask:
+    serializedVersion: 2
+    m_Bits: 2130432
+  damageRadius: 2
+  baseDamage: 15
+  bonusDamageAtFullCharge: 40
+  chargeSource: {fileID: 7072011364156543277}
+  cooldownSeconds: 1
+  onDashReady:
+    m_PersistentCalls:
+      m_Calls: []
+  onDashUsed:
+    m_PersistentCalls:
+      m_Calls: []
+  rb: {fileID: 1420623192248123361}
+  controller: {fileID: 2269966192252265701}
+  playerCollider: {fileID: 6543476946709764180}
 --- !u!1 &2250742705893025093
 GameObject:
   m_ObjectHideFlags: 0
@@ -23559,6 +23821,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &2313176340815658319
 GameObject:
   m_ObjectHideFlags: 0
@@ -26269,6 +26536,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &2714572069106433551
 GameObject:
   m_ObjectHideFlags: 0
@@ -26925,6 +27197,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &2834091397946951814
 GameObject:
   m_ObjectHideFlags: 0
@@ -27594,6 +27871,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &2912706733681649029
 GameObject:
   m_ObjectHideFlags: 0
@@ -32315,9 +32597,11 @@ MonoBehaviour:
   uiupdater: {fileID: 1611624788782028562}
   gb: {fileID: 8329541187511738591}
   healthPotion: {fileID: 7370287746018848930}
+  combatController: {fileID: 0}
   current:
     gold: 0
     healthPotions: 0
+    health: 0
     lightningUpgradeCount: 0
     curseSlow: 0
     curseReflect: 0
@@ -33727,6 +34011,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &3635354191755801650
 GameObject:
   m_ObjectHideFlags: 0
@@ -41296,6 +41585,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &4162649096917505086
 GameObject:
   m_ObjectHideFlags: 0
@@ -42460,6 +42754,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &4396210738641767385
 GameObject:
   m_ObjectHideFlags: 0
@@ -51514,6 +51813,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 1
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &5617527848445007331
 GameObject:
   m_ObjectHideFlags: 0
@@ -52597,6 +52901,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 1
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &5814393899728162690
 GameObject:
   m_ObjectHideFlags: 0
@@ -56628,6 +56937,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &6260985848316276956
 GameObject:
   m_ObjectHideFlags: 0
@@ -58067,7 +58381,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.8
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -64750,6 +65064,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &7525595337763482492
 GameObject:
   m_ObjectHideFlags: 0
@@ -73389,6 +73708,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &7981620290837080443
 GameObject:
   m_ObjectHideFlags: 0
@@ -84064,6 +84388,11 @@ MonoBehaviour:
         m_CallState: 2
   tooltipUI: {fileID: 77441821110451356}
   isSecondUpgrade: 0
+  source: {fileID: 5534395843791822418}
+  purchaseClip: {fileID: 8300000, guid: b1b0ef8a4e75d30409c31351c0f52353, type: 3}
+  purchaseVol: 0.8
+  declineClip: {fileID: 8300000, guid: 805bd92f89257b246b5505c3c288031d, type: 3}
+  declineVol: 0.8
 --- !u!1 &8940215946547547658
 GameObject:
   m_ObjectHideFlags: 0

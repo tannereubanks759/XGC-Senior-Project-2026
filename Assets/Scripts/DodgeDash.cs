@@ -49,7 +49,6 @@ public class DodgeDash : MonoBehaviour
         dir.y = 0f;
         if (dir.sqrMagnitude < 1e-4f) return;
         dir.Normalize();
-
         StartBurst(dir, dashSpeedChange, dashDuration);
         LockController(lockForFullBurst ? dashDuration : lockDuration);
     }
@@ -61,7 +60,6 @@ public class DodgeDash : MonoBehaviour
             return;
 
         controller.LoseStamina(3f);
-
         Vector3 dir = direction;
         dir.y = 0f;
         if (dir.sqrMagnitude < 1e-4f) return;

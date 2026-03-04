@@ -311,13 +311,13 @@ public class curseOffhand : MonoBehaviour
     {
         if (target == null) return true;
 
-        var magma = target.GetComponentInParent<MagmaBossAI>();
+        var magma = target.GetComponent<MagmaBossAI>();
         if (magma != null) return magma.currentHealth <= 0;
 
-        var pirate = target.GetComponentInParent<PirateBossAI>();
+        var pirate = target.GetComponent<PirateBossAI>();
         if (pirate != null) return pirate.currentHealth <= 0;
 
-        var ghost = target.GetComponentInParent<GhostBossAI>();
+        var ghost = target.GetComponent<GhostBossAI>();
         if (ghost != null) return ghost.currentHealth <= 0;
 
         var sword = target.GetComponentInParent<SkeletonSwordEnemy>();

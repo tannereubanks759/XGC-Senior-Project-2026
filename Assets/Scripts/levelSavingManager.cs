@@ -8,7 +8,7 @@ public class levelSavingManager : MonoBehaviour
     public Uiupdater uiupdater;
     public GoldBank gb;
     public HealthPotion healthPotion;
-
+    public CombatController combatController;
     [Header("Live run state")]
     public levelStartSaving current = new levelStartSaving();
 
@@ -33,6 +33,8 @@ public class levelSavingManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        combatController = FindFirstObjectByType<CombatController>();
+        current.health = combatController.health;
         //potions and gold
         gb = FindFirstObjectByType<GoldBank>();
         healthPotion = FindFirstObjectByType<HealthPotion>();
@@ -91,6 +93,7 @@ public class levelSavingManager : MonoBehaviour
         current = levelStartSnapshot.Clone();
         gb = FindFirstObjectByType<GoldBank>();
         healthPotion = FindFirstObjectByType<HealthPotion>();
+        combatController = FindFirstObjectByType<CombatController>();
         if (gb != null)
         {
             gb.gold = current.gold;
@@ -100,6 +103,10 @@ public class levelSavingManager : MonoBehaviour
         {
             healthPotion.SetQuantity(current.healthPotions);
             healthPotion.SetText(current.healthPotions.ToString());
+        }
+        if(combatController != null)
+        {
+            combatController.health = current.health;
         }
         // upgrades
         var tracker = FindFirstObjectByType<upgradeTracker>();
