@@ -34056,6 +34056,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2635927122614399091}
   - component: {fileID: 5887467224634678997}
+  - component: {fileID: 6054618803417992408}
   m_Layer: 0
   m_Name: PlayerObjects
   m_TagString: Untagged
@@ -34107,6 +34108,23 @@ MonoBehaviour:
   curseTut: {fileID: 1546426892406207368}
   fireballTut: {fileID: 9028227580859381266}
   firstPersonController: {fileID: 2269966192252265701}
+--- !u!114 &6054618803417992408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3635354191755801650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f06e4ae1d9a5cf498456f2449e54655, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  messageText: {fileID: 3304050336897396952}
+  fadeInTime: 0.35
+  holdTime: 1.5
+  fadeOutTime: 0.35
+  startHidden: 1
 --- !u!1 &3638877356003387192
 GameObject:
   m_ObjectHideFlags: 0
@@ -52036,7 +52054,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5055180514782582690}
   - component: {fileID: 1483010560476322299}
-  - component: {fileID: 5358811135172834972}
   - component: {fileID: 3304050336897396952}
   m_Layer: 5
   m_Name: Pop Up Message
@@ -52072,23 +52089,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5636858303672259300}
   m_CullTransparentMesh: 1
---- !u!114 &5358811135172834972
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5636858303672259300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f06e4ae1d9a5cf498456f2449e54655, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  messageText: {fileID: 3304050336897396952}
-  fadeInTime: 0.35
-  holdTime: 1.5
-  fadeOutTime: 0.35
-  startHidden: 1
 --- !u!114 &3304050336897396952
 MonoBehaviour:
   m_ObjectHideFlags: 0
