@@ -196,7 +196,7 @@ MonoBehaviour:
   findTargetInterval: 0.5
   preferMainCameraForLook: 1
   headLookConstraint: {fileID: 4421141310032153067}
-  targetHead: {fileID: 9130849606124916164}
+  targetHead: {fileID: 0}
   headLookRange: 20
   headLookMaxAngle: 41
   headLookBlendSpeed: 8
@@ -228,8 +228,8 @@ MonoBehaviour:
   stopDistance: 1.9
   turnSpeed: 10
   strafeDurationRange: {x: 1, y: 3}
-  strafeChance: 1
-  blockChanceWhileStrafing: 0.643
+  strafeChance: 0.711
+  blockChanceWhileStrafing: 0.243
   attackCooldownRange: {x: 1, y: 1}
   heavyAttackChance: 0.25
   attackWindup: 0.18
@@ -237,19 +237,19 @@ MonoBehaviour:
   attackRecovery: 0.25
   animIsBlockingBool: IsBlocking
   isBlocking: 0
-  guardBreakStunTime: 1
-  guardBreakNoBlockTime: 1.25
+  guardBreakStunTime: 2
+  guardBreakNoBlockTime: 4
   animGuardBreakTrigger: 
-  defensiveModeChance: 0.153
+  defensiveModeChance: 0.077
   defensiveDurationRange: {x: 0.6, y: 1.4}
   defensiveBackUpDistance: 2
-  defensiveSpeed: 2.2
+  defensiveSpeed: 1.5
   defensiveAcceleration: 10
   defensiveStoppingDistance: 0.2
-  defensiveCooldown: 3
+  defensiveCooldown: 5
   rushReactDistance: 4
   rushClosingSpeed: 6
-  rushBackUpChance: 0.274
+  rushBackUpChance: 0.14
   chaseSpeedFar: 4
   chaseSpeedNear: 1.6
   slowDownStartDistance: 6
