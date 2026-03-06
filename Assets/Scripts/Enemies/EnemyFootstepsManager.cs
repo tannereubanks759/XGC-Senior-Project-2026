@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[DefaultExecutionOrder(-100)] // manager updates early
+[DefaultExecutionOrder(-100)]
 public class EnemyFootstepsManager : MonoBehaviour
 {
     public static EnemyFootstepsManager Instance { get; private set; }
+    public static bool InstanceExists => Instance != null;
 
     [Header("References")]
     public Transform player;
@@ -13,27 +14,28 @@ public class EnemyFootstepsManager : MonoBehaviour
     [Min(1)] public int closestCount = 3;
     [Min(0.05f)] public float refreshSeconds = 0.25f;
 
-    // Internal
-    private readonly List<EnemyFootsteps> enemies = new List<EnemyFootsteps>(128);
+    // Use HashSet to prevent duplicates without O(n) Contains checks
+    private readonly HashSet<EnemyFootsteps> enemies = new HashSet<EnemyFootsteps>();
+    private readonly List<EnemyFootsteps> scratch = new List<EnemyFootsteps>(256);
     private readonly List<EnemyFootsteps> topClosest = new List<EnemyFootsteps>(16);
+
     private float nextRefreshTime;
 
     private void Awake()
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogWarning("Duplicate EnemyFootstepsManager found. Destroying duplicate.", this);
-            Destroy(gameObject);
+            // IMPORTANT: don't destroy the whole GO (can be part of other systems)
+            // Just disable this component.
+            enabled = false;
             return;
         }
 
         Instance = this;
 
-        if (!player)
-        {
-            GameObject p = GameObject.FindGameObjectWithTag("Player");
-            if (p) player = p.transform;
-        }
+        // If you have PlayerLocator, use it (zero search cost)
+        if (!player && PlayerLocator.PlayerRoot != null)
+            player = PlayerLocator.PlayerRoot;
     }
 
     private void OnDestroy()
@@ -44,37 +46,30 @@ public class EnemyFootstepsManager : MonoBehaviour
     public static void Register(EnemyFootsteps e)
     {
         if (e == null) return;
-        if (Instance == null) return; // manager not ready yet
-        Instance.RegisterInternal(e);
+        if (Instance == null || !Instance.enabled) return;
+        Instance.enemies.Add(e);
     }
 
     public static void Unregister(EnemyFootsteps e)
     {
         if (e == null) return;
-        if (Instance == null) return;
-        Instance.UnregisterInternal(e);
+        if (Instance == null || !Instance.enabled) return;
+        Instance.enemies.Remove(e);
     }
 
-    private void RegisterInternal(EnemyFootsteps e)
+    // Call this from your player once (recommended)
+    public void SetPlayer(Transform playerTransform)
     {
-        // Prevent duplicates
-        if (!enemies.Contains(e))
-            enemies.Add(e);
-    }
-
-    private void UnregisterInternal(EnemyFootsteps e)
-    {
-        enemies.Remove(e);
+        player = playerTransform;
     }
 
     private void Update()
     {
-        if (!player)
-        {
-            GameObject p = GameObject.FindGameObjectWithTag("Player");
-            if (p) player = p.transform;
-            if (!player) return;
-        }
+        // Lazy assign from PlayerLocator (no searching)
+        if (!player && PlayerLocator.PlayerRoot != null)
+            player = PlayerLocator.PlayerRoot;
+
+        if (!player) return;
 
         if (Time.time < nextRefreshTime) return;
         nextRefreshTime = Time.time + refreshSeconds;
@@ -84,31 +79,28 @@ public class EnemyFootstepsManager : MonoBehaviour
 
     private void RefreshClosest()
     {
-        // Clean nulls + disable all
-        for (int i = enemies.Count - 1; i >= 0; i--)
+        // Disable all + clean nulls without modifying the HashSet while iterating
+        scratch.Clear();
+        foreach (var e in enemies)
         {
-            var e = enemies[i];
-            if (e == null)
-            {
-                enemies.RemoveAt(i);
-                continue;
-            }
-
+            if (e == null) continue;
             e.footstepsAllowed = false;
+            if (e.isActiveAndEnabled) scratch.Add(e);
         }
 
-        if (enemies.Count == 0) return;
+        // Remove nulls after
+        // (We only remove nulls occasionally; doing it every tick is fine too)
+        enemies.RemoveWhere(e => e == null);
+
+        if (scratch.Count == 0) return;
 
         topClosest.Clear();
-        int targetCount = Mathf.Min(closestCount, enemies.Count);
+        int targetCount = Mathf.Min(closestCount, scratch.Count);
 
-        // Maintain a small sorted "topClosest" list of size targetCount
-        // O(N*K), great when K is tiny (3)
-        for (int i = 0; i < enemies.Count; i++)
+        // O(N*K) with tiny K
+        for (int i = 0; i < scratch.Count; i++)
         {
-            EnemyFootsteps e = enemies[i];
-            if (!e.isActiveAndEnabled) continue;
-
+            var e = scratch[i];
             float d2 = (e.transform.position - player.position).sqrMagnitude;
 
             if (topClosest.Count < targetCount)
@@ -117,7 +109,9 @@ public class EnemyFootstepsManager : MonoBehaviour
             }
             else
             {
-                float farthestD2 = (topClosest[topClosest.Count - 1].transform.position - player.position).sqrMagnitude;
+                float farthestD2 =
+                    (topClosest[topClosest.Count - 1].transform.position - player.position).sqrMagnitude;
+
                 if (d2 < farthestD2)
                 {
                     topClosest.RemoveAt(topClosest.Count - 1);
@@ -136,11 +130,7 @@ public class EnemyFootstepsManager : MonoBehaviour
         for (int i = 0; i < list.Count; i++)
         {
             float d2 = (list[i].transform.position - player.position).sqrMagnitude;
-            if (itemD2 < d2)
-            {
-                insertAt = i;
-                break;
-            }
+            if (itemD2 < d2) { insertAt = i; break; }
         }
         list.Insert(insertAt, item);
     }

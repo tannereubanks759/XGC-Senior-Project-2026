@@ -67,60 +67,75 @@ public class SkeletonSpawnManager : MonoBehaviour
     }
     public void SpawnSkeleton()
     {
-        Vector3 location = PickLocation(playerPos, spawnDistanceMin, spawnDistanceMax, 0f);
-        if (location == null || location == Vector3.zero) return;
+        if (!TryPickLocation(playerPos, spawnDistanceMin, spawnDistanceMax, 0f, out Vector3 location))
+            return;
 
-        var prefab = PickSkeleton();
+        var prefab = PickSkeletonSafe();
         if (!prefab) return;
 
         Instantiate(prefab, location, Quaternion.identity);
-
         spawnedInWave++;
     }
 
-public Vector3 PickLocation(Transform center, float minDistance, float maxDistance, float seaLevel)
-{
-    if (center == null) return Vector3.positiveInfinity; // sentinel = "failed"
-
-    const int attempts = 30;
-    Vector3 origin = center.position;
-
-    for (int i = 0; i < attempts; i++)
+    private bool TryPickLocation(Transform center, float minDistance, float maxDistance, float seaLevel, out Vector3 result)
     {
-        Vector3 randomPoint = origin + Random.insideUnitSphere * maxDistance;
+        result = default;
+        if (center == null) return false;
 
-        if (Vector3.Distance(origin, randomPoint) < minDistance)
-            continue;
+        const int attempts = 30;
+        Vector3 origin = center.position;
 
-        if (randomPoint.y < seaLevel)
-            randomPoint.y = seaLevel;
+        float minSqr = minDistance * minDistance;
+        float max = Mathf.Max(minDistance, maxDistance);
 
-        if (NavMesh.SamplePosition(randomPoint, out NavMeshHit hit, maxDistance, NavMesh.AllAreas))
+        const float sampleRadius = 4f; // IMPORTANT: small snap radius
+
+        for (int i = 0; i < attempts; i++)
         {
-            if (hit.position.y < seaLevel)
+            Vector2 r = Random.insideUnitCircle.normalized * Random.Range(minDistance, max);
+            Vector3 candidate = origin + new Vector3(r.x, 0f, r.y);
+
+            if ((candidate - origin).sqrMagnitude < minSqr)
                 continue;
 
-            return hit.position;
+            // keep above sea level
+            if (candidate.y < seaLevel) candidate.y = seaLevel;
+
+            if (NavMesh.SamplePosition(candidate, out NavMeshHit hit, sampleRadius, NavMesh.AllAreas))
+            {
+                if (hit.position.y < seaLevel) continue;
+                result = hit.position;
+                return true;
+            }
         }
+
+        return false;
     }
 
-        return Vector3.zero;
-}
-
-GameObject PickSkeleton()
+    private GameObject PickSkeletonSafe()
     {
+        if (Enemies == null || Enemies.Length == 0) return null;
+
+        // clamp indices so you don't crash if array is short
+        GameObject basic = Enemies.Length > 0 ? Enemies[0] : null;
+        GameObject fire = Enemies.Length > 1 ? Enemies[1] : null;
+        GameObject water = Enemies.Length > 2 ? Enemies[2] : null;
+        GameObject gun = Enemies.Length > 3 ? Enemies[3] : null;
+
         float total = basicSkeletonSpawnChance + fireSkeletonSpawnChance + waterSkeletonSpawnChance + gunEnemySpawnChance;
+        if (total <= 0.0001f) return basic;
+
         float roll = Random.Range(0f, total);
 
-        if (roll < gunEnemySpawnChance) return Enemies[3];
+        if (gun != null && roll < gunEnemySpawnChance) return gun;
         roll -= gunEnemySpawnChance;
 
-        if (roll < waterSkeletonSpawnChance) return Enemies[2];
+        if (water != null && roll < waterSkeletonSpawnChance) return water;
         roll -= waterSkeletonSpawnChance;
 
-        if (roll < fireSkeletonSpawnChance) return Enemies[1];
+        if (fire != null && roll < fireSkeletonSpawnChance) return fire;
 
-        return Enemies[0];
+        return basic;
     }
 
 }

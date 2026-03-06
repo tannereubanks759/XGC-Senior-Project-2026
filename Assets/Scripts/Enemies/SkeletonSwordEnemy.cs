@@ -323,7 +323,6 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private void Reset()
     {
         agent = GetComponent<NavMeshAgent>();
-        animator = GetComponentInChildren<Animator>();
         eyePoint = transform;
     }
 
@@ -355,8 +354,18 @@ public class SkeletonSwordEnemy : MonoBehaviour
         SetBlocking(false);
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        // wait 1 frame so NavMesh registers the agent after Instantiate
+        yield return null;
+
+        // snap if needed
+        TrySnapToNavMesh();
+
+        // if still not on navmesh, don’t start AI yet
+        if (!agent || !agent.enabled || !agent.isOnNavMesh)
+            yield break;
+
         SetState(startPatrolling ? State.Patrol : State.Idle);
         StartCoroutine(DelayedLookInit());
     }
@@ -382,8 +391,8 @@ public class SkeletonSwordEnemy : MonoBehaviour
         if (_state == State.Dead) return;
 
         // ALWAYS try to acquire target even if agent isn't ready/on navmesh yet
-        AcquireTargetIfNeeded(force: false);
-        TrySnapToNavMesh();
+        //AcquireTargetIfNeeded(force: false);
+        //TrySnapToNavMesh();
         // If agent isn't valid yet, bail after trying target acquire
         if (!agent || !agent.enabled || !agent.isOnNavMesh) return;
 
@@ -773,6 +782,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
         while (_state == State.Patrol)
         {
+            if (!agent.isOnNavMesh) yield return null; // or SetState(Idle) until valid
             if (!TryGetRandomPatrolDestination(out Vector3 dest))
             {
                 agent.isStopped = true;
@@ -824,6 +834,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private IEnumerator InvestigateLoop()
     {
+        if (!agent.isOnNavMesh) yield return null; // or SetState(Idle) until valid
         agent.isStopped = false;
         agent.SetDestination(_lastKnownPos);
 
@@ -855,6 +866,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private IEnumerator ChaseLoop()
     {
+        if (!agent.isOnNavMesh) yield return null; // or SetState(Idle) until valid
         agent.isStopped = false;
 
         while (_state == State.Chase)
@@ -912,6 +924,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private IEnumerator StrafeLoop()
     {
+        if (!agent.isOnNavMesh) yield return null; // or SetState(Idle) until valid
         if (!target)
         {
             SetState(startPatrolling ? State.Patrol : State.Idle);
@@ -969,6 +982,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private IEnumerator DefensiveLoop()
     {
         if (!agent.enabled) yield break;
+        if (!agent.isOnNavMesh) yield return null; // or SetState(Idle) until valid
         if (!target)
         {
             SetState(startPatrolling ? State.Patrol : State.Idle);
@@ -1213,9 +1227,12 @@ public class SkeletonSwordEnemy : MonoBehaviour
         }
         else
         {
-            SwordAudioSource.PlayOneShot(swordBlockClips[Random.Range(0, swordBlockClips.Length)]);
+            if (SwordAudioSource != null && swordBlockClips != null && swordBlockClips.Length > 0)
+            {
+                SwordAudioSource.PlayOneShot(swordBlockClips[Random.Range(0, swordBlockClips.Length)]);
+            }
         }
-       
+
     }
     private void Die()
     {
@@ -1240,7 +1257,10 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private bool TryGetRandomPatrolDestination(out Vector3 destination)
     {
+
         destination = _spawnPos;
+        if (!agent || !agent.enabled || !agent.isOnNavMesh)
+            return false;
 
         float radius = patrolRadius + (patrolRadiusJitter > 0f ? Random.Range(-patrolRadiusJitter, patrolRadiusJitter) : 0f);
         radius = Mathf.Max(0.1f, radius);

@@ -30,6 +30,8 @@ public class EnemyFootsteps : MonoBehaviour
     // Optional global limiter to avoid many PlayOneShot calls on same frame
     private static int lastStepFrame = -1;
 
+    private bool _registered;
+
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -39,23 +41,31 @@ public class EnemyFootsteps : MonoBehaviour
 
     private void OnEnable()
     {
-        EnemyFootstepsManager.Register(this);
-    }
-
-    private void Start()
-    {
-        // Safety: if manager spawned after this enemy
-        EnemyFootstepsManager.Register(this);
+        RegisterOnce();
     }
 
     private void OnDisable()
     {
-        EnemyFootstepsManager.Unregister(this);
+        UnregisterOnce();
     }
 
-    private void OnDestroy()
+    private void RegisterOnce()
     {
-        EnemyFootstepsManager.Unregister(this);
+        if (_registered) return;
+        _registered = true;
+
+        // If the manager might not exist in scene yet, guard it:
+        if (EnemyFootstepsManager.InstanceExists)
+            EnemyFootstepsManager.Register(this);
+    }
+
+    private void UnregisterOnce()
+    {
+        if (!_registered) return;
+        _registered = false;
+
+        if (EnemyFootstepsManager.InstanceExists)
+            EnemyFootstepsManager.Unregister(this);
     }
 
     private void Update()
@@ -69,11 +79,9 @@ public class EnemyFootsteps : MonoBehaviour
         if (agent.velocity.magnitude < minMoveVelocity) return;
         if (Time.time < nextStepTime) return;
 
-        // Per your request: lerp interval based on agent.speed
         float t = Mathf.InverseLerp(walkSpeed, runSpeed, agent.speed);
         float interval = Mathf.Lerp(walkFootstepInterval, runFootstepInterval, t);
 
-        // safety limiter
         if (lastStepFrame == Time.frameCount)
         {
             nextStepTime = Time.time + 0.01f;
