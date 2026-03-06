@@ -48655,7 +48655,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6310362390641549354}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2425839570463820036}
+        m_TargetAssemblyTypeName: UI, Assembly-CSharp
+        m_MethodName: LoadScene
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: EndlessMode
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5222594152375285887
 GameObject:
   m_ObjectHideFlags: 0
@@ -57928,6 +57940,7 @@ MonoBehaviour:
   currentArtifact: {fileID: 0}
   inventoryScript: {fileID: 0}
   objIdentifierRef: {fileID: 0}
+  HealthPotionScript: {fileID: 7370287746018848930}
   priceOfHealthPotion: 5
   TeleporterInteract: 0
   currentUpgradeStation: {fileID: 0}

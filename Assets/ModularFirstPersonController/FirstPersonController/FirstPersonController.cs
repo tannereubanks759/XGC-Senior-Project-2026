@@ -155,7 +155,7 @@ public class FirstPersonController : MonoBehaviour
     public float stamina;
     private bool sprintLocked = false;
     private float lastStaminaUseTime = -999f;
-
+    UImanager UIM;
     #endregion
 
     #region Jump
@@ -272,13 +272,20 @@ public class FirstPersonController : MonoBehaviour
 
         // Stamina init
         stamina = Mathf.Max(0.01f, maxStamina);
+        UIM = GetComponentInChildren<UImanager>();
     }
 
     private void SceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (this.gameObject != null)
         {
+            if (UIM) UIM.CloseWinScreen();
             loadingScreen.SetActive(false);
+            SkeletonSpawnManager spawnmg = GameObject.FindAnyObjectByType<SkeletonSpawnManager>();
+            if (spawnmg != null)
+            {
+                spawnmg.playerPos = this.gameObject.transform;
+            }
         }
     }
 

@@ -9,7 +9,7 @@ public class GoldBank : MonoBehaviour
 
     private void Start()
     {
-        goldText = GameObject.FindGameObjectWithTag("GoldText").GetComponent<TextMeshProUGUI>();
+        
         UpdateGold();
     }
 

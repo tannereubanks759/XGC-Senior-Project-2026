@@ -199,7 +199,7 @@ public class SkeletonGunEnemy : MonoBehaviour
         if (!agent) agent = GetComponent<NavMeshAgent>();
         _health = maxHealth;
 
-        agent.updateRotation = false;
+        /*agent.updateRotation = false;
         _spawnPos = transform.position;
 
         int id = Mathf.Abs(GetInstanceID());
@@ -218,7 +218,7 @@ public class SkeletonGunEnemy : MonoBehaviour
         if (headLookConstraint != null)
             headLookConstraint.weight = 0f;
 
-        SetAiming(false);
+        SetAiming(false);*/
     }
 
     private void Start()

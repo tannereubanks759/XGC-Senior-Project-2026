@@ -19,7 +19,7 @@ public class interactScript : MonoBehaviour
     private bool shopInteract = false;
     private GameObject shop;
     private bool healthPotionInteract = false;
-    private HealthPotion HealthPotionScript;
+    public HealthPotion HealthPotionScript;
     private GoldBank goldRef;
     public int priceOfHealthPotion = 0;
     private bool upgrade = false;
@@ -33,7 +33,6 @@ public class interactScript : MonoBehaviour
         interactText = GameObject.Find("interactText");
         interactText.SetActive(false);
         tmpro = interactText.GetComponent<TextMeshProUGUI>();
-        HealthPotionScript =GameObject.FindAnyObjectByType<HealthPotion>();
         goldRef = current.GetComponent<GoldBank>();
     }
     

@@ -332,7 +332,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
         if (!agent) agent = GetComponent<NavMeshAgent>();
         _health = maxHealth;
 
-        agent.updateRotation = false;
+        /*agent.updateRotation = false;
         agent.stoppingDistance = stopDistance;
 
         _spawnPos = transform.position;
@@ -351,7 +351,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
         if (headLookConstraint != null)
             headLookConstraint.weight = 0f;
 
-        SetBlocking(false);
+        SetBlocking(false);*/
     }
 
     private IEnumerator Start()

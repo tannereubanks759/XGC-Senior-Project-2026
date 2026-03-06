@@ -125,7 +125,11 @@ public class UImanager : MonoBehaviour
         PreSetup(true, true);
         WinScreen.SetActive(true);
     }
-
+    public void CloseWinScreen()
+    {
+        PreSetup(false, false);
+        WinScreen.SetActive(false);
+    }
     void PreSetup(bool hasCursor)
     {
         if (hasCursor)

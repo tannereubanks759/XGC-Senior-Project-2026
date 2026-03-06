@@ -44,11 +44,6 @@ public class IslandSetup : MonoBehaviour
     [Min(0.1f)] public float navMeshSnapMaxDistance = 5f;
 
 
-    void Start()
-    {
-        //SpawnChests();
-    }
-
     private void Awake()
     {
         SpawnPlayer();

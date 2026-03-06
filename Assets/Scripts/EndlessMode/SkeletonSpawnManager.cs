@@ -44,7 +44,6 @@ public class SkeletonSpawnManager : MonoBehaviour
             if(spawnedInWave < skeletonSpawnCount)
             {
                 SpawnSkeleton();
-                NextSpawnTime = Time.time + skeletonSpawnRate;
             }
             else
             {
@@ -75,6 +74,7 @@ public class SkeletonSpawnManager : MonoBehaviour
 
         Instantiate(prefab, location, Quaternion.identity);
         spawnedInWave++;
+        NextSpawnTime = Time.time + skeletonSpawnRate;
     }
 
     private bool TryPickLocation(Transform center, float minDistance, float maxDistance, float seaLevel, out Vector3 result)

@@ -8,6 +8,7 @@ public class PlayerLocator : MonoBehaviour
 
     void Awake()
     {
+        
         PlayerRoot = transform;
         OnPlayerReady?.Invoke(PlayerRoot);
     }
