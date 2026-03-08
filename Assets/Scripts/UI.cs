@@ -89,7 +89,7 @@ public class UI : MonoBehaviour
     public void RestartScene()
     {
        ResetPlayer();
-        LoadScene(SceneManager.GetActiveScene().name);
+       LoadScene(SceneManager.GetActiveScene().name);
     }
     void ResetPlayer()
     {

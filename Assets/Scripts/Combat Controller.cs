@@ -91,6 +91,7 @@ public class CombatController : MonoBehaviour
 
     public BossHealthbar boss_healthbar;
     public LavaDamage lavaDMG;
+    public UImanager um;
 
     void Start()
     {
@@ -129,7 +130,6 @@ public class CombatController : MonoBehaviour
         }
 
         wInertia = GetComponentInChildren<WeaponInertia>();
-
         //Enemies();
 
     }
@@ -287,6 +287,11 @@ public class CombatController : MonoBehaviour
     public void Die()
     {
         GetComponentInParent<LavaDamage>().inLava = false;
+        if (boss_healthbar)
+        {
+            boss_healthbar.ResetHealthbar();
+        }
+        
         GameObject.FindAnyObjectByType<UI>().ShowDeathScreen();
     }
     public void TakeDamage(int damage)

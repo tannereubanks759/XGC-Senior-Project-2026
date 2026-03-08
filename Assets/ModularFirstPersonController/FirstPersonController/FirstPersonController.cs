@@ -279,13 +279,14 @@ public class FirstPersonController : MonoBehaviour
     {
         if (this.gameObject != null)
         {
-            if (UIM) UIM.CloseWinScreen();
+            if (UIM) UIM.CloseWinScreen(); UIM.OpenPlayerUIScreen();
             loadingScreen.SetActive(false);
             SkeletonSpawnManager spawnmg = GameObject.FindAnyObjectByType<SkeletonSpawnManager>();
             if (spawnmg != null)
             {
                 spawnmg.playerPos = this.gameObject.transform;
             }
+
         }
     }
 
