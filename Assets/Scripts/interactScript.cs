@@ -181,7 +181,7 @@ public class interactScript : MonoBehaviour
                     }
                 else
                 {
-                    GetComponentInChildren<PopUpMessage>().ShowMessage("Cannot carry anymore potions");
+                    GetComponentInChildren<PopUpMessage>().ShowMessage("Can't carry any more potions");
                 }
                 //}
             }
