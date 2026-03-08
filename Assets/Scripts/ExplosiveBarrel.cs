@@ -1,3 +1,4 @@
+using DigitalRuby.ThunderAndLightning;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,25 +6,24 @@ using UnityEngine;
 public class ExplosiveBarrel : MonoBehaviour
 {
     [Header("Explosion Radius")]
-    public float instantKillRadius = 3f;
     public float damageRadius = 6f;
 
     [Header("References")]
-    public Collider col;                  // Existing box collider. Removed when explosion happens.
-    public GameObject explosionPrefab;    // FX instantiated when explosion happens.
-    public MeshRenderer render;           // Turn off renderer when explosion happens.
+    public Collider col;
+    public GameObject explosionPrefab;
+    public MeshRenderer render;
 
     [Header("Damage")]
     public float dmgToEnemiesMax = 40f;
-    public float dmgToPlayerMax = 100f;   // Damage at edge of instantKillRadius. Inside instantKillRadius = 999.
+    public float dmgToPlayerMax = 100f;
 
     [Header("Expansion")]
-    public float explosionExpandTime = 0.15f; // How fast the trigger sphere grows.
+    public float explosionExpandTime = 0.15f;
 
     private SphereCollider explosionTrigger;
+    private GameObject explosionTriggerObject;
     private bool hasExploded = false;
 
-    // Prevent damaging the same object multiple times while the trigger expands.
     private readonly HashSet<GameObject> damagedObjects = new HashSet<GameObject>();
 
     void Start()
@@ -35,10 +35,6 @@ public class ExplosiveBarrel : MonoBehaviour
             render = GetComponent<MeshRenderer>();
     }
 
-    void Update()
-    {
-    }
-
     public void Explode()
     {
         if (hasExploded)
@@ -46,10 +42,15 @@ public class ExplosiveBarrel : MonoBehaviour
 
         hasExploded = true;
 
-        if(this.gameObject.transform.root.gameObject.layer == 9) 
+        if (transform.root.gameObject.layer == 9)
         {
-            this.gameObject.transform.root.GetComponent<DamageRef>().TakeDamage(100);
+            DamageRef selfDamageRef = transform.root.GetComponent<DamageRef>();
+            if (selfDamageRef != null)
+                selfDamageRef.TakeDamage(100);
         }
+
+        if (transform.parent != null)
+            transform.parent = null;
 
         if (explosionPrefab != null)
             Destroy(Instantiate(explosionPrefab, transform.position, Quaternion.identity), 3f);
@@ -60,12 +61,24 @@ public class ExplosiveBarrel : MonoBehaviour
         if (col != null)
             Destroy(col);
 
-        explosionTrigger = gameObject.AddComponent<SphereCollider>();
+        CreateExplosionTriggerObject();
+        StartCoroutine(ExpandExplosionTrigger());
+    }
+
+    private void CreateExplosionTriggerObject()
+    {
+        explosionTriggerObject = new GameObject("ExplosionTrigger");
+        explosionTriggerObject.transform.position = transform.position;
+        explosionTriggerObject.transform.rotation = Quaternion.identity;
+        explosionTriggerObject.transform.localScale = Vector3.one;
+
+        ExplosionTriggerForwarder forwarder = explosionTriggerObject.AddComponent<ExplosionTriggerForwarder>();
+        forwarder.owner = this;
+
+        explosionTrigger = explosionTriggerObject.AddComponent<SphereCollider>();
         explosionTrigger.isTrigger = true;
         explosionTrigger.radius = 0f;
         explosionTrigger.center = Vector3.zero;
-
-        StartCoroutine(ExpandExplosionTrigger());
     }
 
     private IEnumerator ExpandExplosionTrigger()
@@ -88,13 +101,13 @@ public class ExplosiveBarrel : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        if (explosionTrigger != null)
-            Destroy(explosionTrigger);
+        if (explosionTriggerObject != null)
+            Destroy(explosionTriggerObject);
 
         Destroy(gameObject);
     }
 
-    public void OnTriggerEnter(Collider other)
+    public void HandleExplosionTriggerEnter(Collider other)
     {
         if (!hasExploded)
             return;
@@ -127,18 +140,22 @@ public class ExplosiveBarrel : MonoBehaviour
             damagedObjects.Add(targetRoot);
             float damage = CalculateEnemyDamage(distance);
             enemy.TakeDamage(damage);
+            return;
+        }
+
+        ExplosiveBarrel otherBarrel = targetRoot.GetComponentInChildren<ExplosiveBarrel>();
+        if (otherBarrel != null && otherBarrel != this)
+        {
+            otherBarrel.Explode();
         }
     }
 
     private float CalculatePlayerDamage(float distance)
     {
-        if (distance <= instantKillRadius)
-            return 999f;
-
         if (distance >= damageRadius)
             return 0f;
 
-        float t = Mathf.InverseLerp(instantKillRadius, damageRadius, distance);
+        float t = Mathf.InverseLerp(0f, damageRadius, distance);
         return Mathf.Lerp(dmgToPlayerMax, 0f, t);
     }
 

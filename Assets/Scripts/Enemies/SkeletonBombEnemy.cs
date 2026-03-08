@@ -140,6 +140,8 @@ public class SkeletonBombEnemy : MonoBehaviour
     [Tooltip("How often the chase destination updates.")]
     public float chaseRepathInterval = 0.20f;
 
+    public AudioSource fuse;
+
     private State state;
     private float health;
 
@@ -255,6 +257,11 @@ public class SkeletonBombEnemy : MonoBehaviour
             {
                 fuseStarted = true;
                 explodeAtTime = Time.time + explodeDelay;
+
+                if (fuse != null && !fuse.isPlaying)
+                {
+                    fuse.Play();
+                }
             }
 
             if (state == State.Idle || state == State.Patrol)
@@ -458,12 +465,6 @@ public class SkeletonBombEnemy : MonoBehaviour
                 yield break;
             }
 
-            if (!fuseStarted)
-            {
-                fuseStarted = true;
-                explodeAtTime = Time.time + explodeDelay;
-            }
-
             if (Time.time >= nextRepathTime)
             {
                 nextRepathTime = Time.time + chaseRepathInterval;
@@ -479,8 +480,10 @@ public class SkeletonBombEnemy : MonoBehaviour
     {
         agent.isStopped = true;
 
+        
         while (state == State.Fusing && !hasExploded)
         {
+            
             if (Time.time >= explodeAtTime)
             {
                 ExplodeNow();
@@ -517,7 +520,7 @@ public class SkeletonBombEnemy : MonoBehaviour
 
         hasExploded = true;
 
-        ApplyDamage(100);
+        this.GetComponent<DamageRef>().TakeDamage(100);
 
         if (bombExplosive != null)
         {
