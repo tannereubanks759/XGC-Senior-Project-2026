@@ -113,7 +113,7 @@ public class FireSourceScript : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") && lamp.playerInRange)
+        if (other.CompareTag("Player") && isCollected)
         {
             other.GetComponentInChildren<FireballManager>().CollectFire();
             Destroy(this.gameObject);
