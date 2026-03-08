@@ -8,6 +8,7 @@ public class DamageRef : MonoBehaviour
     private SkeletonSwordEnemy swordEnemy;
     private SkeletonGunEnemy gunEnemy;
     private CrackenTentacleCollider kraken;
+    private ExplosiveBarrel explosiveBarrel;
 
     public GameObject SoulPrefab;
     public int OverrideSoulAmount = 0;
@@ -22,6 +23,7 @@ public class DamageRef : MonoBehaviour
         swordEnemy = GetComponent<SkeletonSwordEnemy>();
         kraken = GetComponentInParent<CrackenTentacleCollider>();
         gunEnemy = GetComponent<SkeletonGunEnemy>();
+        explosiveBarrel = GetComponent<ExplosiveBarrel>();
         hasSpawnedSoul = false;
     }
 
@@ -52,6 +54,10 @@ public class DamageRef : MonoBehaviour
         if (gunEnemy)
         {
             gunEnemy.ApplyDamage(damage);
+        }
+        if (explosiveBarrel)
+        {
+            explosiveBarrel.Explode();
         }
     }
 

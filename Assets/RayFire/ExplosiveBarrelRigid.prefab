@@ -1,0 +1,554 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8858235080765360790
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5155156615607890466}
+  - component: {fileID: 9123397406132247589}
+  - component: {fileID: 8105789289139269990}
+  - component: {fileID: 2001833080630844797}
+  - component: {fileID: 4225030678256435703}
+  - component: {fileID: 7132957306166470839}
+  m_Layer: 5
+  m_Name: ExplosiveBarrelRigid
+  m_TagString: barrel
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5155156615607890466
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8858235080765360790}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 169.22871, y: 6.4032326, z: 128.97472}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &9123397406132247589
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8858235080765360790}
+  m_Mesh: {fileID: 196692957321986641, guid: a68237752a302814894815c3c8c943ef, type: 3}
+--- !u!23 &8105789289139269990
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8858235080765360790}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 5f44ce645d65e2c4eb7f017e282bbe77, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2001833080630844797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8858235080765360790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb6e52f37bca2404fac00b69fd8d21f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  init: 1
+  simTp: 0
+  objTp: 0
+  dmlTp: 9
+  physics:
+    mt: 9
+    ma: {fileID: 0}
+    mb: 0
+    ms: 1
+    ct: 0
+    pc: 1
+    ine: 0
+    gr: 1
+    si: 6
+    st: 0.005
+    dm: 0.7
+    rb: {fileID: 0}
+    mc: {fileID: 0}
+    cc: []
+    ign: 
+    exclude: 0
+    solidity: 1
+    destructible: 0
+  act:
+    off: 0
+    loc: 0
+    vel: 0
+    dmg: 0
+    act: 0
+    imp: 0
+    con: 0
+    uny: 0
+    atb: 0
+    l: 0
+    lay: 0
+    cnt: {fileID: 0}
+  lim:
+    col: 1
+    sol: 0.1
+    tag: Untagged
+    depth: 1
+    time: 0.2
+    size: 0.1
+    vis: 0
+    bld: 0
+    bound:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0, y: 0, z: 0}
+  mshDemol:
+    engTp: 0
+    am: 15
+    var: 0
+    dpf: 0.5
+    bias: 0
+    cls: 0
+    sd: 1
+    use: 0
+    cld: 1
+    sim: 0
+    cnv: 0
+    inp: 9
+    prp:
+      rem: 0
+      dec: 1
+      slc: 0
+      cmb: 1
+      cap: 1
+      ptr: 1
+      col: 0
+      szF: 0
+      l: 1
+      lay: 0
+      t: 1
+      tag: 
+    ch:
+      tp: 0
+      frm: 3
+      frg: 4
+      skp: 0
+    sht: {fileID: 0}
+    rotStart: {x: 0, y: 0, z: 0, w: 1}
+  clsDemol:
+    cnt: 0
+    sim: 0
+    mAr: 0
+    mSz: 0
+    pct: 0
+    seed: 0
+    type: 0
+    ratio: 15
+    units: 1
+    sAr: 70
+    sDm: 0
+    mnAm: 3
+    mxAm: 6
+    cDm: 1
+    collapse:
+      type: 1
+      start: 0
+      end: 75
+      steps: 10
+      duration: 15
+      var: 0
+      seed: 0
+    clsCount: 1
+    cluster:
+      id: -1
+      tm: {fileID: 0}
+      depth: 0
+      pos: {x: 0, y: 0, z: 0}
+      rot: {x: 0, y: 0, z: 0, w: 0}
+      scl: {x: 0, y: 0, z: 0}
+      bound:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+      demolishable: 1
+      rigid: {fileID: 0}
+      shards: []
+      cachedHost: 0
+      areaCollapse: 0
+      minimumArea: 0
+      maximumArea: 0
+      sizeCollapse: 0
+      minimumSize: 0
+      maximumSize: 0
+      randomCollapse: 0
+    minorClusters: []
+    cn: 1
+    nd: 0
+    am: 0
+  refDemol:
+    rfs: {fileID: 548613097149966100, guid: 780ddcd233b3bfb459c743b5168478a7, type: 3}
+    rnd: []
+    act: 0
+    add: 1
+    scl: 1
+    mat: 1
+  materials:
+    iMat: {fileID: 0}
+    oMat: {fileID: 0}
+    mScl: 0.5
+    uvE: 0
+    uvC: {x: 0.25, y: 0.25}
+    uvR: {x: 0.75, y: 0.75}
+    cC: {r: 0.2, g: 0.2, b: 0.2, a: 0}
+  damage:
+    en: 1
+    max: 100
+    cur: 0
+    col: 0
+    mlt: 1
+    shr: 0
+  fading:
+    onDemolition: 1
+    onActivation: 0
+    byOffset: 0
+    fadeType: 2
+    fadeTime: 4
+    lifeType: 4
+    lifeTime: 6
+    lifeVariation: 3
+    sizeFilter: 0
+    shardAmount: 5
+  reset:
+    transform: 1
+    damage: 1
+    connectivity: 0
+    action: 0
+    destroyDelay: 1
+    mesh: 4
+    fragments: 0
+  initialized: 0
+  fragments: []
+  chRot: {x: 0, y: 0, z: 0, w: 0}
+  tsf: {fileID: 0}
+  rtC: {fileID: 0}
+  rtP: {fileID: 0}
+  mFlt: {fileID: 0}
+  mRnd: {fileID: 0}
+  skr: {fileID: 0}
+  rest: {fileID: 0}
+  sound: {fileID: 0}
+--- !u!114 &4225030678256435703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8858235080765360790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dafd0a8e9ee856a49bf432688899df59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showGizmo: 0
+  rangeType: 0
+  range: 5
+  boxSize: {x: 6, y: 2}
+  deletion: 0
+  fadeType: 0
+  strength: 1
+  variation: 50
+  chaos: 30
+  forceByMass: 1
+  affectInactive: 1
+  affectKinematic: 1
+  heightOffset: 0
+  delay: 0
+  atStart: 1
+  destroy: 0
+  obst_enable: 0
+  obst_static: 0
+  obst_kinematik: 0
+  obst_list: []
+  applyDamage: 1
+  damageValue: 100
+  play: 0
+  volume: 1
+  clip: {fileID: 0}
+  mask: -1
+  tagFilter: Untagged
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.7
+      value: 0
+      inSlope: -1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: -1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &7132957306166470839
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8858235080765360790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b55d9bb3ec909340848c72a5bfc0ad0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  engineType: 1
+  type: 1
+  mode: 1
+  voronoi:
+    amount: 30
+    centerBias: 0
+  splinters:
+    axis: 0
+    amount: 30
+    strength: 0.7
+    centerBias: 0
+  slabs:
+    axis: 1
+    amount: 30
+    strength: 0.7
+    centerBias: 0
+  radial:
+    centerAxis: 1
+    radius: 1
+    divergence: 1
+    restrictToPlane: 1
+    rings: 10
+    focus: 0
+    focusStr: 50
+    randomRings: 50
+    rays: 10
+    randomRays: 0
+    twist: 0
+  hexagon:
+    size: 0.5
+    enable: 1
+    plane: 1
+    row: 10
+    col: 10
+    div: 0
+    rest: 1
+    noPc: 0
+    pc: []
+    pcBndIn: []
+    pcBndOut: []
+  custom:
+    source: 4
+    useAs: 12
+    amount: 100
+    radius: 1
+    enable: 1
+    size: 0.05
+    vector3: []
+    transforms: []
+    noPoints: 0
+    outputPoints: []
+    inBoundPoints: []
+    outBoundPoints: []
+  mirrored:
+    amount: 50
+    planeType: 0
+    noPoints: 0
+  slice:
+    plane: 1
+    sliceList: []
+  bricks:
+    amountType: 0
+    mult: 1
+    amount_X: 3
+    amount_Y: 6
+    amount_Z: 0
+    size_Lock: 0
+    size_X: 0.4
+    size_Y: 0.2
+    size_Z: 2
+    sizeVar_X: 0
+    sizeVar_Y: 0
+    sizeVar_Z: 0
+    offset_X: 0.5
+    offset_Y: 0.5
+    offset_Z: 0
+    split_X: 0
+    split_Y: 0
+    split_Z: 0
+    split_probability: 0
+    split_offset: 0.5
+    split_rotation: 30
+  voxels:
+    size: 1
+  tets:
+    lattice: 0
+    density: 7
+    noise: 100
+  material:
+    iMat: {fileID: 0}
+    oMat: {fileID: 0}
+    mScl: 0.5
+    uvE: 0
+    uvC: {x: 0.25, y: 0.25}
+    uvR: {x: 0.75, y: 0.75}
+    cC: {r: 0.2, g: 0.2, b: 0.2, a: 0}
+  clusters:
+    enable: 0
+    count: 10
+    seed: 1
+    relax: 0.5
+    amount: 0
+    layers: 0
+    scale: 1
+    min: 1
+    max: 3
+  advanced:
+    seed: 1
+    dec: 1
+    coll: 0
+    copy: 0
+    inpCap: 1
+    outCap: 0
+    dbl: 1
+    element: 5
+    children: 0
+    smooth: 0
+    weld: 0
+    inner: 0
+    planar: 0
+    relSze: 1
+    absSze: 0.02
+    hierarchy: 0
+    separate: 1
+    combine: 1
+    sliceType: 0
+    origScale: 0
+    faceFlt: 0
+    centerSet: 0
+    centerBias: {fileID: 0}
+    aabbEnable: 0
+    aabbSeparate: 0
+    aabbCloud: 1
+    aabbObject: {fileID: 0}
+    petrify: 0
+    szeLim: 0
+    szeAm: 5
+    vrtLim: 0
+    vrtAm: 300
+    triLim: 0
+    triAm: 300
+  shell:
+    enable: 0
+    first: 0
+    bridge: 0
+    submesh: 0
+    thickness: 0.03
+  showCenter: 0
+  centerPosition: {x: 0, y: 0.5730772, z: 0}
+  centerDirection: {x: 0, y: 0, z: 0, w: 1}
+  transForm: {fileID: 5155156615607890466}
+  meshFilter: {fileID: 9123397406132247589}
+  meshRenderer: {fileID: 8105789289139269990}
+  skinnedMeshRend: {fileID: 0}
+  meshFilters: []
+  materials:
+  - {fileID: 2100000, guid: 5f44ce645d65e2c4eb7f017e282bbe77, type: 2}
+  shatterMode: 1
+  colorPreview: 0
+  scalePreview: 1
+  previewScale: 0
+  size: 2.2490222
+  rescaleFix: 1
+  originalScale: {x: 1, y: 1, z: 1}
+  bound:
+    m_Center: {x: 169.22871, y: 6.97631, z: 128.97472}
+    m_Extent: {x: 0.7852294, y: 0.5726362, z: 0.56570995}
+  resetState: 0
+  intGo: {fileID: 0}
+  intMf: {fileID: 0}
+  intMr: {fileID: 0}
+  intMfs: []
+  intMrs: []
+  intEng: 0
+  fragAddStr: _sh_
+  batches: []

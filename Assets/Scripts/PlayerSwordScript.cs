@@ -66,6 +66,10 @@ public class PlayerSwordScript : MonoBehaviour
             }
 
         }
+        if(other.tag == "barrel")
+        {
+            other.GetComponent<DamageRef>().TakeDamage(1);
+        }
         
     }
     private void ChainLightning(Transform firstTarget, int baseDamage)
