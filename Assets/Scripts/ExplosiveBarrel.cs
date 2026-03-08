@@ -46,6 +46,11 @@ public class ExplosiveBarrel : MonoBehaviour
 
         hasExploded = true;
 
+        if(this.gameObject.transform.root.gameObject.layer == 9) 
+        {
+            this.gameObject.transform.root.GetComponent<DamageRef>().TakeDamage(100);
+        }
+
         if (explosionPrefab != null)
             Destroy(Instantiate(explosionPrefab, transform.position, Quaternion.identity), 3f);
 

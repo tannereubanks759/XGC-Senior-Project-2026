@@ -332,26 +332,6 @@ public class SkeletonSwordEnemy : MonoBehaviour
         if (!agent) agent = GetComponent<NavMeshAgent>();
         _health = maxHealth;
 
-        /*agent.updateRotation = false;
-        agent.stoppingDistance = stopDistance;
-
-        _spawnPos = transform.position;
-
-        int id = Mathf.Abs(GetInstanceID());
-        _sensePhase = ((id * 0.6180339f) % 1f);
-        _repathPhase = ((id * 0.3819660f) % 1f);
-
-        float senseOffset = senseInterval * Mathf.Lerp(0f, _sensePhase, staggerStrength);
-        float repathOffset = chaseRepathInterval * Mathf.Lerp(0f, _repathPhase, staggerStrength);
-
-        _nextSenseTime = Time.time + senseOffset;
-        _nextRepathTime = Time.time + repathOffset;
-        _nextFindTargetTime = Time.time + (findTargetInterval * Mathf.Lerp(0f, _sensePhase, staggerStrength));
-
-        if (headLookConstraint != null)
-            headLookConstraint.weight = 0f;
-
-        SetBlocking(false);*/
     }
 
     private IEnumerator Start()

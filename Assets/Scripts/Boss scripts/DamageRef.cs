@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class DamageRef : MonoBehaviour
@@ -9,6 +10,7 @@ public class DamageRef : MonoBehaviour
     private SkeletonGunEnemy gunEnemy;
     private CrackenTentacleCollider kraken;
     private ExplosiveBarrel explosiveBarrel;
+    private SkeletonBombEnemy bombEnemy;
 
     public GameObject SoulPrefab;
     public int OverrideSoulAmount = 0;
@@ -24,6 +26,8 @@ public class DamageRef : MonoBehaviour
         kraken = GetComponentInParent<CrackenTentacleCollider>();
         gunEnemy = GetComponent<SkeletonGunEnemy>();
         explosiveBarrel = GetComponent<ExplosiveBarrel>();
+        bombEnemy = GetComponent<SkeletonBombEnemy>();
+        
         hasSpawnedSoul = false;
     }
 
@@ -58,6 +62,10 @@ public class DamageRef : MonoBehaviour
         if (explosiveBarrel)
         {
             explosiveBarrel.Explode();
+        }
+        if (bombEnemy)
+        {
+            bombEnemy.ApplyDamage(damage);
         }
     }
 
@@ -98,6 +106,13 @@ public class DamageRef : MonoBehaviour
         if (gunEnemy)
         {
             if(gunEnemy.GetHealth() <= damage)
+            {
+                SpawnSoul();
+            }
+        }
+        if (bombEnemy)
+        {
+            if(bombEnemy.GetHealth() <= damage)
             {
                 SpawnSoul();
             }
