@@ -7,6 +7,7 @@ public class interactScript : MonoBehaviour
 {
     
     public GameObject interactText;
+    public GameObject teleporterInteractText;
     private TextMeshProUGUI tmpro;
     private bool canInteract = false;
     public GameObject currentArtifactObj;
@@ -31,6 +32,7 @@ public class interactScript : MonoBehaviour
         TeleporterInteract = false;
         current = this;
         interactText = GameObject.Find("interactText");
+        teleporterInteractText.SetActive(false);
         interactText.SetActive(false);
         tmpro = interactText.GetComponent<TextMeshProUGUI>();
         goldRef = current.GetComponent<GoldBank>();
@@ -81,8 +83,7 @@ public class interactScript : MonoBehaviour
         else if (other.CompareTag("Teleporter"))
         {
             TeleporterInteract = true;
-            tmpro.text = "Teleport To The Next Island";
-            interactText.SetActive(true);
+            teleporterInteractText.SetActive(true);
         }
         else if (other.CompareTag("Upgrade"))
         {
@@ -114,7 +115,7 @@ public class interactScript : MonoBehaviour
         else if (other.CompareTag("Teleporter"))
         {
             TeleporterInteract = false;
-            tmpro.text = "E to interact";
+            teleporterInteractText.SetActive(false);
         }
         else if (other.CompareTag("shop"))
         {
@@ -156,6 +157,7 @@ public class interactScript : MonoBehaviour
             }
             else if (TeleporterInteract)
             {
+                teleporterInteractText.SetActive(false);
                 GameObject.FindAnyObjectByType<IslandTeleporter>().Teleport();
                 TeleporterInteract = false;
             }
