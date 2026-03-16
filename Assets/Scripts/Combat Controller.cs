@@ -92,6 +92,7 @@ public class CombatController : MonoBehaviour
     public BossHealthbar boss_healthbar;
     public LavaDamage lavaDMG;
     public UImanager um;
+    public Animator healthAnim;
 
     void Start()
     {
@@ -291,6 +292,7 @@ public class CombatController : MonoBehaviour
         {
             boss_healthbar.ResetHealthbar();
         }
+        healthAnim.SetTrigger("Dead");
         
         GameObject.FindAnyObjectByType<UI>().ShowDeathScreen();
     }

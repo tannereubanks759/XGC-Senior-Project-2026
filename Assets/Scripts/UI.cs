@@ -14,6 +14,8 @@ public class UI : MonoBehaviour
     public UImanager UIM;
     public GameObject deathUI;
     public levelSavingManager levelSavingManager;
+    public Animator HealthAnim;
+
     void Start()
     {
         Resume();
@@ -95,6 +97,10 @@ public class UI : MonoBehaviour
     {
         FirstPersonController player = GetComponentInParent<FirstPersonController>();
         CombatController health = player.GetComponentInChildren<CombatController>();
+        HealthAnim.SetTrigger("Dead");
+        wm.healing = false;
+        wm.healthPotion.SetActive(false);
+        wm.weapons[wm.currentWeapon].SetActive(true);
         if (health != null)
         {
             health.health = health.maxHealth;

@@ -7,7 +7,7 @@ public class WeaponsManager : MonoBehaviour
 {
     public KeyCode SwordKey = KeyCode.Alpha1;
     public KeyCode GunKey = KeyCode.Alpha2;
-    private int currentWeapon = 0;
+    public int currentWeapon = 0;
     public GameObject[] weapons;
     private GameObject[] weaponIcons;
     public GameObject lamp;
