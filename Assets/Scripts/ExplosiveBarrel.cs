@@ -71,6 +71,10 @@ public class ExplosiveBarrel : MonoBehaviour
         explosionTriggerObject.transform.position = transform.position;
         explosionTriggerObject.transform.rotation = Quaternion.identity;
         explosionTriggerObject.transform.localScale = Vector3.one;
+        explosionTriggerObject.layer = 26;
+        Rigidbody rb = explosionTriggerObject.AddComponent<Rigidbody>();
+        rb.isKinematic = true;
+
 
         ExplosionTriggerForwarder forwarder = explosionTriggerObject.AddComponent<ExplosionTriggerForwarder>();
         forwarder.owner = this;
@@ -79,6 +83,7 @@ public class ExplosiveBarrel : MonoBehaviour
         explosionTrigger.isTrigger = true;
         explosionTrigger.radius = 0f;
         explosionTrigger.center = Vector3.zero;
+        
     }
 
     private IEnumerator ExpandExplosionTrigger()

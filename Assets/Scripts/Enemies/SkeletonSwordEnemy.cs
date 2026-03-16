@@ -332,6 +332,8 @@ public class SkeletonSwordEnemy : MonoBehaviour
         if (!agent) agent = GetComponent<NavMeshAgent>();
         _health = maxHealth;
 
+        _spawnPos = this.transform.position;
+
     }
 
     private IEnumerator Start()
