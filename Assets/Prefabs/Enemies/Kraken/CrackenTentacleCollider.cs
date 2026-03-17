@@ -11,6 +11,7 @@ public class CrackenTentacleCollider : MonoBehaviour
     public float health = 50f;
 
     private KrakenManager km;
+    public bool isCursed;
 
     private void Start()
     {

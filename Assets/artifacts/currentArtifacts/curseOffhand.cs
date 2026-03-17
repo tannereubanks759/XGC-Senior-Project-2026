@@ -136,6 +136,27 @@ public class curseOffhand : MonoBehaviour
         {
             
             DamageRef hitRef = hit.collider.GetComponentInParent<DamageRef>();
+            //Kracken stuff
+            /*CrackenTentacleCollider ctc = hit.collider.GetComponent<CrackenTentacleCollider>();
+            if(ctc!=null)
+            {
+                if(!ctc.isCursed)
+                {
+                    if(activeCurseVfx!=null)
+                    {
+                        Vector3 offset = new Vector3(0f, 0f, 0f);
+                        if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
+                        Transform follow = getChest(ctc.transform);
+                        spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
+                        spawnedCurseVfx.transform.localPosition = offset;
+                    }
+                }
+                PlaySound(applyClip, applyVol);
+                ClearPreview();
+                curseExpireTime = Time.time + curseDuration;
+                if (cursedFlame != null) cursedFlame.SetActive(false);
+                return;
+            }*/
             if (hitRef == null) return;
             // old enemies
             BaseEnemyAI enemy = hitRef.GetComponentInParent<BaseEnemyAI>();
