@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class LightningDashAbility : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class LightningDashAbility : MonoBehaviour
     public float blinkDistance = 10f;
     public float dashTravelDuration = 0.12f;
     public AnimationCurve travelCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
     [Header("Ground Detection")]
     public float groundCheckRayHeight = 3f;
     public float groundCheckRayDepth = 10f;
@@ -16,30 +18,42 @@ public class LightningDashAbility : MonoBehaviour
     public LayerMask blockingMask;
     public LayerMask groundMask;
     public float playerRadius = 0.4f;
+
     [Header("Charge Up")]
     public float chargeUpDuration = 0.3f;
     public float chargeUpFovBoost = 15f;
     public float fovRecoverySpeed = 10f;
     public Camera playerCamera;
+
+    [Header("Vignette")]
+    public Image vignetteImage;
+    public float vignetteStartAlpha = 0.2f;
+    public float vignettePeakAlpha = 1f;
+    public float vignetteRecoverySpeed = 3f;
+
     [Header("Damage")]
     public LayerMask damageMask;
     public float damageRadius = 1.5f;
     public float baseDamage = 20f;
     public chargeBaseScript chargeSource;
+
     [Header("Cooldown")]
     public float cooldownSeconds = 10f;
     public UnityEvent onDashReady;
     public UnityEvent onDashUsed;
+
     [Header("Refs")]
     public Rigidbody rb;
     public FirstPersonController controller;
     public Collider playerCollider;
     public string dashingLayerName = "Dashing";
     public string defaultLayerName = "Player";
+
     private bool canDash = true;
     private float cooldownTimer = 0f;
     private float baseFov;
     private bool recoveringFov = false;
+    private bool recoveringVignette = false;
     private int normalLayer;
     private int dashingLayer;
 
@@ -49,8 +63,22 @@ public class LightningDashAbility : MonoBehaviour
         baseFov = playerCamera.fieldOfView;
         normalLayer = LayerMask.NameToLayer(defaultLayerName);
         dashingLayer = LayerMask.NameToLayer(dashingLayerName);
-    }
 
+        // Start fully invisible
+        SetVignetteAlpha(0f);
+    }
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        SetVignetteAlpha(0f);
+        if (playerCamera != null)
+            playerCamera.fieldOfView = baseFov;
+        recoveringFov = false;
+        recoveringVignette = false;
+        rb.useGravity = true;
+        if (controller != null) controller.playerCanMove = true;
+        playerCollider.gameObject.layer = normalLayer;
+    }
     private void Update()
     {
         if (!canDash)
@@ -75,6 +103,19 @@ public class LightningDashAbility : MonoBehaviour
             }
         }
 
+        if (recoveringVignette)
+        {
+            float current = GetVignetteAlpha();
+            float next = Mathf.Lerp(current, 0f, vignetteRecoverySpeed * Time.deltaTime);
+            SetVignetteAlpha(next);
+
+            if (next < 0.01f)
+            {
+                SetVignetteAlpha(0f);
+                recoveringVignette = false;
+            }
+        }
+
         if (Input.GetKeyDown(KeyCode.F))
             TryDash();
     }
@@ -90,26 +131,40 @@ public class LightningDashAbility : MonoBehaviour
         canDash = false;
         cooldownTimer = cooldownSeconds;
         onDashUsed?.Invoke();
+
         float elapsed = 0f;
         float startFov = playerCamera.fieldOfView;
         float boostedFov = baseFov + chargeUpFovBoost;
         recoveringFov = false;
+        recoveringVignette = false;
 
+        // Snap vignette to start alpha immediately so it's visible from frame 1
+        SetVignetteAlpha(vignetteStartAlpha);
+
+        // Charge-up: ramp FOV and vignette from startAlpha toward peak together
         while (elapsed < chargeUpDuration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / chargeUpDuration);
-            playerCamera.fieldOfView = Mathf.Lerp(startFov, boostedFov, t * t);
+            float tEased = t * t;
+
+            playerCamera.fieldOfView = Mathf.Lerp(startFov, boostedFov, tEased);
+            SetVignetteAlpha(Mathf.Lerp(vignetteStartAlpha, vignettePeakAlpha, tEased));
+
             yield return null;
         }
+
         playerCamera.fieldOfView = boostedFov;
+        SetVignetteAlpha(vignettePeakAlpha);
+
+        // --- Destination calculation ---
         Vector3 dir = Camera.main.transform.forward;
         dir.y = 0f;
         if (dir.sqrMagnitude < 1e-4f) yield break;
         dir.Normalize();
+
         Vector3 origin = transform.position;
 
-        // Wall check
         float travelDistance = blinkDistance;
         if (Physics.SphereCast(origin, playerRadius, dir, out RaycastHit wallHit, blinkDistance, blockingMask, QueryTriggerInteraction.Ignore))
             travelDistance = Mathf.Max(0f, wallHit.distance - playerRadius * 1.1f);
@@ -117,9 +172,12 @@ public class LightningDashAbility : MonoBehaviour
         Vector3 horizontalDestination = origin + dir * travelDistance;
         Vector3 groundCheckOrigin = horizontalDestination + Vector3.up * groundCheckRayHeight;
         Vector3 destination = horizontalDestination;
+
         if (Physics.Raycast(groundCheckOrigin, Vector3.down, out RaycastHit groundHit,
             groundCheckRayHeight + groundCheckRayDepth, groundMask, QueryTriggerInteraction.Ignore))
             destination = groundHit.point + Vector3.up * groundOffset;
+
+        // --- Dash travel ---
         playerCollider.gameObject.layer = dashingLayer;
         if (controller != null) controller.playerCanMove = false;
 
@@ -140,18 +198,31 @@ public class LightningDashAbility : MonoBehaviour
             float t = Mathf.Clamp01(dashElapsed / duration);
             float curved = travelCurve.Evaluate(t);
 
-            Vector3 nextPos = Vector3.LerpUnclamped(origin, destination, curved);
-            rb.MovePosition(nextPos);
-
+            rb.MovePosition(Vector3.LerpUnclamped(origin, destination, curved));
             DoDashDamage(transform.position, damage, hitAlready);
         }
 
         rb.MovePosition(destination);
         rb.useGravity = true;
-
         if (controller != null) controller.playerCanMove = true;
         playerCollider.gameObject.layer = normalLayer;
+
         recoveringFov = true;
+        recoveringVignette = true;
+    }
+
+    private void SetVignetteAlpha(float alpha)
+    {
+        if (vignetteImage == null) return;
+        Color c = vignetteImage.color;
+        c.a = alpha;
+        vignetteImage.color = c;
+    }
+
+    private float GetVignetteAlpha()
+    {
+        if (vignetteImage == null) return 0f;
+        return vignetteImage.color.a;
     }
 
     private void DoDashDamage(Vector3 center, float damage, HashSet<DamageRef> hitAlready)
