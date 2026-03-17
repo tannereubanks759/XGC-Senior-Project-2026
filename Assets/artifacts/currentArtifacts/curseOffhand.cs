@@ -137,6 +137,7 @@ public class curseOffhand : MonoBehaviour
             
             DamageRef hitRef = hit.collider.GetComponentInParent<DamageRef>();
             //Kracken stuff
+
             /*CrackenTentacleCollider ctc = hit.collider.GetComponent<CrackenTentacleCollider>();
             if(ctc!=null)
             {
@@ -186,6 +187,7 @@ public class curseOffhand : MonoBehaviour
                 PirateBossAI pirateboss = hitRef.GetComponentInParent<PirateBossAI>();
                 MagmaBossAI magmaBoss = hitRef.GetComponentInParent<MagmaBossAI>();
                 GhostBossAI ghostBoss = hitRef.GetComponentInParent<GhostBossAI>();
+                CrackenTentacleCollider kraken = hitRef.GetComponentInParent<CrackenTentacleCollider>();
                 SkeletonSwordEnemy swordEnemy = hitRef.GetComponentInParent<SkeletonSwordEnemy>();
                 SkeletonGunEnemy gunEnemy= hitRef.GetComponentInParent<SkeletonGunEnemy>();
                 // Pirate boss
@@ -213,6 +215,29 @@ public class curseOffhand : MonoBehaviour
                     if (cursedFlame != null) cursedFlame.SetActive(false);
                     return;
                 }
+                //kraken
+                /*if(kraken!=null)
+                {
+                    if (!kraken.isCursed)
+                    {
+                        if (activeCurseVfx != null)
+                        {
+                            Vector3 offset = new Vector3(0f, 0f, 0f);
+                            if (spawnedCurseVfx != null) Destroy(spawnedCurseVfx);
+                            Transform follow = getChest(kraken.transform);
+                            spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
+                            spawnedCurseVfx.transform.localPosition = offset;
+                        }
+                    }
+                    cursedTarget = hitRef;
+                    curseActive = true;
+                    Debug.Log("KRAKEN CURSED");
+                    PlaySound(applyClip, applyVol);
+                    ClearPreview();
+                    curseExpireTime = Time.time + curseDuration;
+                    if (cursedFlame != null) cursedFlame.SetActive(false);
+                    return;
+                }*/
                 // Magma boss
                 if (magmaBoss != null)
                 {
