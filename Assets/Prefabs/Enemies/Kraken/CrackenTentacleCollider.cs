@@ -12,6 +12,7 @@ public class CrackenTentacleCollider : MonoBehaviour
 
     private KrakenManager km;
     public bool isCursed;
+    public float curseDamageMult;
 
     private void Start()
     {
@@ -20,14 +21,16 @@ public class CrackenTentacleCollider : MonoBehaviour
     public void TakeDamage(float damage)
     {
         Debug.Log("Damage given to kracken tentacle");
-        if(health > damage)
+        float finalDamage = isCursed ? damage * curseDamageMult : damage;
+
+        if (health > finalDamage)
         {
-            health -= damage;
-            km.TakeDamage(damage);
+            health -= finalDamage;
+            km.TakeDamage(finalDamage);
         }
         else
         {
-            km.TakeDamage(damage);
+            km.TakeDamage(finalDamage);
             Die();
         }
     }
