@@ -320,20 +320,10 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private bool _lookSourceInitialized;
 
-    private void Reset()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        eyePoint = transform;
-    }
-
     private void Awake()
     {
-        
-        if (!agent) agent = GetComponent<NavMeshAgent>();
         _health = maxHealth;
-
         _spawnPos = this.transform.position;
-
     }
 
     private IEnumerator Start()
@@ -342,7 +332,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
         yield return null;
 
         // snap if needed
-        TrySnapToNavMesh();
+        //TrySnapToNavMesh();
 
         // if still not on navmesh, don’t start AI yet
         if (!agent || !agent.enabled || !agent.isOnNavMesh)
