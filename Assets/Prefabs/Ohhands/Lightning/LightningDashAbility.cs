@@ -41,6 +41,12 @@ public class LightningDashAbility : MonoBehaviour
     public float cooldownSeconds = 10f;
     public UnityEvent onDashReady;
     public UnityEvent onDashUsed;
+    [Header("Audio")]
+    public AudioSource source;
+    public AudioClip chargeUp;
+    [Range(0f, 1f)] public float chargeUpVol = 0.8f;
+    public AudioClip dashSound;
+    [Range(0f, 1f)] public float dashVol = 0.8f;
 
     [Header("Refs")]
     public Rigidbody rb;
@@ -142,11 +148,9 @@ public class LightningDashAbility : MonoBehaviour
         float boostedFov = baseFov + chargeUpFovBoost;
         recoveringFov = false;
         recoveringVignette = false;
-
-        // Snap vignette to start alpha immediately so it's visible from frame 1
         SetVignetteAlpha(vignetteStartAlpha);
 
-        // Charge-up: ramp FOV and vignette from startAlpha toward peak together
+        // Charge up
         while (elapsed < chargeUpDuration)
         {
             elapsed += Time.deltaTime;
@@ -162,7 +166,7 @@ public class LightningDashAbility : MonoBehaviour
         playerCamera.fieldOfView = boostedFov;
         SetVignetteAlpha(vignettePeakAlpha);
 
-        // --- Destination calculation ---
+        // Destination
         Vector3 dir = Camera.main.transform.forward;
         dir.y = 0f;
         if (dir.sqrMagnitude < 1e-4f) yield break;
@@ -182,7 +186,7 @@ public class LightningDashAbility : MonoBehaviour
             groundCheckRayHeight + groundCheckRayDepth, groundMask, QueryTriggerInteraction.Ignore))
             destination = groundHit.point + Vector3.up * groundOffset;
 
-        // --- Dash travel ---
+        //Dash travel
         playerCollider.gameObject.layer = dashingLayer;
         if (controller != null) controller.playerCanMove = false;
 
