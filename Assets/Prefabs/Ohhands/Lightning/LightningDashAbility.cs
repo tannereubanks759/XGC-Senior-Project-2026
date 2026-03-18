@@ -48,7 +48,7 @@ public class LightningDashAbility : MonoBehaviour
     public Collider playerCollider;
     public string dashingLayerName = "Dashing";
     public string defaultLayerName = "Player";
-
+    public PopUpMessage pum;
     private bool canDash = true;
     private float cooldownTimer = 0f;
     private float baseFov;
@@ -122,7 +122,12 @@ public class LightningDashAbility : MonoBehaviour
 
     public void TryDash()
     {
-        if (!canDash) return;
+        if (!canDash)
+        {
+            pum.ShowMessage("On cooldown (" + cooldownTimer.ToString("#.#") + " seconds)");
+            return;
+        }
+            
         StartCoroutine(DashRoutine());
     }
 

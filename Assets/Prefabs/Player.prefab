@@ -23353,7 +23353,7 @@ MonoBehaviour:
   damageRadius: 2
   baseDamage: 15
   chargeSource: {fileID: 7072011364156543277}
-  cooldownSeconds: 1
+  cooldownSeconds: 7
   onDashReady:
     m_PersistentCalls:
       m_Calls: []
@@ -23365,6 +23365,7 @@ MonoBehaviour:
   playerCollider: {fileID: 6543476946709764180}
   dashingLayerName: Dashing
   defaultLayerName: Player
+  pum: {fileID: 6054618803417992408}
 --- !u!1 &2250742705893025093
 GameObject:
   m_ObjectHideFlags: 0

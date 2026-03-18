@@ -12,7 +12,7 @@ public class CrackenTentacleCollider : MonoBehaviour
 
     private KrakenManager km;
     public bool isCursed;
-    public float curseDamageMult;
+    public float curseDamageMult = 1.1f;
 
     private void Start()
     {
