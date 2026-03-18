@@ -4,9 +4,41 @@ using UnityEngine.AI;
 
 public class SkeletonSpawnManager : MonoBehaviour
 {
+    [System.Serializable]
+    public class EnemySpawnEntry
+    {
+        [Header("Enemy")]
+        public string enemyName;
+        public GameObject prefab;
+
+        [Header("Weighting")]
+        [Tooltip("Base chance weight for this enemy.")]
+        public float baseWeight = 10f;
+
+        [Tooltip("How much this enemy's weight changes every wave after wave 1.")]
+        public float weightChangePerWave = 0f;
+
+        [Tooltip("Minimum wave this enemy is allowed to spawn on.")]
+        public int minWave = 1;
+
+        [Tooltip("If true, this enemy can be spawned by the manager.")]
+        public bool enabled = true;
+
+        public float GetWeightForWave(int wave)
+        {
+            if (!enabled || prefab == null || wave < minWave)
+                return 0f;
+
+            float weight = baseWeight + ((wave - 1) * weightChangePerWave);
+            return Mathf.Max(0f, weight);
+        }
+    }
+
     [Header("General")]
     public Transform playerPos;
-    public GameObject[] enemies;
+
+    [Tooltip("Add as many enemy types as you want here.")]
+    public List<EnemySpawnEntry> enemyTypes = new List<EnemySpawnEntry>();
 
     [Header("Wave Settings")]
     public int startingWave = 1;
@@ -25,19 +57,6 @@ public class SkeletonSpawnManager : MonoBehaviour
     public float minimumSpawnRate = 0.4f;
     public float spawnRateDecreasePerWave = 0.1f;
 
-    [Header("Spawn Chance - Base Weights")]
-    public float basicSkeletonSpawnChance = 50f;
-    public float fireSkeletonSpawnChance = 20f;
-    public float waterSkeletonSpawnChance = 10f;
-    public float gunEnemySpawnChance = 10f;
-
-    [Header("Spawn Chance Scaling")]
-    [Tooltip("How much special enemy weight increases every wave.")]
-    public float specialWeightIncreasePerWave = 1.5f;
-
-    [Tooltip("Basic enemy weight can slowly fall so later waves feel less repetitive.")]
-    public float basicWeightDecreasePerWave = 1f;
-
     [Header("NavMesh")]
     public float navMeshSampleRadius = 4f;
     public float seaLevel = 0f;
@@ -46,6 +65,7 @@ public class SkeletonSpawnManager : MonoBehaviour
     [Header("Debug")]
     public bool autoStart = true;
     public bool waveInProgress = false;
+    public bool logChosenEnemy = false;
 
     private int waveCount;
     private int currentWaveSpawnTarget;
@@ -54,12 +74,14 @@ public class SkeletonSpawnManager : MonoBehaviour
     private float nextSpawnTime;
     private float nextWaveStartTime;
 
+    private float currentSpawnDistanceMax;
     private readonly List<GameObject> aliveEnemies = new List<GameObject>();
 
     private void Start()
     {
         waveCount = Mathf.Max(1, startingWave);
         currentSpawnRate = startingSpawnRate;
+        currentSpawnDistanceMax = spawnDistanceMax;
 
         if (autoStart)
         {
@@ -87,16 +109,12 @@ public class SkeletonSpawnManager : MonoBehaviour
         bool waveFinishedSpawning = spawnedThisWave >= currentWaveSpawnTarget;
         bool allEnemiesDead = aliveEnemies.Count == 0;
 
-        // If this wave has finished spawning and all spawned enemies are dead,
-        // move to next wave after a short intermission.
         if (waveFinishedSpawning && allEnemiesDead)
         {
             EndWave();
             return;
         }
 
-        // Keep spawning until this wave's target is reached,
-        // but do not exceed max alive count.
         if (Time.time >= nextSpawnTime &&
             spawnedThisWave < currentWaveSpawnTarget &&
             aliveEnemies.Count < maxAliveEnemies)
@@ -111,15 +129,15 @@ public class SkeletonSpawnManager : MonoBehaviour
         spawnedThisWave = 0;
 
         currentWaveSpawnTarget = startingSpawnCount + ((waveCount - 1) * spawnCountIncrementPerWave);
+
         currentSpawnRate = Mathf.Max(
             minimumSpawnRate,
             startingSpawnRate - ((waveCount - 1) * spawnRateDecreasePerWave)
         );
 
-        nextSpawnTime = Time.time + 1f;
+        currentSpawnDistanceMax = spawnDistanceMax + ((waveCount - 1) * spawnDistanceMaxIncreasePerWave);
 
-        // Increase spawn radius over time so the arena feels more active.
-        spawnDistanceMax += (waveCount > 1) ? spawnDistanceMaxIncreasePerWave : 0f;
+        nextSpawnTime = Time.time + 1f;
 
         Debug.Log($"Wave {waveCount} started. Target Spawns: {currentWaveSpawnTarget}");
     }
@@ -146,7 +164,7 @@ public class SkeletonSpawnManager : MonoBehaviour
 
     private void SpawnEnemy()
     {
-        if (!TryPickLocation(playerPos, spawnDistanceMin, spawnDistanceMax, seaLevel, out Vector3 location))
+        if (!TryPickLocation(playerPos, spawnDistanceMin, currentSpawnDistanceMax, seaLevel, out Vector3 location))
         {
             nextSpawnTime = Time.time + 0.5f;
             return;
@@ -155,6 +173,7 @@ public class SkeletonSpawnManager : MonoBehaviour
         GameObject prefab = PickEnemyForCurrentWave();
         if (prefab == null)
         {
+            Debug.LogWarning("SkeletonSpawnManager: No valid enemy prefab could be picked for this wave.");
             nextSpawnTime = Time.time + currentSpawnRate;
             return;
         }
@@ -214,54 +233,54 @@ public class SkeletonSpawnManager : MonoBehaviour
 
     private GameObject PickEnemyForCurrentWave()
     {
-        if (enemies == null || enemies.Length == 0)
+        if (enemyTypes == null || enemyTypes.Count == 0)
             return null;
 
-        GameObject basic = enemies.Length > 0 ? enemies[0] : null;
-        GameObject fire = enemies.Length > 1 ? enemies[1] : null;
-        GameObject water = enemies.Length > 2 ? enemies[2] : null;
-        GameObject gun = enemies.Length > 3 ? enemies[3] : null;
-
-        float basicWeight = Mathf.Max(5f, basicSkeletonSpawnChance - ((waveCount - 1) * basicWeightDecreasePerWave));
-        float fireWeight = Mathf.Max(0f, fireSkeletonSpawnChance + ((waveCount - 1) * specialWeightIncreasePerWave));
-        float waterWeight = Mathf.Max(0f, waterSkeletonSpawnChance + ((waveCount - 1) * specialWeightIncreasePerWave));
-        float gunWeight = Mathf.Max(0f, gunEnemySpawnChance + ((waveCount - 1) * specialWeightIncreasePerWave));
-
         float totalWeight = 0f;
-        if (basic != null) totalWeight += basicWeight;
-        if (fire != null) totalWeight += fireWeight;
-        if (water != null) totalWeight += waterWeight;
-        if (gun != null) totalWeight += gunWeight;
+
+        for (int i = 0; i < enemyTypes.Count; i++)
+        {
+            if (enemyTypes[i] == null)
+                continue;
+
+            totalWeight += enemyTypes[i].GetWeightForWave(waveCount);
+        }
 
         if (totalWeight <= 0f)
-            return basic;
+            return null;
 
         float roll = Random.Range(0f, totalWeight);
 
-        if (basic != null)
+        for (int i = 0; i < enemyTypes.Count; i++)
         {
-            if (roll < basicWeight) return basic;
-            roll -= basicWeight;
+            EnemySpawnEntry entry = enemyTypes[i];
+            if (entry == null)
+                continue;
+
+            float weight = entry.GetWeightForWave(waveCount);
+            if (weight <= 0f)
+                continue;
+
+            if (roll < weight)
+            {
+                if (logChosenEnemy)
+                {
+                    Debug.Log($"Spawned enemy: {entry.enemyName} | Wave: {waveCount} | Weight: {weight}");
+                }
+
+                return entry.prefab;
+            }
+
+            roll -= weight;
         }
 
-        if (fire != null)
+        for (int i = 0; i < enemyTypes.Count; i++)
         {
-            if (roll < fireWeight) return fire;
-            roll -= fireWeight;
+            if (enemyTypes[i] != null && enemyTypes[i].prefab != null)
+                return enemyTypes[i].prefab;
         }
 
-        if (water != null)
-        {
-            if (roll < waterWeight) return water;
-            roll -= waterWeight;
-        }
-
-        if (gun != null)
-        {
-            if (roll < gunWeight) return gun;
-        }
-
-        return basic;
+        return null;
     }
 
     public int GetAliveEnemyCount()
@@ -278,5 +297,13 @@ public class SkeletonSpawnManager : MonoBehaviour
     public int GetRemainingSpawnsThisWave()
     {
         return Mathf.Max(0, currentWaveSpawnTarget - spawnedThisWave);
+    }
+
+    public float GetWeightForEnemyAtIndex(int index)
+    {
+        if (enemyTypes == null || index < 0 || index >= enemyTypes.Count || enemyTypes[index] == null)
+            return 0f;
+
+        return enemyTypes[index].GetWeightForWave(waveCount);
     }
 }

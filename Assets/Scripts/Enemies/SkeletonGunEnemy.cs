@@ -198,27 +198,7 @@ public class SkeletonGunEnemy : MonoBehaviour
     {
         if (!agent) agent = GetComponent<NavMeshAgent>();
         _health = maxHealth;
-
-        /*agent.updateRotation = false;
-        _spawnPos = transform.position;
-
-        int id = Mathf.Abs(GetInstanceID());
-        _sensePhase = ((id * 0.6180339f) % 1f);
-        _repathPhase = ((id * 0.3819660f) % 1f);
-
-        float senseOffset = senseInterval * Mathf.Lerp(0f, _sensePhase, staggerStrength);
-        float repathOffset = chaseRepathInterval * Mathf.Lerp(0f, _repathPhase, staggerStrength);
-
-        _nextSenseTime = Time.time + senseOffset;
-        _nextRepathTime = Time.time + repathOffset;
-        _nextFindTargetTime = Time.time + (findTargetInterval * Mathf.Lerp(0f, _sensePhase, staggerStrength));
-
-        _nextShotAllowedTime = Time.time;
-
-        if (headLookConstraint != null)
-            headLookConstraint.weight = 0f;
-
-        SetAiming(false);*/
+        _nextSenseTime = Time.time + 2f;
     }
 
     private void Start()

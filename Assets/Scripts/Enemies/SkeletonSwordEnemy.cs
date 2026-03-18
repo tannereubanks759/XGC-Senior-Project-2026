@@ -324,6 +324,7 @@ public class SkeletonSwordEnemy : MonoBehaviour
     {
         _health = maxHealth;
         _spawnPos = this.transform.position;
+        _nextSenseTime = Time.time + 2f;
     }
 
     private IEnumerator Start()
@@ -340,6 +341,8 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
         SetState(startPatrolling ? State.Patrol : State.Idle);
         StartCoroutine(DelayedLookInit());
+
+        
     }
 
     private IEnumerator DelayedLookInit()
@@ -348,24 +351,10 @@ public class SkeletonSwordEnemy : MonoBehaviour
         yield return new WaitForSeconds(0.15f);
         AcquireTargetIfNeeded(force: true);
     }
-    private void TrySnapToNavMesh()
-    {
-        if (!agent || !agent.enabled) return;
-        if (agent.isOnNavMesh) return;
-
-        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2.0f, agent.areaMask))
-        {
-            agent.Warp(hit.position);
-        }
-    }
     private void Update()
     {
         if (_state == State.Dead) return;
 
-        // ALWAYS try to acquire target even if agent isn't ready/on navmesh yet
-        //AcquireTargetIfNeeded(force: false);
-        //TrySnapToNavMesh();
-        // If agent isn't valid yet, bail after trying target acquire
         if (!agent || !agent.enabled || !agent.isOnNavMesh) return;
 
         UpdateTargetVelocityEstimate();

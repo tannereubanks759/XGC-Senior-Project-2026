@@ -169,13 +169,14 @@ public class SkeletonBombEnemy : MonoBehaviour
         if (!agent) agent = GetComponent<NavMeshAgent>();
         health = maxHealth;
         spawnPos = transform.position;
+        nextSenseTime = Time.time + 2f;
     }
 
     private IEnumerator Start()
     {
         yield return null;
 
-        TrySnapToNavMesh();
+        //TrySnapToNavMesh();
 
         if (!agent || !agent.enabled || !agent.isOnNavMesh)
             yield break;
