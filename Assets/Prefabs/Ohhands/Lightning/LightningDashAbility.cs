@@ -66,6 +66,7 @@ public class LightningDashAbility : MonoBehaviour
     private int dashingLayer;
     public TextMeshProUGUI cooldownTime;
     public GameObject dashUIObject;
+    public FirstPersonController fpc;
 
     private void Awake()
     {
@@ -91,8 +92,8 @@ public class LightningDashAbility : MonoBehaviour
         }
         StopAllCoroutines();
         SetVignetteAlpha(0f);
-        if (playerCamera != null)
-            playerCamera.fieldOfView = baseFov;
+       /* if (playerCamera != null)
+            playerCamera.fieldOfView = fpc.fov;*/
         recoveringFov = false;
         recoveringVignette = false;
         rb.useGravity = true;

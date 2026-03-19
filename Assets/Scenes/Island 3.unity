@@ -40348,6 +40348,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tentacle: {fileID: 1056922980}
   health: 100
+  isCursed: 0
+  curseDamageMult: 0
 --- !u!114 &669477203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139638,6 +139640,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tentacle: {fileID: 319969396}
   health: 100
+  isCursed: 0
+  curseDamageMult: 0
 --- !u!54 &2038907452
 Rigidbody:
   m_ObjectHideFlags: 0
