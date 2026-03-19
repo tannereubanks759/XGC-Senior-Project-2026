@@ -319,7 +319,29 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private float _stunEndTime = -999f;
 
     private bool _lookSourceInitialized;
+    private bool registeredAsHostile = false;
 
+    private void UpdateCombatRegistration(bool shouldBeHostile)
+    {
+        if (shouldBeHostile && !registeredAsHostile)
+        {
+            registeredAsHostile = true;
+            CombatTracker.Instance?.RegisterHostile(this);
+        }
+        else if (!shouldBeHostile && registeredAsHostile)
+        {
+            registeredAsHostile = false;
+            CombatTracker.Instance?.UnregisterHostile(this);
+        }
+    }
+    private void OnDisable()
+    {
+        if (registeredAsHostile)
+        {
+            CombatTracker.Instance?.UnregisterHostile(this);
+            registeredAsHostile = false;
+        }
+    }
     private void Awake()
     {
         _health = maxHealth;
@@ -368,7 +390,12 @@ public class SkeletonSwordEnemy : MonoBehaviour
         UpdateCombatMoveTuning();
         UpdateAnimatorLocomotion();
         UpdateHeadLookConstraint();
+        bool hostile =
+        _state != State.Idle &&
+        _state != State.Patrol &&
+        _state != State.Dead;
 
+        UpdateCombatRegistration(hostile);
         if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase ||
             _state == State.Strafe || _state == State.Defensive || _state == State.Attack || _state == State.Recover)
             FaceTargetOrMovement();

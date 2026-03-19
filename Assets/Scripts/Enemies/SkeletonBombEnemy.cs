@@ -157,7 +157,28 @@ public class SkeletonBombEnemy : MonoBehaviour
     private bool fuseStarted = false;
     private float explodeAtTime = -1f;
     private bool hasExploded = false;
-
+    private bool registeredAsHostile = false;
+    private void OnDisable()
+    {
+        if (registeredAsHostile)
+        {
+            CombatTracker.Instance?.UnregisterHostile(this);
+            registeredAsHostile = false;
+        }
+    }
+    private void UpdateCombatRegistration(bool shouldBeHostile)
+    {
+        if (shouldBeHostile && !registeredAsHostile)
+        {
+            registeredAsHostile = true;
+            CombatTracker.Instance?.RegisterHostile(this);
+        }
+        else if (!shouldBeHostile && registeredAsHostile)
+        {
+            registeredAsHostile = false;
+            CombatTracker.Instance?.UnregisterHostile(this);
+        }
+    }
     private void Reset()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -200,7 +221,12 @@ public class SkeletonBombEnemy : MonoBehaviour
 
         UpdateAnimatorLocomotion();
         FaceTargetOrMovement();
+        bool hostile =
+        state != State.Idle &&
+        state != State.Patrol &&
+        state != State.Dead;
 
+        UpdateCombatRegistration(hostile);
         if (fuseStarted && !hasExploded && Time.time >= explodeAtTime)
         {
             ExplodeNow();

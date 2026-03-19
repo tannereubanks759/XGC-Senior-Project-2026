@@ -1,9 +1,7 @@
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.UI;   
-
+using UnityEngine.UI;
 
 public class OptionsMenu : MonoBehaviour
 {
@@ -14,26 +12,35 @@ public class OptionsMenu : MonoBehaviour
     public float minVolumeDb = -40f;
     public float maxVolumeDb = 10f;
 
-
     [Header("Ambience")]
     public Slider ambientSoundSlider;
     public AudioMixer ambientAudioMixer;
 
+    [Header("Music")]
+    public Slider musicSoundSlider;
+    public AudioMixer musicAudioMixer;
+
     [Header("Fx")]
     public Slider fxSoundSlider;
     public AudioMixer fxAudioMixer;
+    [Header("Master")]
+    public Slider masterSlider;
+    public AudioMixer masterAudioMixer;
 
     [Header("Sens")]
     public TMP_InputField input;
     public FirstPersonController controller;
     public float defaultSens = 2f;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+
     void Start()
     {
         UpdateAmbientVolume();
+        UpdateMusicVolume();
         UpdateFxVolume();
+        UpdateMasterVolume();
         input.text = defaultSens.ToString();
         UpdateMouseSensitivity();
+
         MainPauseScreen.SetActive(true);
         OptionsScreen.SetActive(false);
     }
@@ -43,6 +50,7 @@ public class OptionsMenu : MonoBehaviour
         MainPauseScreen.SetActive(false);
         OptionsScreen.SetActive(true);
     }
+
     public void BackButton()
     {
         MainPauseScreen.SetActive(true);
@@ -51,20 +59,36 @@ public class OptionsMenu : MonoBehaviour
 
     public void UpdateMouseSensitivity()
     {
-        controller.mouseSensitivity = float.Parse(input.text);
+        if (float.TryParse(input.text, out float sens))
+        {
+            controller.mouseSensitivity = sens;
+        }
     }
+
     public void UpdateAmbientVolume()
     {
-        float t = ambientSoundSlider.value;          // 0..1
+        float t = ambientSoundSlider.value;   // 0..1
         float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
-        ambientAudioMixer.SetFloat("MasterVolume", dB);
+        ambientAudioMixer.SetFloat("AmbientVolume", dB);
+    }
+
+    public void UpdateMusicVolume()
+    {
+        float t = musicSoundSlider.value;   // 0..1
+        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
+        musicAudioMixer.SetFloat("MusicVolume", dB);
     }
 
     public void UpdateFxVolume()
     {
-        float t = fxSoundSlider.value;              // 0..1
+        float t = fxSoundSlider.value;   // 0..1
         float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
-        fxAudioMixer.SetFloat("MasterVolumeFX", dB);
+        fxAudioMixer.SetFloat("FXVolume", dB);
     }
-
+    public void UpdateMasterVolume()
+    {
+        float t = masterSlider.value;   // 0..1
+        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
+        masterAudioMixer.SetFloat("MasterVolume", dB);
+    }
 }

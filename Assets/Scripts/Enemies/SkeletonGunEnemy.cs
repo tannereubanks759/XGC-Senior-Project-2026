@@ -186,7 +186,21 @@ public class SkeletonGunEnemy : MonoBehaviour
     private float _repositionEndTime = -999f;
     private float _nextRepositionAttemptTime = -999f;
     private bool _forceRepositionAfterShot = false;
+    private bool registeredAsHostile = false;
 
+    private void UpdateCombatRegistration(bool shouldBeHostile)
+    {
+        if (shouldBeHostile && !registeredAsHostile)
+        {
+            registeredAsHostile = true;
+            CombatTracker.Instance?.RegisterHostile(this);
+        }
+        else if (!shouldBeHostile && registeredAsHostile)
+        {
+            registeredAsHostile = false;
+            CombatTracker.Instance?.UnregisterHostile(this);
+        }
+    }
     private void Reset()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -221,7 +235,12 @@ public class SkeletonGunEnemy : MonoBehaviour
         UpdateCombatMoveTuning();
         UpdateAnimatorLocomotion();
         UpdateHeadLookConstraint();
+        bool hostile =
+        _state != State.Idle &&
+        _state != State.Patrol &&
+        _state != State.Dead;
 
+        UpdateCombatRegistration(hostile);
         // Facing:
         // - Aim/Fire/Reposition: always face target while moving/acting
         // - Chase/Patrol/Investigate: face target or movement
@@ -230,7 +249,14 @@ public class SkeletonGunEnemy : MonoBehaviour
         else if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase)
             FaceTargetOrMovement();
     }
-
+    private void OnDisable()
+    {
+        if (registeredAsHostile)
+        {
+            CombatTracker.Instance?.UnregisterHostile(this);
+            registeredAsHostile = false;
+        }
+    }
     private void AcquireTargetIfNeeded()
     {
         if (target != null && targetHead != null) return;
