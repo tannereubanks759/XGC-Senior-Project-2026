@@ -11,6 +11,9 @@ public class OptionsMenu : MonoBehaviour
     [Header("Volume Range (dB)")]
     public float minVolumeDb = -40f;
     public float maxVolumeDb = 10f;
+    [Header("Master Volume Range (dB)")]
+    public float minMasterVolumeDb = -40f;
+    public float maxMasterVolumeDb = 10f;
 
     [Header("Ambience")]
     public Slider ambientSoundSlider;
@@ -88,7 +91,7 @@ public class OptionsMenu : MonoBehaviour
     public void UpdateMasterVolume()
     {
         float t = masterSlider.value;   // 0..1
-        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
+        float dB = Mathf.Lerp(minMasterVolumeDb, maxMasterVolumeDb, t);
         masterAudioMixer.SetFloat("MasterVolume", dB);
     }
 }
