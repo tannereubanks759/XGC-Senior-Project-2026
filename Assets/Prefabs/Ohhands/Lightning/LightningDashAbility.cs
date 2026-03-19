@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 public class LightningDashAbility : MonoBehaviour
 {
     [Header("Dash")]
+    public bool dashUnlocked;
     public float blinkDistance = 10f;
     public float dashTravelDuration = 0.12f;
     public AnimationCurve travelCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -62,9 +64,16 @@ public class LightningDashAbility : MonoBehaviour
     private bool recoveringVignette = false;
     private int normalLayer;
     private int dashingLayer;
+    public TextMeshProUGUI cooldownTime;
+    public GameObject dashUIObject;
 
     private void Awake()
     {
+        if(!dashUnlocked)
+        {
+            dashUIObject.SetActive(false);
+            return;
+        }
         if (playerCamera == null) playerCamera = Camera.main;
         baseFov = playerCamera.fieldOfView;
         normalLayer = LayerMask.NameToLayer(defaultLayerName);
@@ -75,6 +84,11 @@ public class LightningDashAbility : MonoBehaviour
     }
     private void OnDisable()
     {
+        if (!dashUnlocked)
+        {
+            dashUIObject.SetActive(false);
+            return;
+        }
         StopAllCoroutines();
         SetVignetteAlpha(0f);
         if (playerCamera != null)
@@ -85,13 +99,26 @@ public class LightningDashAbility : MonoBehaviour
         if (controller != null) controller.playerCanMove = true;
         playerCollider.gameObject.layer = normalLayer;
     }
+    private void PlaySound(AudioClip clip, float vol = 1f)
+    {
+        if (source != null && clip != null)
+            source.PlayOneShot(clip, vol);
+    }
     private void Update()
     {
+        if (dashUnlocked)
+        {
+            dashUIObject.SetActive(true);
+            
+        }
         if (!canDash)
         {
+            cooldownTime.alpha = 1f;
             cooldownTimer -= Time.deltaTime;
+            cooldownTime.text = cooldownTimer.ToString("#");
             if (cooldownTimer <= 0f)
             {
+                cooldownTime.alpha = 0f;
                 canDash = true;
                 onDashReady?.Invoke();
             }
@@ -149,75 +176,84 @@ public class LightningDashAbility : MonoBehaviour
         recoveringFov = false;
         recoveringVignette = false;
         SetVignetteAlpha(vignetteStartAlpha);
+        PlaySound(dashSound, dashVol);
+        try
+        {
+            while (elapsed < chargeUpDuration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / chargeUpDuration);
+                float tEased = t * t;
 
+                playerCamera.fieldOfView = Mathf.Lerp(startFov, boostedFov, tEased);
+                SetVignetteAlpha(Mathf.Lerp(vignetteStartAlpha, vignettePeakAlpha, tEased));
+
+                yield return null;
+            }
+
+            playerCamera.fieldOfView = boostedFov;
+            SetVignetteAlpha(vignettePeakAlpha);
+
+            // Destination
+            Vector3 dir = Camera.main.transform.forward;
+            dir.y = 0f;
+            if (dir.sqrMagnitude < 1e-4f) yield break;
+            dir.Normalize();
+
+            Vector3 origin = transform.position;
+
+            float travelDistance = blinkDistance;
+            if (Physics.SphereCast(origin, playerRadius, dir, out RaycastHit wallHit, blinkDistance, blockingMask, QueryTriggerInteraction.Ignore))
+                travelDistance = Mathf.Max(0f, wallHit.distance - playerRadius * 1.1f);
+
+            Vector3 horizontalDestination = origin + dir * travelDistance;
+            Vector3 groundCheckOrigin = horizontalDestination + Vector3.up * groundCheckRayHeight;
+            Vector3 destination = horizontalDestination;
+
+            if (Physics.Raycast(groundCheckOrigin, Vector3.down, out RaycastHit groundHit,
+                groundCheckRayHeight + groundCheckRayDepth, groundMask, QueryTriggerInteraction.Ignore))
+                destination = groundHit.point + Vector3.up * groundOffset;
+
+            //Dash travel
+            playerCollider.gameObject.layer = dashingLayer;
+            if (controller != null) controller.playerCanMove = false;
+
+            float charge = GetCharge01();
+            float damage = baseDamage + (charge * .2f);
+            HashSet<DamageRef> hitAlready = new HashSet<DamageRef>();
+
+            rb.linearVelocity = Vector3.zero;
+            rb.useGravity = false;
+
+            float dashElapsed = 0f;
+            float duration = Mathf.Max(0.0001f, dashTravelDuration);
+
+            while (dashElapsed < duration)
+            {
+                yield return new WaitForFixedUpdate();
+                dashElapsed += Time.fixedDeltaTime;
+                float t = Mathf.Clamp01(dashElapsed / duration);
+                float curved = travelCurve.Evaluate(t);
+
+                rb.MovePosition(Vector3.LerpUnclamped(origin, destination, curved));
+                DoDashDamage(transform.position, damage, hitAlready);
+            }
+
+            rb.MovePosition(destination);
+        }
         // Charge up
-        while (elapsed < chargeUpDuration)
+        finally
         {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / chargeUpDuration);
-            float tEased = t * t;
+            rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero;
+            if (controller != null) controller.playerCanMove = true;
+            playerCollider.gameObject.layer = normalLayer;
 
-            playerCamera.fieldOfView = Mathf.Lerp(startFov, boostedFov, tEased);
-            SetVignetteAlpha(Mathf.Lerp(vignetteStartAlpha, vignettePeakAlpha, tEased));
-
-            yield return null;
+            playerCamera.fieldOfView = baseFov;
+            SetVignetteAlpha(0f);
+            recoveringFov = false;
+            recoveringVignette = false;
         }
-
-        playerCamera.fieldOfView = boostedFov;
-        SetVignetteAlpha(vignettePeakAlpha);
-
-        // Destination
-        Vector3 dir = Camera.main.transform.forward;
-        dir.y = 0f;
-        if (dir.sqrMagnitude < 1e-4f) yield break;
-        dir.Normalize();
-
-        Vector3 origin = transform.position;
-
-        float travelDistance = blinkDistance;
-        if (Physics.SphereCast(origin, playerRadius, dir, out RaycastHit wallHit, blinkDistance, blockingMask, QueryTriggerInteraction.Ignore))
-            travelDistance = Mathf.Max(0f, wallHit.distance - playerRadius * 1.1f);
-
-        Vector3 horizontalDestination = origin + dir * travelDistance;
-        Vector3 groundCheckOrigin = horizontalDestination + Vector3.up * groundCheckRayHeight;
-        Vector3 destination = horizontalDestination;
-
-        if (Physics.Raycast(groundCheckOrigin, Vector3.down, out RaycastHit groundHit,
-            groundCheckRayHeight + groundCheckRayDepth, groundMask, QueryTriggerInteraction.Ignore))
-            destination = groundHit.point + Vector3.up * groundOffset;
-
-        //Dash travel
-        playerCollider.gameObject.layer = dashingLayer;
-        if (controller != null) controller.playerCanMove = false;
-
-        float charge = GetCharge01();
-        float damage = baseDamage + (charge * .2f);
-        HashSet<DamageRef> hitAlready = new HashSet<DamageRef>();
-
-        rb.linearVelocity = Vector3.zero;
-        rb.useGravity = false;
-
-        float dashElapsed = 0f;
-        float duration = Mathf.Max(0.0001f, dashTravelDuration);
-
-        while (dashElapsed < duration)
-        {
-            yield return new WaitForFixedUpdate();
-            dashElapsed += Time.fixedDeltaTime;
-            float t = Mathf.Clamp01(dashElapsed / duration);
-            float curved = travelCurve.Evaluate(t);
-
-            rb.MovePosition(Vector3.LerpUnclamped(origin, destination, curved));
-            DoDashDamage(transform.position, damage, hitAlready);
-        }
-
-        rb.MovePosition(destination);
-        rb.useGravity = true;
-        if (controller != null) controller.playerCanMove = true;
-        playerCollider.gameObject.layer = normalLayer;
-
-        recoveringFov = true;
-        recoveringVignette = true;
     }
 
     private void SetVignetteAlpha(float alpha)
