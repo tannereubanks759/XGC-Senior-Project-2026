@@ -6,7 +6,7 @@ public class GoldBank : MonoBehaviour
     public int gold;
 
     public TextMeshProUGUI goldText;
-
+    public TextMeshProUGUI UpgradeText;
     private void Start()
     {
         
@@ -28,6 +28,7 @@ public class GoldBank : MonoBehaviour
     public void UpdateGold()
     {
         goldText.text = gold.ToString();
+        UpgradeText.text = gold.ToString();
     }
     private void Update()
     {

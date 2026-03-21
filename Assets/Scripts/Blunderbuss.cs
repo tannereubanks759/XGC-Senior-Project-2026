@@ -47,6 +47,10 @@ public class Blunderbuss : MonoBehaviour
         {
             sounds.PlayEquipSound();
         }
+        if (ammoText)
+        {
+            ammoText.text = "x" + totalAmmo;
+        }
         
         anim.SetInteger("ammo", totalAmmo);
         if (isLoaded) anim.SetBool("canShoot", true);
@@ -55,6 +59,10 @@ public class Blunderbuss : MonoBehaviour
     void Update()
     {
         if (ui.isPaused) return;
+        if(Time.timeScale == 0)
+        {
+            return;
+        }
         if (Input.GetKeyDown(shootKey) && isLoaded)
             anim.SetTrigger("Shoot");
         else if (Input.GetKeyDown(shootKey))
