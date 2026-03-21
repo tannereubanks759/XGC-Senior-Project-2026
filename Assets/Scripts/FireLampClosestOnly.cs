@@ -1,5 +1,7 @@
 using UnityEngine;
 using UnityEngine.Animations;
+using UnityEngine.SceneManagement;
+using System.Collections;
 using System.Collections.Generic;
 
 public class FireLampClosestOnly : MonoBehaviour
@@ -30,6 +32,18 @@ public class FireLampClosestOnly : MonoBehaviour
     public GameObject text;
     public KeyCode collectKey = KeyCode.E;
 
+    [Header("Respawn")]
+    public bool respawnFire = true;
+    public GameObject firePrefab;
+    public float respawnDelay = 10f;
+
+    [Tooltip("Optional. If left empty, the fire respawns at this object's transform.")]
+    public Transform fireSpawnPoint;
+
+    [Header("Scene Restriction")]
+    public bool onlyRespawnInSpecificScene = true;
+    public string allowedSceneName = "YourSceneNameHere";
+
     [Header("Runtime")]
     public bool playerInRange = false;
     public bool hasCollected = false;
@@ -39,9 +53,11 @@ public class FireLampClosestOnly : MonoBehaviour
 
     public LookAtConstraint constraint;
     private Transform currentSource;
+    private Transform currentPlayerTransform;
 
     private bool playerInsideTrigger = false;
     private bool baseEligible = false;
+    private Coroutine respawnRoutine;
 
     void OnEnable()
     {
@@ -61,14 +77,26 @@ public class FireLampClosestOnly : MonoBehaviour
 
         if (ClosestEligible == this) ClosestEligible = null;
         DirtyClosest = true;
+
+        if (respawnRoutine != null)
+        {
+            StopCoroutine(respawnRoutine);
+            respawnRoutine = null;
+        }
     }
 
     void Awake()
     {
-        fire = GetComponentInChildren<FireSourceScript>(true);
-        if (text != null) text.SetActive(false);
+        RefreshFireReference();
 
-        constraint = GetComponentInChildren<LookAtConstraint>(true);
+        if (text != null)
+            text.SetActive(false);
+
+        if (fireSpawnPoint == null)
+            fireSpawnPoint = transform;
+
+        RefreshConstraintReference();
+
         if (constraint != null)
         {
             constraint.constraintActive = false;
@@ -78,13 +106,15 @@ public class FireLampClosestOnly : MonoBehaviour
 
     void Update()
     {
+        RefreshRuntimeReferences();
+
         if (PlayerRoot == null || PlayerLook == null)
         {
             SetActiveLamp(false);
+            DisableConstraintIfNeeded();
             return;
         }
 
-        // Compute closest only while player is in at least one lamp trigger
         if (PlayersInsideCount > 0)
         {
             int f = Time.frameCount;
@@ -101,10 +131,10 @@ public class FireLampClosestOnly : MonoBehaviour
 
         bool isActiveLamp = (ClosestEligible == this);
 
-        // Non-active lamps are forced OFF (no prompt, no collect)
         if (!isActiveLamp)
         {
             SetActiveLamp(false);
+            MaintainLookConstraint();
             return;
         }
 
@@ -115,35 +145,49 @@ public class FireLampClosestOnly : MonoBehaviour
             !fire.isCollected;
 
         SetActiveLamp(canCollect);
+        MaintainLookConstraint();
 
-        // FINAL GUARANTEE:
-        // - must be the active lamp (ClosestEligible == this)
-        // - must be showing prompt (playerInRange true, not text.activeSelf)
-        // - must not have already consumed the collect this frame
         if (playerInRange &&
             Input.GetKeyDown(collectKey) &&
             LastCollectFrame != Time.frameCount)
         {
             LastCollectFrame = Time.frameCount;
 
-            fire.isCollected = true;
+            if (fire != null)
+                fire.isCollected = true;
+
             hasCollected = true;
 
             SetBaseEligible(false);
             SetActiveLamp(false);
 
             ClearConstraintSources();
-            if (constraint != null) constraint.constraintActive = false;
+            DisableConstraintIfNeeded();
 
             DirtyClosest = true;
+
+            if (respawnFire && CanRespawnInCurrentScene())
+            {
+                if (respawnRoutine != null)
+                    StopCoroutine(respawnRoutine);
+
+                respawnRoutine = StartCoroutine(RespawnFireAfterDelay());
+            }
         }
+    }
+
+    private bool CanRespawnInCurrentScene()
+    {
+        if (!onlyRespawnInSpecificScene)
+            return true;
+
+        return SceneManager.GetActiveScene().name == allowedSceneName;
     }
 
     private void SetActiveLamp(bool on)
     {
         playerInRange = on;
 
-        // Showing prompt is purely visual; collection uses playerInRange.
         if (text != null && text.activeSelf != on)
             text.SetActive(on);
     }
@@ -152,6 +196,7 @@ public class FireLampClosestOnly : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
+        currentPlayerTransform = other.transform;
         CachePlayerTransforms(other);
 
         if (!playerInsideTrigger)
@@ -160,11 +205,8 @@ public class FireLampClosestOnly : MonoBehaviour
             PlayersInsideCount++;
         }
 
-        if (constraint == null)
-            constraint = GetComponentInChildren<LookAtConstraint>(true);
-
-        if (constraint != null)
-            EnsureLookAtSource(other.transform);
+        RefreshConstraintReference();
+        EnsureLookAtSource(other.transform);
 
         DirtyClosest = true;
         NextRecomputeFrame = 0;
@@ -174,7 +216,10 @@ public class FireLampClosestOnly : MonoBehaviour
     {
         if (!other.CompareTag("Player")) return;
 
+        currentPlayerTransform = other.transform;
         CachePlayerTransforms(other);
+        RefreshRuntimeReferences();
+        EnsureLookAtSource(other.transform);
 
         if (!playerInsideTrigger)
         {
@@ -192,12 +237,13 @@ public class FireLampClosestOnly : MonoBehaviour
 
         if (fireballParent == null)
         {
-            var offhand = other.GetComponentInChildren<offhandHandler>();
-            if (offhand != null) fireballParent = offhand.fireBall;
+            var offhand = other.GetComponentInChildren<offhandHandler>(true);
+            if (offhand != null)
+                fireballParent = offhand.fireBall;
         }
 
         if (fm == null)
-            fm = other.GetComponentInChildren<FireballManager>();
+            fm = other.GetComponentInChildren<FireballManager>(true);
 
         bool canCollectIgnoringClosest =
             fireballParent != null &&
@@ -218,13 +264,16 @@ public class FireLampClosestOnly : MonoBehaviour
             PlayersInsideCount = Mathf.Max(0, PlayersInsideCount - 1);
         }
 
+        if (currentPlayerTransform == other.transform)
+            currentPlayerTransform = null;
+
         SetBaseEligible(false);
         SetActiveLamp(false);
 
         if (other.transform == currentSource)
         {
             ClearConstraintSources();
-            if (constraint != null) constraint.constraintActive = false;
+            DisableConstraintIfNeeded();
         }
 
         DirtyClosest = true;
@@ -235,7 +284,6 @@ public class FireLampClosestOnly : MonoBehaviour
     {
         PlayerRoot = playerCollider.transform;
 
-        // Prefer camera for "looking at"
         var cam = playerCollider.GetComponentInChildren<Camera>(true);
         PlayerLook = (cam != null) ? cam.transform : PlayerRoot;
     }
@@ -271,12 +319,13 @@ public class FireLampClosestOnly : MonoBehaviour
             var lamp = All[i];
             if (lamp == null) continue;
 
+            lamp.RefreshRuntimeReferences();
+
             if (!lamp.playerInsideTrigger) continue;
             if (!lamp.baseEligible) continue;
             if (lamp.hasCollected) continue;
             if (lamp.fire != null && lamp.fire.isCollected) continue;
 
-            // Look cone check
             Vector3 targetPos = lamp.GetLookTargetPosition();
             Vector3 toLamp = targetPos - lookPos;
 
@@ -291,7 +340,6 @@ public class FireLampClosestOnly : MonoBehaviour
                 if (dot < cosLimit) continue;
             }
 
-            // Closest
             Vector3 d = lamp.transform.position - playerPos;
             float distSqr = d.sqrMagnitude;
 
@@ -313,19 +361,92 @@ public class FireLampClosestOnly : MonoBehaviour
         return transform.position;
     }
 
+    private void RefreshRuntimeReferences()
+    {
+        RefreshFireReference();
+        RefreshConstraintReference();
+    }
+
+    private void RefreshFireReference()
+    {
+        if (fire != null)
+            return;
+
+        fire = GetComponentInChildren<FireSourceScript>(true);
+    }
+
+    private void RefreshConstraintReference()
+    {
+        if (constraint != null)
+            return;
+
+        constraint = GetComponentInChildren<LookAtConstraint>(true);
+    }
+
+    private void MaintainLookConstraint()
+    {
+        RefreshConstraintReference();
+
+        if (!playerInsideTrigger || currentPlayerTransform == null)
+        {
+            ClearConstraintSources();
+            DisableConstraintIfNeeded();
+            return;
+        }
+
+        EnsureLookAtSource(currentPlayerTransform);
+    }
+
     private void EnsureLookAtSource(Transform target)
     {
+        if (target == null)
+        {
+            ClearConstraintSources();
+            DisableConstraintIfNeeded();
+            return;
+        }
+
+        RefreshConstraintReference();
         if (constraint == null) return;
 
-        if (currentSource == target && constraint.constraintActive) return;
+        bool needsRebind = false;
 
-        ClearConstraintSources();
+        if (currentSource != target)
+        {
+            needsRebind = true;
+        }
+        else if (constraint.sourceCount == 0)
+        {
+            needsRebind = true;
+        }
+        else
+        {
+            ConstraintSource existing = constraint.GetSource(0);
+            if (existing.sourceTransform != target || existing.weight <= 0f)
+                needsRebind = true;
+        }
 
-        var source = new ConstraintSource { sourceTransform = target, weight = 1f };
-        constraint.AddSource(source);
-        currentSource = target;
+        if (needsRebind)
+        {
+            ClearConstraintSources();
 
-        constraint.constraintActive = true;
+            var source = new ConstraintSource
+            {
+                sourceTransform = target,
+                weight = 1f
+            };
+
+            constraint.AddSource(source);
+            currentSource = target;
+        }
+
+        if (!constraint.locked)
+            constraint.locked = true;
+
+        if (!constraint.constraintActive)
+            constraint.constraintActive = true;
+
+        constraint.weight = 1f;
     }
 
     private void ClearConstraintSources()
@@ -333,5 +454,64 @@ public class FireLampClosestOnly : MonoBehaviour
         if (constraint == null) return;
         constraint.SetSources(new List<ConstraintSource>());
         currentSource = null;
+    }
+
+    private void DisableConstraintIfNeeded()
+    {
+        if (constraint != null)
+            constraint.constraintActive = false;
+    }
+
+    private IEnumerator RespawnFireAfterDelay()
+    {
+        yield return new WaitForSeconds(respawnDelay);
+
+        if (!CanRespawnInCurrentScene())
+        {
+            respawnRoutine = null;
+            yield break;
+        }
+
+        if (fire != null)
+        {
+            Destroy(fire.gameObject);
+            fire = null;
+        }
+
+        if (constraint != null && fire != null)
+        {
+            constraint = null;
+        }
+        else
+        {
+            constraint = null;
+        }
+
+        if (firePrefab != null)
+        {
+            GameObject newFireObj = Instantiate(
+                firePrefab,
+                fireSpawnPoint.position,
+                fireSpawnPoint.rotation,
+                fireSpawnPoint
+            );
+
+            fire = newFireObj.GetComponent<FireSourceScript>();
+
+            if (fire == null)
+                fire = newFireObj.GetComponentInChildren<FireSourceScript>(true);
+        }
+
+        RefreshRuntimeReferences();
+
+        hasCollected = false;
+        SetBaseEligible(false);
+        SetActiveLamp(false);
+        DirtyClosest = true;
+
+        if (playerInsideTrigger && currentPlayerTransform != null)
+            EnsureLookAtSource(currentPlayerTransform);
+
+        respawnRoutine = null;
     }
 }

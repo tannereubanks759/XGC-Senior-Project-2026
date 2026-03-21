@@ -46,7 +46,6 @@ public class FireSourceScript : MonoBehaviour
 
     public bool isCollected = false;
     public FireLamp lamp;
-    public LookAtConstraint constraint;
     private void Awake()
     {
         lamp = GetComponentInParent<FireLamp>();
