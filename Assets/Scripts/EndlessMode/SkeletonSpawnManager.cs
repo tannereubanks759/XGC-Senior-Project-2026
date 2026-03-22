@@ -179,7 +179,28 @@ public class SkeletonSpawnManager : MonoBehaviour
         }
 
         GameObject spawned = Instantiate(prefab, location, Quaternion.identity);
-        aliveEnemies.Add(spawned);
+
+        //autodetect code
+        SkeletonGunEnemy gunEnemy = spawned.GetComponent<SkeletonGunEnemy>();
+        SkeletonSwordEnemy swordEnemy = spawned.GetComponent<SkeletonSwordEnemy>();
+        SkeletonBombEnemy bombEnemy = spawned.GetComponent<SkeletonBombEnemy>();
+        if (gunEnemy)
+        {
+            gunEnemy.visionRange = 100;
+            gunEnemy.autoDetectRange = 100;
+        }
+        else if (swordEnemy)
+        {
+            swordEnemy.visionRange = 100;
+            swordEnemy.autoDetectRange = 100;
+        }
+        else if (bombEnemy)
+        {
+            bombEnemy.visionRange = 100;
+            bombEnemy.autoDetectRange = 100;
+        }
+
+            aliveEnemies.Add(spawned);
 
         spawnedThisWave++;
         nextSpawnTime = Time.time + currentSpawnRate;
