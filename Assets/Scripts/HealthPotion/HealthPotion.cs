@@ -69,7 +69,7 @@ public class HealthPotion : MonoBehaviour
         SetQuantity(Quantity += 1); //Add one health potion
         SetText(GetQuantity().ToString()); //update the UI
     }
-
+    
     public void ConsumeHealthPotion()
     {
         source.PlayOneShot(drinkPotion);
