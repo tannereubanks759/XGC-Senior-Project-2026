@@ -30,6 +30,7 @@ public class offhandHandler : MonoBehaviour
     private curseOffhand curseScript;
     private bool wasBlunderbussActive = false;
     private bool skipLastEquiped = false;
+    public LightningDashAbility lda;
     //public GameObject lightningTut;
     //public GameObject curseTut;
     //public GameObject fireballTut;
@@ -152,7 +153,8 @@ public class offhandHandler : MonoBehaviour
         // upgrade 2
         if (lightningUpgradeCount >= 2 && allOffhands.Length > 3 && allOffhands[3] != null)
         {
-            allOffhands[3].OnEquip(player);
+            //allOffhands[3].OnEquip(player);
+            lda.dashUnlocked = true;
             upgradeTracker.lightningUpgradeCount = 2;
         }
         currentOffhandType = OffhandType.Lightning;

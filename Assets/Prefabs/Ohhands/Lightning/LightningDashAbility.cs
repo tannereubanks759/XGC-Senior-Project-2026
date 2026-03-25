@@ -150,7 +150,7 @@ public class LightningDashAbility : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F) && dashUnlocked)
             TryDash();
     }
 
@@ -172,8 +172,9 @@ public class LightningDashAbility : MonoBehaviour
         onDashUsed?.Invoke();
 
         float elapsed = 0f;
+        baseFov = fpc.fov;
         float startFov = playerCamera.fieldOfView;
-        float boostedFov = baseFov + chargeUpFovBoost;
+        float boostedFov = startFov + chargeUpFovBoost;
         recoveringFov = false;
         recoveringVignette = false;
         SetVignetteAlpha(vignetteStartAlpha);
@@ -249,11 +250,8 @@ public class LightningDashAbility : MonoBehaviour
             rb.linearVelocity = Vector3.zero;
             if (controller != null) controller.playerCanMove = true;
             playerCollider.gameObject.layer = normalLayer;
-
-            playerCamera.fieldOfView = baseFov;
-            SetVignetteAlpha(0f);
-            recoveringFov = false;
-            recoveringVignette = false;
+            recoveringFov = true;
+            recoveringVignette = true;
         }
     }
 

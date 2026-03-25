@@ -18320,7 +18320,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &8322842305627421751
 RectTransform:
   m_ObjectHideFlags: 0
@@ -22134,7 +22134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 257251c07a146944eba1e6e6af4c7c90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashUnlocked: 1
+  dashUnlocked: 0
   blinkDistance: 7.5
   dashTravelDuration: 0.12
   travelCurve:
@@ -30627,6 +30627,7 @@ MonoBehaviour:
   fireballFirst: 1
   upgradeTracker: {fileID: 275458218781037875}
   curseLantern: {fileID: 5244810971069178824}
+  lda: {fileID: 4900749112331736122}
   currentOffhandType: 0
   lastOffhandType: 0
   uiMan: {fileID: 5887467224634678997}
@@ -48847,9 +48848,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a6e4e47eab181f47a7f29f14d91107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameOf: Electric Shock
-  description: "Use your charge by pressing \u201CF\u201D to send a large lighting
-    explosion to kill nearby enemies."
+  nameOf: Electric Dash
+  description: Press F to dash forward damaging all enemies hit in front of you.
+    The more charge you have the more damage done.
   price: 'Price: 14'
 --- !u!114 &6197321563924947549
 MonoBehaviour:
