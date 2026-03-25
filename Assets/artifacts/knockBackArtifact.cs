@@ -4,20 +4,21 @@ public class knockBackArtifact : ItemData
 {
     public override void OnEquip(GameObject player)
     {
-        //base.OnEquip();
-        RaycastKnockback rcKB;
-        rcKB = player.GetComponentInChildren<RaycastKnockback>();
+        RaycastKnockback rcKB = player.GetComponentInChildren<RaycastKnockback>(true);
+        if (rcKB == null)
+        {
+            return;
+        }
         rcKB.upgradedKnockback = true;
-        //inventoryScript invScript;
-        //invScript = player.GetComponentInChildren<inventoryScript>();
-        //invScript.toggleInv();
-
     }
+
     public override void OnUnEquip(GameObject player)
     {
-        RaycastKnockback rcKB;
-        rcKB = player.GetComponentInChildren<RaycastKnockback>();
+        RaycastKnockback rcKB = player.GetComponentInChildren<RaycastKnockback>(true);
+        if (rcKB == null)
+        {
+            return;
+        }
         rcKB.upgradedKnockback = false;
-
     }
 }

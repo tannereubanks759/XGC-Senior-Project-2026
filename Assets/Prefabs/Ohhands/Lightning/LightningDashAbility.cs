@@ -150,7 +150,7 @@ public class LightningDashAbility : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (Input.GetKeyDown(KeyCode.F) && dashUnlocked)
             TryDash();
     }
 
