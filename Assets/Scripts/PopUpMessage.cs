@@ -9,7 +9,7 @@ public class PopUpMessage : MonoBehaviour
 
     [Header("Timing")]
     [SerializeField] private float fadeInTime = 0.35f;
-    [SerializeField] private float holdTime = 1.5f;
+    [SerializeField] public float holdTime = 1.5f;
     [SerializeField] private float fadeOutTime = 0.35f;
 
     [Header("Behavior")]
@@ -26,31 +26,33 @@ public class PopUpMessage : MonoBehaviour
             SetAlpha(0f);
     }
 
-    public void ShowMessage(string text)
+    public void ShowMessage(string text, float overrideHoldTime = -1f)
     {
         if (messageText == null) return;
 
         messageText.text = text;
 
         if (_routine != null)
-            StopCoroutine(_routine);
-
-        _routine = StartCoroutine(PopupRoutine());
+        {
+           StopCoroutine(_routine);
+        }
+            
+        _routine = StartCoroutine(PopupRoutine(overrideHoldTime));
     }
 
-    private IEnumerator PopupRoutine()
+    private IEnumerator PopupRoutine(float overrideHoldTime = -1f)
     {
-        //Ensure it starts invisible (nice if called back-to-back).
+        float duration = overrideHoldTime >= 0f ? overrideHoldTime : holdTime;
+
         SetAlpha(0f);
 
-        //Fade in
         yield return FadeTo(1f, Mathf.Max(0.0001f, fadeInTime));
 
-        //Hold
-        if (holdTime > 0f)
-            yield return new WaitForSeconds(holdTime);
-
-        //Fade out
+        if (duration > 0f)
+        {
+            yield return new WaitForSecondsRealtime(duration);
+        }
+           
         yield return FadeTo(0f, Mathf.Max(0.0001f, fadeOutTime));
 
         _routine = null;

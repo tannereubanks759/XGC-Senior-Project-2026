@@ -21,8 +21,7 @@ public class offhandHandler : MonoBehaviour
     public bool curseFirst = true;
     public bool fireballFirst = true;
     public upgradeTracker upgradeTracker;
-    
-
+    private bool firstTime = true;
     private bool waitingForClose = false;
     private float currentTime = 0f;
     private float delayTime = .65f;
@@ -38,7 +37,7 @@ public class offhandHandler : MonoBehaviour
     public OffhandType currentOffhandType = OffhandType.None;
     public OffhandType lastOffhandType = OffhandType.None;
     public UImanager uiMan;
-
+    public PopUpMessage pum;
     [Header("Sounds")]
     public AudioSource soundSource;
     public AudioClip flameOn;
@@ -51,6 +50,11 @@ public class offhandHandler : MonoBehaviour
         chl=FindAnyObjectByType<chargeOffHandLatern>();
         curseScript = curse.GetComponent<curseOffhand>();
         wasBlunderbussActive = (wm != null && wm.weapons[1].activeSelf);
+        if (firstTime)
+        {
+           pum.ShowMessage("Press and hold Q to see your offhand abilities.", 5f);
+           firstTime = false;
+        }
         //uiMan = FindAnyObjectByType<UImanager>();
     }
     private void waitingForCloseButton()
@@ -278,6 +282,7 @@ public class offhandHandler : MonoBehaviour
             uiMan.closeTut();
             waitingForClose = false;
         }
+        
     }
 
     void CheckForBlunderbuss()
