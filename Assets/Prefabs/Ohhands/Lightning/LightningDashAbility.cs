@@ -64,7 +64,7 @@ public class LightningDashAbility : MonoBehaviour
     private bool recoveringVignette = false;
     private int normalLayer;
     private int dashingLayer;
-    public TextMeshProUGUI cooldownTime;
+    public Image dashFillImage;
     public GameObject dashUIObject;
     public FirstPersonController fpc;
 
@@ -114,12 +114,13 @@ public class LightningDashAbility : MonoBehaviour
         }
         if (!canDash)
         {
-            cooldownTime.alpha = 1f;
             cooldownTimer -= Time.deltaTime;
-            cooldownTime.text = cooldownTimer.ToString("#");
+            float fill = 1f - Mathf.Clamp01(cooldownTimer / cooldownSeconds);
+            dashFillImage.fillAmount = fill;
+
             if (cooldownTimer <= 0f)
             {
-                cooldownTime.alpha = 0f;
+                dashFillImage.fillAmount = 1f;
                 canDash = true;
                 onDashReady?.Invoke();
             }
@@ -169,6 +170,7 @@ public class LightningDashAbility : MonoBehaviour
     {
         canDash = false;
         cooldownTimer = cooldownSeconds;
+        dashFillImage.fillAmount = 0f;
         onDashUsed?.Invoke();
 
         float elapsed = 0f;

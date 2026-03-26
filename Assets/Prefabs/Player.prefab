@@ -22203,7 +22203,7 @@ MonoBehaviour:
   dashingLayerName: Dashing
   defaultLayerName: Player
   pum: {fileID: 6054618803417992408}
-  cooldownTime: {fileID: 4557974149898879420}
+  dashFillImage: {fileID: 4928904677559609476}
   dashUIObject: {fileID: 6267619251785259775}
   fpc: {fileID: 2269966192252265701}
 --- !u!1 &2250742705893025093
@@ -47330,7 +47330,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShowMaskGraphic: 0
+  m_ShowMaskGraphic: 1
 --- !u!1 &5444044471119495311
 GameObject:
   m_ObjectHideFlags: 0
@@ -53948,7 +53948,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5462603462811074992
 RectTransform:
   m_ObjectHideFlags: 0
@@ -58111,10 +58111,10 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: ee4840b181f6f8a40aa169bc6a6d3c5d, type: 3}
-  m_Type: 0
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 1
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
