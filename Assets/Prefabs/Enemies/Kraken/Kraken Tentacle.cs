@@ -31,6 +31,13 @@ public class KrakenTentacle : MonoBehaviour
     [Tooltip("Optional easing for death blend (0->1).")]
     public AnimationCurve blendToDeathCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    [Header("Trail")]
+    [Tooltip("TrailRenderer used only during active attack motion.")]
+    public TrailRenderer attackTrail;
+
+    [Tooltip("Optional: clear old trail on new attack start so each strike starts fresh.")]
+    public bool clearTrailOnAttackStart = false;
+
     [Header("Runtime")]
     public bool isDropping = false;
 
@@ -163,6 +170,9 @@ public class KrakenTentacle : MonoBehaviour
     private bool pendingGoUp = false;
     private Coroutine goUpDelayCo;
 
+    // Trail/death carry state
+    private bool carryTrailThroughDeath = false;
+
     void Start()
     {
         if (player == null)
@@ -171,7 +181,6 @@ public class KrakenTentacle : MonoBehaviour
             if (p) player = p.transform;
         }
 
-        // Ensure ChainIK is targeting THIS transform
         if (chainIK != null)
         {
             var data = chainIK.data;
@@ -190,6 +199,8 @@ public class KrakenTentacle : MonoBehaviour
         if (!playerInDangerArea) blendingToIdle = false;
 
         if (tentacleCol) tentacleCol.enabled = false;
+
+        SetTrailEmitting(false, false);
     }
 
     void Update()
@@ -200,7 +211,6 @@ public class KrakenTentacle : MonoBehaviour
             return;
         }
 
-        // Detect enter/exit
         if (playerInDangerArea != wasInDangerArea)
         {
             if (playerInDangerArea)
@@ -224,10 +234,10 @@ public class KrakenTentacle : MonoBehaviour
             wasInDangerArea = playerInDangerArea;
         }
 
-        // OUT OF RANGE: blend/follow idle target
         if (!playerInDangerArea)
         {
             debugState = "OutOfRange";
+
             if (followIdleTargetWhenOutOfRange && idleAnimatedTarget != null)
             {
                 if (blendingToIdle && blendToIdleTime > 0f)
@@ -256,7 +266,6 @@ public class KrakenTentacle : MonoBehaviour
             return;
         }
 
-        // IN RANGE
         if (player == null)
         {
             var p = GameObject.FindGameObjectWithTag("Player");
@@ -264,21 +273,18 @@ public class KrakenTentacle : MonoBehaviour
         }
         if (player == null) return;
 
-        // If we’re in a scripted sequence (triple strike), do nothing else.
         if (sequenceActive)
         {
             debugState = "TripleSequence";
             return;
         }
 
-        // While waiting for GoUp delay, do nothing movement-wise
         if (pendingGoUp)
         {
             debugState = "GoUpDelay";
             return;
         }
 
-        // 1) NORMAL WARMUP (curve)
         if (isWarmingUp)
         {
             debugState = "Warmup";
@@ -304,7 +310,6 @@ public class KrakenTentacle : MonoBehaviour
             return;
         }
 
-        // 2) NORMAL DROP
         if (isDropping)
         {
             debugState = "NormalDrop";
@@ -318,12 +323,14 @@ public class KrakenTentacle : MonoBehaviour
             {
                 isDropping = false;
                 if (tentacleCol) tentacleCol.enabled = false;
+
+                OnAttackImpact();
+
                 GoUp();
             }
             return;
         }
 
-        // 3) RETURNING
         if (isReturning)
         {
             debugState = "Returning";
@@ -338,7 +345,6 @@ public class KrakenTentacle : MonoBehaviour
             return;
         }
 
-        // 4) FOLLOW
         debugState = "Following";
         Vector3 desiredHover = GetHoverPosition();
         MoveTargetTowards(desiredHover, followSpeed);
@@ -351,7 +357,6 @@ public class KrakenTentacle : MonoBehaviour
             dropCountdown -= Time.deltaTime;
             if (dropCountdown <= 0f)
             {
-                // Pattern: N, N, TRIPLE, N, N, TRIPLE...
                 if (normalsSinceTriple >= tripleEveryNormalAttacks)
                 {
                     normalsSinceTriple = 0;
@@ -372,9 +377,31 @@ public class KrakenTentacle : MonoBehaviour
         }
     }
 
-    // =========================
-    // Targeting Helpers
-    // =========================
+    private void SetTrailEmitting(bool emit, bool clearTrail)
+    {
+        if (attackTrail == null) return;
+
+        if (clearTrail)
+            attackTrail.Clear();
+
+        attackTrail.emitting = emit;
+    }
+
+    private void BeginAttackTrail()
+    {
+        SetTrailEmitting(true, clearTrailOnAttackStart);
+    }
+
+    private void EndAttackTrail()
+    {
+        SetTrailEmitting(false, false);
+    }
+
+    private void OnAttackImpact()
+    {
+        EndAttackTrail();
+    }
+
     private Vector2 GetPlayerXZLocked()
     {
         if (player == null) return new Vector2(transform.position.x, transform.position.z);
@@ -413,9 +440,6 @@ public class KrakenTentacle : MonoBehaviour
         dropCountdown = Random.Range(min, max);
     }
 
-    // =========================
-    // GoUp / Return (NORMAL ONLY)
-    // =========================
     public void GoUp()
     {
         nextAttackAllowedTime = Time.time + attackCooldown;
@@ -434,8 +458,7 @@ public class KrakenTentacle : MonoBehaviour
     {
         pendingGoUp = true;
 
-        // Lock out attacks during delay
-        CancelAttackState();
+        CancelAttackState(false);
         isReturning = false;
         dropCountdown = Mathf.Infinity;
 
@@ -476,11 +499,10 @@ public class KrakenTentacle : MonoBehaviour
         }
     }
 
-    // =========================
-    // NORMAL Warmup + Strike
-    // =========================
     private void StartWarmup()
     {
+        BeginAttackTrail();
+
         isWarmingUp = true;
         warmupT = 0f;
         warmupHoldElapsed = 0f;
@@ -491,7 +513,6 @@ public class KrakenTentacle : MonoBehaviour
 
         if (tentacleCol) tentacleCol.enabled = false;
 
-        // Warmup can be from current spot; apex uses current XZ so it doesn't "teleport"
         dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
 
         warmupStartPos = transform.position;
@@ -506,7 +527,6 @@ public class KrakenTentacle : MonoBehaviour
     {
         isWarmingUp = false;
 
-        // IMPORTANT: lock slam XZ to PLAYER at the moment the slam begins
         if (lockToPlayerAtSlamStart)
             dropLockedXZ = GetPlayerXZLocked();
 
@@ -518,12 +538,9 @@ public class KrakenTentacle : MonoBehaviour
         dropCountdown = Mathf.Infinity;
     }
 
-    // =========================
-    // TRIPLE STRIKE (NO GoUpDelay)
-    // =========================
     private void StartTripleStrike()
     {
-        CancelAttackState();
+        CancelAttackState(false);
         CancelPendingGoUp();
 
         if (sequenceCo != null)
@@ -545,7 +562,8 @@ public class KrakenTentacle : MonoBehaviour
             if (isDead || !playerInDangerArea || player == null)
                 break;
 
-            // IMPORTANT: re-aim EACH slam at player's current XZ
+            BeginAttackTrail();
+
             if (lockToPlayerAtSlamStart)
                 dropLockedXZ = GetPlayerXZLocked();
             else
@@ -556,13 +574,17 @@ public class KrakenTentacle : MonoBehaviour
             float apexY = GetHoverY() + warmupExtraHeight + tripleExtraApexHeight;
             Vector3 apex = new Vector3(dropLockedXZ.x, apexY, dropLockedXZ.y);
 
-            // ---- Wind up to apex (curve)
             Vector3 start = transform.position;
             float windDur = Mathf.Max(0.01f, tripleWarmupDuration);
             float t = 0f;
             while (t < windDur)
             {
-                if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+                if (isDead || !playerInDangerArea)
+                {
+                    CleanupTriple();
+                    EndAttackTrail();
+                    yield break;
+                }
 
                 float t01 = Mathf.Clamp01(t / windDur);
                 float eased = (warmupCurve != null) ? warmupCurve.Evaluate(t01) : t01;
@@ -573,25 +595,35 @@ public class KrakenTentacle : MonoBehaviour
             }
             transform.position = apex;
 
-            // tiny hold at top
             if (tripleWarmupHold > 0f)
             {
                 float hold = 0f;
                 while (hold < tripleWarmupHold)
                 {
-                    if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+                    if (isDead || !playerInDangerArea)
+                    {
+                        CleanupTriple();
+                        EndAttackTrail();
+                        yield break;
+                    }
+
                     hold += Time.deltaTime;
                     yield return null;
                 }
             }
 
-            // ---- Drop / slam UNTIL REACHED (or timeout)
             if (tentacleCol) tentacleCol.enabled = true;
 
             float slamTimer = 0f;
             while (slamTimer < tripleMaxDropTime)
             {
-                if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+                if (isDead || !playerInDangerArea)
+                {
+                    if (tentacleCol) tentacleCol.enabled = false;
+                    CleanupTriple();
+                    EndAttackTrail();
+                    yield break;
+                }
 
                 float slamY = player.position.y + dropToHeight;
                 Vector3 slamPos = new Vector3(dropLockedXZ.x, slamY, dropLockedXZ.y);
@@ -607,16 +639,21 @@ public class KrakenTentacle : MonoBehaviour
 
             if (tentacleCol) tentacleCol.enabled = false;
 
-            // small beat at the bottom helps it read as distinct impacts
+            OnAttackImpact();
+
             yield return null;
 
-            // ---- Pop back up to apex (curve)
             Vector3 popStart = transform.position;
             float popDur = Mathf.Max(0.01f, triplePopUpDuration);
             float popT = 0f;
             while (popT < popDur)
             {
-                if (isDead || !playerInDangerArea) { CleanupTriple(); yield break; }
+                if (isDead || !playerInDangerArea)
+                {
+                    CleanupTriple();
+                    EndAttackTrail();
+                    yield break;
+                }
 
                 float t01 = Mathf.Clamp01(popT / popDur);
                 float eased = (triplePopUpCurve != null) ? triplePopUpCurve.Evaluate(t01) : t01;
@@ -628,10 +665,8 @@ public class KrakenTentacle : MonoBehaviour
             transform.position = apex;
         }
 
-        // Cooldown like any other attack
         nextAttackAllowedTime = Time.time + attackCooldown;
 
-        // IMPORTANT: triple does NOT use GoUpDelay; return immediately
         pendingGoUp = false;
         if (goUpDelayCo != null)
         {
@@ -652,7 +687,7 @@ public class KrakenTentacle : MonoBehaviour
         debugState = "PostTriple";
     }
 
-    private void CancelAttackState()
+    private void CancelAttackState(bool stopTrail = true)
     {
         sequenceActive = false;
         if (sequenceCo != null)
@@ -671,11 +706,11 @@ public class KrakenTentacle : MonoBehaviour
         if (tentacleCol) tentacleCol.enabled = false;
 
         dropCountdown = 0f;
+
+        if (stopTrail)
+            EndAttackTrail();
     }
 
-    // =========================
-    // Idle Blend Helpers
-    // =========================
     private void BeginBlendToIdle()
     {
         if (idleAnimatedTarget == null || blendToIdleTime <= 0f)
@@ -697,23 +732,28 @@ public class KrakenTentacle : MonoBehaviour
         transform.rotation = idleAnimatedTarget.rotation;
     }
 
-    // =========================
-    // Death
-    // =========================
     public void Death()
     {
         if (isDead) return;
 
+        carryTrailThroughDeath =
+            attackTrail != null &&
+            (attackTrail.emitting || isWarmingUp || isDropping || sequenceActive);
+
         isDead = true;
 
-        CancelAttackState();
+        CancelAttackState(false);
         CancelPendingGoUp();
         blendingToIdle = false;
         playerInDangerArea = false;
 
+        if (carryTrailThroughDeath && attackTrail != null)
+            attackTrail.emitting = true;
+
         if (deathTarget == null)
         {
             blendingToDeath = false;
+            EndAttackTrail();
             return;
         }
 
@@ -733,6 +773,7 @@ public class KrakenTentacle : MonoBehaviour
             transform.position = deathTarget.position;
             transform.rotation = deathTarget.rotation;
             blendingToDeath = false;
+            EndAttackTrail();
             return;
         }
 
@@ -748,6 +789,7 @@ public class KrakenTentacle : MonoBehaviour
             blendingToDeath = false;
             transform.position = deathTarget.position;
             transform.rotation = deathTarget.rotation;
+            EndAttackTrail();
         }
     }
 }

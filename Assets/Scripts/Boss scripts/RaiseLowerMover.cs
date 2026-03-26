@@ -20,6 +20,8 @@ public class RaiseLowerMover : MonoBehaviour
     [Header("State")]
     public bool isRaised;
 
+    public GameObject InkAttacks;
+
     Coroutine _moveRoutine;
 
     void Reset()
@@ -31,6 +33,7 @@ public class RaiseLowerMover : MonoBehaviour
     {
         // Initialize state based on current position (with a small tolerance)
         isRaised = (Vector3.Distance(transform.localPosition, topLocalPos) <= 0.001f);
+        InkAttacks.SetActive(false);
     }
 
 
@@ -38,6 +41,7 @@ public class RaiseLowerMover : MonoBehaviour
     public void Raise()
     {
         if (isRaised) return;
+        InkAttacks.SetActive(true);
         StartMove(topLocalPos, true);
     }
 
@@ -45,6 +49,7 @@ public class RaiseLowerMover : MonoBehaviour
     public void Lower()
     {
         if (!isRaised) return;
+        InkAttacks.SetActive(false);
         StartMove(bottomLocalPos, true);
     }
 
