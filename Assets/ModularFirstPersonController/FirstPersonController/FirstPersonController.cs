@@ -140,7 +140,7 @@ public class FirstPersonController : MonoBehaviour
     public bool hideUIWhenFull = true;
     [Header("Stamina UI Colors")]
     [Tooltip("Image used as the slider Fill (usually: StaminaSlider/Fill Area/Fill). If left null, we'll try to find it automatically.")]
-    public RawImage staminaFillImage;
+    public Image staminaFillImage;
 
     [Tooltip("Color when sprint is available.")]
     public Color staminaNormalColor = Color.white;
@@ -302,7 +302,7 @@ public class FirstPersonController : MonoBehaviour
         if (staminaFillImage == null && staminaSlider != null)
         {
             var fill = staminaSlider.fillRect;
-            if (fill != null) staminaFillImage = fill.GetComponent<RawImage>();
+            if (fill != null) staminaFillImage = fill.GetComponent<Image>();
         }
 
         // Initialize to normal color on start

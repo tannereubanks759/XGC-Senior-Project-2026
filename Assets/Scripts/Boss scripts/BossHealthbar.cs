@@ -14,7 +14,7 @@ public class BossHealthbar : MonoBehaviour
     public Slider bossHealthSlider;
     public CanvasGroup bossHealthGroup;
     public TextMeshProUGUI text;
-    public RawImage fill;
+    public Image fill;
 
     [Tooltip("Optional UI element that fades when the boss is idle/dead.")]
     public bool autoHideWhenFull = true;
