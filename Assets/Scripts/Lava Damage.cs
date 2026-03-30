@@ -8,8 +8,10 @@ public class LavaDamage : MonoBehaviour
     public float damage;
     public CombatController health;
     public bool inLava = false;
+    public bool inInk = false;
 
     private float nextTick = 0f;
+    private float nextInkTick = 0f;
     
     // Update is called once per frame
     void Update()
@@ -19,6 +21,11 @@ public class LavaDamage : MonoBehaviour
             nextTick = Time.time + timeInBetweenEachTick;
             health.TakeDamage((int) damage); 
         }
+        if(inInk && Time.time > nextInkTick)
+        {
+            nextInkTick = Time.time + timeInBetweenEachTick / 2;
+            health.TakeDamage((int) damage / 6); 
+        }
     }
 
     private void OnTriggerStay(Collider other)
@@ -27,12 +34,20 @@ public class LavaDamage : MonoBehaviour
         {
             inLava = true;
         }
+        if (other.tag == "ink")
+        {
+            inInk = true;
+        }
     }
     private void OnTriggerExit(Collider other)
     {
         if(other.tag == "Lava")
         {
             inLava = false;
+        }
+        if(other.tag == "ink")
+        {
+            inInk = false;
         }
     }
     private void OnParticleCollision(GameObject other)

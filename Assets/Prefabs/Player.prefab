@@ -4612,6 +4612,7 @@ GameObject:
   - component: {fileID: 1003084205258854305}
   - component: {fileID: 4955299293122885815}
   - component: {fileID: 7834861186895564450}
+  - component: {fileID: 7783731392110343807}
   m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
@@ -4737,6 +4738,28 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &7783731392110343807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 416090366746392730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 218e499f6f95896498b9100aaa58761e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectDuration: 0.35
+  tintFaceYellowToo: 1
+  glowFaceColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  targetGlowOffset: 0
+  targetGlowInner: 0.05
+  targetGlowOuter: 0.15
+  targetGlowPower: 0.9
+  animateFontSize: 1
+  sizeIncrease: 6
 --- !u!1 &441721349827756232
 GameObject:
   m_ObjectHideFlags: 0
@@ -24661,7 +24684,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 880, y: -422}
-  m_SizeDelta: {x: 381.15, y: 25.3}
+  m_SizeDelta: {x: 469.83, y: 25.48}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &2709315498045500561
 CanvasRenderer:
@@ -24748,7 +24771,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.383
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -24817,12 +24840,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4179824587198283991, guid: 43178cdc76eb9bd4d8c3f46b3bf4a75b, type: 3}
+  m_Sprite: {fileID: -677396590126722900, guid: e33d1b1926b92d64a95b9e526f00a0a1, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.383
+  m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -40570,6 +40593,7 @@ GameObject:
   - component: {fileID: 1059385995463426238}
   - component: {fileID: 230644503653532156}
   - component: {fileID: 8686885771355410084}
+  - component: {fileID: 1938448278618907999}
   m_Layer: 5
   m_Name: GoldText
   m_TagString: GoldText
@@ -40695,6 +40719,28 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &1938448278618907999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4326632432903715498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 218e499f6f95896498b9100aaa58761e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectDuration: 0.35
+  tintFaceYellowToo: 1
+  glowFaceColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  glowColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  targetGlowOffset: 0
+  targetGlowInner: 0.05
+  targetGlowOuter: 0.15
+  targetGlowPower: 0.9
+  animateFontSize: 1
+  sizeIncrease: 6
 --- !u!1 &4364279035440822717
 GameObject:
   m_ObjectHideFlags: 0
@@ -55360,6 +55406,7 @@ MonoBehaviour:
   damage: 30
   health: {fileID: 6230349697370413922}
   inLava: 0
+  inInk: 0
 --- !u!114 &7072011364156543277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62434,7 +62481,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 4179824587198283991, guid: 43178cdc76eb9bd4d8c3f46b3bf4a75b, type: 3}
+  m_Sprite: {fileID: -677396590126722900, guid: e33d1b1926b92d64a95b9e526f00a0a1, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
