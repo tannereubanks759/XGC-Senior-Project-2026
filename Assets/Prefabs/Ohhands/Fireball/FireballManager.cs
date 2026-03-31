@@ -402,7 +402,21 @@ public class FireballManager : MonoBehaviour
         // Empty state visuals (color goes gray/black here)
         ApplyUnchargedVisuals(obj, ps, rend);
     }
+    public void RestoreFullCharge()
+    {
+        activeFireballs = 2;
 
+        fireball_1_active = true;
+        fireball_1_recharging = false;
+        fireball1ChargeTimer = 0f;
+
+        fireball_2_active = true;
+        fireball_2_recharging = false;
+        fireball2ChargeTimer = 0f;
+
+        ApplyFullVisuals(fireball_1, ps1, rend1, baseColor1);
+        ApplyFullVisuals(fireball_2, ps2, rend2, baseColor2);
+    }
     public void upgradeSplashRadius() => subRadiusUpgrade = true;
     public void upgradeDamage() => subDamageUpgrade = true;
 }

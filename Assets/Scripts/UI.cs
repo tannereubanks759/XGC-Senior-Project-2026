@@ -15,7 +15,7 @@ public class UI : MonoBehaviour
     public GameObject deathUI;
     public levelSavingManager levelSavingManager;
     public Animator HealthAnim;
-
+    public FireballManager fireball;
     void Start()
     {
         Resume();
@@ -101,6 +101,7 @@ public class UI : MonoBehaviour
         wm.healing = false;
         wm.healthPotion.SetActive(false);
         wm.weapons[wm.currentWeapon].SetActive(true);
+        fireball.RestoreFullCharge();
         if (health != null)
         {
             health.health = health.maxHealth;
