@@ -20,6 +20,7 @@ public class sideUpgradeManager : MonoBehaviour
     private float baseKnockbackForceMultiplier;
     private int baseKnockbackDamage;
     private bool lightningBaseCached = false;
+    public LightningDashAbility lda;
     void Awake()
     {
         if (curseRef != null && !curseBaseSaved)
@@ -102,12 +103,12 @@ public class sideUpgradeManager : MonoBehaviour
     #region Electric
     public void increaseElectricShockDamage()
     {
-        playerSwordScript.chainDamageMultiplier = .65f;
+        lda.baseDamage = lda.baseDamage + 5;
         upgradeTracker.lightningSide2_2 = true;
     }
     public void increaseElectricShockRange()
     {
-        playerSwordScript.chainRadius = 7.5f;
+        lda.cooldownSeconds = 5;
         upgradeTracker.lightningSide2_1 = true;
     }
     public void increaseKnockBackRange()

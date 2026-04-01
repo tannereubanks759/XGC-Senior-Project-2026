@@ -20766,7 +20766,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a6e4e47eab181f47a7f29f14d91107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameOf: Increased Electric Shock Range
+  nameOf: Reduced Dash Cooldown
   description: 
   price: 'Price: 5'
 --- !u!114 &3470956990099530202
@@ -21210,9 +21210,9 @@ RectTransform:
   - {fileID: 1059385995463426238}
   m_Father: {fileID: 1420083119485263367}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 401.07788, y: -273.0985}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2909722824839073908
@@ -24808,7 +24808,7 @@ RectTransform:
   m_Father: {fileID: 2709315498045500591}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -49474,7 +49474,7 @@ RectTransform:
   m_Father: {fileID: 5642027705723211664}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -49958,9 +49958,9 @@ RectTransform:
   - {fileID: 1003084205258854305}
   m_Father: {fileID: 1420083119485263367}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 401.07788, y: -370.58704}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5945606278130745359
@@ -55463,6 +55463,7 @@ MonoBehaviour:
   knockbackRef: {fileID: 5230912486499667837}
   playerSwordScript: {fileID: 4603577665270097772}
   upgradeTracker: {fileID: 275458218781037875}
+  lda: {fileID: 4900749112331736122}
 --- !u!114 &7977403332260851453
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55567,7 +55568,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3473563153703563755
 RectTransform:
   m_ObjectHideFlags: 0
@@ -59806,7 +59807,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5867659985295708417
 RectTransform:
   m_ObjectHideFlags: 0
@@ -62450,7 +62451,7 @@ RectTransform:
   m_Father: {fileID: 7577387679522926296}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -0.11199951, y: 0.20899963}
   m_SizeDelta: {x: 0.83255005, y: 0.41797256}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -80607,7 +80608,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a6e4e47eab181f47a7f29f14d91107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameOf: Increased Electric Shock Damage
+  nameOf: Increased Dash Damage
   description: 
   price: 'Price: 5'
 --- !u!114 &8650178960979878213
