@@ -80,13 +80,15 @@ public class chargeOffHandLatern : MonoBehaviour
         longerInvulnUpgrade = true;
     }
     void Start()
+    {  
+        UpdateSphereColors();
+    }
+    void Awake()
     {
         WeaponsManager = GetComponentInChildren<WeaponsManager>();
         CombatController = GetComponentInChildren<CombatController>();
-        chargeBase = FindAnyObjectByType<chargeBaseScript>();   
-        UpdateSphereColors();
+        chargeBase = FindAnyObjectByType<chargeBaseScript>();
     }
-
     IEnumerator invulnerableTime()
     {
         float duration = invulnerabilityTime;
