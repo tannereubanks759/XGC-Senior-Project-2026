@@ -90,8 +90,8 @@ public class UI : MonoBehaviour
     }
     public void RestartScene()
     {
-       ResetPlayer();
-       LoadScene(SceneManager.GetActiveScene().name);
+        ResetPlayer();
+        LoadScene(SceneManager.GetActiveScene().name);
     }
     void ResetPlayer()
     {
@@ -111,6 +111,5 @@ public class UI : MonoBehaviour
         UIM.OpenPlayerUIScreen();
         player.playerCanMove = true;
         FirstPersonController.isPaused = false;
-        levelSavingManager.RestoreToLevelStart();
     }
 }

@@ -11,9 +11,62 @@ public class levelSavingManager : MonoBehaviour
     public CombatController combatController;
     [Header("Live run state")]
     public levelStartSaving current = new levelStartSaving();
-
     private levelStartSaving levelStartSnapshot;
+    private static levelStartSaving checkpointSnapshot;
+    public static Vector3? checkpointRespawnPosition;
+    public static Quaternion? checkpointRespawnRotation;
 
+    public void CaptureCheckpoint()
+    {
+        gb = FindFirstObjectByType<GoldBank>();
+        healthPotion = FindFirstObjectByType<HealthPotion>();
+        combatController = FindFirstObjectByType<CombatController>();
+        var tracker = FindFirstObjectByType<upgradeTracker>();
+        var oh = FindFirstObjectByType<offhandHandler>();
+
+        levelStartSaving snapshot = new levelStartSaving();
+
+        if (combatController != null) snapshot.health = combatController.health;
+        if (gb != null) snapshot.gold = gb.gold;
+        if (healthPotion != null) snapshot.healthPotions = healthPotion.GetQuantity();
+
+        if (tracker != null)
+        {
+            snapshot.lightningUpgradeCount = tracker.lightningUpgradeCount;
+            snapshot.curseSlow = tracker.curseSlow;
+            snapshot.curseReflect = tracker.curseReflect;
+            snapshot.fireRadiusM = tracker.fireRadiusM;
+            snapshot.FireFire = tracker.FireFire;
+            snapshot.fireSide1_1 = tracker.fireSide1_1;
+            snapshot.fireSide1_2 = tracker.fireSide1_2;
+            snapshot.fireSide2_1 = tracker.fireSide2_1;
+            snapshot.fireSide2_2 = tracker.fireSide2_2;
+            snapshot.lightningSide1_1 = tracker.lightningSide1_1;
+            snapshot.lightningSide1_2 = tracker.lightningSide1_2;
+            snapshot.lightningSide2_1 = tracker.lightningSide2_1;
+            snapshot.lightningSide2_2 = tracker.lightningSide2_2;
+            snapshot.curseSide1_1 = tracker.curseSide1_1;
+            snapshot.curseSide1_2 = tracker.curseSide1_2;
+            snapshot.curseSide2_1 = tracker.curseSide2_1;
+            snapshot.curseSide2_2 = tracker.curseSide2_2;
+        }
+        if (oh != null) snapshot.lightningUpgradeCount = oh.lightningUpgradeCount;
+
+        checkpointSnapshot = snapshot;
+
+        GameObject marker = GameObject.FindWithTag("checkpoint");
+        if (marker != null)
+        {
+            checkpointRespawnPosition = marker.transform.position;
+            checkpointRespawnRotation = marker.transform.rotation;
+        }
+    }
+    public void ClearCheckpoint()
+    {
+        checkpointSnapshot = null;
+        checkpointRespawnPosition = null;
+        checkpointRespawnRotation = null;
+    }
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -31,51 +84,115 @@ public class levelSavingManager : MonoBehaviour
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    public void RestoreToCheckpoint()
     {
-        combatController = FindFirstObjectByType<CombatController>();
-        current.health = combatController.health;
-        //potions and gold
+        if (checkpointSnapshot == null)
+        {
+            RestoreToLevelStart();
+            return;
+        }
+
+        current = checkpointSnapshot.Clone();
         gb = FindFirstObjectByType<GoldBank>();
         healthPotion = FindFirstObjectByType<HealthPotion>();
-        if (gb == null || healthPotion == null) return;
-        current.gold = gb.gold;
-        current.healthPotions = healthPotion.GetQuantity();
-        //upgrades
+        combatController = FindFirstObjectByType<CombatController>();
+
+        if (gb != null) { gb.gold = current.gold; gb.UpdateGold(); }
+        if (healthPotion != null)
+        {
+            healthPotion.SetQuantity(current.healthPotions);
+            healthPotion.SetText(current.healthPotions.ToString());
+        }
+        if (combatController != null) combatController.health = current.health;
+
         var tracker = FindFirstObjectByType<upgradeTracker>();
         if (tracker != null)
         {
-            //current.lightningKnockBack = tracker.lightningKnockBack;
-            //current.lightningExplosion = tracker.lightningExplosion;
-            current.lightningUpgradeCount = tracker.lightningUpgradeCount;
-            current.curseSlow = tracker.curseSlow;
-            current.curseReflect = tracker.curseReflect;
-            current.fireRadiusM = tracker.fireRadiusM;
-            current.FireFire = tracker.FireFire;
-            //fire sides
-            current.fireSide1_1 = tracker.fireSide1_1;
-            current.fireSide1_2 = tracker.fireSide1_2;
-            current.fireSide2_1 = tracker.fireSide2_1;
-            current.fireSide2_2 = tracker.fireSide2_2;
-            //light sides
-            current.lightningSide1_1 = tracker.lightningSide1_1;
-            current.lightningSide1_2 = tracker.lightningSide1_2;
-            current.lightningSide2_1 = tracker.lightningSide2_1;
-            current.lightningSide2_2 = tracker.lightningSide2_2;
-            //curse sides
-            current.curseSide1_1 = tracker.curseSide1_1;
-            current.curseSide1_2 = tracker.curseSide1_2;
-            current.curseSide2_1 = tracker.curseSide2_1;
-            current.curseSide2_2 = tracker.curseSide2_2;
+            tracker.lightningUpgradeCount = current.lightningUpgradeCount;
+            tracker.curseSlow = current.curseSlow;
+            tracker.curseReflect = current.curseReflect;
+            tracker.fireRadiusM = current.fireRadiusM;
+            tracker.FireFire = current.FireFire;
+            tracker.fireSide1_1 = current.fireSide1_1;
+            tracker.fireSide1_2 = current.fireSide1_2;
+            tracker.fireSide2_1 = current.fireSide2_1;
+            tracker.fireSide2_2 = current.fireSide2_2;
+            tracker.lightningSide1_1 = current.lightningSide1_1;
+            tracker.lightningSide1_2 = current.lightningSide1_2;
+            tracker.lightningSide2_1 = current.lightningSide2_1;
+            tracker.lightningSide2_2 = current.lightningSide2_2;
+            tracker.curseSide1_1 = current.curseSide1_1;
+            tracker.curseSide1_2 = current.curseSide1_2;
+            tracker.curseSide2_1 = current.curseSide2_1;
+            tracker.curseSide2_2 = current.curseSide2_2;
+            tracker.ReapplyUpgrades();
         }
-        var oh = FindFirstObjectByType<offhandHandler>();
-        if (oh != null)
-        {
-            current.lightningUpgradeCount = oh.lightningUpgradeCount;
-        }
-        CaptureLevelStart();
 
-        CaptureLevelStart();
+        var oh = FindFirstObjectByType<offhandHandler>();
+        if (oh != null) { oh.lightningUpgradeCount = current.lightningUpgradeCount; oh.lightning(false); }
+
+        uiupdater.updateUI();
+    }
+
+    public bool HasCheckpoint()
+    {
+        return checkpointSnapshot != null;
+    }
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        combatController = FindFirstObjectByType<CombatController>();
+        gb = FindFirstObjectByType<GoldBank>();
+        healthPotion = FindFirstObjectByType<HealthPotion>();
+        var tracker = FindFirstObjectByType<upgradeTracker>();
+        var oh = FindFirstObjectByType<offhandHandler>();
+
+        if (checkpointRespawnPosition.HasValue)
+        {
+            // Checkpoint respawn — restore saved state, don't read fresh scene values
+            RestoreToCheckpoint();
+
+            var player = FindFirstObjectByType<FirstPersonController>();
+            if (player != null)
+            {
+                CharacterController cc = player.GetComponentInChildren<CharacterController>();
+                if (cc != null) cc.enabled = false;
+                player.transform.position = checkpointRespawnPosition.Value;
+                player.transform.rotation = checkpointRespawnRotation.Value;
+                if (cc != null) cc.enabled = true;
+            }
+        }
+        else
+        {
+            // Normal load — read fresh scene values and snapshot them as level start
+            current.health = combatController.health;
+            if (gb != null) current.gold = gb.gold;
+            if (healthPotion != null) current.healthPotions = healthPotion.GetQuantity();
+
+            if (tracker != null)
+            {
+                current.lightningUpgradeCount = tracker.lightningUpgradeCount;
+                current.curseSlow = tracker.curseSlow;
+                current.curseReflect = tracker.curseReflect;
+                current.fireRadiusM = tracker.fireRadiusM;
+                current.FireFire = tracker.FireFire;
+                current.fireSide1_1 = tracker.fireSide1_1;
+                current.fireSide1_2 = tracker.fireSide1_2;
+                current.fireSide2_1 = tracker.fireSide2_1;
+                current.fireSide2_2 = tracker.fireSide2_2;
+                current.lightningSide1_1 = tracker.lightningSide1_1;
+                current.lightningSide1_2 = tracker.lightningSide1_2;
+                current.lightningSide2_1 = tracker.lightningSide2_1;
+                current.lightningSide2_2 = tracker.lightningSide2_2;
+                current.curseSide1_1 = tracker.curseSide1_1;
+                current.curseSide1_2 = tracker.curseSide1_2;
+                current.curseSide2_1 = tracker.curseSide2_1;
+                current.curseSide2_2 = tracker.curseSide2_2;
+            }
+            if (oh != null) current.lightningUpgradeCount = oh.lightningUpgradeCount;
+
+            CaptureLevelStart();
+            RestoreToLevelStart();
+        }
     }
 
     public void CaptureLevelStart()

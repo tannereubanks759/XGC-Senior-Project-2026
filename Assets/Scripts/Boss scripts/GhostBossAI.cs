@@ -238,10 +238,20 @@ public class GhostBossAI : MonoBehaviour
         healthbar.gameObject.SetActive(true);
         healthbar.TakeDamage(currentHealth);
         healthbar.ShowHealthbarOnBossTriggered();
-
+        levelSavingManager.Instance.CaptureCheckpoint();
         TransitionTo(BossState.Chase);
     }
-
+    public void ResetBoss()
+    {
+        _deathHandled = false;
+        currentHealth = maxHealth;
+        healthbar.currentHealth = currentHealth;
+        healthbar.TakeDamage(currentHealth);
+        foreach (var col in GetComponentsInChildren<Collider>())
+            col.enabled = true;
+        enabled = true;
+        TransitionTo(BossState.Idle);
+    }
     public void TakeDamage(int amount)
     {
         if (State == BossState.Dead) return;
