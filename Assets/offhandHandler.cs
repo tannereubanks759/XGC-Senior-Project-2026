@@ -45,6 +45,7 @@ public class offhandHandler : MonoBehaviour
     public float flameVolume = 1f;
     public GameObject lightningTextOne;
     public GameObject lightningTextTwo;
+    public GameObject lightningTextThree;
     void Start()
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
@@ -155,14 +156,16 @@ public class offhandHandler : MonoBehaviour
         {
             allOffhands[2].OnEquip(player);
             upgradeTracker.lightningUpgradeCount = 1;
+            lightningTextOne.SetActive(false);
+            lightningTextTwo.SetActive(true);
         }
         // upgrade 2
         if (lightningUpgradeCount >= 2 && allOffhands.Length > 3 && allOffhands[3] != null)
         {
             //allOffhands[3].OnEquip(player);
             lda.dashUnlocked = true;
-            lightningTextOne.SetActive(false);
-            lightningTextTwo.SetActive(true);
+            lightningTextTwo.SetActive(false);
+            lightningTextThree.SetActive(true);
             upgradeTracker.lightningUpgradeCount = 2;
         }
         currentOffhandType = OffhandType.Lightning;
