@@ -7,7 +7,7 @@ public class HealthPotion : MonoBehaviour
     public KeyCode HealKey = KeyCode.H;
     private int Quantity = 0;
     private float HealAmount = 33.34f;
-    private TextMeshProUGUI text;
+    public TextMeshProUGUI text;
     private CombatController healthController;
     private Animator anim;
     private WeaponsManager weaponsManager;

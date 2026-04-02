@@ -13,9 +13,9 @@ public class offhandHandler : MonoBehaviour
     private GameObject player;
     public GameObject fireBall;
     public GameObject curse;
-    private WeaponsManager wm;
+    public WeaponsManager wm;
     public GameObject lightningSkull;
-    private chargeOffHandLatern chl;
+    public chargeOffHandLatern chl;
     public GameObject chargeText;
     public bool lightningFirst = true;
     public bool curseFirst = true;
@@ -48,9 +48,8 @@ public class offhandHandler : MonoBehaviour
     public GameObject lightningTextThree;
     void Start()
     {
-        wm = GameObject.FindAnyObjectByType<WeaponsManager>();
         player = GameObject.FindWithTag("Player");
-        chl=FindAnyObjectByType<chargeOffHandLatern>();
+        //chl=FindAnyObjectByType<chargeOffHandLatern>();
         curseScript = curse.GetComponent<curseOffhand>();
         wasBlunderbussActive = (wm != null && wm.weapons[1].activeSelf);
         if (firstTime)
