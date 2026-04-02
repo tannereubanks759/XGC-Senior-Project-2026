@@ -12,6 +12,7 @@ public class LavaDamage : MonoBehaviour
 
     private float nextTick = 0f;
     private float nextInkTick = 0f;
+
     
     // Update is called once per frame
     void Update()

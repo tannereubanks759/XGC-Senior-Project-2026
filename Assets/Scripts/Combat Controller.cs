@@ -287,7 +287,9 @@ public class CombatController : MonoBehaviour
     
     public void Die()
     {
-        GetComponentInParent<LavaDamage>().inLava = false;
+        LavaDamage lava = GetComponentInParent<LavaDamage>();
+        lava.inLava = false;
+        lava.inInk = false;
         if (boss_healthbar)
         {
             boss_healthbar.ResetHealthbar();
