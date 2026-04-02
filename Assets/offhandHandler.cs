@@ -43,6 +43,8 @@ public class offhandHandler : MonoBehaviour
     public AudioClip flameOn;
     public AudioClip flameOff;
     public float flameVolume = 1f;
+    public GameObject lightningTextOne;
+    public GameObject lightningTextTwo;
     void Start()
     {
         wm = GameObject.FindAnyObjectByType<WeaponsManager>();
@@ -159,6 +161,8 @@ public class offhandHandler : MonoBehaviour
         {
             //allOffhands[3].OnEquip(player);
             lda.dashUnlocked = true;
+            lightningTextOne.SetActive(false);
+            lightningTextTwo.SetActive(true);
             upgradeTracker.lightningUpgradeCount = 2;
         }
         currentOffhandType = OffhandType.Lightning;
