@@ -48,7 +48,7 @@ public class offhandHandler : MonoBehaviour
     public GameObject lightningTextThree;
     void Start()
     {
-        player = GameObject.FindWithTag("Player");
+        
         //chl=FindAnyObjectByType<chargeOffHandLatern>();
         curseScript = curse.GetComponent<curseOffhand>();
         wasBlunderbussActive = (wm != null && wm.weapons[1].activeSelf);
@@ -58,6 +58,10 @@ public class offhandHandler : MonoBehaviour
            firstTime = false;
         }
         //uiMan = FindAnyObjectByType<UImanager>();
+    }
+    private void Awake()
+    {
+        player = GameObject.FindWithTag("Player");
     }
     private void waitingForCloseButton()
     {
