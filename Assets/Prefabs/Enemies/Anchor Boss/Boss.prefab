@@ -2691,7 +2691,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 56875784244541864}
-  m_Layer: 0
+  - component: {fileID: 4023312215598685158}
+  - component: {fileID: 9174924741117522193}
+  m_Layer: 15
   m_Name: Spine1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2714,6 +2716,43 @@ Transform:
   - {fileID: 8073669138749878814}
   m_Father: {fileID: 2957969373291897000}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &4023312215598685158
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5903028234341222329}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.66
+  m_Direction: 1
+  m_Center: {x: 0, y: -0.2, z: 0}
+--- !u!114 &9174924741117522193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5903028234341222329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a53af6c22395ac145ae939fe9682c900, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SoulPrefab: {fileID: 0}
+  OverrideSoulAmount: 0
 --- !u!1 &5920764912881800544
 GameObject:
   m_ObjectHideFlags: 0
@@ -4502,8 +4541,6 @@ GameObject:
   - component: {fileID: 8141331738879649820}
   - component: {fileID: 1201666963795393156}
   - component: {fileID: 624281540744868916}
-  - component: {fileID: 49201342487513634}
-  - component: {fileID: 45841968858345814}
   - component: {fileID: 7390047889774688700}
   - component: {fileID: 1686838908572114402}
   m_Layer: 15
@@ -4613,43 +4650,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!136 &49201342487513634
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8120497829418520012}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.3
-  m_Height: 3
-  m_Direction: 1
-  m_Center: {x: -0, y: 1.5, z: -0.2}
---- !u!114 &45841968858345814
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8120497829418520012}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a53af6c22395ac145ae939fe9682c900, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SoulPrefab: {fileID: 0}
-  OverrideSoulAmount: 0
 --- !u!114 &7390047889774688700
 MonoBehaviour:
   m_ObjectHideFlags: 0

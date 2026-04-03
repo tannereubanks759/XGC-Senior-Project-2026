@@ -11,6 +11,7 @@ public class DamageRef : MonoBehaviour
     private CrackenTentacleCollider kraken;
     private ExplosiveBarrel explosiveBarrel;
     private SkeletonBombEnemy bombEnemy;
+    private DamageRef dmgRefParent;
 
     public GameObject SoulPrefab;
     public int OverrideSoulAmount = 0;
@@ -19,14 +20,14 @@ public class DamageRef : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        anchorBoss = GetComponent<PirateBossAI>();
-        magmaBoss = GetComponent<MagmaBossAI>();
-        ghostBoss = GetComponent<GhostBossAI>();
-        swordEnemy = GetComponent<SkeletonSwordEnemy>();
+        anchorBoss = GetComponentInParent<PirateBossAI>();
+        magmaBoss = GetComponentInParent<MagmaBossAI>();
+        ghostBoss = GetComponentInParent<GhostBossAI>();
+        swordEnemy = GetComponentInParent<SkeletonSwordEnemy>();
         kraken = GetComponentInParent<CrackenTentacleCollider>();
-        gunEnemy = GetComponent<SkeletonGunEnemy>();
-        explosiveBarrel = GetComponent<ExplosiveBarrel>();
-        bombEnemy = GetComponent<SkeletonBombEnemy>();
+        gunEnemy = GetComponentInParent<SkeletonGunEnemy>();
+        explosiveBarrel = GetComponentInParent<ExplosiveBarrel>();
+        bombEnemy = GetComponentInParent<SkeletonBombEnemy>();
         
         hasSpawnedSoul = false;
     }
@@ -67,6 +68,7 @@ public class DamageRef : MonoBehaviour
         {
             bombEnemy.ApplyDamage(damage);
         }
+        
     }
 
     void SpawnSoulIfDead(int damage)

@@ -30,7 +30,7 @@ public class PlayerSwordScript : MonoBehaviour
         {
             Transform enemyRoot = other.transform.root;
             SkeletonSwordEnemy skeleton = other.GetComponent<SkeletonSwordEnemy>();
-            PirateBossAI boss = other.GetComponent<PirateBossAI>();
+            PirateBossAI boss = other.GetComponentInParent<PirateBossAI>();
             bool blocked = (skeleton != null && skeleton.isBlocking);
             if (skeleton != null && ClashEffect && skeleton.isBlocking == true)
             {
