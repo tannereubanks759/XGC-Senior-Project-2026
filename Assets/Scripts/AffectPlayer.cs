@@ -36,7 +36,7 @@ public class AffectPlayer : MonoBehaviour
 
         if (enemyAI != null)
         {
-            combatController.TakeDamage(damage, hitDir, enemyAI.eliteType);
+            //combatController.TakeDamage(damage, hitDir, enemyAI.eliteType);
         }
         else
         {
