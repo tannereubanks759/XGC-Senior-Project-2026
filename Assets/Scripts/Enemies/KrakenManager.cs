@@ -48,7 +48,7 @@ public class KrakenManager : MonoBehaviour
         headAnim.SetTrigger("Dead");
 
         krakenWalls.Lower();
-
+        levelSavingManager.Instance.ClearCheckpoint();
         IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?.GetComponent<IslandTeleporter>();
         if (tel != null) tel.OpenDoor();
     }
