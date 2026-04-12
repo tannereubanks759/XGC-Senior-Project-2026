@@ -19,7 +19,6 @@ public class curseOffhand : MonoBehaviour
     [Range(0.5f, 1f)] public float slowSpeedMultiplier = 0.55f;
     [Header("Curse Timeout")]
     public float curseDuration = 8f;
-    private float curseExpireTime = 0f;
     public float curseReflectPercentL = .25f;
     public upgradeTracker upgradeTracker;
     [Header("Curse Selection")]
@@ -107,13 +106,6 @@ public class curseOffhand : MonoBehaviour
             return;
         }
 
-        if (cursedTarget != null && Time.time >= curseExpireTime)
-        {
-            ClearCurse();
-            EnsureFlameState();
-            return;
-        }
-
         if (!canCurse)
         {
             EnsureFlameState();
@@ -148,7 +140,7 @@ public class curseOffhand : MonoBehaviour
                 curseActive = true;
                 PlaySound(applyClip, applyVol);
                 ClearPreview();
-                curseExpireTime = Time.time + curseDuration;
+                CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
                 enemy.damageMult = damageMult;
                 Vector3 offset = new Vector3(0f, 1.3f, 0f);
                 if (enemy.curseVfxPrefab != null)
@@ -189,7 +181,7 @@ public class curseOffhand : MonoBehaviour
                     Debug.Log("Kraken tentacle cursed!");
                     PlaySound(applyClip, applyVol);
                     ClearPreview();
-                    curseExpireTime = Time.time + curseDuration;
+                    CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
                     if (cursedFlame != null) cursedFlame.SetActive(false);
                 }
                 return;
@@ -213,7 +205,7 @@ public class curseOffhand : MonoBehaviour
                 curseActive = true;
                 PlaySound(applyClip, applyVol);
                 ClearPreview();
-                curseExpireTime = Time.time + curseDuration;
+                CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
                 if (cursedFlame != null) cursedFlame.SetActive(false);
                 return;
             }
@@ -236,7 +228,7 @@ public class curseOffhand : MonoBehaviour
                 curseActive = true;
                 PlaySound(applyClip, applyVol);
                 ClearPreview();
-                curseExpireTime = Time.time + curseDuration;
+                CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
                 if (cursedFlame != null) cursedFlame.SetActive(false);
                 return;
             }
@@ -259,7 +251,7 @@ public class curseOffhand : MonoBehaviour
                 curseActive = true;
                 PlaySound(applyClip, applyVol);
                 ClearPreview();
-                curseExpireTime = Time.time + curseDuration;
+                CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
                 if (cursedFlame != null) cursedFlame.SetActive(false);
                 return;
             }
@@ -271,7 +263,7 @@ public class curseOffhand : MonoBehaviour
                 curseActive = true;
                 PlaySound(applyClip, applyVol);
                 ClearPreview();
-                curseExpireTime = Time.time + curseDuration;
+                CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
                 swordEnemy.isCursed = true;
                 swordEnemy.curseDamageMult = damageMult;
                 swordEnemy.curseSpeedMult = slowUpgrade ? slowSpeedMultiplier : 1f;
@@ -295,7 +287,7 @@ public class curseOffhand : MonoBehaviour
                 curseActive = true;
                 PlaySound(applyClip, applyVol);
                 ClearPreview();
-                curseExpireTime = Time.time + curseDuration;
+                CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
                 gunEnemy.isCursed = true;
                 gunEnemy.curseDamageMult = damageMult;
                 gunEnemy.curseSpeedMult = slowUpgrade ? slowSpeedMultiplier : 1f;
@@ -359,6 +351,7 @@ public class curseOffhand : MonoBehaviour
     private void ClearCurse()
     {
         if (!curseActive) return;
+        CurseManager.Instance.CancelTimer();
         curseActive = false;
         PlaySound(expireClip, expireVol);
 
