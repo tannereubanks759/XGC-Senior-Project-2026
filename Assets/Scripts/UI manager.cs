@@ -39,6 +39,7 @@ public class UImanager : MonoBehaviour
         if (WinScreen.activeSelf) return;
         ForceCloseTutorials();
         PreSetup(true, true);
+        UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(null);
         OptionsScreen.SetActive(false);
         MainPauseScreen.SetActive(true);
         PauseScreen.SetActive(true);
