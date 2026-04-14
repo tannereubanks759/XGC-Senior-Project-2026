@@ -1,39 +1,49 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+
 public class ButtonClickSound : MonoBehaviour
 {
     public AudioSource audioSource;
     public AudioClip clickSound;
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+
+    private void Start()
     {
-        foreach (Button btn in FindObjectsOfType<Button>(true))
-        {
-            btn.onClick.AddListener(() => audioSource.PlayOneShot(clickSound));
-        }
+        if (audioSource == null)
+            audioSource = FindFirstObjectByType<AudioSource>();
+
+        HookAllButtons();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    void OnEnable()
+    private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        foreach (Button btn in FindObjectsOfType<Button>(true))
+        HookAllButtons();
+    }
+
+    private void HookAllButtons()
+    {
+        Button[] buttons = FindObjectsByType<Button>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        foreach (Button btn in buttons)
         {
-            btn.onClick.AddListener(() => audioSource.PlayOneShot(clickSound));
+            btn.onClick.RemoveListener(PlayClickSound);
+            btn.onClick.AddListener(PlayClickSound);
         }
+    }
+
+    private void PlayClickSound()
+    {
+        if (audioSource != null && clickSound != null)
+            audioSource.PlayOneShot(clickSound);
     }
 }

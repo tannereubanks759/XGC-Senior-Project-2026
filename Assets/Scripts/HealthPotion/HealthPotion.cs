@@ -9,7 +9,7 @@ public class HealthPotion : MonoBehaviour
     private float HealAmount = 33.34f;
     public TextMeshProUGUI text;
     private CombatController healthController;
-    private Animator anim;
+    public Animator anim;
     private WeaponsManager weaponsManager;
     public AudioSource source;
     public AudioClip collectPotion;
@@ -17,7 +17,7 @@ public class HealthPotion : MonoBehaviour
     public AudioClip corkPop;
     void Start()
     {
-        anim = FindAnyObjectByType<HealthPotionAnimEvents>().GetComponent<Animator>();
+        //anim = FindAnyObjectByType<HealthPotionAnimEvents>().GetComponent<Animator>();
         
         text = GetComponentInChildren<TextMeshProUGUI>();
         text.text = Quantity.ToString();
