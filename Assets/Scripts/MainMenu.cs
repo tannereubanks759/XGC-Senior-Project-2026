@@ -8,6 +8,7 @@ public class MainMenu : MonoBehaviour
 
     public GameObject mainScreen;
     public GameObject loadingScreen;
+    public GameObject optionsScreen;
     void Start()
     {
         Time.timeScale = 1f;
@@ -15,7 +16,16 @@ public class MainMenu : MonoBehaviour
         loadingScreen.SetActive(false);
         
     }
-    
+    public void OpenOptionsMenu()
+    {
+        optionsScreen.SetActive(true);
+        mainScreen.SetActive(false);
+    }
+    public void closeOptionsMenu()
+    {
+        optionsScreen.SetActive(false);
+        mainScreen.SetActive(true);
+    }
     void EnableCursor(bool enabled)
     {
         if (enabled)

@@ -35,19 +35,37 @@ public class OptionsMenu : MonoBehaviour
     public FirstPersonController controller;
     public float defaultSens = 2f;
 
+    private static float ambientValue = 1000;
+    private static float musicValue = 1000;
+    private static float fxValue = 1000;
+    private static float masterValue = 1000;
     void Start()
     {
-        UpdateAmbientVolume();
-        UpdateMusicVolume();
-        UpdateFxVolume();
-        UpdateMasterVolume();
-        input.text = defaultSens.ToString();
-        UpdateMouseSensitivity();
+        if(ambientValue == 1000f)
+        {
+            UpdateAmbientVolume();
+            UpdateMusicVolume();
+            UpdateFxVolume();
+            UpdateMasterVolume();
+        }
+        SetSliderValues();
+        if (input)
+        {
+            input.text = defaultSens.ToString();
+            UpdateMouseSensitivity();
+        }
+        
 
         MainPauseScreen.SetActive(true);
         OptionsScreen.SetActive(false);
     }
-
+    public void SetSliderValues()
+    {
+        ambientSoundSlider.value = ambientValue;
+        fxSoundSlider.value = fxValue;
+        masterSlider.value = masterValue;
+        musicSoundSlider.value = musicValue;
+    }
     public void OpenOptionsScreen()
     {
         MainPauseScreen.SetActive(false);
@@ -70,28 +88,28 @@ public class OptionsMenu : MonoBehaviour
 
     public void UpdateAmbientVolume()
     {
-        float t = ambientSoundSlider.value;   // 0..1
-        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
+        ambientValue = ambientSoundSlider.value;   // 0..1
+        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, ambientValue);
         ambientAudioMixer.SetFloat("AmbientVolume", dB);
     }
 
     public void UpdateMusicVolume()
     {
-        float t = musicSoundSlider.value;   // 0..1
-        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
+        musicValue = musicSoundSlider.value;   // 0..1
+        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, musicValue);
         musicAudioMixer.SetFloat("MusicVolume", dB);
     }
 
     public void UpdateFxVolume()
     {
-        float t = fxSoundSlider.value;   // 0..1
-        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, t);
+        fxValue = fxSoundSlider.value;   // 0..1
+        float dB = Mathf.Lerp(minVolumeDb, maxVolumeDb, fxValue);
         fxAudioMixer.SetFloat("FXVolume", dB);
     }
     public void UpdateMasterVolume()
     {
-        float t = masterSlider.value;   // 0..1
-        float dB = Mathf.Lerp(minMasterVolumeDb, maxMasterVolumeDb, t);
+        masterValue = masterSlider.value;   // 0..1
+        float dB = Mathf.Lerp(minMasterVolumeDb, maxMasterVolumeDb, masterValue);
         masterAudioMixer.SetFloat("MasterVolume", dB);
     }
 }
