@@ -345,6 +345,7 @@ GameObject:
   - component: {fileID: 137089738}
   - component: {fileID: 137089741}
   - component: {fileID: 137089742}
+  - component: {fileID: 137089743}
   m_Layer: 5
   m_Name: Endless Mode Button
   m_TagString: Untagged
@@ -518,13 +519,29 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 137089736}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f251b300225514bba39425ff12b7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hoverScale: {x: 1.08, y: 1.08, z: 1.08}
   scaleSpeed: 10
+  audioSource: {fileID: 417549221}
+  hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
+--- !u!114 &137089743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137089736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47acf542be5d69146a2749c5b24d64bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverSize: {x: 220, y: 70}
+  resizeSpeed: 10
   audioSource: {fileID: 417549221}
   hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
 --- !u!114 &362675000
@@ -947,6 +964,7 @@ GameObject:
   - component: {fileID: 400228728}
   - component: {fileID: 400228731}
   - component: {fileID: 400228732}
+  - component: {fileID: 400228733}
   m_Layer: 5
   m_Name: Exit Button
   m_TagString: Untagged
@@ -1120,13 +1138,29 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 400228726}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f251b300225514bba39425ff12b7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hoverScale: {x: 1.08, y: 1.08, z: 1.08}
   scaleSpeed: 10
+  audioSource: {fileID: 417549221}
+  hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
+--- !u!114 &400228733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 400228726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47acf542be5d69146a2749c5b24d64bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverSize: {x: 220, y: 70}
+  resizeSpeed: 10
   audioSource: {fileID: 417549221}
   hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
 --- !u!1 &404747897
@@ -1909,8 +1943,8 @@ RectTransform:
   m_GameObject: {fileID: 587356552}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1515573180}
   - {fileID: 137089737}
@@ -1920,11 +1954,11 @@ RectTransform:
   - {fileID: 400228727}
   m_Father: {fileID: 1194224357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 105}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: -1, y: 130}
+  m_SizeDelta: {x: 500, y: 100}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &587356554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1942,8 +1976,8 @@ MonoBehaviour:
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
-  m_ChildAlignment: 4
-  m_Spacing: 11.25
+  m_ChildAlignment: 3
+  m_Spacing: 2.95
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -2318,6 +2352,7 @@ GameObject:
   - component: {fileID: 991079076}
   - component: {fileID: 991079075}
   - component: {fileID: 991079078}
+  - component: {fileID: 991079079}
   m_Layer: 5
   m_Name: Options Button
   m_TagString: Untagged
@@ -2446,13 +2481,29 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 991079072}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f251b300225514bba39425ff12b7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hoverScale: {x: 1.08, y: 1.08, z: 1.08}
   scaleSpeed: 10
+  audioSource: {fileID: 417549221}
+  hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
+--- !u!114 &991079079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 991079072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47acf542be5d69146a2749c5b24d64bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverSize: {x: 220, y: 70}
+  resizeSpeed: 10
   audioSource: {fileID: 417549221}
   hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
 --- !u!1 &1012645693
@@ -2605,6 +2656,7 @@ GameObject:
   - component: {fileID: 1017869240}
   - component: {fileID: 1017869243}
   - component: {fileID: 1017869244}
+  - component: {fileID: 1017869245}
   m_Layer: 5
   m_Name: Island 2 button
   m_TagString: Untagged
@@ -2622,7 +2674,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 425576151}
   m_Father: {fileID: 587356553}
@@ -2778,13 +2830,29 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1017869238}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f251b300225514bba39425ff12b7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hoverScale: {x: 1.08, y: 1.08, z: 1.08}
   scaleSpeed: 10
+  audioSource: {fileID: 417549221}
+  hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
+--- !u!114 &1017869245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017869238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47acf542be5d69146a2749c5b24d64bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverSize: {x: 220, y: 70}
+  resizeSpeed: 10
   audioSource: {fileID: 417549221}
   hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
 --- !u!1 &1033783657
@@ -2857,7 +2925,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -130.78}
+  m_AnchoredPosition: {x: 0, y: -53.13}
   m_SizeDelta: {x: 1619.2, y: 202.9471}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1167289962
@@ -3260,6 +3328,7 @@ GameObject:
   - component: {fileID: 1515573182}
   - component: {fileID: 1515573181}
   - component: {fileID: 1515573184}
+  - component: {fileID: 1515573186}
   - component: {fileID: 1515573185}
   m_Layer: 5
   m_Name: Play Button
@@ -3434,13 +3503,29 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1515573179}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f251b300225514bba39425ff12b7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hoverScale: {x: 1.08, y: 1.08, z: 1.08}
   scaleSpeed: 10
+  audioSource: {fileID: 417549221}
+  hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
+--- !u!114 &1515573186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1515573179}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47acf542be5d69146a2749c5b24d64bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverSize: {x: 220, y: 70}
+  resizeSpeed: 10
   audioSource: {fileID: 417549221}
   hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
 --- !u!1 &1532067312
@@ -3821,6 +3906,7 @@ GameObject:
   - component: {fileID: 1752000514}
   - component: {fileID: 1752000517}
   - component: {fileID: 1752000518}
+  - component: {fileID: 1752000519}
   m_Layer: 5
   m_Name: Island 3 button
   m_TagString: Untagged
@@ -3994,13 +4080,29 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1752000512}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 79f251b300225514bba39425ff12b7b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   hoverScale: {x: 1.08, y: 1.08, z: 1.08}
   scaleSpeed: 10
+  audioSource: {fileID: 417549221}
+  hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
+--- !u!114 &1752000519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1752000512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47acf542be5d69146a2749c5b24d64bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hoverSize: {x: 220, y: 70}
+  resizeSpeed: 10
   audioSource: {fileID: 417549221}
   hoverClip: {fileID: 8300000, guid: 0b41b5dc0538c9b41b464c48d5bc48a8, type: 3}
 --- !u!1 &2015140157
