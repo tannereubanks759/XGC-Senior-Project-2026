@@ -43355,16 +43355,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4771498717192761705}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 5867659985295708417}
+  m_Father: {fileID: 8457281335253069747}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -817, y: 361}
+  m_AnchoredPosition: {x: 18.999939, y: -0.18423462}
   m_SizeDelta: {x: 783.2, y: 50}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!222 &6197403330285826094
@@ -48138,7 +48138,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6477666516781027436
 Transform:
   m_ObjectHideFlags: 0
@@ -54296,7 +54296,7 @@ MonoBehaviour:
   explosionFire: {fileID: 2776474834247518692}
   invulnerabilityFire: {fileID: 2229330558078042600}
   MainCameraTransform: {fileID: 5696692602856398275}
-  soundSource: {fileID: 8524340187920834651}
+  swordSounds: {fileID: 530851876868477192}
 --- !u!114 &3629823473797291533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56377,7 +56377,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4842778643313173995
 Transform:
   m_ObjectHideFlags: 0
@@ -56777,18 +56777,19 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6503486288942133730}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5119196429476966738}
   m_Father: {fileID: 5867659985295708417}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5}
-  m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: -836, y: 361.1842}
-  m_SizeDelta: {x: 836, y: 203.6317}
-  m_Pivot: {x: 0, y: 0.5}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: -846.9999, y: 427}
+  m_SizeDelta: {x: 836, y: 203.63171}
+  m_Pivot: {x: 0, y: 1}
 --- !u!222 &823333402477816368
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -60716,6 +60717,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8457281335253069747}
   - {fileID: 3119965760063787956}
   - {fileID: 5642027705723211664}
   - {fileID: 2709315498045500591}
@@ -60723,9 +60725,7 @@ RectTransform:
   - {fileID: 1420083119485263367}
   - {fileID: 6438591309008554484}
   - {fileID: 1135794386715046367}
-  - {fileID: 8457281335253069747}
   - {fileID: 5055180514782582690}
-  - {fileID: 5119196429476966738}
   - {fileID: 3473294232041356128}
   - {fileID: 2480198706999067938}
   - {fileID: 7255573491249836359}

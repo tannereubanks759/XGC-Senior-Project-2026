@@ -17,9 +17,7 @@ public class WeaponsManager : MonoBehaviour
     public GameObject explosionFire;
     public GameObject invulnerabilityFire;
     public Transform MainCameraTransform;
-
-    [Header("Sounds")]
-    public AudioSource soundSource;
+    public SwordSounds swordSounds;
 
 
     private offhandHandler offhandHandle;
@@ -196,18 +194,10 @@ public class WeaponsManager : MonoBehaviour
         {
             offhandHandle.unequip_Safe();
         }
-        /*if (weaponIcons.Length > 0)
+        if(weaponSlot == 0 && swordSounds) //Play equip sound when pulling out sword.
         {
-            EnlargeWeaponIcon(weaponIcons[currentWeapon].GetComponent<RawImage>());
-        }*/
-        /*if(currentWeapon == 0)
-        {
-            EnableCrosshair(false);
+            swordSounds.PlayEquip();
         }
-        else
-        {
-            EnableCrosshair(true);
-        }*/
     }
 
 
