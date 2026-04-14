@@ -11,6 +11,8 @@ public class SwordSounds : MonoBehaviour
     public AudioClip equipSound;
     public AudioClip pushSound;
     public AudioClip blockSound;
+
+    private float nextTime = 0;
     public void PlaySwing()
     {
         if(swordSwings.Length > 0)
@@ -20,9 +22,16 @@ public class SwordSounds : MonoBehaviour
         }
         
     }
+    private void Start()
+    {
+        nextTime = Time.time + 2;
+    }
     public void OnEnable()
     {
-        PlayEquip();
+        if(Time.time > nextTime)
+        {
+            PlayEquip();
+        }
     }
     public void PlayEquip()
     {

@@ -13537,6 +13537,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -1.331
       objectReference: {fileID: 0}
+    - target: {fileID: 2880586889936293776, guid: ee07b17da7c26fb4f81e7a22515b9636, type: 3}
+      propertyPath: refDemol.rfs
+      value: 
+      objectReference: {fileID: 460334157471615974}
+    - target: {fileID: 8232146812902666181, guid: ee07b17da7c26fb4f81e7a22515b9636, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8977319573573254932, guid: ee07b17da7c26fb4f81e7a22515b9636, type: 3}
       propertyPath: m_Name
       value: ExplosiveBarrel
@@ -13558,6 +13566,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ee07b17da7c26fb4f81e7a22515b9636, type: 3}
+--- !u!1 &460334157471615974 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4409717566281749270, guid: ee07b17da7c26fb4f81e7a22515b9636, type: 3}
+  m_PrefabInstance: {fileID: 4274225805390059760}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &3757609713012136208 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1113708081422811616, guid: ee07b17da7c26fb4f81e7a22515b9636, type: 3}

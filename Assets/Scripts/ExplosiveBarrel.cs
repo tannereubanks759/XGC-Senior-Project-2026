@@ -1,38 +1,44 @@
-using DigitalRuby.ThunderAndLightning;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ExplosiveBarrel : MonoBehaviour
 {
     [Header("Explosion Radius")]
-    public float damageRadius = 6f;
+    [SerializeField] private float damageRadius = 6f;
 
     [Header("References")]
-    public Collider col;
-    public GameObject explosionPrefab;
-    public MeshRenderer render;
+    [SerializeField] private Collider barrelCollider;
+    [SerializeField] private MeshRenderer barrelRenderer;
+    [SerializeField] private GameObject explosionFxChild;
 
     [Header("Damage")]
-    public float dmgToEnemiesMax = 40f;
-    public float dmgToPlayerMax = 100f;
+    [SerializeField] private float dmgToEnemiesMax = 40f;
+    [SerializeField] private float dmgToPlayerMax = 100f;
 
-    [Header("Expansion")]
-    public float explosionExpandTime = 0.15f;
+    [Header("Physics")]
+    [SerializeField] private LayerMask hitMask = ~0;
+    [SerializeField] private int overlapBufferSize = 32;
 
-    private SphereCollider explosionTrigger;
-    private GameObject explosionTriggerObject;
-    private bool hasExploded = false;
+    [Header("FX")]
+    [SerializeField] private float fxLifetime = 3f;
 
-    private readonly HashSet<GameObject> damagedObjects = new HashSet<GameObject>();
+    private bool hasExploded;
 
-    void Start()
+    private Collider[] overlapResults;
+    private readonly HashSet<GameObject> damagedRoots = new HashSet<GameObject>();
+
+    private void Awake()
     {
-        if (col == null)
-            col = GetComponent<Collider>();
+        if (barrelCollider == null)
+            barrelCollider = GetComponent<Collider>();
 
-        if (render == null)
-            render = GetComponent<MeshRenderer>();
+        if (barrelRenderer == null)
+            barrelRenderer = GetComponent<MeshRenderer>();
+
+        overlapResults = new Collider[Mathf.Max(8, overlapBufferSize)];
+
+        if (explosionFxChild != null)
+            explosionFxChild.SetActive(false);
     }
 
     public void Explode()
@@ -41,135 +47,148 @@ public class ExplosiveBarrel : MonoBehaviour
             return;
 
         hasExploded = true;
+        damagedRoots.Clear();
 
-        if (transform.root.gameObject.layer == 9)
-        {
-            DamageRef selfDamageRef = transform.root.GetComponent<DamageRef>();
-            if (selfDamageRef != null)
-                selfDamageRef.TakeDamage(100);
-        }
-
-        if (transform.parent != null)
-            transform.parent = null;
-
-        if (explosionPrefab != null)
-            Destroy(Instantiate(explosionPrefab, transform.position, Quaternion.identity), 3f);
-
-        if (render != null)
-            render.enabled = false;
-
-        if (col != null)
-            Destroy(col);
-
-        CreateExplosionTriggerObject();
-        StartCoroutine(ExpandExplosionTrigger());
-    }
-
-    private void CreateExplosionTriggerObject()
-    {
-        explosionTriggerObject = new GameObject("ExplosionTrigger");
-        explosionTriggerObject.transform.position = transform.position;
-        explosionTriggerObject.transform.rotation = Quaternion.identity;
-        explosionTriggerObject.transform.localScale = Vector3.one;
-        explosionTriggerObject.layer = 26;
-        Rigidbody rb = explosionTriggerObject.AddComponent<Rigidbody>();
-        rb.isKinematic = true;
-
-
-        ExplosionTriggerForwarder forwarder = explosionTriggerObject.AddComponent<ExplosionTriggerForwarder>();
-        forwarder.owner = this;
-
-        explosionTrigger = explosionTriggerObject.AddComponent<SphereCollider>();
-        explosionTrigger.isTrigger = true;
-        explosionTrigger.radius = 0f;
-        explosionTrigger.center = Vector3.zero;
-        
-    }
-
-    private IEnumerator ExpandExplosionTrigger()
-    {
-        float elapsed = 0f;
-
-        while (elapsed < explosionExpandTime)
-        {
-            elapsed += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsed / explosionExpandTime);
-
-            if (explosionTrigger != null)
-                explosionTrigger.radius = Mathf.Lerp(0f, damageRadius, t);
-
-            yield return null;
-        }
-
-        if (explosionTrigger != null)
-            explosionTrigger.radius = damageRadius;
-
-        yield return new WaitForSeconds(0.1f);
-
-        if (explosionTriggerObject != null)
-            Destroy(explosionTriggerObject);
+        TryDamageSelfRoot();
+        DetachFromParent();
+        PlayExplosionFx();
+        DisableBarrelVisuals();
+        ProcessExplosionHits();
 
         Destroy(gameObject);
     }
 
-    public void HandleExplosionTriggerEnter(Collider other)
+    private void TryDamageSelfRoot()
     {
-        if (!hasExploded)
-            return;
+        Transform root = transform.root;
 
-        if (other == null)
-            return;
-
-        GameObject targetRoot = other.transform.root.gameObject;
-
-        if (damagedObjects.Contains(targetRoot))
-            return;
-
-        float distance = Vector3.Distance(transform.position, other.ClosestPoint(transform.position));
-
-        if (distance > damageRadius)
-            return;
-
-        CombatController player = targetRoot.GetComponentInChildren<CombatController>();
-        if (player != null)
+        if (root != null && root.gameObject.layer == 9)
         {
-            damagedObjects.Add(targetRoot);
-            float damage = CalculatePlayerDamage(distance);
-            player.TakeDamage((int)damage);
+            DamageRef selfDamageRef = root.GetComponent<DamageRef>();
+
+            if (selfDamageRef != null)
+                selfDamageRef.TakeDamage(100f);
+        }
+    }
+
+    private void DetachFromParent()
+    {
+        if (transform.parent != null)
+            transform.parent = null;
+    }
+
+    private void PlayExplosionFx()
+    {
+        if (explosionFxChild == null)
             return;
+
+        explosionFxChild.transform.SetParent(null, true);
+        explosionFxChild.SetActive(true);
+        Destroy(explosionFxChild, fxLifetime);
+        explosionFxChild = null;
+    }
+
+    private void DisableBarrelVisuals()
+    {
+        if (barrelRenderer != null)
+            barrelRenderer.enabled = false;
+
+        if (barrelCollider != null)
+            barrelCollider.enabled = false;
+    }
+
+    private void ProcessExplosionHits()
+    {
+        Vector3 explosionPosition = transform.position;
+
+        int hitCount = Physics.OverlapSphereNonAlloc(
+            explosionPosition,
+            damageRadius,
+            overlapResults,
+            hitMask,
+            QueryTriggerInteraction.Collide
+        );
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            Collider hitCollider = overlapResults[i];
+
+            if (hitCollider == null)
+                continue;
+
+            Transform hitRootTransform = hitCollider.transform.root;
+            if (hitRootTransform == null)
+                continue;
+
+            GameObject hitRoot = hitRootTransform.gameObject;
+
+            if (!damagedRoots.Add(hitRoot))
+                continue;
+
+            float distance = Vector3.Distance(
+                explosionPosition,
+                hitCollider.ClosestPoint(explosionPosition)
+            );
+
+            if (distance > damageRadius)
+                continue;
+
+            if (TryDamagePlayer(hitRootTransform, distance))
+                continue;
+
+            if (TryDamageEnemy(hitRootTransform, distance))
+                continue;
+
+            TryChainExplodeBarrel(hitRootTransform);
         }
 
-        DamageRef enemy = targetRoot.GetComponentInChildren<DamageRef>();
-        if (enemy != null)
-        {
-            damagedObjects.Add(targetRoot);
-            float damage = CalculateEnemyDamage(distance);
-            enemy.TakeDamage(damage);
-            return;
-        }
+        for (int i = 0; i < hitCount; i++)
+            overlapResults[i] = null;
+    }
 
-        ExplosiveBarrel otherBarrel = targetRoot.GetComponentInChildren<ExplosiveBarrel>();
+    private bool TryDamagePlayer(Transform hitRootTransform, float distance)
+    {
+        CombatController player = hitRootTransform.GetComponentInChildren<CombatController>();
+
+        if (player == null)
+            return false;
+
+        float damage = CalculateFalloffDamage(dmgToPlayerMax, distance);
+        player.TakeDamage(Mathf.RoundToInt(damage));
+        return true;
+    }
+
+    private bool TryDamageEnemy(Transform hitRootTransform, float distance)
+    {
+        DamageRef enemy = hitRootTransform.GetComponentInChildren<DamageRef>();
+
+        if (enemy == null)
+            return false;
+
+        float damage = CalculateFalloffDamage(dmgToEnemiesMax, distance);
+        enemy.TakeDamage(damage);
+        return true;
+    }
+
+    private void TryChainExplodeBarrel(Transform hitRootTransform)
+    {
+        ExplosiveBarrel otherBarrel = hitRootTransform.GetComponentInChildren<ExplosiveBarrel>();
+
         if (otherBarrel != null && otherBarrel != this)
-        {
             otherBarrel.Explode();
-        }
     }
 
-    private float CalculatePlayerDamage(float distance)
+    private float CalculateFalloffDamage(float maxDamage, float distance)
     {
         if (distance >= damageRadius)
             return 0f;
 
-        float t = Mathf.InverseLerp(0f, damageRadius, distance);
-        return Mathf.Lerp(dmgToPlayerMax, 0f, t);
+        float t = distance / damageRadius;
+        return Mathf.Lerp(maxDamage, 0f, t);
     }
 
-    private float CalculateEnemyDamage(float distance)
+    private void OnDrawGizmosSelected()
     {
-        if (distance >= damageRadius)
-            return 0f;
-
-        float t = Mathf.InverseLerp(0f, damageRadius, distance);
-        return Mathf.Lerp(dmgToEnemiesMax, 0f, t);
+        Gizmos.DrawWireSphere(transform.position, damageRadius);
     }
 }

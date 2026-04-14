@@ -19816,6 +19816,10 @@ MonoBehaviour:
   attackTrail: {fileID: 1759244301}
   clearTrailOnAttackStart: 0
   isDropping: 0
+  isWarmingUp: 0
+  isReturning: 0
+  pendingGoUp: 0
+  sequenceActive: 0
   player: {fileID: 0}
   playerInDangerArea: 0
   waterSurface: {fileID: 1333451759}
@@ -21389,9 +21393,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 6989419083684553904, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553906, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553912, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 6989419083684553914, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_05A (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553914, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553916, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553918, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 6989419083684722842, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -30391,9 +30419,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 4266007729485201904, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 4266007729485201906, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 4266007729485201912, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_04B
+      objectReference: {fileID: 0}
+    - target: {fileID: 4266007729485201912, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 4266007729485201914, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 4266007729485201916, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 4266007729485201918, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 4266007729485569496, guid: 9a7760a078f1ede40ac45f7a9a77a029, type: 3}
       propertyPath: m_LocalPosition.x
@@ -45306,9 +45358,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 8344438883632224, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344438883632226, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 8344438883632228, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_05B
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344438883632228, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344438883632230, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344438883632236, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 8344438883632238, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 8344438883866692, guid: f07dc3c83e8a75d47bfbac45794943c4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -64381,7 +64457,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1038390013}
   - component: {fileID: 1038390014}
-  m_Layer: 0
+  m_Layer: 27
   m_Name: CloseOffArena
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -65656,6 +65732,10 @@ MonoBehaviour:
   attackTrail: {fileID: 1177153150}
   clearTrailOnAttackStart: 0
   isDropping: 0
+  isWarmingUp: 0
+  isReturning: 0
+  pendingGoUp: 0
+  sequenceActive: 0
   player: {fileID: 0}
   playerInDangerArea: 0
   waterSurface: {fileID: 1333451759}
@@ -90649,9 +90729,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7192235111194833840, guid: 4c0bb0bd2f1f6eb4e9f9bc4e2adb07ce, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7192235111194833842, guid: 4c0bb0bd2f1f6eb4e9f9bc4e2adb07ce, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7192235111194833844, guid: 4c0bb0bd2f1f6eb4e9f9bc4e2adb07ce, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 7192235111194833846, guid: 4c0bb0bd2f1f6eb4e9f9bc4e2adb07ce, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Medium_01A
+      objectReference: {fileID: 0}
+    - target: {fileID: 7192235111194833846, guid: 4c0bb0bd2f1f6eb4e9f9bc4e2adb07ce, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7192235111194833852, guid: 4c0bb0bd2f1f6eb4e9f9bc4e2adb07ce, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7192235111194833854, guid: 4c0bb0bd2f1f6eb4e9f9bc4e2adb07ce, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -103814,9 +103918,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 6989419083684553904, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553906, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553912, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 6989419083684553914, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_05A
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553914, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553916, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553918, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 6989419083684722842, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -111301,9 +111429,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 6989419083684553904, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553906, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553912, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 6989419083684553914, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_05A (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553914, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553916, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 6989419083684553918, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 6989419083684722842, guid: 2d3571198cd3e1549b17e1cab20da0b4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -112209,9 +112361,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 7065273003114410753, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 7065273003114410755, guid: c42758b4b761f804a90d531175b9c732, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_03A (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410755, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410757, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410759, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410761, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410763, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 7065273003114573603, guid: c42758b4b761f804a90d531175b9c732, type: 3}
       propertyPath: m_LocalPosition.x
@@ -114309,9 +114485,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703717, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703719, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703721, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703723, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703725, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 984847502939703727, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_07A (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703727, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -114417,9 +114617,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 7065273003114410753, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 7065273003114410755, guid: c42758b4b761f804a90d531175b9c732, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_03A
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410755, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410757, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410759, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410761, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065273003114410763, guid: c42758b4b761f804a90d531175b9c732, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 7065273003114573603, guid: c42758b4b761f804a90d531175b9c732, type: 3}
       propertyPath: m_LocalPosition.x
@@ -115699,9 +115923,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 79799032730691441, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 79799032730691443, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 79799032730691445, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 79799032730691447, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
       propertyPath: m_Name
       value: TAI_Cliff_03A
+      objectReference: {fileID: 0}
+    - target: {fileID: 79799032730691447, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 79799032730691449, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 79799032730691453, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 79799032730691455, guid: 53a55c5f7530b25429980f63c88460bf, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -125133,9 +125385,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1038390013}
     m_Modifications:
+    - target: {fileID: 3593136222864704245, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 3593136222864704247, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 3593136222864704249, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 3593136222864704251, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 3593136222864704253, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_06A
+      objectReference: {fileID: 0}
+    - target: {fileID: 3593136222864704253, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 3593136222864704255, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     - target: {fileID: 3593136222865137373, guid: 74ee9887ed775f841b5eb1e060771a39, type: 3}
       propertyPath: m_LocalPosition.x
@@ -146090,9 +146366,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703717, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703719, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703721, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703723, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703725, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
+      objectReference: {fileID: 0}
     - target: {fileID: 984847502939703727, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
       propertyPath: m_Name
       value: TAI_Rock_Large_07A
+      objectReference: {fileID: 0}
+    - target: {fileID: 984847502939703727, guid: bf0435e555478b943b09a29fc78144ea, type: 3}
+      propertyPath: m_Layer
+      value: 27
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

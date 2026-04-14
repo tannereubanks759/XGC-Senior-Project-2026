@@ -4,7 +4,7 @@ using System.Collections;
 
 public class KrakenTentacle : MonoBehaviour
 {
-    [Header("Rig Setup (Option B: never swap target)")]
+    [Header("Rig Setup")]
     [Tooltip("The ChainIKConstraint on the tentacle rig. Its Target MUST be this transform (the object this script is on).")]
     public ChainIKConstraint chainIK;
 
@@ -40,6 +40,10 @@ public class KrakenTentacle : MonoBehaviour
 
     [Header("Runtime")]
     public bool isDropping = false;
+    public bool isWarmingUp = false;
+    public bool isReturning = false;
+    public bool pendingGoUp = false;
+    public bool sequenceActive = false;
 
     [Tooltip("Player transform. If left null, the script will try to find an object tagged 'Player'.")]
     public Transform player;
@@ -99,12 +103,10 @@ public class KrakenTentacle : MonoBehaviour
 
     public Collider tentacleCol;
 
-    private bool isReturning = false;
     private float dropCountdown = 0f;
     private float nextAttackAllowedTime = 0f;
     private float dropElapsed = 0f;
 
-    private bool isWarmingUp = false;
     private float warmupT = 0f;
     private float warmupHoldElapsed = 0f;
 
@@ -116,8 +118,8 @@ public class KrakenTentacle : MonoBehaviour
 
     private int normalsSinceTriple = 0;
 
-    private bool sequenceActive = false;
     private Coroutine sequenceCo;
+    private Coroutine goUpDelayCo;
 
     private bool blendingToIdle = false;
     private float blendTimer = 0f;
@@ -130,16 +132,11 @@ public class KrakenTentacle : MonoBehaviour
     private Vector3 deathBlendStartPos;
     private Quaternion deathBlendStartRot;
 
-    private bool pendingGoUp = false;
-    private Coroutine goUpDelayCo;
+    private bool trailActive = false;
 
     void Start()
     {
-        if (player == null)
-        {
-            var p = GameObject.FindGameObjectWithTag("Player");
-            if (p) player = p.transform;
-        }
+        TryFindPlayer();
 
         if (chainIK != null)
         {
@@ -155,10 +152,14 @@ public class KrakenTentacle : MonoBehaviour
         ResetDropCountdown();
         wasInDangerArea = playerInDangerArea;
 
-        if (!playerInDangerArea) blendingToIdle = false;
-        if (tentacleCol) tentacleCol.enabled = false;
+        if (!playerInDangerArea)
+            blendingToIdle = false;
+
+        if (tentacleCol)
+            tentacleCol.enabled = false;
 
         EndAttackTrail(true);
+        ClearAllAttackFlags();
     }
 
     void OnDisable()
@@ -176,67 +177,19 @@ public class KrakenTentacle : MonoBehaviour
 
         if (playerInDangerArea != wasInDangerArea)
         {
-            if (playerInDangerArea)
-            {
-                blendingToIdle = false;
-                TeleportToIdleTargetIfAvailable();
-
-                CancelAttackState();
-                isReturning = false;
-
-                CancelPendingGoUp();
-                ResetDropCountdown();
-            }
-            else
-            {
-                CancelAttackState();
-                CancelPendingGoUp();
-                BeginBlendToIdle();
-            }
-
+            HandleDangerAreaChanged();
             wasInDangerArea = playerInDangerArea;
         }
 
         if (!playerInDangerArea)
         {
-            debugState = "OutOfRange";
-
-            if (followIdleTargetWhenOutOfRange && idleAnimatedTarget != null)
-            {
-                if (blendingToIdle && blendToIdleTime > 0f)
-                {
-                    blendTimer += Time.deltaTime;
-                    float t = Mathf.Clamp01(blendTimer / blendToIdleTime);
-                    float eased = (blendToIdleCurve != null) ? blendToIdleCurve.Evaluate(t) : t;
-
-                    transform.position = Vector3.Lerp(blendStartPos, idleAnimatedTarget.position, eased);
-                    transform.rotation = Quaternion.Slerp(blendStartRot, idleAnimatedTarget.rotation, eased);
-
-                    if (t >= 1f)
-                    {
-                        blendingToIdle = false;
-                        transform.position = idleAnimatedTarget.position;
-                        transform.rotation = idleAnimatedTarget.rotation;
-                    }
-                }
-                else
-                {
-                    transform.position = idleAnimatedTarget.position;
-                    transform.rotation = idleAnimatedTarget.rotation;
-                    blendingToIdle = false;
-                }
-            }
-
-            EndAttackTrail(false);
+            UpdateOutOfRange();
             return;
         }
 
+        TryFindPlayer();
         if (player == null)
-        {
-            var p = GameObject.FindGameObjectWithTag("Player");
-            if (p) player = p.transform;
-        }
-        if (player == null) return;
+            return;
 
         if (sequenceActive)
         {
@@ -253,69 +206,137 @@ public class KrakenTentacle : MonoBehaviour
 
         if (isWarmingUp)
         {
-            debugState = "Warmup";
-            EndAttackTrail(false);
-
-            warmupT += Time.deltaTime;
-
-            float dur = Mathf.Max(0.01f, warmupDuration);
-            float t01 = Mathf.Clamp01(warmupT / dur);
-
-            float eased = (warmupCurve != null) ? warmupCurve.Evaluate(t01) : t01;
-            transform.position = Vector3.LerpUnclamped(warmupStartPos, warmupApexPos, eased);
-
-            if (t01 >= 1f)
-            {
-                if (warmupHoldTime > 0f)
-                {
-                    warmupHoldElapsed += Time.deltaTime;
-                    if (warmupHoldElapsed < warmupHoldTime)
-                        return;
-                }
-
-                BeginStrikeDropNow();
-            }
+            UpdateWarmup();
             return;
         }
 
         if (isDropping)
         {
-            debugState = "NormalDrop";
-            BeginAttackTrail();
-
-            dropElapsed += Time.deltaTime;
-
-            float targetY = player.position.y + dropToHeight;
-            Vector3 dropPos = new Vector3(dropLockedXZ.x, targetY, dropLockedXZ.y);
-            MoveTargetTowards(dropPos, dropSpeed);
-
-            if (Mathf.Abs(transform.position.y - targetY) <= reachEpsilon || dropElapsed >= maxDropTime)
-            {
-                isDropping = false;
-                if (tentacleCol) tentacleCol.enabled = false;
-
-                OnAttackImpact();
-                GoUp();
-            }
+            UpdateNormalDrop();
             return;
         }
 
         if (isReturning)
         {
-            debugState = "Returning";
-            EndAttackTrail(false);
-
-            Vector3 hoverPos = GetHoverPosition();
-            MoveTargetTowards(hoverPos, riseSpeed);
-
-            if ((transform.position - hoverPos).sqrMagnitude <= 0.05f * 0.05f)
-            {
-                isReturning = false;
-                ResetDropCountdown();
-            }
+            UpdateReturn();
             return;
         }
 
+        UpdateFollow();
+    }
+
+    private void HandleDangerAreaChanged()
+    {
+        if (playerInDangerArea)
+        {
+            blendingToIdle = false;
+            TeleportToIdleTargetIfAvailable();
+
+            CancelAttackState();
+            CancelPendingGoUp();
+            ResetDropCountdown();
+        }
+        else
+        {
+            CancelAttackState();
+            CancelPendingGoUp();
+            BeginBlendToIdle();
+        }
+    }
+
+    private void UpdateOutOfRange()
+    {
+        debugState = "OutOfRange";
+        EndAttackTrail(false);
+
+        if (followIdleTargetWhenOutOfRange && idleAnimatedTarget != null)
+        {
+            if (blendingToIdle && blendToIdleTime > 0f)
+            {
+                blendTimer += Time.deltaTime;
+                float t = Mathf.Clamp01(blendTimer / blendToIdleTime);
+                float eased = (blendToIdleCurve != null) ? blendToIdleCurve.Evaluate(t) : t;
+
+                transform.position = Vector3.Lerp(blendStartPos, idleAnimatedTarget.position, eased);
+                transform.rotation = Quaternion.Slerp(blendStartRot, idleAnimatedTarget.rotation, eased);
+
+                if (t >= 1f)
+                {
+                    blendingToIdle = false;
+                    transform.position = idleAnimatedTarget.position;
+                    transform.rotation = idleAnimatedTarget.rotation;
+                }
+            }
+            else
+            {
+                transform.position = idleAnimatedTarget.position;
+                transform.rotation = idleAnimatedTarget.rotation;
+                blendingToIdle = false;
+            }
+        }
+    }
+
+    private void UpdateWarmup()
+    {
+        debugState = "Warmup";
+        EndAttackTrail(false);
+
+        warmupT += Time.deltaTime;
+
+        float dur = Mathf.Max(0.01f, warmupDuration);
+        float t01 = Mathf.Clamp01(warmupT / dur);
+        float eased = (warmupCurve != null) ? warmupCurve.Evaluate(t01) : t01;
+
+        transform.position = Vector3.LerpUnclamped(warmupStartPos, warmupApexPos, eased);
+
+        if (t01 >= 1f)
+        {
+            if (warmupHoldTime > 0f)
+            {
+                warmupHoldElapsed += Time.deltaTime;
+                if (warmupHoldElapsed < warmupHoldTime)
+                    return;
+            }
+
+            BeginNormalDrop();
+        }
+    }
+
+    private void UpdateNormalDrop()
+    {
+        debugState = "NormalDrop";
+        BeginAttackTrail();
+
+        dropElapsed += Time.deltaTime;
+
+        float targetY = player.position.y + dropToHeight;
+        Vector3 dropPos = new Vector3(dropLockedXZ.x, targetY, dropLockedXZ.y);
+        MoveTargetTowards(dropPos, dropSpeed);
+
+        if (Mathf.Abs(transform.position.y - targetY) <= reachEpsilon || dropElapsed >= maxDropTime)
+        {
+            EndCurrentDropAndImpact();
+            GoUp();
+        }
+    }
+
+    private void UpdateReturn()
+    {
+        debugState = "Returning";
+        EndAttackTrail(false);
+
+        Vector3 hoverPos = GetHoverPosition();
+        MoveTargetTowards(hoverPos, riseSpeed);
+
+        if ((transform.position - hoverPos).sqrMagnitude <= 0.05f * 0.05f)
+        {
+            isReturning = false;
+            ResetDropCountdown();
+        }
+    }
+
+    private void UpdateFollow()
+    {
         debugState = "Following";
         EndAttackTrail(false);
 
@@ -328,18 +349,25 @@ public class KrakenTentacle : MonoBehaviour
         if (cooldownReady && aboveEnough)
         {
             dropCountdown -= Time.deltaTime;
+
             if (dropCountdown <= 0f)
             {
                 if (normalsSinceTriple >= tripleEveryNormalAttacks)
                 {
                     normalsSinceTriple = 0;
-                    if (debugLogs) Debug.Log($"[{name}] TRIPLE STRIKE TRIGGERED (scheduled).");
+
+                    if (debugLogs)
+                        Debug.Log($"[{name}] Triple strike triggered.");
+
                     StartTripleStrike();
                 }
                 else
                 {
                     normalsSinceTriple++;
-                    if (debugLogs) Debug.Log($"[{name}] Normal attack triggered. normalsSinceTriple={normalsSinceTriple}/{tripleEveryNormalAttacks}");
+
+                    if (debugLogs)
+                        Debug.Log($"[{name}] Normal strike triggered. normalsSinceTriple={normalsSinceTriple}/{tripleEveryNormalAttacks}");
+
                     StartWarmup();
                 }
             }
@@ -350,23 +378,399 @@ public class KrakenTentacle : MonoBehaviour
         }
     }
 
+    private void StartWarmup()
+    {
+        CancelAttackStateOnly();
+
+        isWarmingUp = true;
+        warmupT = 0f;
+        warmupHoldElapsed = 0f;
+
+        if (tentacleCol)
+            tentacleCol.enabled = false;
+
+        dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
+
+        warmupStartPos = transform.position;
+
+        float apexY = GetHoverY() + warmupExtraHeight;
+        warmupApexPos = new Vector3(dropLockedXZ.x, apexY, dropLockedXZ.y);
+
+        dropCountdown = Mathf.Infinity;
+    }
+
+    private void BeginNormalDrop()
+    {
+        isWarmingUp = false;
+
+        if (lockToPlayerAtSlamStart)
+            dropLockedXZ = GetPlayerXZLocked();
+
+        isDropping = true;
+        dropElapsed = 0f;
+
+        if (tentacleCol)
+            tentacleCol.enabled = true;
+
+        BeginAttackTrail();
+
+        if (debugLogs)
+            Debug.Log($"[{name}] Normal drop started. isDropping=TRUE");
+
+        dropCountdown = Mathf.Infinity;
+    }
+
+    private void EndCurrentDropAndImpact()
+    {
+        isDropping = false;
+        dropElapsed = 0f;
+
+        if (tentacleCol)
+            tentacleCol.enabled = false;
+
+        OnAttackImpact();
+    }
+
+    private void StartTripleStrike()
+    {
+        CancelAttackState();
+        CancelPendingGoUp();
+
+        if (sequenceCo != null)
+            StopCoroutine(sequenceCo);
+
+        sequenceCo = StartCoroutine(TripleStrikeRoutine());
+    }
+
+    private IEnumerator TripleStrikeRoutine()
+    {
+        sequenceActive = true;
+        debugState = "TripleSequence";
+
+        if (tentacleCol)
+            tentacleCol.enabled = false;
+
+        dropCountdown = Mathf.Infinity;
+        EndAttackTrail(false);
+
+        for (int i = 0; i < tripleStrikes; i++)
+        {
+            if (isDead || !playerInDangerArea || player == null)
+                break;
+
+            isWarmingUp = true;
+            isDropping = false;
+            isReturning = false;
+
+            if (lockToPlayerAtSlamStart)
+                dropLockedXZ = GetPlayerXZLocked();
+            else
+                dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
+
+            if (debugLogs)
+                Debug.Log($"[{name}] Triple slam {i + 1}/{tripleStrikes}");
+
+            float apexY = GetHoverY() + warmupExtraHeight + tripleExtraApexHeight;
+            Vector3 apex = new Vector3(dropLockedXZ.x, apexY, dropLockedXZ.y);
+
+            Vector3 start = transform.position;
+            float windDur = Mathf.Max(0.01f, tripleWarmupDuration);
+            float t = 0f;
+
+            while (t < windDur)
+            {
+                if (isDead || !playerInDangerArea)
+                {
+                    CleanupTriple();
+                    EndAttackTrail(false);
+                    yield break;
+                }
+
+                EndAttackTrail(false);
+
+                float t01 = Mathf.Clamp01(t / windDur);
+                float eased = (warmupCurve != null) ? warmupCurve.Evaluate(t01) : t01;
+                transform.position = Vector3.LerpUnclamped(start, apex, eased);
+
+                t += Time.deltaTime;
+                yield return null;
+            }
+
+            transform.position = apex;
+
+            if (tripleWarmupHold > 0f)
+            {
+                float hold = 0f;
+                while (hold < tripleWarmupHold)
+                {
+                    if (isDead || !playerInDangerArea)
+                    {
+                        CleanupTriple();
+                        EndAttackTrail(false);
+                        yield break;
+                    }
+
+                    EndAttackTrail(false);
+
+                    hold += Time.deltaTime;
+                    yield return null;
+                }
+            }
+
+            isWarmingUp = false;
+            isDropping = true;
+            dropElapsed = 0f;
+
+            BeginAttackTrail();
+
+            if (debugLogs)
+                Debug.Log($"[{name}] Triple drop started. isDropping=TRUE");
+
+            if (tentacleCol)
+                tentacleCol.enabled = true;
+
+            float slamTimer = 0f;
+            while (slamTimer < tripleMaxDropTime)
+            {
+                if (isDead || !playerInDangerArea)
+                {
+                    isDropping = false;
+
+                    if (tentacleCol)
+                        tentacleCol.enabled = false;
+
+                    CleanupTriple();
+                    EndAttackTrail(false);
+                    yield break;
+                }
+
+                float slamY = player.position.y + dropToHeight;
+                Vector3 slamPos = new Vector3(dropLockedXZ.x, slamY, dropLockedXZ.y);
+
+                transform.position = Vector3.MoveTowards(transform.position, slamPos, tripleDropSpeed * Time.deltaTime);
+
+                if (Mathf.Abs(transform.position.y - slamY) <= reachEpsilon)
+                    break;
+
+                slamTimer += Time.deltaTime;
+                yield return null;
+            }
+
+            isDropping = false;
+
+            if (tentacleCol)
+                tentacleCol.enabled = false;
+
+            OnAttackImpact();
+
+            yield return null;
+
+            Vector3 popStart = transform.position;
+            float popDur = Mathf.Max(0.01f, triplePopUpDuration);
+            float popT = 0f;
+
+            while (popT < popDur)
+            {
+                if (isDead || !playerInDangerArea)
+                {
+                    CleanupTriple();
+                    EndAttackTrail(false);
+                    yield break;
+                }
+
+                EndAttackTrail(false);
+
+                float t01 = Mathf.Clamp01(popT / popDur);
+                float eased = (triplePopUpCurve != null) ? triplePopUpCurve.Evaluate(t01) : t01;
+                transform.position = Vector3.LerpUnclamped(popStart, apex, eased);
+
+                popT += Time.deltaTime;
+                yield return null;
+            }
+
+            transform.position = apex;
+        }
+
+        nextAttackAllowedTime = Time.time + attackCooldown;
+
+        pendingGoUp = false;
+        if (goUpDelayCo != null)
+        {
+            StopCoroutine(goUpDelayCo);
+            goUpDelayCo = null;
+        }
+
+        CleanupTriple();
+        isReturning = true;
+        ResetDropCountdown();
+        EndAttackTrail(false);
+    }
+
+    public void GoUp()
+    {
+        nextAttackAllowedTime = Time.time + attackCooldown;
+
+        if (goUpDelay <= 0f)
+        {
+            BeginReturnNow();
+            return;
+        }
+
+        CancelPendingGoUp();
+        goUpDelayCo = StartCoroutine(GoUpDelayRoutine(goUpDelay));
+    }
+
+    private IEnumerator GoUpDelayRoutine(float delay)
+    {
+        pendingGoUp = true;
+
+        ClearAllAttackFlags();
+        isReturning = false;
+        dropCountdown = Mathf.Infinity;
+
+        float t = 0f;
+        while (t < delay)
+        {
+            if (isDead || !playerInDangerArea)
+            {
+                pendingGoUp = false;
+                goUpDelayCo = null;
+                yield break;
+            }
+
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        pendingGoUp = false;
+        goUpDelayCo = null;
+
+        BeginReturnNow();
+    }
+
+    private void BeginReturnNow()
+    {
+        ClearAllAttackFlags();
+        EndAttackTrail(false);
+        isReturning = true;
+        dropElapsed = 0f;
+        ResetDropCountdown();
+    }
+
+    private void CancelPendingGoUp()
+    {
+        pendingGoUp = false;
+
+        if (goUpDelayCo != null)
+        {
+            StopCoroutine(goUpDelayCo);
+            goUpDelayCo = null;
+        }
+    }
+
+    private void CancelAttackState()
+    {
+        sequenceActive = false;
+
+        if (sequenceCo != null)
+        {
+            StopCoroutine(sequenceCo);
+            sequenceCo = null;
+        }
+
+        ClearAllAttackFlags();
+
+        if (tentacleCol)
+            tentacleCol.enabled = false;
+
+        dropCountdown = 0f;
+        EndAttackTrail(false);
+    }
+
+    private void CancelAttackStateOnly()
+    {
+        ClearAllAttackFlags();
+
+        if (tentacleCol)
+            tentacleCol.enabled = false;
+
+        EndAttackTrail(false);
+    }
+
+    private void ClearAllAttackFlags()
+    {
+        isWarmingUp = false;
+        isDropping = false;
+        dropElapsed = 0f;
+    }
+
+    private void CleanupTriple()
+    {
+        isWarmingUp = false;
+        isDropping = false;
+        sequenceActive = false;
+        sequenceCo = null;
+        debugState = "PostTriple";
+    }
+
+    private void BeginBlendToIdle()
+    {
+        if (idleAnimatedTarget == null || blendToIdleTime <= 0f)
+        {
+            blendingToIdle = false;
+            return;
+        }
+
+        blendingToIdle = true;
+        blendTimer = 0f;
+        blendStartPos = transform.position;
+        blendStartRot = transform.rotation;
+    }
+
+    private void TeleportToIdleTargetIfAvailable()
+    {
+        if (idleAnimatedTarget == null)
+            return;
+
+        transform.position = idleAnimatedTarget.position;
+        transform.rotation = idleAnimatedTarget.rotation;
+    }
+
+    private void TryFindPlayer()
+    {
+        if (player != null)
+            return;
+
+        var p = GameObject.FindGameObjectWithTag("Player");
+        if (p != null)
+            player = p.transform;
+    }
+
     private void SetTrailEmitting(bool emit, bool clearTrail = false)
     {
-        if (attackTrail == null) return;
+        if (attackTrail == null)
+            return;
 
         if (clearTrail)
             attackTrail.Clear();
 
         attackTrail.emitting = emit;
+        trailActive = emit;
     }
 
     private void BeginAttackTrail()
     {
+        if (trailActive)
+            return;
+
         SetTrailEmitting(true, clearTrailOnAttackStart);
     }
 
     private void EndAttackTrail(bool clearTrail)
     {
+        if (!trailActive && !clearTrail)
+            return;
+
         SetTrailEmitting(false, clearTrail);
     }
 
@@ -377,7 +781,9 @@ public class KrakenTentacle : MonoBehaviour
 
     private Vector2 GetPlayerXZLocked()
     {
-        if (player == null) return new Vector2(transform.position.x, transform.position.z);
+        if (player == null)
+            return new Vector2(transform.position.x, transform.position.z);
+
         return new Vector2(player.position.x + slamXZOffset.x, player.position.z + slamXZOffset.y);
     }
 
@@ -413,311 +819,10 @@ public class KrakenTentacle : MonoBehaviour
         dropCountdown = Random.Range(min, max);
     }
 
-    public void GoUp()
-    {
-        nextAttackAllowedTime = Time.time + attackCooldown;
-
-        if (goUpDelay <= 0f)
-        {
-            BeginReturnNow();
-            return;
-        }
-
-        CancelPendingGoUp();
-        goUpDelayCo = StartCoroutine(GoUpDelayRoutine(goUpDelay));
-    }
-
-    private IEnumerator GoUpDelayRoutine(float delay)
-    {
-        pendingGoUp = true;
-
-        CancelAttackState();
-        isReturning = false;
-        dropCountdown = Mathf.Infinity;
-
-        float t = 0f;
-        while (t < delay)
-        {
-            if (isDead || !playerInDangerArea)
-            {
-                pendingGoUp = false;
-                goUpDelayCo = null;
-                yield break;
-            }
-
-            t += Time.deltaTime;
-            yield return null;
-        }
-
-        pendingGoUp = false;
-        goUpDelayCo = null;
-
-        BeginReturnNow();
-    }
-
-    private void BeginReturnNow()
-    {
-        EndAttackTrail(false);
-        isReturning = true;
-        dropElapsed = 0f;
-        ResetDropCountdown();
-    }
-
-    private void CancelPendingGoUp()
-    {
-        pendingGoUp = false;
-        if (goUpDelayCo != null)
-        {
-            StopCoroutine(goUpDelayCo);
-            goUpDelayCo = null;
-        }
-    }
-
-    private void StartWarmup()
-    {
-        EndAttackTrail(false);
-
-        isWarmingUp = true;
-        warmupT = 0f;
-        warmupHoldElapsed = 0f;
-
-        isDropping = false;
-        isReturning = false;
-        dropElapsed = 0f;
-
-        if (tentacleCol) tentacleCol.enabled = false;
-
-        dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
-
-        warmupStartPos = transform.position;
-
-        float apexY = GetHoverY() + warmupExtraHeight;
-        warmupApexPos = new Vector3(dropLockedXZ.x, apexY, dropLockedXZ.y);
-
-        dropCountdown = Mathf.Infinity;
-    }
-
-    private void BeginStrikeDropNow()
-    {
-        isWarmingUp = false;
-
-        if (lockToPlayerAtSlamStart)
-            dropLockedXZ = GetPlayerXZLocked();
-
-        BeginAttackTrail();
-
-        isDropping = true;
-        dropElapsed = 0f;
-
-        if (tentacleCol) tentacleCol.enabled = true;
-
-        dropCountdown = Mathf.Infinity;
-    }
-
-    private void StartTripleStrike()
-    {
-        CancelAttackState();
-        CancelPendingGoUp();
-
-        if (sequenceCo != null)
-            StopCoroutine(sequenceCo);
-
-        sequenceCo = StartCoroutine(TripleStrikeRoutine());
-    }
-
-    private IEnumerator TripleStrikeRoutine()
-    {
-        sequenceActive = true;
-        debugState = "TripleSequence";
-
-        if (tentacleCol) tentacleCol.enabled = false;
-        dropCountdown = Mathf.Infinity;
-        EndAttackTrail(false);
-
-        for (int i = 0; i < tripleStrikes; i++)
-        {
-            if (isDead || !playerInDangerArea || player == null)
-                break;
-
-            if (lockToPlayerAtSlamStart)
-                dropLockedXZ = GetPlayerXZLocked();
-            else
-                dropLockedXZ = new Vector2(transform.position.x, transform.position.z);
-
-            if (debugLogs) Debug.Log($"[{name}] Triple slam {i + 1}/{tripleStrikes}");
-
-            float apexY = GetHoverY() + warmupExtraHeight + tripleExtraApexHeight;
-            Vector3 apex = new Vector3(dropLockedXZ.x, apexY, dropLockedXZ.y);
-
-            Vector3 start = transform.position;
-            float windDur = Mathf.Max(0.01f, tripleWarmupDuration);
-            float t = 0f;
-            while (t < windDur)
-            {
-                if (isDead || !playerInDangerArea)
-                {
-                    CleanupTriple();
-                    EndAttackTrail(false);
-                    yield break;
-                }
-
-                EndAttackTrail(false);
-
-                float t01 = Mathf.Clamp01(t / windDur);
-                float eased = (warmupCurve != null) ? warmupCurve.Evaluate(t01) : t01;
-                transform.position = Vector3.LerpUnclamped(start, apex, eased);
-
-                t += Time.deltaTime;
-                yield return null;
-            }
-            transform.position = apex;
-
-            if (tripleWarmupHold > 0f)
-            {
-                float hold = 0f;
-                while (hold < tripleWarmupHold)
-                {
-                    if (isDead || !playerInDangerArea)
-                    {
-                        CleanupTriple();
-                        EndAttackTrail(false);
-                        yield break;
-                    }
-
-                    EndAttackTrail(false);
-
-                    hold += Time.deltaTime;
-                    yield return null;
-                }
-            }
-
-            BeginAttackTrail();
-
-            if (tentacleCol) tentacleCol.enabled = true;
-
-            float slamTimer = 0f;
-            while (slamTimer < tripleMaxDropTime)
-            {
-                if (isDead || !playerInDangerArea)
-                {
-                    if (tentacleCol) tentacleCol.enabled = false;
-                    CleanupTriple();
-                    EndAttackTrail(false);
-                    yield break;
-                }
-
-                float slamY = player.position.y + dropToHeight;
-                Vector3 slamPos = new Vector3(dropLockedXZ.x, slamY, dropLockedXZ.y);
-
-                transform.position = Vector3.MoveTowards(transform.position, slamPos, tripleDropSpeed * Time.deltaTime);
-
-                if (Mathf.Abs(transform.position.y - slamY) <= reachEpsilon)
-                    break;
-
-                slamTimer += Time.deltaTime;
-                yield return null;
-            }
-
-            if (tentacleCol) tentacleCol.enabled = false;
-
-            OnAttackImpact();
-
-            yield return null;
-
-            Vector3 popStart = transform.position;
-            float popDur = Mathf.Max(0.01f, triplePopUpDuration);
-            float popT = 0f;
-            while (popT < popDur)
-            {
-                if (isDead || !playerInDangerArea)
-                {
-                    CleanupTriple();
-                    EndAttackTrail(false);
-                    yield break;
-                }
-
-                EndAttackTrail(false);
-
-                float t01 = Mathf.Clamp01(popT / popDur);
-                float eased = (triplePopUpCurve != null) ? triplePopUpCurve.Evaluate(t01) : t01;
-                transform.position = Vector3.LerpUnclamped(popStart, apex, eased);
-
-                popT += Time.deltaTime;
-                yield return null;
-            }
-            transform.position = apex;
-        }
-
-        nextAttackAllowedTime = Time.time + attackCooldown;
-
-        pendingGoUp = false;
-        if (goUpDelayCo != null)
-        {
-            StopCoroutine(goUpDelayCo);
-            goUpDelayCo = null;
-        }
-
-        isReturning = true;
-
-        CleanupTriple();
-        ResetDropCountdown();
-        EndAttackTrail(false);
-    }
-
-    private void CleanupTriple()
-    {
-        sequenceActive = false;
-        sequenceCo = null;
-        debugState = "PostTriple";
-    }
-
-    private void CancelAttackState()
-    {
-        sequenceActive = false;
-        if (sequenceCo != null)
-        {
-            StopCoroutine(sequenceCo);
-            sequenceCo = null;
-        }
-
-        isWarmingUp = false;
-        warmupT = 0f;
-        warmupHoldElapsed = 0f;
-
-        isDropping = false;
-        dropElapsed = 0f;
-
-        if (tentacleCol) tentacleCol.enabled = false;
-
-        dropCountdown = 0f;
-
-        EndAttackTrail(false);
-    }
-
-    private void BeginBlendToIdle()
-    {
-        if (idleAnimatedTarget == null || blendToIdleTime <= 0f)
-        {
-            blendingToIdle = false;
-            return;
-        }
-
-        blendingToIdle = true;
-        blendTimer = 0f;
-        blendStartPos = transform.position;
-        blendStartRot = transform.rotation;
-    }
-
-    private void TeleportToIdleTargetIfAvailable()
-    {
-        if (idleAnimatedTarget == null) return;
-        transform.position = idleAnimatedTarget.position;
-        transform.rotation = idleAnimatedTarget.rotation;
-    }
-
     public void Death()
     {
-        if (isDead) return;
+        if (isDead)
+            return;
 
         isDead = true;
 
