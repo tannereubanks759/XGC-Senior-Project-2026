@@ -102,7 +102,8 @@ public class KrakenTentacle : MonoBehaviour
     [Min(0f)] public float goUpDelay = 0.35f;
 
     public Collider tentacleCol;
-
+    public AudioSource tentacleAudioSource;
+    public AudioClip telegraphClip;
     private float dropCountdown = 0f;
     private float nextAttackAllowedTime = 0f;
     private float dropElapsed = 0f;
@@ -380,7 +381,10 @@ public class KrakenTentacle : MonoBehaviour
 
     private void StartWarmup()
     {
+
         CancelAttackStateOnly();
+
+        tentacleAudioSource.PlayOneShot(telegraphClip);
 
         isWarmingUp = true;
         warmupT = 0f;

@@ -13,7 +13,9 @@ public class CrackenTentacleCollider : MonoBehaviour
     private KrakenManager km;
     public bool isCursed;
     public float curseDamageMult = 1.1f;
-
+    public AudioSource TentacleSource;
+    public AudioClip[] TentacleWaterSlam;
+    public AudioClip[] TentacleWaterSlam2;
     private void Start()
     {
         km = GameObject.FindAnyObjectByType<KrakenManager>();
@@ -55,9 +57,11 @@ public class CrackenTentacleCollider : MonoBehaviour
             tentacle.GoUp();
         }
         tentacle.isDropping = false;
-        
-        
-            
+
+        int rand = Random.Range(0, TentacleWaterSlam.Length);
+        TentacleSource.PlayOneShot(TentacleWaterSlam[rand]);
+        int rand2 = Random.Range(0, TentacleWaterSlam2.Length);
+        TentacleSource.PlayOneShot(TentacleWaterSlam2[rand2]);
         
         
         

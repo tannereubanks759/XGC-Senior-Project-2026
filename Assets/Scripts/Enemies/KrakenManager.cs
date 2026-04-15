@@ -13,6 +13,9 @@ public class KrakenManager : MonoBehaviour
     public string bossName = "The Kraken";
     public Color KrakenHealthBarColor;
     public RaiseLowerMover krakenWalls;
+    public AudioSource mouthSource;
+    public AudioClip deathClip;
+    public GameObject RockSounds;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -46,7 +49,7 @@ public class KrakenManager : MonoBehaviour
     void Die()
     {
         headAnim.SetTrigger("Dead");
-
+        mouthSource.PlayOneShot(deathClip);
         krakenWalls.Lower();
         levelSavingManager.Instance.ClearCheckpoint();
         IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?.GetComponent<IslandTeleporter>();
@@ -56,7 +59,9 @@ public class KrakenManager : MonoBehaviour
     {
         healthbar = GameObject.FindAnyObjectByType<BossHealthbar>();
         if (!healthbar) return;
-        
+
+        RockSounds.SetActive(true);
+        mouthSource.Play();
         healthbar.maxHealth = (int) health;
         healthbar.currentHealth = (int) health;
         healthbar.text.text = bossName;

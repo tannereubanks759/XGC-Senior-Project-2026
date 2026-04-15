@@ -5,6 +5,8 @@ public class PlayerSwordScript : MonoBehaviour
 {
     public AudioSource source;
     public AudioClip[] hitSkeleton;
+    public AudioClip[] hitKraken1;
+    public AudioClip[] hitKraken2;
     public GameObject boneChips;
     public GameObject ClashEffect;
     public AudioClip chainLightningStart;
@@ -32,7 +34,15 @@ public class PlayerSwordScript : MonoBehaviour
             SkeletonSwordEnemy skeleton = other.GetComponent<SkeletonSwordEnemy>();
             PirateBossAI boss = other.GetComponentInParent<PirateBossAI>();
             bool blocked = (skeleton != null && skeleton.isBlocking);
-            if (skeleton != null && ClashEffect && skeleton.isBlocking == true)
+            if (other.gameObject.layer == 22) 
+            {
+                PlaySound(hitKraken1[Random.Range(0, hitKraken1.Length)]);
+                PlaySound(hitKraken2[Random.Range(0, hitKraken2.Length)]);
+
+                col.enabled = false;
+                other.GetComponent<DamageRef>().TakeDamage(damage);
+            }
+            else if (skeleton != null && ClashEffect && skeleton.isBlocking == true)
             {
                 Collider enemySword = skeleton.GetComponentInChildren<SkeletonAnimEvents>().swordCol;
                 Destroy(Instantiate(ClashEffect, enemySword.ClosestPoint(this.transform.position), Quaternion.identity), 3);
@@ -70,6 +80,7 @@ public class PlayerSwordScript : MonoBehaviour
         {
             other.GetComponent<DamageRef>().TakeDamage(1);
         }
+        
         
     }
     private void ChainLightning(Transform firstTarget, int baseDamage)
