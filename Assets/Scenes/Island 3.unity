@@ -3922,8 +3922,8 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 3969870021235029017, guid: 812e327c71e351b4db2a9117c914fe35, type: 2}
-  m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_audioClip: {fileID: 8300000, guid: 35895c59889770140bd4b80ddfaac0fe, type: 3}
+  m_Resource: {fileID: 8300000, guid: 35895c59889770140bd4b80ddfaac0fe, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -3934,9 +3934,9 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 500
+  MaxDistance: 20
   Pan2D: 0
-  rolloffMode: 0
+  rolloffMode: 1
   BypassEffects: 0
   BypassListenerEffects: 0
   BypassReverbZones: 0
@@ -133595,6 +133595,7 @@ GameObject:
   - component: {fileID: 1925971683}
   - component: {fileID: 1925971685}
   - component: {fileID: 1925971684}
+  - component: {fileID: 1925971686}
   m_Layer: 0
   m_Name: HandCol
   m_TagString: Untagged
@@ -133651,6 +133652,103 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!82 &1925971686
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1925971682}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 3969870021235029017, guid: 812e327c71e351b4db2a9117c914fe35, type: 2}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 20
+  Pan2D: 0
+  rolloffMode: 1
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!4 &1926994909 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 601250088778562746, guid: 4c4bf4a14b8e36145b1c80ac0c42402f, type: 3}
@@ -153253,6 +153351,14 @@ MonoBehaviour:
   anchorTrail: {fileID: 288662089}
   chargeFX: {fileID: 0}
   chargeParticle: {fileID: 1198924724308796439}
+  source: {fileID: 1925971686}
+  swingClips:
+  - {fileID: 8300000, guid: 7fa5cb9640b0c834a906580948b50e89, type: 3}
+  - {fileID: 8300000, guid: c7bfa1baeb937c44d80102bbcfbb05ac, type: 3}
+  - {fileID: 8300000, guid: 9acd349e64fd8f44c9e4d0eab309d26f, type: 3}
+  telegraphSound: {fileID: 8300000, guid: 5b0b4bf27cf7093478c10b298c7024ee, type: 3}
+  puffSound: {fileID: 8300000, guid: 5feb3da2cdb4a7246865b78e2cfb8550, type: 3}
+  chargeSource: {fileID: 61288508}
 --- !u!137 &2669461891389815852
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 0

@@ -19,6 +19,11 @@ public class AnchorWeapon : MonoBehaviour
     [Header("Constraint")]
     [SerializeField] private int sourceIndex = 0; // ParentConstraint source index (usually 0)
 
+    [Header("Sounds")]
+    public AudioSource source;
+    public AudioClip[] hitClips;
+    public AudioClip returnClip;
+
     private Collider col;
     private Rigidbody rb;
     private ParentConstraint constraint;
@@ -102,6 +107,10 @@ public class AnchorWeapon : MonoBehaviour
     {
         boss.canRotate = false;
 
+        if(source.isPlaying != true)
+        {
+            source.Play();
+        }
         // stop any recall in progress
         if (_returnCo != null)
         {
@@ -172,6 +181,7 @@ public class AnchorWeapon : MonoBehaviour
     {
         yield return new WaitForSeconds(boss.throwTime);
 
+        source.PlayOneShot(returnClip);
         ResetAnchor();
 
         boss.AnchorThrowLeave();
@@ -440,5 +450,7 @@ public class AnchorWeapon : MonoBehaviour
         rb.isKinematic = true;
         EnableCollider(false);
         isInAir = false;
+        source.Pause();
+        source.PlayOneShot(hitClips[Random.Range(0, hitClips.Length)]);
     }
 }

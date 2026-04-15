@@ -11,6 +11,12 @@ public class BossAnimatorEvents : MonoBehaviour
     public TrailRenderer anchorTrail;
     public VisualEffect chargeFX;
     public ParticleSystem chargeParticle;
+    public AudioSource source;
+    public AudioClip[] swingClips;
+    public AudioClip telegraphSound;
+    public AudioClip puffSound;
+
+    public AudioSource chargeSource;
     private void Start()
     {
         weapon = GetComponentInChildren<AnchorWeapon>();
@@ -27,6 +33,8 @@ public class BossAnimatorEvents : MonoBehaviour
     public void shockwave()
     {
         GetComponentInParent<GhostBossAI>().ShockwaveImpactEvent();
+        chargeSource.PlayOneShot(puffSound);
+
     }
     public void SetColliderOn()
     {
@@ -39,6 +47,10 @@ public class BossAnimatorEvents : MonoBehaviour
             hand.EnableCollider(true);
         }
         
+    }
+    public void PlayTelegraphSound()
+    {
+        source.PlayOneShot(telegraphSound);
     }
     public void SetColliderOff()
     {
@@ -105,12 +117,20 @@ public class BossAnimatorEvents : MonoBehaviour
         {
             chargeAttackCol.enabled = true;
         }
+        if (chargeSource)
+        {
+            chargeSource.Play();
+        }
     }
     public void SetChargeOff()
     {
         if (chargeAttackCol)
         {
             chargeAttackCol.enabled = false;
+        }
+        if (chargeSource)
+        {
+            chargeSource.Stop();
         }
     }
     public void SetLavaOff()
@@ -131,6 +151,11 @@ public class BossAnimatorEvents : MonoBehaviour
     {
         if (!anchorTrail) return;
         anchorTrail.emitting = true;
+
+        if(swingClips.Length > 0)
+        {
+            source.PlayOneShot(swingClips[Random.Range(0, swingClips.Length)]);
+        }
     }
     public void SetAnchorTrailOff()
     {
