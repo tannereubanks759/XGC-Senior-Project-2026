@@ -9,12 +9,23 @@ public class MainMenu : MonoBehaviour
     public GameObject mainScreen;
     public GameObject loadingScreen;
     public GameObject optionsScreen;
+    public GameObject creditsScreen;
     void Start()
     {
         Time.timeScale = 1f;
         EnableCursor(true);
         loadingScreen.SetActive(false);
         
+    }
+    public void OpenCreditsScreen()
+    {
+        creditsScreen.SetActive(true);
+        mainScreen.SetActive(false);
+    }
+    public void CloseCreditsScreen()
+    {
+        creditsScreen.SetActive(false);
+        mainScreen.SetActive(true);
     }
     public void OpenOptionsMenu()
     {
