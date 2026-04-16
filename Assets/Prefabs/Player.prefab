@@ -2177,6 +2177,99 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &143254599903793936
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2154013913045993912}
+  - component: {fileID: 3912489457327185380}
+  - component: {fileID: 1904702442137719035}
+  - component: {fileID: 8895012094623826280}
+  m_Layer: 5
+  m_Name: Image (8)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2154013913045993912
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143254599903793936}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 7287783850432623494}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 50, y: -50}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &3912489457327185380
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143254599903793936}
+  m_CullTransparentMesh: 1
+--- !u!114 &1904702442137719035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143254599903793936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 962ffb9c1ed43ba4991a80987a80ef9a, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8895012094623826280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143254599903793936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a6e4e47eab181f47a7f29f14d91107e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nameOf: Firebomb
+  description: 'Player is equipped with two bombs they can lob at an enemy and do
+    splash damage and knockback nearby enemies. After throwing the second ball, a
+    cooldown will start until the player gains two new firebombs. '
+  price: 
 --- !u!1 &163138196881266509
 GameObject:
   m_ObjectHideFlags: 0
@@ -20820,9 +20913,9 @@ RectTransform:
   - {fileID: 805914318347785530}
   m_Father: {fileID: 4407678450280213731}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 80, y: -182.04}
   m_SizeDelta: {x: 160, y: 33.7}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &5030671523806480284
@@ -21514,9 +21607,9 @@ RectTransform:
   - {fileID: 1059385995463426238}
   m_Father: {fileID: 1420083119485263367}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 401.07788, y: -273.0985}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2909722824839073908
@@ -23191,13 +23284,13 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2226793647135244499}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4, y: -3}
+  m_AnchoredPosition: {x: -0, y: -0.8}
   m_SizeDelta: {x: 90, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3230064513376869257
@@ -23228,7 +23321,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9a655e3ad22ae5b48a52bbc551e56b18, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4ca665255adc0204585931b317f67500, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -25112,7 +25205,7 @@ RectTransform:
   m_Father: {fileID: 2709315498045500591}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -28122,6 +28215,7 @@ GameObject:
   - component: {fileID: 5845327386917223474}
   - component: {fileID: 1487241911905228852}
   - component: {fileID: 1012287099882420056}
+  - component: {fileID: 281542739545223785}
   m_Layer: 5
   m_Name: Image (7)
   m_TagString: Untagged
@@ -28138,9 +28232,10 @@ RectTransform:
   m_GameObject: {fileID: 3030648554837113613}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.000045062327}
-  m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
+  m_LocalScale: {x: 0.79, y: 0.79, z: 0.79}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 2154013913045993912}
   m_Father: {fileID: 1280157129185072883}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -28176,7 +28271,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f6ab8eed13d58614a9642703f28a29ab, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2dc96f21bc3fd0e498e73a0a1843c9cb, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -28203,6 +28298,19 @@ MonoBehaviour:
     splash damage and knockback nearby enemies. After throwing the second ball, a
     cooldown will start until the player gains two new firebombs. '
   price: 
+--- !u!114 &281542739545223785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3030648554837113613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowMaskGraphic: 0
 --- !u!1 &3040442472495992713
 GameObject:
   m_ObjectHideFlags: 0
@@ -31446,7 +31554,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5535993840827230383
 RectTransform:
   m_ObjectHideFlags: 0
@@ -32901,9 +33009,9 @@ RectTransform:
   - {fileID: 5211318199068560515}
   m_Father: {fileID: 4407678450280213731}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 80, y: 0}
   m_SizeDelta: {x: 160, y: 33.7}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &2013222552921243888
@@ -45132,14 +45240,14 @@ RectTransform:
   m_GameObject: {fileID: 4920510906735592948}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.55, y: 0.55, z: 0.55}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 2476852494477563145}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 21.5558, y: -17.8174}
+  m_AnchoredPosition: {x: -1.4, y: 0.1}
   m_SizeDelta: {x: 144.8585, y: 145.5846}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7362499249535657371
@@ -45170,7 +45278,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -6083341307675577360, guid: 00648c5b56bcb1f44aa7aa2625f5dd78, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 962ffb9c1ed43ba4991a80987a80ef9a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -45330,6 +45438,99 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4960426581717035357
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7012393739828837779}
+  - component: {fileID: 919799366029407394}
+  - component: {fileID: 414332637401146200}
+  - component: {fileID: 3832855624778547458}
+  m_Layer: 5
+  m_Name: Image (8)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7012393739828837779
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4960426581717035357}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 8072801527799940936}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 49.3, y: -50}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &919799366029407394
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4960426581717035357}
+  m_CullTransparentMesh: 1
+--- !u!114 &414332637401146200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4960426581717035357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 4ca665255adc0204585931b317f67500, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3832855624778547458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4960426581717035357}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a6e4e47eab181f47a7f29f14d91107e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  nameOf: Lighting Generator
+  description: ' Every hit will increment the charge of the object. Once the object
+    is fully charged, the sword will begin doing lighting chain damage to all nearby
+    enemies on impact. The charge will be disrupted when the player takes damage.'
+  price: 
 --- !u!1 &4972306570294330090
 GameObject:
   m_ObjectHideFlags: 0
@@ -47086,6 +47287,7 @@ GameObject:
   - component: {fileID: 5034677867422179891}
   - component: {fileID: 8321424876289841520}
   - component: {fileID: 1493457093959066824}
+  - component: {fileID: 14575539650412960}
   m_Layer: 5
   m_Name: Image (7)
   m_TagString: Untagged
@@ -47102,9 +47304,10 @@ RectTransform:
   m_GameObject: {fileID: 5255282314820385292}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.000045062327}
-  m_LocalScale: {x: 0.73, y: 0.73, z: 0.73}
+  m_LocalScale: {x: 0.85, y: 0.85, z: 0.85}
   m_ConstrainProportionsScale: 1
-  m_Children: []
+  m_Children:
+  - {fileID: 7012393739828837779}
   m_Father: {fileID: 8524280689631174227}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -47140,7 +47343,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -2283812220494294954, guid: 00648c5b56bcb1f44aa7aa2625f5dd78, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2dc96f21bc3fd0e498e73a0a1843c9cb, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -47167,6 +47370,19 @@ MonoBehaviour:
     is fully charged, the sword will begin doing lighting chain damage to all nearby
     enemies on impact. The charge will be disrupted when the player takes damage.'
   price: 
+--- !u!114 &14575539650412960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5255282314820385292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowMaskGraphic: 0
 --- !u!1 &5259186908974138138
 GameObject:
   m_ObjectHideFlags: 0
@@ -50084,7 +50300,7 @@ RectTransform:
   m_Father: {fileID: 5642027705723211664}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -50643,9 +50859,9 @@ RectTransform:
   - {fileID: 1003084205258854305}
   m_Father: {fileID: 1420083119485263367}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 401.07788, y: -370.58704}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5945606278130745359
@@ -55182,14 +55398,14 @@ RectTransform:
   m_GameObject: {fileID: 6297991520437999789}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.67, y: 0.67, z: 0.67}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4159809433908828586}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 21.5558, y: -17.8174}
+  m_AnchoredPosition: {x: 2.5, y: 5.5}
   m_SizeDelta: {x: 144.8585, y: 145.5846}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2136832717434980705
@@ -55220,7 +55436,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -6083341307675577360, guid: 00648c5b56bcb1f44aa7aa2625f5dd78, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 962ffb9c1ed43ba4991a80987a80ef9a, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -56393,7 +56609,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3473563153703563755
 RectTransform:
   m_ObjectHideFlags: 0
@@ -60859,7 +61075,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &5867659985295708417
 RectTransform:
   m_ObjectHideFlags: 0
@@ -61664,7 +61880,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -4, y: -4}
+  m_AnchoredPosition: {x: -1.2, y: 0.2}
   m_SizeDelta: {x: 101.6, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5221247478512963789
@@ -61695,7 +61911,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9a655e3ad22ae5b48a52bbc551e56b18, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4ca665255adc0204585931b317f67500, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -63505,7 +63721,7 @@ RectTransform:
   m_Father: {fileID: 7577387679522926296}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -0.11199951, y: 0.20899963}
   m_SizeDelta: {x: 0.83255005, y: 0.41797256}
   m_Pivot: {x: 0.5, y: 0.5}
