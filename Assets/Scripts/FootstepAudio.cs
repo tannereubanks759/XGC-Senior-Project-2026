@@ -3,10 +3,21 @@ using UnityEngine;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(FirstPersonController))]
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(CapsuleCollider))]
 public class FootstepAudio : MonoBehaviour
 {
     [System.Serializable]
-    public enum SurfaceType { Stone, Dirt, Sand, Grass, Wood, Gravel }
+    public enum SurfaceType
+    {
+        Stone,
+        Dirt,
+        Sand,
+        Grass,
+        Wood,
+        Gravel,
+        Water
+    }
 
     [System.Serializable]
     public class SurfaceProfile
@@ -14,86 +25,96 @@ public class FootstepAudio : MonoBehaviour
         public SurfaceType type;
 
         [Header("Overrides (non-terrain / special meshes)")]
-        [Tooltip("If the hit collider's tag matches this (non-empty), this surface is used. Tag override takes priority over terrain textures.")]
+        [Tooltip("If the hit collider's tag matches this, this surface is used first.")]
         public string objectTag = "";
 
         [Header("Terrain Texture Mapping")]
-        [Tooltip("Terrain texture indices (from TerrainData.terrainLayers order) that map to this surface.")]
+        [Tooltip("Terrain layer indices that map to this surface.")]
         public List<int> terrainTextureIndices = new List<int>();
 
-        [Header("Clips: Footstep")]
+        [Header("Footstep Clips")]
         public List<AudioClip> clips = new List<AudioClip>();
 
-        [Header("Clips: Landing (optional)")]
-        [Tooltip("If empty, will fall back to Footstep clips for landing.")]
+        [Header("Landing Clips")]
+        [Tooltip("If empty, regular footstep clips are used.")]
         public List<AudioClip> landingClips = new List<AudioClip>();
 
         [Header("Randomization")]
-        [Range(0f, 1f)] public float volumeMin = 0.8f;
-        [Range(0f, 1f)] public float volumeMax = 1.0f;
+        [Range(0f, 2f)] public float volumeMin = 0.8f;
+        [Range(0f, 2f)] public float volumeMax = 1.0f;
         [Range(0.5f, 2f)] public float pitchMin = 0.95f;
         [Range(0.5f, 2f)] public float pitchMax = 1.05f;
     }
 
-    [Header("Profiles (fill all six)")]
+    [Header("Profiles")]
     public List<SurfaceProfile> profiles = new List<SurfaceProfile>()
     {
-        new SurfaceProfile(){ type = SurfaceType.Stone },
-        new SurfaceProfile(){ type = SurfaceType.Dirt  },
-        new SurfaceProfile(){ type = SurfaceType.Sand  },
-        new SurfaceProfile(){ type = SurfaceType.Grass },
-        new SurfaceProfile(){ type = SurfaceType.Wood  },
-        new SurfaceProfile(){ type = SurfaceType.Gravel}
+        new SurfaceProfile(){ type = SurfaceType.Stone  },
+        new SurfaceProfile(){ type = SurfaceType.Dirt   },
+        new SurfaceProfile(){ type = SurfaceType.Sand   },
+        new SurfaceProfile(){ type = SurfaceType.Grass  },
+        new SurfaceProfile(){ type = SurfaceType.Wood   },
+        new SurfaceProfile(){ type = SurfaceType.Gravel },
+        new SurfaceProfile(){ type = SurfaceType.Water  }
     };
 
     [Header("Fallback")]
-    [Tooltip("Used if nothing matches. Leave clips empty to mute.")]
     public SurfaceProfile defaultProfile = new SurfaceProfile() { type = SurfaceType.Stone };
 
-    [Header("Timing")]
-    [Tooltip("Seconds between steps while walking.")]
+    [Header("Land Timing")]
     public float walkInterval = 0.45f;
-    [Tooltip("Multiplier applied when sprinting.")]
     public float sprintIntervalMult = 0.75f;
-    [Tooltip("Multiplier applied when crouched.")]
     public float crouchIntervalMult = 1.3f;
 
+    [Header("Water Timing")]
+    public float waterStepInterval = 0.5f;
+    public float waterSprintIntervalMult = 0.9f;
+    public float waterCrouchIntervalMult = 1.1f;
+    public bool waterIgnoresGrounded = true;
+    public bool waterRequiresHorizontalMovement = true;
+
     [Header("Movement Gates")]
-    [Tooltip("Minimum horizontal speed (m/s) to count as moving.")]
     public float minMoveSpeed = 0.6f;
-    [Tooltip("Don’t play footsteps if airborne.")]
     public bool requireGrounded = true;
 
+    [Header("Water Override")]
+    public bool useWaterLevelOverride = true;
+    public float waterFootstepYLevel = 0f;
+    public Transform waterLevelCheckPoint;
+
     [Header("Landing Detection")]
-    [Tooltip("Minimum downward speed (m/s) at impact to trigger a landing sound.")]
     public float landingMinDownSpeed = 3.0f;
-    [Tooltip("Minimum time in air to consider it a landing (filters micro hops).")]
     public float landingMinAirTime = 0.12f;
-    [Tooltip("Cooldown to avoid rapid re-triggers (sec).")]
     public float landingCooldown = 0.08f;
-    [Tooltip("Delay added after a landing before auto footsteps resume (sec).")]
     public float postLandingStepDelay = 0.12f;
 
     [Header("Audio")]
-    public AudioSource audioSource; // if null, one will be created
+    public AudioSource audioSource;
+
+    [Tooltip("Master multiplier applied to every footstep and landing sound.")]
+    [Range(0f, 2f)] public float masterVolume = 1f;
+
+    [Tooltip("Lowest allowed one-shot volume scale so bad profile values do not mute the source.")]
+    [Range(0f, 1f)] public float minimumOneShotVolume = 0.05f;
 
     [Header("Debug")]
-    public bool showSphereCastGizmo = false;
-    public Color gizmoColor = new Color(0.2f, 0.8f, 1f, 0.35f);
+    public bool debugWaterState = false;
 
-    // refs
     private FirstPersonController fpc;
     private Rigidbody rb;
     private CapsuleCollider capsule;
 
-    // cadence
-    private float nextStepTime;
+    private float nextLandStepTime;
+    private float nextWaterStepTime;
 
-    // landing state
     private bool wasGroundedLast;
+    private bool wasInWaterLast;
     private float airEnterTime;
     private float lastLandingTime;
     private float lastYVelocity;
+
+    private float baseAudioSourceVolume = 1f;
+    private float baseAudioSourcePitch = 1f;
 
     void Awake()
     {
@@ -102,261 +123,405 @@ public class FootstepAudio : MonoBehaviour
         capsule = GetComponent<CapsuleCollider>();
 
         if (audioSource == null)
-        {
+            audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
-            audioSource.spatialBlend = 1f; // 3D
-            audioSource.playOnAwake = false;
-        }
+
+        audioSource.playOnAwake = false;
+        audioSource.spatialBlend = 1f;
+
+        baseAudioSourceVolume = Mathf.Max(0f, audioSource.volume);
+        baseAudioSourcePitch = Mathf.Max(0.01f, audioSource.pitch);
 
         wasGroundedLast = fpc.isGrounded;
+        wasInWaterLast = IsInWater();
         airEnterTime = -999f;
         lastLandingTime = -999f;
+
+        nextLandStepTime = Time.time;
+        nextWaterStepTime = Time.time;
+    }
+
+    void OnValidate()
+    {
+        walkInterval = Mathf.Max(0.05f, walkInterval);
+        waterStepInterval = Mathf.Max(0.05f, waterStepInterval);
+        minMoveSpeed = Mathf.Max(0f, minMoveSpeed);
+        masterVolume = Mathf.Max(0f, masterVolume);
+        minimumOneShotVolume = Mathf.Clamp01(minimumOneShotVolume);
     }
 
     void Update()
     {
-        // --- Auto cadence for walking/sprinting/crouching ---
-        if (ShouldPlayAutoStep(out float interval))
+        bool inWater = IsInWater();
+
+        HandleWaterStateTransitions(inWater);
+
+        if (inWater)
         {
-            if (Time.time >= nextStepTime)
-            {
-                TriggerFootstep();
-                nextStepTime = Time.time + interval;
-            }
+            HandleWaterFootsteps();
         }
         else
         {
-            nextStepTime = Time.time + GetBaseInterval();
+            HandleLandFootsteps();
+            HandleLanding();
         }
 
-        // --- Landing detection (air -> ground transition) ---
-        HandleLanding();
-
-        // remember last frame state
-        lastYVelocity = rb != null ? rb.linearVelocity.y : 0f;
+        lastYVelocity = rb.linearVelocity.y;
         wasGroundedLast = fpc.isGrounded;
+        wasInWaterLast = inWater;
     }
 
-    void HandleLanding()
+    void HandleWaterStateTransitions(bool inWater)
     {
-        bool nowGrounded = fpc.isGrounded;
-
-        // went airborne this frame
-        if (wasGroundedLast && !nowGrounded)
+        if (inWater && !wasInWaterLast)
         {
-            airEnterTime = Time.time;
+            nextWaterStepTime = Time.time;
+
+            if (debugWaterState)
+                Debug.Log("Entered water footsteps zone.");
+        }
+        else if (!inWater && wasInWaterLast)
+        {
+            nextLandStepTime = Time.time + 0.05f;
+
+            if (debugWaterState)
+                Debug.Log("Exited water footsteps zone.");
+        }
+    }
+
+    void HandleWaterFootsteps()
+    {
+        if (!ShouldPlayWaterStep(out float interval))
             return;
-        }
 
-        // landed this frame
-        if (!wasGroundedLast && nowGrounded)
+        if (Time.time >= nextWaterStepTime)
         {
-            float airTime = Time.time - airEnterTime;
-            float downSpeed = -lastYVelocity; // positive when moving down
-
-            if (airTime >= landingMinAirTime &&
-                downSpeed >= landingMinDownSpeed &&
-                Time.time >= lastLandingTime + landingCooldown)
-            {
-                if (TryGetGroundHit(out RaycastHit hit))
-                {
-                    PlayLandingAt(hit);
-                    lastLandingTime = Time.time;
-
-                    // small delay so we don't double with a footstep immediately after landing
-                    nextStepTime = Mathf.Max(nextStepTime, Time.time + postLandingStepDelay);
-                }
-            }
+            PlayWaterFootstep();
+            nextWaterStepTime = Time.time + interval;
         }
     }
 
-    bool ShouldPlayAutoStep(out float interval)
+    void HandleLandFootsteps()
     {
-        interval = GetBaseInterval();
+        if (!ShouldPlayLandStep(out float interval))
+            return;
 
-        // movement
-        Vector3 v = rb != null ? rb.linearVelocity : Vector3.zero;
-        float horizSpeed = new Vector2(v.x, v.z).magnitude;
+        if (Time.time >= nextLandStepTime)
+        {
+            TriggerLandFootstep();
+            nextLandStepTime = Time.time + interval;
+        }
+    }
 
-        if (horizSpeed < minMoveSpeed) return false;
-        if (requireGrounded && !fpc.isGrounded) return false;
+    bool ShouldPlayWaterStep(out float interval)
+    {
+        interval = waterStepInterval;
 
-        if (IsSprinting()) interval *= sprintIntervalMult;
-        if (IsCrouched()) interval *= crouchIntervalMult;
+        Vector3 velocity = rb.linearVelocity;
+        float horizontalSpeed = new Vector2(velocity.x, velocity.z).magnitude;
 
+        if (waterRequiresHorizontalMovement)
+        {
+            if (horizontalSpeed < minMoveSpeed)
+                return false;
+        }
+        else
+        {
+            if (velocity.magnitude < minMoveSpeed)
+                return false;
+        }
+
+        if (!waterIgnoresGrounded && requireGrounded && !fpc.isGrounded)
+            return false;
+
+        if (IsSprinting())
+            interval *= waterSprintIntervalMult;
+
+        if (IsCrouched())
+            interval *= waterCrouchIntervalMult;
+
+        interval = Mathf.Max(0.05f, interval);
         return true;
     }
 
-    float GetBaseInterval() => Mathf.Max(0.05f, walkInterval);
+    bool ShouldPlayLandStep(out float interval)
+    {
+        interval = walkInterval;
+
+        Vector3 velocity = rb.linearVelocity;
+        float horizontalSpeed = new Vector2(velocity.x, velocity.z).magnitude;
+
+        if (horizontalSpeed < minMoveSpeed)
+            return false;
+
+        if (requireGrounded && !fpc.isGrounded)
+            return false;
+
+        if (IsSprinting())
+            interval *= sprintIntervalMult;
+
+        if (IsCrouched())
+            interval *= crouchIntervalMult;
+
+        interval = Mathf.Max(0.05f, interval);
+        return true;
+    }
 
     bool IsSprinting()
     {
-        if (rb == null) return false;
         float speed = new Vector2(rb.linearVelocity.x, rb.linearVelocity.z).magnitude;
         return speed > Mathf.Lerp(fpc.walkSpeed, fpc.sprintSpeed, 0.6f) - 0.05f;
     }
 
     bool IsCrouched()
     {
-        // Heuristic based on your controller’s scale toggle.
         return transform.localScale.y < 0.99f;
     }
 
-    /// <summary>
-    /// Public so you can call from animation events.
-    /// </summary>
+    bool IsInWater()
+    {
+        if (!useWaterLevelOverride)
+            return false;
+
+        Transform check = waterLevelCheckPoint != null ? waterLevelCheckPoint : transform;
+        return check.position.y < waterFootstepYLevel;
+    }
+
     public void TriggerFootstep()
     {
-        if (audioSource == null) return;
-        if (requireGrounded && !fpc.isGrounded) return;
+        if (IsInWater())
+            PlayWaterFootstep();
+        else
+            TriggerLandFootstep();
+    }
+
+    void PlayWaterFootstep()
+    {
+        SurfaceProfile waterProfile = GetProfileByType(SurfaceType.Water);
+        PlayClipFromProfile(waterProfile, false);
+
+        if (debugWaterState)
+        {
+            float y = waterLevelCheckPoint != null ? waterLevelCheckPoint.position.y : transform.position.y;
+            Debug.Log($"Water footstep played at y={y:F2}, sourceVolume={audioSource.volume:F2}");
+        }
+    }
+
+    void TriggerLandFootstep()
+    {
+        if (requireGrounded && !fpc.isGrounded)
+            return;
 
         if (!TryGetGroundHit(out RaycastHit hit))
             return;
 
-        var profile = ResolveProfileForHit(hit);
-        PlayClipFromProfile(profile, landing: false);
+        SurfaceProfile profile = ResolveProfileForHit(hit);
+        PlayClipFromProfile(profile, false);
+    }
+
+    void HandleLanding()
+    {
+        bool nowGrounded = fpc.isGrounded;
+
+        if (wasGroundedLast && !nowGrounded)
+        {
+            airEnterTime = Time.time;
+            return;
+        }
+
+        if (!wasGroundedLast && nowGrounded)
+        {
+            float airTime = Time.time - airEnterTime;
+            float downwardSpeed = -lastYVelocity;
+
+            if (airTime >= landingMinAirTime &&
+                downwardSpeed >= landingMinDownSpeed &&
+                Time.time >= lastLandingTime + landingCooldown)
+            {
+                if (TryGetGroundHit(out RaycastHit hit))
+                {
+                    PlayLandingAt(hit);
+                    lastLandingTime = Time.time;
+                    nextLandStepTime = Mathf.Max(nextLandStepTime, Time.time + postLandingStepDelay);
+                }
+            }
+        }
     }
 
     void PlayLandingAt(RaycastHit hit)
     {
-        var profile = ResolveProfileForHit(hit);
-        PlayClipFromProfile(profile, landing: true);
+        SurfaceProfile profile = ResolveProfileForHit(hit);
+        PlayClipFromProfile(profile, true);
     }
 
     void PlayClipFromProfile(SurfaceProfile profile, bool landing)
     {
-        if (profile == null) profile = defaultProfile;
-        if (profile == null) return;
+        if (audioSource == null)
+            return;
 
-        List<AudioClip> list = landing && profile.landingClips != null && profile.landingClips.Count > 0
+        if (profile == null)
+            profile = defaultProfile;
+
+        if (profile == null)
+            return;
+
+        List<AudioClip> clipList =
+            landing && profile.landingClips != null && profile.landingClips.Count > 0
             ? profile.landingClips
             : profile.clips;
 
-        if (list == null || list.Count == 0 || audioSource == null) return;
+        if (clipList == null || clipList.Count == 0)
+            return;
 
-        var clip = list[Random.Range(0, list.Count)];
-        audioSource.pitch = Random.Range(profile.pitchMin, profile.pitchMax);
-        audioSource.volume = Random.Range(profile.volumeMin, profile.volumeMax);
-        audioSource.PlayOneShot(clip);
+        AudioClip clip = clipList[Random.Range(0, clipList.Count)];
+        if (clip == null)
+            return;
+
+        float pitchMin = Mathf.Max(0.01f, Mathf.Min(profile.pitchMin, profile.pitchMax));
+        float pitchMax = Mathf.Max(pitchMin, profile.pitchMax);
+        float volumeMin = Mathf.Max(0f, Mathf.Min(profile.volumeMin, profile.volumeMax));
+        float volumeMax = Mathf.Max(volumeMin, profile.volumeMax);
+
+        float randomizedPitch = Random.Range(pitchMin, pitchMax);
+        float randomizedVolumeScale = Random.Range(volumeMin, volumeMax) * masterVolume;
+
+        if (randomizedVolumeScale > 0f)
+            randomizedVolumeScale = Mathf.Max(minimumOneShotVolume, randomizedVolumeScale);
+
+        audioSource.volume = baseAudioSourceVolume;
+        audioSource.pitch = randomizedPitch;
+        audioSource.PlayOneShot(clip, randomizedVolumeScale);
+        audioSource.volume = baseAudioSourceVolume;
     }
 
-    /// <summary>
-    /// 1) Tag override for non-terrain / special meshes.
-    /// 2) If Terrain hit, sample splatmap for dominant texture and map to profile.
-    /// 3) Fallback profile.
-    /// </summary>
     SurfaceProfile ResolveProfileForHit(RaycastHit hit)
     {
         Collider col = hit.collider;
-        if (col == null) return defaultProfile;
+        if (col == null)
+            return defaultProfile;
 
-        // 1) Tag override (priority)
-        foreach (var p in profiles)
+        foreach (SurfaceProfile profile in profiles)
         {
-            if (!string.IsNullOrEmpty(p.objectTag) && col.CompareTag(p.objectTag))
-                return p;
+            if (!string.IsNullOrEmpty(profile.objectTag) && col.CompareTag(profile.objectTag))
+                return profile;
         }
 
-        // 2) Terrain texture detection
         Terrain terrain = GetTerrainFromCollider(col);
         if (terrain != null)
         {
-            int dominant = GetDominantTextureIndex(terrain, hit.point);
-            if (dominant >= 0)
+            int dominantIndex = GetDominantTextureIndex(terrain, hit.point);
+            if (dominantIndex >= 0)
             {
-                foreach (var p in profiles)
+                foreach (SurfaceProfile profile in profiles)
                 {
-                    if (p.terrainTextureIndices != null && p.terrainTextureIndices.Contains(dominant))
-                        return p;
+                    if (profile.terrainTextureIndices != null &&
+                        profile.terrainTextureIndices.Contains(dominantIndex))
+                    {
+                        return profile;
+                    }
                 }
             }
         }
 
-        // 3) Fallback
         return defaultProfile;
     }
 
-    /// <summary>
-    /// Mirror your ground check. Uses CapsuleCollider metrics like your controller.
-    /// </summary>
-    bool TryGetGroundHit(out RaycastHit hitInfo)
+    SurfaceProfile GetProfileByType(SurfaceType type)
     {
-        hitInfo = default;
+        foreach (SurfaceProfile profile in profiles)
+        {
+            if (profile.type == type)
+                return profile;
+        }
 
-        if (capsule == null)
-            capsule = GetComponent<CapsuleCollider>();
-
-        float radius = capsule ? Mathf.Max(0.01f, capsule.radius * 0.95f) : 0.3f;
-        Vector3 origin = transform.position + Vector3.up * (radius + 0.02f);
-        float castDist = (capsule ? (capsule.height * 0.5f) : 0.9f) + 0.05f;
-
-        return Physics.SphereCast(origin, radius, Vector3.down, out hitInfo, castDist, ~0, QueryTriggerInteraction.Ignore);
-    }
-
-    Terrain GetTerrainFromCollider(Collider col)
-    {
-        if (col == null) return null;
-
-        var terrain = col.GetComponent<Terrain>();
-        if (terrain != null) return terrain;
-
-        terrain = col.GetComponentInParent<Terrain>();
-        if (terrain != null) return terrain;
-
-        if (Terrain.activeTerrain != null)
-            return Terrain.activeTerrain;
+        if (defaultProfile != null && defaultProfile.type == type)
+            return defaultProfile;
 
         return null;
     }
 
+    bool TryGetGroundHit(out RaycastHit hitInfo)
+    {
+        float radius = Mathf.Max(0.01f, capsule.radius * 0.95f);
+        Vector3 origin = transform.position + Vector3.up * (radius + 0.02f);
+        float castDistance = (capsule.height * 0.5f) + 0.05f;
+
+        return Physics.SphereCast(
+            origin,
+            radius,
+            Vector3.down,
+            out hitInfo,
+            castDistance,
+            ~0,
+            QueryTriggerInteraction.Ignore
+        );
+    }
+
+    Terrain GetTerrainFromCollider(Collider col)
+    {
+        if (col == null)
+            return null;
+
+        Terrain terrain = col.GetComponent<Terrain>();
+        if (terrain != null)
+            return terrain;
+
+        terrain = col.GetComponentInParent<Terrain>();
+        if (terrain != null)
+            return terrain;
+
+        return Terrain.activeTerrain;
+    }
+
     int GetDominantTextureIndex(Terrain terrain, Vector3 worldPos)
     {
-        if (terrain == null || terrain.terrainData == null) return -1;
+        if (terrain == null || terrain.terrainData == null)
+            return -1;
 
         TerrainData td = terrain.terrainData;
-
-        // Convert world position to alphamap coordinates
         Vector3 localPos = worldPos - terrain.transform.position;
 
-        int aw = td.alphamapWidth;
-        int ah = td.alphamapHeight;
+        int mapX = Mathf.Clamp(
+            Mathf.RoundToInt((localPos.x / td.size.x) * (td.alphamapWidth - 1)),
+            0,
+            td.alphamapWidth - 1
+        );
 
-        int x = Mathf.Clamp(Mathf.RoundToInt((localPos.x / td.size.x) * (aw - 1)), 0, aw - 1);
-        int y = Mathf.Clamp(Mathf.RoundToInt((localPos.z / td.size.z) * (ah - 1)), 0, ah - 1);
+        int mapY = Mathf.Clamp(
+            Mathf.RoundToInt((localPos.z / td.size.z) * (td.alphamapHeight - 1)),
+            0,
+            td.alphamapHeight - 1
+        );
 
-        float[,,] weights = td.GetAlphamaps(x, y, 1, 1);
-        int numLayers = weights.GetLength(2);
-        if (numLayers == 0) return -1;
+        float[,,] weights = td.GetAlphamaps(mapX, mapY, 1, 1);
+        int layerCount = weights.GetLength(2);
 
-        int dominantIndex = 0;
-        float max = weights[0, 0, 0];
-        for (int i = 1; i < numLayers; i++)
+        if (layerCount == 0)
+            return -1;
+
+        int dominant = 0;
+        float maxWeight = weights[0, 0, 0];
+
+        for (int i = 1; i < layerCount; i++)
         {
-            if (weights[0, 0, i] > max)
+            if (weights[0, 0, i] > maxWeight)
             {
-                max = weights[0, 0, i];
-                dominantIndex = i;
+                maxWeight = weights[0, 0, i];
+                dominant = i;
             }
         }
-        return dominantIndex;
+
+        return dominant;
     }
 
-#if UNITY_EDITOR
-    void OnDrawGizmosSelected()
+    void OnDisable()
     {
-        if (!showSphereCastGizmo) return;
-
-        if (capsule == null)
-            capsule = GetComponent<CapsuleCollider>();
-
-        float radius = capsule ? Mathf.Max(0.01f, capsule.radius * 0.95f) : 0.3f;
-        Vector3 origin = transform.position + Vector3.up * (radius + 0.02f);
-        float castDist = (capsule ? (capsule.height * 0.5f) : 0.9f) + 0.05f;
-
-        Gizmos.color = gizmoColor;
-        Gizmos.DrawWireSphere(origin, radius);
-        Gizmos.DrawLine(origin, origin + Vector3.down * castDist);
-        Gizmos.DrawWireSphere(origin + Vector3.down * castDist, radius);
+        if (audioSource != null)
+        {
+            audioSource.volume = baseAudioSourceVolume;
+            audioSource.pitch = baseAudioSourcePitch;
+        }
     }
-#endif
 }

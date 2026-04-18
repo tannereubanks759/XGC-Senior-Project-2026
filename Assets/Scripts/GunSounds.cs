@@ -10,9 +10,11 @@ public class GunSounds : MonoBehaviour
     public AudioClip clickSound;
     public AudioClip equipSound;
     public AudioClip collectAmmoSound;
+
+    public float GunShotVolume = 1f;
     public void PlayShootSound()
     {
-        PlaySound(shootSound);
+        PlaySound(shootSound, GunShotVolume);
     }
 
     public void PlayPackSound()
@@ -28,6 +30,10 @@ public class GunSounds : MonoBehaviour
     void PlaySound(AudioClip clip)
     {
         gunSource.PlayOneShot(clip);
+    }
+    void PlaySound(AudioClip clip, float v)
+    {
+        gunSource.PlayOneShot(clip, v);
     }
 
     public void PlayClickSound()

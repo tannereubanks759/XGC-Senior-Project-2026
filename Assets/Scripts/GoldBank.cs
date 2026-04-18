@@ -7,6 +7,8 @@ public class GoldBank : MonoBehaviour
 
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI UpgradeText;
+    public AudioSource source;
+    public AudioClip collect;
     private void Start()
     {
         
@@ -15,6 +17,10 @@ public class GoldBank : MonoBehaviour
 
     public void AddGold(int g)
     {
+        if (collect)
+        {
+            source.PlayOneShot(collect);
+        }
         gold += g;
         UpdateGold();
     }

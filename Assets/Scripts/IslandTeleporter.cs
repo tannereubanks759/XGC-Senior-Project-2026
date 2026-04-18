@@ -7,7 +7,8 @@ public class IslandTeleporter : MonoBehaviour
     [Header("Teleporter Settings")]
     public string nextIsland;
     public bool isFinalTeleporter = false;
-
+    public bool startOn = false;
+    public AudioClip teleportSound;
     //Internals 
     private GameObject loadingScreen;
     private Animator doorAnim;
@@ -18,7 +19,10 @@ public class IslandTeleporter : MonoBehaviour
     {
         this.GetComponent<Collider>().enabled = false;
         doorAnim = this.GetComponent<Animator>();
-        
+        if (startOn)
+        {
+            this.GetComponent<Collider>().enabled = true;
+        }
     }
     public void OpenDoor()
     {
@@ -47,7 +51,14 @@ public class IslandTeleporter : MonoBehaviour
         }
         else //beat game
         {
+            if (teleportSound)
+            {
+                this.GetComponent<AudioSource>().Stop();
+                
+                this.GetComponent<AudioSource>().PlayOneShot(teleportSound, .05f);
+            }
             GameObject.FindAnyObjectByType<UImanager>().OpenWinScreen();
+            Time.timeScale = 0f;
         }
     }
     IEnumerator LoadLevelAsync(string level)

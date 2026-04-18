@@ -324,7 +324,11 @@ public class CombatController : MonoBehaviour
         {
             if (invulnerability == false)
             {
-                audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
+                if(hurtClips.Length > 0)
+                {
+                    audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
+                }
+                
                 lastDamageTime = Time.time;
                 regenAccumulator = 0f;
 

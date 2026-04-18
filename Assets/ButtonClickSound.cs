@@ -43,7 +43,7 @@ public class ButtonClickSound : MonoBehaviour
 
     private void PlayClickSound()
     {
-        if (audioSource != null && clickSound != null)
+        if (audioSource != null && clickSound != null && audioSource.enabled)
             audioSource.PlayOneShot(clickSound);
     }
 }

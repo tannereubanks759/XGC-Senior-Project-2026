@@ -28,7 +28,11 @@ public class SwordSounds : MonoBehaviour
     }
     public void PlayPushSound()
     {
-        swordSource.PlayOneShot(pushSound);
+        if (pushSound)
+        {
+            swordSource.PlayOneShot(pushSound);
+        }
+        
     }
     public void PlayBlockSound()
     {

@@ -18,7 +18,8 @@ public class WeaponsManager : MonoBehaviour
     public GameObject invulnerabilityFire;
     public Transform MainCameraTransform;
     public SwordSounds swordSounds;
-
+    public AudioSource source;
+    public AudioClip uneqipSword;
 
     private offhandHandler offhandHandle;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -197,6 +198,10 @@ public class WeaponsManager : MonoBehaviour
         if(weaponSlot == 0 && swordSounds) //Play equip sound when pulling out sword.
         {
             swordSounds.PlayEquip();
+        }
+        else if(weaponSlot == 1 && uneqipSword)
+        {
+            source.PlayOneShot(uneqipSword);
         }
     }
 

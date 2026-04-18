@@ -230,7 +230,11 @@ public class offhandHandler : MonoBehaviour
         fireBall.SetActive(true);
         var fireballManager = fireBall.gameObject.GetComponentInParent<FireballManager>();
         fireballManager.nextTime = Time.time + fireballManager.equipCooldown;
-        soundSource.PlayOneShot(flameOn,flameVolume);
+        if (flameOn)
+        {
+            soundSource.PlayOneShot(flameOn, flameVolume);
+        }
+        
         currentOffhandType = OffhandType.FireBomb;
         if (fireballFirst)
         {
