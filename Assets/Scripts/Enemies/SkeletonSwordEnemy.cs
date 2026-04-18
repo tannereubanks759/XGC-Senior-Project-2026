@@ -321,6 +321,9 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private bool _lookSourceInitialized;
     private bool registeredAsHostile = false;
 
+    public AudioSource GrowlSource;
+    public AudioClip GrowlClip;
+    bool hasGrowled = false;
     private void UpdateCombatRegistration(bool shouldBeHostile)
     {
         if (shouldBeHostile && !registeredAsHostile)
@@ -721,6 +724,11 @@ public class SkeletonSwordEnemy : MonoBehaviour
                 yield break;
 
             case State.Chase:
+                if (GrowlClip && !hasGrowled)
+                {
+                    GrowlSource.PlayOneShot(GrowlClip);
+                    hasGrowled = true;
+                }
                 SetBlocking(false);
                 yield return ChaseLoop();
                 yield break;

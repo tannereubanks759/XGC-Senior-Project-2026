@@ -35,6 +35,9 @@ public class OxygenSystem : MonoBehaviour
     public CombatController health;
     public float waterDamage = 10f;
 
+    public AudioSource source;
+    public AudioClip submergeClip;
+
     float damageTickTimer = 0f;
 
     void Reset()
@@ -111,7 +114,15 @@ public class OxygenSystem : MonoBehaviour
     {
         if (oxygenUIRoot == null) return;
         if (oxygenUIRoot.activeSelf != visible)
+        {
             oxygenUIRoot.SetActive(visible);
+            if (source && visible == true)
+            {
+                source.PlayOneShot(submergeClip);
+            }
+        }
+            
+        
     }
 
     void DamageTick()
