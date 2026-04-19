@@ -93,8 +93,8 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 49ed949f14362c548a5665d68113cc44, type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: 152fe5441345b274b82008e194a8f85c, type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -79106,17 +79106,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d2f4ea6098d5df44b0c80fdcbc5ccf7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChestObjects: []
-  chestLocations: []
-  surface: {fileID: 0}
   playerPref: {fileID: 6428402459396883477, guid: 557755b5c82f04e4caeba525e6836223, type: 3}
   playerSpawnPos:
   - {fileID: 285184366}
-  enemyQuotas: []
-  spawnRadius: 10
-  enemiesPerChest: 5
-  maxSampleTriesPerEnemy: 8
-  navMeshSnapMaxDistance: 5
 --- !u!4 &1277676134
 Transform:
   m_ObjectHideFlags: 0
