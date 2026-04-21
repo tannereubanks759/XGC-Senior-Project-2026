@@ -11,8 +11,9 @@ public class levelSavingManager : MonoBehaviour
     public CombatController combatController;
     [Header("Live run state")]
     public levelStartSaving current = new levelStartSaving();
-    private levelStartSaving levelStartSnapshot;
+    private static levelStartSaving levelStartSnapshot;
     private static levelStartSaving checkpointSnapshot;
+    private static string levelStartSceneName;
     public static Vector3? checkpointRespawnPosition;
     public static Quaternion? checkpointRespawnRotation;
 
@@ -163,34 +164,38 @@ public class levelSavingManager : MonoBehaviour
         }
         else
         {
-            // Normal load — read fresh scene values and snapshot them as level start
-            current.health = combatController.health;
-            if (gb != null) current.gold = gb.gold;
-            if (healthPotion != null) current.healthPotions = healthPotion.GetQuantity();
-
-            if (tracker != null)
+            if (levelStartSceneName != scene.name)
             {
-                current.lightningUpgradeCount = tracker.lightningUpgradeCount;
-                current.curseSlow = tracker.curseSlow;
-                current.curseReflect = tracker.curseReflect;
-                current.fireRadiusM = tracker.fireRadiusM;
-                current.FireFire = tracker.FireFire;
-                current.fireSide1_1 = tracker.fireSide1_1;
-                current.fireSide1_2 = tracker.fireSide1_2;
-                current.fireSide2_1 = tracker.fireSide2_1;
-                current.fireSide2_2 = tracker.fireSide2_2;
-                current.lightningSide1_1 = tracker.lightningSide1_1;
-                current.lightningSide1_2 = tracker.lightningSide1_2;
-                current.lightningSide2_1 = tracker.lightningSide2_1;
-                current.lightningSide2_2 = tracker.lightningSide2_2;
-                current.curseSide1_1 = tracker.curseSide1_1;
-                current.curseSide1_2 = tracker.curseSide1_2;
-                current.curseSide2_1 = tracker.curseSide2_1;
-                current.curseSide2_2 = tracker.curseSide2_2;
-            }
-            if (oh != null) current.lightningUpgradeCount = oh.lightningUpgradeCount;
+                if (combatController != null) current.health = combatController.health;
+                if (gb != null) current.gold = gb.gold;
+                if (healthPotion != null) current.healthPotions = healthPotion.GetQuantity();
 
-            CaptureLevelStart();
+                if (tracker != null)
+                {
+                    current.lightningUpgradeCount = tracker.lightningUpgradeCount;
+                    current.curseSlow = tracker.curseSlow;
+                    current.curseReflect = tracker.curseReflect;
+                    current.fireRadiusM = tracker.fireRadiusM;
+                    current.FireFire = tracker.FireFire;
+                    current.fireSide1_1 = tracker.fireSide1_1;
+                    current.fireSide1_2 = tracker.fireSide1_2;
+                    current.fireSide2_1 = tracker.fireSide2_1;
+                    current.fireSide2_2 = tracker.fireSide2_2;
+                    current.lightningSide1_1 = tracker.lightningSide1_1;
+                    current.lightningSide1_2 = tracker.lightningSide1_2;
+                    current.lightningSide2_1 = tracker.lightningSide2_1;
+                    current.lightningSide2_2 = tracker.lightningSide2_2;
+                    current.curseSide1_1 = tracker.curseSide1_1;
+                    current.curseSide1_2 = tracker.curseSide1_2;
+                    current.curseSide2_1 = tracker.curseSide2_1;
+                    current.curseSide2_2 = tracker.curseSide2_2;
+                }
+                if (oh != null) current.lightningUpgradeCount = oh.lightningUpgradeCount;
+
+                CaptureLevelStart();
+                levelStartSceneName = scene.name;
+            }
+
             RestoreToLevelStart();
         }
     }
