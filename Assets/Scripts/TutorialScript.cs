@@ -26,7 +26,7 @@ public class TutorialScript : MonoBehaviour
         if (step == 1) message.Show("Swap to your gun by pressing 2, or by using the scroll wheel.");
         if (step == 2) message.Show("Block by holding the right mouse button with your sword out.");
         if (step == 3) message.Show("While holding block, press the left mouse button to push enemies.");
-        if (step == 4) message.Show("While still holding block, press space to dodge.");
+        if (step == 4) message.Show("While still holding block, press space to dodge in the direction you're moving.");
         if (step == 5) message.Show("After taking damage and having enough potions, you can heal by pressing the H key.");
     }
     // Update is called once per frame
