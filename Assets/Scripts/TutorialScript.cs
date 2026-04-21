@@ -12,6 +12,11 @@ public class TutorialScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        if (tutorialDone)
+        {
+            tutorialBackground.SetActive(false);
+            return;
+        }
         ShowStep(0);
     }
     private void ShowStep(int step)
