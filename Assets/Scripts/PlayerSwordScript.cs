@@ -23,7 +23,7 @@ public class PlayerSwordScript : MonoBehaviour
     public float chargePerHit = 10f;
     public void PlaySound(AudioClip clip)
     {
-        source.PlayOneShot(clip);
+        source.PlayOneShot(clip, 1f);
     }
 
     private void OnTriggerEnter(Collider other)

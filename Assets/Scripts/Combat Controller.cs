@@ -86,6 +86,7 @@ public class CombatController : MonoBehaviour
     [Header("Sounds")]
     private SwordSounds swordSoundScript;
     public AudioSource soundSource;
+    public AudioSource hurtSource;
     public AudioClip dodgeClip;
 
     public bool isPaused;
@@ -100,6 +101,10 @@ public class CombatController : MonoBehaviour
 
     void Start()
     {
+        if(hurtSource == null)
+        {
+            hurtSource = soundSource;
+        }
         nextTime = Time.time;
         isPaused = false;
         swordSoundScript = GetComponentInChildren<SwordSounds>();
@@ -326,7 +331,7 @@ public class CombatController : MonoBehaviour
             {
                 if(hurtClips.Length > 0)
                 {
-                    audioSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
+                    hurtSource.PlayOneShot(hurtClips[Random.Range(0, hurtClips.Length)]);
                 }
                 
                 lastDamageTime = Time.time;
