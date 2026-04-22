@@ -82,7 +82,7 @@ public class UI : MonoBehaviour
 
     public void LoadScene(string name)
     {
-        if (name == "MainMenu")
+        if (name == "MainMenu" || name == "AudioDesignMainMenu")
         {
             Destroy(this.GetComponentInParent<FirstPersonController>().gameObject);
         }
