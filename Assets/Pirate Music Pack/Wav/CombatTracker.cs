@@ -21,16 +21,16 @@ public class CombatTracker : MonoBehaviour
     {
         bool shouldBeInCombat = activeHostiles.Count > 0 || Time.time < lastCombatTime + exitCombatDelay;
 
-        if (shouldBeInCombat != inCombat)
-        {
-            inCombat = shouldBeInCombat;
+        if (shouldBeInCombat == inCombat)
+            return;
 
-            if (MusicManager.Instance != null)
-            {
-                MusicManager.Instance.SetState(inCombat
-                    ? MusicManager.MusicState.Combat
-                    : MusicManager.MusicState.Exploration);
-            }
+        inCombat = shouldBeInCombat;
+
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.SetState(
+                inCombat ? MusicManager.MusicState.Combat : MusicManager.MusicState.Exploration
+            );
         }
     }
 
@@ -55,5 +55,10 @@ public class CombatTracker : MonoBehaviour
     public void RefreshCombat()
     {
         lastCombatTime = Time.time;
+    }
+
+    public bool IsInCombat()
+    {
+        return activeHostiles.Count > 0 || Time.time < lastCombatTime + exitCombatDelay;
     }
 }

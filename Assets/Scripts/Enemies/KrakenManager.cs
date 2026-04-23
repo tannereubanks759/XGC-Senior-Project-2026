@@ -48,6 +48,11 @@ public class KrakenManager : MonoBehaviour
     }
     void Die()
     {
+        var bossArenaMusicTrigger = GameObject.FindAnyObjectByType<BossArenaMusicTrigger>();
+        if (bossArenaMusicTrigger != null)
+        {
+            bossArenaMusicTrigger.OnBossDied();
+        }
         headAnim.SetTrigger("Dead");
         mouthSource.PlayOneShot(deathClip);
         krakenWalls.Lower();

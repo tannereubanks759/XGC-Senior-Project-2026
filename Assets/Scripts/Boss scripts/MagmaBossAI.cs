@@ -456,7 +456,11 @@ public class MagmaBossAI : MonoBehaviour
         if (_deathHandled) return;
 
         _deathHandled = true;
-
+        var bossArenaMusicTrigger = GameObject.FindAnyObjectByType<BossArenaMusicTrigger>();
+        if (bossArenaMusicTrigger != null)
+        {
+            bossArenaMusicTrigger.OnBossDied();
+        }
         IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?
             .GetComponent<IslandTeleporter>();
         if (tel != null) tel.OpenDoor();

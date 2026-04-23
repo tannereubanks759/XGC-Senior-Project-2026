@@ -311,6 +311,10 @@ public class CombatController : MonoBehaviour
 
     public void Die()
     {
+        if (MusicManager.Instance != null)
+        {
+            MusicManager.Instance.ExitBossMusic(false);
+        }
         LavaDamage lava = GetComponentInParent<LavaDamage>();
         lava.inLava = false;
         lava.inInk = false;

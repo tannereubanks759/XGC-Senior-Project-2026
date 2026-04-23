@@ -97,6 +97,7 @@ public class PirateBossAI : MonoBehaviour
     public bool canRotate = true;
     [SerializeField] string paramThrowTrigger = "throw";
 
+
     // --- Death guards ---
     bool _deathHandled = false;
     int _deathHash;
@@ -433,10 +434,17 @@ public class PirateBossAI : MonoBehaviour
                 damageMult = 1;
                 animator.SetBool(paramIsBlocking, false);
 
+                var bossArenaMusicTrigger = GameObject.FindAnyObjectByType<BossArenaMusicTrigger>();
+                if (bossArenaMusicTrigger != null)
+                {
+                    bossArenaMusicTrigger.OnBossDied();
+                }
+
                 if (agent != null) agent.speed = _baseAgentSpeed;
                 if (_deathHandled) return;
 
                 IslandTeleporter tel = GameObject.FindAnyObjectByType<IslandTeleporter>()?.GetComponent<IslandTeleporter>();
+                if (tel != null) tel.OpenDoor();
                 if (tel != null) tel.OpenDoor();
 
                 _deathHandled = true;

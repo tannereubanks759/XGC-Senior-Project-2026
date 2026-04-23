@@ -28,8 +28,11 @@ public class MusicManager : MonoBehaviour
     private AudioSource activeSource;
     private AudioSource inactiveSource;
 
-    private MusicState currentState;
+    private MusicState currentState = MusicState.Exploration;
+    private MusicState requestedState = MusicState.Exploration;
+
     private AudioClip lastClip;
+    private bool bossOverrideActive = false;
 
     private void Awake()
     {
@@ -62,22 +65,49 @@ public class MusicManager : MonoBehaviour
 
     private void Start()
     {
-        SetState(MusicState.Exploration, true);
+        ApplyState(MusicState.Exploration, true);
     }
 
     public void SetState(MusicState newState, bool instant = false)
     {
-        if (newState == currentState && activeSource.isPlaying)
+        requestedState = newState;
+
+        if (bossOverrideActive && newState != MusicState.Boss)
             return;
 
-        currentState = newState;
+        ApplyState(newState, instant);
+    }
+
+    public void EnterBossMusic(bool instant = false)
+    {
+        bossOverrideActive = true;
+        ApplyState(MusicState.Boss, instant);
+    }
+
+    public void ExitBossMusic(bool instant = false)
+    {
+        bossOverrideActive = false;
+        ApplyState(requestedState, instant);
+    }
+
+    private void ApplyState(MusicState newState, bool instant = false)
+    {
+        if (newState == currentState && activeSource.isPlaying)
+            return;
 
         AudioClip nextClip = GetRandomClipForState(newState);
         if (nextClip == null)
             return;
 
+        currentState = newState;
+
         if (instant)
         {
+            StopAllCoroutines();
+
+            activeSource.Stop();
+            inactiveSource.Stop();
+
             activeSource.clip = nextClip;
             activeSource.volume = musicVolume;
             activeSource.Play();
@@ -135,12 +165,12 @@ public class MusicManager : MonoBehaviour
         inactiveSource.Play();
 
         float time = 0f;
-        float startVolume = activeSource.volume;
+        float startVolume = activeSource.isPlaying ? activeSource.volume : 0f;
 
         while (time < fadeDuration)
         {
             time += Time.deltaTime;
-            float t = time / fadeDuration;
+            float t = fadeDuration > 0f ? time / fadeDuration : 1f;
 
             activeSource.volume = Mathf.Lerp(startVolume, 0f, t);
             inactiveSource.volume = Mathf.Lerp(0f, musicVolume, t);
@@ -155,5 +185,10 @@ public class MusicManager : MonoBehaviour
         AudioSource temp = activeSource;
         activeSource = inactiveSource;
         inactiveSource = temp;
+    }
+
+    public bool IsBossMusicActive()
+    {
+        return bossOverrideActive;
     }
 }
