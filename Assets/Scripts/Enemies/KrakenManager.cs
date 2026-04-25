@@ -6,7 +6,7 @@ public class KrakenManager : MonoBehaviour
     public Animator headAnim;
     public Animator leftArmAnim;
     public Animator rightArmAnim;
-    public float health = 100;
+    public float health = 400;
     public KrakenDangerArea[] dangerAreas;
     public RayfireRigid rock;
     public BossHealthbar healthbar;
@@ -16,10 +16,12 @@ public class KrakenManager : MonoBehaviour
     public AudioSource mouthSource;
     public AudioClip deathClip;
     public GameObject RockSounds;
+    public Collider[] damageColliders;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        damageColliders[1].enabled = false;
+        damageColliders[0].enabled = false;
         dangerAreas = GameObject.FindObjectsByType<KrakenDangerArea>(FindObjectsSortMode.None);
     }
 
@@ -64,7 +66,8 @@ public class KrakenManager : MonoBehaviour
     {
         healthbar = GameObject.FindAnyObjectByType<BossHealthbar>();
         if (!healthbar) return;
-
+        damageColliders[1].enabled = true;
+        damageColliders[0].enabled = true;
         RockSounds.SetActive(true);
         mouthSource.Play();
         healthbar.maxHealth = (int) health;

@@ -32,7 +32,7 @@ public class CrackenTentacleCollider : MonoBehaviour
         }
         else
         {
-            km.TakeDamage(finalDamage);
+            km.TakeDamage(health);
             Die();
         }
     }

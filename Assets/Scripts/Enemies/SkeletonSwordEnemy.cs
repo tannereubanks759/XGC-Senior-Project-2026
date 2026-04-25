@@ -321,6 +321,9 @@ public class SkeletonSwordEnemy : MonoBehaviour
     private bool _lookSourceInitialized;
     private bool registeredAsHostile = false;
 
+    private int _targetInstanceId = -1;
+    private float _nextForceTargetRefreshTime;
+
     public AudioSource GrowlSource;
     public AudioClip GrowlClip;
     bool hasGrowled = false;
@@ -382,6 +385,8 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
         if (!agent || !agent.enabled || !agent.isOnNavMesh) return;
 
+        RefreshTargetReliably();
+
         UpdateTargetVelocityEstimate();
 
         if (Time.time >= _nextSenseTime)
@@ -393,19 +398,24 @@ public class SkeletonSwordEnemy : MonoBehaviour
         UpdateCombatMoveTuning();
         UpdateAnimatorLocomotion();
         UpdateHeadLookConstraint();
+
         bool hostile =
-        _state != State.Idle &&
-        _state != State.Patrol &&
-        _state != State.Dead;
+            _state != State.Idle &&
+            _state != State.Patrol &&
+            _state != State.Dead;
 
         UpdateCombatRegistration(hostile);
+
         if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase ||
             _state == State.Strafe || _state == State.Defensive || _state == State.Attack || _state == State.Recover)
+        {
             FaceTargetOrMovement();
+        }
 
         if ((_state == State.Chase || _state == State.Recover) && target && Time.time >= _nextAttackAllowedTime)
         {
             float dist = Vector3.Distance(transform.position, target.position);
+
             if (dist <= attackRange && Time.time >= _nextDefensiveAllowedTime)
             {
                 if (ShouldEnterDefensive(dist))
@@ -418,11 +428,61 @@ public class SkeletonSwordEnemy : MonoBehaviour
         if (_state == State.Chase && target && Time.time >= _nextDefensiveAllowedTime)
         {
             float dist = Vector3.Distance(transform.position, target.position);
+
             if (dist <= rushReactDistance && IsTargetRushingMe() && Random.value < rushBackUpChance)
                 SetState(State.Defensive);
         }
     }
+    private void RefreshTargetReliably()
+    {
+        bool targetMissing = target == null;
 
+        if (targetMissing)
+        {
+            targetHead = null;
+            _targetInstanceId = -1;
+            _hasLastTargetPos = false;
+
+            AcquireTargetIfNeeded(force: false);
+            return;
+        }
+
+        if (Time.time >= _nextForceTargetRefreshTime)
+        {
+            _nextForceTargetRefreshTime = Time.time + 1.0f;
+
+            GameObject currentPlayer = null;
+
+            if (!string.IsNullOrEmpty(playerTag))
+                currentPlayer = GameObject.FindGameObjectWithTag(playerTag);
+
+            if (currentPlayer == null)
+                return;
+
+            int currentId = currentPlayer.GetInstanceID();
+
+            if (_targetInstanceId == -1)
+            {
+                _targetInstanceId = currentId;
+            }
+
+            if (currentId != _targetInstanceId)
+            {
+                target = null;
+                targetHead = null;
+                _lookSourceInitialized = false;
+                _targetInstanceId = -1;
+                _hasLastTargetPos = false;
+
+                AcquireTargetIfNeeded(force: true);
+
+                if (_state == State.Chase || _state == State.Strafe || _state == State.Defensive || _state == State.Attack || _state == State.Recover)
+                {
+                    SetState(startPatrolling ? State.Patrol : State.Idle);
+                }
+            }
+        }
+    }
     private void AcquireTargetIfNeeded(bool force)
     {
         if (target != null) return;
@@ -435,18 +495,19 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
         Transform foundPlayer = null;
 
-        // Prefer explicit player tag for gameplay target
         if (!string.IsNullOrEmpty(playerTag))
         {
-            var go = GameObject.FindGameObjectWithTag(playerTag);
-            if (go != null) foundPlayer = go.transform;
+            GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
+
+            if (playerObject != null && playerObject.activeInHierarchy)
+                foundPlayer = playerObject.transform;
         }
 
         if (foundPlayer == null) return;
 
         target = foundPlayer;
+        _targetInstanceId = foundPlayer.gameObject.GetInstanceID();
 
-        // Head/camera target for looking only (doesn't affect gameplay targeting)
         Transform foundCam = null;
 
         if (preferMainCameraForLook && Camera.main != null)
@@ -454,15 +515,20 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
         if (foundCam == null)
         {
-            var cam = target.GetComponentInChildren<Camera>(includeInactive: true);
-            if (cam != null) foundCam = cam.transform;
+            Camera cam = target.GetComponentInChildren<Camera>(includeInactive: true);
+
+            if (cam != null)
+                foundCam = cam.transform;
         }
 
         if (foundCam != null)
         {
             targetHead = foundCam;
+            _lookSourceInitialized = false;
             SetLookAtConstraintSource(foundCam);
         }
+
+        _hasLastTargetPos = false;
     }
     private void SetLookAtConstraintSource(Transform lookTarget)
     {
@@ -572,7 +638,11 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
     private void Sense()
     {
-        if (!target) return;
+        if (!target)
+        {
+            AcquireTargetIfNeeded(force: false);
+            return;
+        }
 
         bool detected = CanSeeTarget(out Vector3 seenPos);
 
@@ -590,8 +660,10 @@ public class SkeletonSwordEnemy : MonoBehaviour
 
             if (!hasMemory && (_state == State.Chase || _state == State.Strafe || _state == State.Defensive))
             {
-                if (_lastSeenTime > -998f) SetState(State.Investigate);
-                else SetState(startPatrolling ? State.Patrol : State.Idle);
+                if (_lastSeenTime > -998f)
+                    SetState(State.Investigate);
+                else
+                    SetState(startPatrolling ? State.Patrol : State.Idle);
             }
         }
     }

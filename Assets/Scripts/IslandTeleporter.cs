@@ -13,7 +13,7 @@ public class IslandTeleporter : MonoBehaviour
     private GameObject loadingScreen;
     private Animator doorAnim;
     private Slider slider;
-
+    public AudioSource source;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -26,6 +26,10 @@ public class IslandTeleporter : MonoBehaviour
     }
     public void OpenDoor()
     {
+        if (source)
+        {
+            source.Play();
+        }
         this.GetComponent<Collider>().enabled = true;
         doorAnim.SetBool("DoorOpen", true);
     }

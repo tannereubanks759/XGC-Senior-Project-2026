@@ -12,7 +12,7 @@ public class DamageRef : MonoBehaviour
     private ExplosiveBarrel explosiveBarrel;
     private SkeletonBombEnemy bombEnemy;
     private DamageRef dmgRefParent;
-
+    private SkeletonSwordCaptain captain;
     public GameObject SoulPrefab;
     public int OverrideSoulAmount = 0;
 
@@ -28,6 +28,7 @@ public class DamageRef : MonoBehaviour
         gunEnemy = GetComponentInParent<SkeletonGunEnemy>();
         explosiveBarrel = GetComponentInParent<ExplosiveBarrel>();
         bombEnemy = GetComponentInParent<SkeletonBombEnemy>();
+        captain = GetComponentInParent<SkeletonSwordCaptain>();
         
         hasSpawnedSoul = false;
     }
@@ -68,7 +69,10 @@ public class DamageRef : MonoBehaviour
         {
             bombEnemy.ApplyDamage(damage);
         }
-        
+        if (captain)
+        {
+            captain.ApplyDamage(damage);
+        }
     }
 
     void SpawnSoulIfDead(int damage)
@@ -115,6 +119,13 @@ public class DamageRef : MonoBehaviour
         if (bombEnemy)
         {
             if(bombEnemy.GetHealth() <= damage)
+            {
+                SpawnSoul();
+            }
+        }
+        if (captain)
+        {
+            if(captain.GetHealth() <= damage)
             {
                 SpawnSoul();
             }

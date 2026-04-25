@@ -187,7 +187,8 @@ public class SkeletonGunEnemy : MonoBehaviour
     private float _nextRepositionAttemptTime = -999f;
     private bool _forceRepositionAfterShot = false;
     private bool registeredAsHostile = false;
-
+    private int _targetInstanceId = -1;
+    private float _nextForceTargetRefreshTime;
     private void UpdateCombatRegistration(bool shouldBeHostile)
     {
         if (shouldBeHostile && !registeredAsHostile)
@@ -211,7 +212,9 @@ public class SkeletonGunEnemy : MonoBehaviour
     private void Awake()
     {
         if (!agent) agent = GetComponent<NavMeshAgent>();
+
         _health = maxHealth;
+        _spawnPos = transform.position;
         _nextSenseTime = Time.time + 2f;
     }
 
@@ -224,7 +227,9 @@ public class SkeletonGunEnemy : MonoBehaviour
     {
         if (_state == State.Dead) return;
 
-        AcquireTargetIfNeeded();
+        if (!agent || !agent.enabled || !agent.isOnNavMesh) return;
+
+        RefreshTargetReliably();
 
         if (Time.time >= _nextSenseTime)
         {
@@ -235,19 +240,76 @@ public class SkeletonGunEnemy : MonoBehaviour
         UpdateCombatMoveTuning();
         UpdateAnimatorLocomotion();
         UpdateHeadLookConstraint();
+
         bool hostile =
-        _state != State.Idle &&
-        _state != State.Patrol &&
-        _state != State.Dead;
+            _state != State.Idle &&
+            _state != State.Patrol &&
+            _state != State.Dead;
 
         UpdateCombatRegistration(hostile);
-        // Facing:
-        // - Aim/Fire/Reposition: always face target while moving/acting
-        // - Chase/Patrol/Investigate: face target or movement
+
         if (_state == State.Aim || _state == State.Fire || _state == State.Reposition || _state == State.Recover)
             FaceTargetOnly();
         else if (_state == State.Patrol || _state == State.Investigate || _state == State.Chase)
             FaceTargetOrMovement();
+    }
+    private void RefreshTargetReliably()
+    {
+        if (target == null)
+        {
+            targetHead = null;
+            _targetInstanceId = -1;
+
+            AcquireTargetIfNeeded(force: false);
+            return;
+        }
+
+        if (Time.time < _nextForceTargetRefreshTime)
+            return;
+
+        _nextForceTargetRefreshTime = Time.time + 1.0f;
+
+        GameObject currentPlayer = null;
+
+        if (!string.IsNullOrEmpty(playerTag))
+            currentPlayer = GameObject.FindGameObjectWithTag(playerTag);
+
+        if (currentPlayer == null)
+        {
+            target = null;
+            targetHead = null;
+            _targetInstanceId = -1;
+            return;
+        }
+
+        int currentId = currentPlayer.GetInstanceID();
+
+        if (_targetInstanceId == -1)
+            _targetInstanceId = currentId;
+
+        if (currentId != _targetInstanceId)
+        {
+            target = null;
+            targetHead = null;
+            _targetInstanceId = -1;
+
+            if (headLookConstraint != null)
+                headLookConstraint.weight = 0f;
+
+            SetAiming(false);
+            CancelRepositionHard();
+
+            AcquireTargetIfNeeded(force: true);
+
+            if (_state == State.Chase ||
+                _state == State.Aim ||
+                _state == State.Fire ||
+                _state == State.Reposition ||
+                _state == State.Recover)
+            {
+                SetState(startPatrolling ? State.Patrol : State.Idle);
+            }
+        }
     }
     private void OnDisable()
     {
@@ -257,36 +319,44 @@ public class SkeletonGunEnemy : MonoBehaviour
             registeredAsHostile = false;
         }
     }
-    private void AcquireTargetIfNeeded()
+    private void AcquireTargetIfNeeded(bool force)
     {
-        if (target != null && targetHead != null) return;
-        if (Time.time < _nextFindTargetTime) return;
+        if (target != null && targetHead != null && !force)
+            return;
 
-        _nextFindTargetTime = Time.time + findTargetInterval;
-
-        Transform foundPlayer = target;
-
-        if (foundPlayer == null && !string.IsNullOrEmpty(playerTag))
+        if (!force)
         {
-            var go = GameObject.FindGameObjectWithTag(playerTag);
-            if (go != null) foundPlayer = go.transform;
+            if (Time.time < _nextFindTargetTime) return;
+            _nextFindTargetTime = Time.time + findTargetInterval;
         }
 
+        Transform foundPlayer = null;
+
+        if (!string.IsNullOrEmpty(playerTag))
+        {
+            GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
+
+            if (playerObject != null && playerObject.activeInHierarchy)
+                foundPlayer = playerObject.transform;
+        }
+
+        if (foundPlayer == null)
+            return;
+
+        target = foundPlayer;
+        _targetInstanceId = foundPlayer.gameObject.GetInstanceID();
+
         Transform foundCam = null;
+
         if (preferMainCameraForLook && Camera.main != null)
             foundCam = Camera.main.transform;
 
-        if (foundPlayer == null && foundCam != null)
-            foundPlayer = foundCam.root;
-
-        if (foundPlayer == null) return;
-
-        target = foundPlayer;
-
         if (foundCam == null)
         {
-            var cam = target.GetComponentInChildren<Camera>(includeInactive: true);
-            if (cam != null) foundCam = cam.transform;
+            Camera cam = target.GetComponentInChildren<Camera>(includeInactive: true);
+
+            if (cam != null)
+                foundCam = cam.transform;
         }
 
         if (foundCam != null)
@@ -347,7 +417,11 @@ public class SkeletonGunEnemy : MonoBehaviour
 
     private void Sense()
     {
-        if (!target) return;
+        if (!target)
+        {
+            AcquireTargetIfNeeded(force: false);
+            return;
+        }
 
         bool detected = CanSeeTarget(out Vector3 seenPos);
 
@@ -363,10 +437,17 @@ public class SkeletonGunEnemy : MonoBehaviour
         {
             bool hasMemory = (Time.time - _lastSeenTime) <= aggroMemoryTime;
 
-            if (!hasMemory && (_state == State.Chase || _state == State.Aim || _state == State.Fire || _state == State.Reposition || _state == State.Recover))
+            if (!hasMemory &&
+                (_state == State.Chase ||
+                 _state == State.Aim ||
+                 _state == State.Fire ||
+                 _state == State.Reposition ||
+                 _state == State.Recover))
             {
-                if (_lastSeenTime > -998f) SetState(State.Investigate);
-                else SetState(startPatrolling ? State.Patrol : State.Idle);
+                if (_lastSeenTime > -998f)
+                    SetState(State.Investigate);
+                else
+                    SetState(startPatrolling ? State.Patrol : State.Idle);
             }
         }
     }
@@ -413,10 +494,36 @@ public class SkeletonGunEnemy : MonoBehaviour
             QueryTriggerInteraction.Ignore
         );
 
-        bool blocked = hitCount > 0;
+        bool blocked = false;
+        RaycastHit closestBlock = default;
+        float closest = float.PositiveInfinity;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit h = _sightHits[i];
+            Collider c = h.collider;
+
+            if (!c) continue;
+
+            if (c.transform.IsChildOf(transform))
+                continue;
+
+            blocked = true;
+
+            if (h.distance < closest)
+            {
+                closest = h.distance;
+                closestBlock = h;
+            }
+        }
 
         if (debugVision)
+        {
             Debug.DrawLine(origin, aim, blocked ? Color.red : Color.green, senseInterval);
+
+            if (blocked)
+                Debug.DrawRay(closestBlock.point, closestBlock.normal * 0.25f, Color.yellow, senseInterval);
+        }
 
         if (blocked) return false;
 
