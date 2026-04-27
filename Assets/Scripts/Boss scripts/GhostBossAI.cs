@@ -193,13 +193,13 @@ public class GhostBossAI : MonoBehaviour
     {
         if (State == BossState.Dead) return;
 
-#if UNITY_EDITOR
+/*#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.O))
         {
             this.TakeDamage(10000);
         }
 
-#endif
+#endif*/
         switch (State)
         {
             case BossState.Idle: TickIdle(); break;

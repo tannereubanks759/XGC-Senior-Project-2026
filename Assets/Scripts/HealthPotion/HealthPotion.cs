@@ -26,10 +26,10 @@ public class HealthPotion : MonoBehaviour
     public void Update()
     {
         //debug for gaining health potion
-        if (Input.GetKeyDown(KeyCode.J))
+        /*if (Input.GetKeyDown(KeyCode.J))
         {
             CollectHealthPotion();
-        }
+        }*/
 
         if (Input.GetKeyDown(HealKey))
         {

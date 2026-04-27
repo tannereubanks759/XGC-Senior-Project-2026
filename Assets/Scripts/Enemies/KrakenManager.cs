@@ -28,14 +28,14 @@ public class KrakenManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-#if UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.K)){ //Debug key to wake up the kraken
-            WakeUpKraken();
-        }
-        if (Input.GetKeyDown(KeyCode.L)){ //Debug key to kill the kraken
-            Die();
-        }
-#endif
+//#if UNITY_EDITOR
+//        if (Input.GetKeyDown(KeyCode.K)){ //Debug key to wake up the kraken
+//            WakeUpKraken();
+//        }
+//        if (Input.GetKeyDown(KeyCode.L)){ //Debug key to kill the kraken
+//            Die();
+//        }
+//#endif
     }
     public void TakeDamage(float dmg)
     {

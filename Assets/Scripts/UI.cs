@@ -6,6 +6,7 @@ public class UI : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
 
     public KeyCode PauseKey = KeyCode.Tab;
+    public KeyCode PauseKey2 = KeyCode.Escape;
     public bool isPaused = false;
     public Camera SceneCamera;
     public AmbientZoneBlender amb;
@@ -25,7 +26,7 @@ public class UI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(PauseKey))
+        if (Input.GetKeyDown(PauseKey) || Input.GetKeyDown(PauseKey2))
         {
             if (isPaused)
             {

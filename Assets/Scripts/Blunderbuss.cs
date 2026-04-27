@@ -70,10 +70,10 @@ public class Blunderbuss : MonoBehaviour
             sounds.PlayClickSound();
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha9))
+        /*if (Input.GetKeyDown(KeyCode.Alpha9))
         {
             AddAmmo(1);
-        }
+        }*/
 
         anim.SetBool("Aim", Input.GetKey(AimKey));
     }
