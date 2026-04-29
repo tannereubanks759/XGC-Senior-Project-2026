@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System.Collections;
 
 public class levelSavingManager : MonoBehaviour
 {
@@ -9,6 +9,7 @@ public class levelSavingManager : MonoBehaviour
     public GoldBank gb;
     public HealthPotion healthPotion;
     public CombatController combatController;
+    public Blunderbuss blunderbuss;
     [Header("Live run state")]
     public levelStartSaving current = new levelStartSaving();
     private static levelStartSaving levelStartSnapshot;
@@ -22,6 +23,7 @@ public class levelSavingManager : MonoBehaviour
         gb = FindFirstObjectByType<GoldBank>();
         healthPotion = FindFirstObjectByType<HealthPotion>();
         combatController = FindFirstObjectByType<CombatController>();
+        blunderbuss = FindFirstObjectByType<Blunderbuss>(FindObjectsInactive.Include);
         var tracker = FindFirstObjectByType<upgradeTracker>();
         var oh = FindFirstObjectByType<offhandHandler>();
 
@@ -30,7 +32,11 @@ public class levelSavingManager : MonoBehaviour
         if (combatController != null) snapshot.health = combatController.health;
         if (gb != null) snapshot.gold = gb.gold;
         if (healthPotion != null) snapshot.healthPotions = healthPotion.GetQuantity();
-
+        if(blunderbuss!=null)
+        {
+            snapshot.ammo = blunderbuss.totalAmmo;
+           
+        }
         if (tracker != null)
         {
             snapshot.lightningUpgradeCount = tracker.lightningUpgradeCount;
@@ -97,7 +103,7 @@ public class levelSavingManager : MonoBehaviour
         gb = FindFirstObjectByType<GoldBank>();
         healthPotion = FindFirstObjectByType<HealthPotion>();
         combatController = FindFirstObjectByType<CombatController>();
-
+        blunderbuss = FindFirstObjectByType<Blunderbuss>(FindObjectsInactive.Include);
         if (gb != null) { gb.gold = current.gold; gb.UpdateGold(); }
         if (healthPotion != null)
         {
@@ -105,7 +111,12 @@ public class levelSavingManager : MonoBehaviour
             healthPotion.SetText(current.healthPotions.ToString());
         }
         if (combatController != null) combatController.health = current.health;
-
+        if (blunderbuss != null)
+        {
+           
+            blunderbuss.totalAmmo = current.ammo;
+            blunderbuss.SetLoaded();
+        }
         var tracker = FindFirstObjectByType<upgradeTracker>();
         if (tracker != null)
         {
@@ -147,20 +158,10 @@ public class levelSavingManager : MonoBehaviour
         var tracker = FindFirstObjectByType<upgradeTracker>();
         var oh = FindFirstObjectByType<offhandHandler>();
 
+
         if (checkpointRespawnPosition.HasValue)
         {
-            // Checkpoint respawn — restore saved state, don't read fresh scene values
-            RestoreToCheckpoint();
-
-            var player = FindFirstObjectByType<FirstPersonController>();
-            if (player != null)
-            {
-                CharacterController cc = player.GetComponentInChildren<CharacterController>();
-                if (cc != null) cc.enabled = false;
-                player.transform.position = checkpointRespawnPosition.Value;
-                player.transform.rotation = checkpointRespawnRotation.Value;
-                if (cc != null) cc.enabled = true;
-            }
+            StartCoroutine(RestoreCheckpointNextFrame());
         }
         else
         {
@@ -169,7 +170,8 @@ public class levelSavingManager : MonoBehaviour
                 if (combatController != null) current.health = combatController.health;
                 if (gb != null) current.gold = gb.gold;
                 if (healthPotion != null) current.healthPotions = healthPotion.GetQuantity();
-
+                var bb = FindFirstObjectByType<Blunderbuss>(FindObjectsInactive.Include);
+                if (bb != null) current.ammo = bb.totalAmmo;
                 if (tracker != null)
                 {
                     current.lightningUpgradeCount = tracker.lightningUpgradeCount;
@@ -199,7 +201,21 @@ public class levelSavingManager : MonoBehaviour
             RestoreToLevelStart();
         }
     }
+    private IEnumerator RestoreCheckpointNextFrame()
+{
+    yield return null;
+    RestoreToCheckpoint();
 
+    var player = FindFirstObjectByType<FirstPersonController>();
+    if (player != null)
+    {
+        CharacterController cc = player.GetComponentInChildren<CharacterController>();
+        if (cc != null) cc.enabled = false;
+        player.transform.position = checkpointRespawnPosition.Value;
+        player.transform.rotation = checkpointRespawnRotation.Value;
+        if (cc != null) cc.enabled = true;
+    }
+}
     public void CaptureLevelStart()
     {
         levelStartSnapshot = current.Clone();
@@ -216,6 +232,7 @@ public class levelSavingManager : MonoBehaviour
         gb = FindFirstObjectByType<GoldBank>();
         healthPotion = FindFirstObjectByType<HealthPotion>();
         combatController = FindFirstObjectByType<CombatController>();
+        blunderbuss = FindFirstObjectByType<Blunderbuss>(FindObjectsInactive.Include);
         if (gb != null)
         {
             gb.gold = current.gold;
@@ -229,6 +246,11 @@ public class levelSavingManager : MonoBehaviour
         if(combatController != null)
         {
             combatController.health = current.health;
+        }
+        if(blunderbuss != null)
+        {
+            blunderbuss.totalAmmo = current.ammo;
+            blunderbuss.SetLoaded();
         }
         // upgrades
         var tracker = FindFirstObjectByType<upgradeTracker>();

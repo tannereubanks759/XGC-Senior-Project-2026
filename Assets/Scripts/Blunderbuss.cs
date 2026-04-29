@@ -37,7 +37,7 @@ public class Blunderbuss : MonoBehaviour
         Inv = GameObject.FindAnyObjectByType<inventoryScript>();
         fxPool = GameObject.FindAnyObjectByType<FXPool>();
         wIntertia = GetComponentInParent<WeaponInertia>();
-        isLoaded = true;
+        //isLoaded = true;
         anim.SetBool("canShoot", true);
     }
 
@@ -172,10 +172,14 @@ public class Blunderbuss : MonoBehaviour
     }
 
 
-    void SetLoaded()
+    public void SetLoaded()
     {
         isLoaded = true;
         anim.SetBool("canShoot", true);
+        if (ammoText != null)
+        {
+            ammoText.text = "x" + totalAmmo;
+        }
     }
 
     // (Optional) still using instantiate/destroy — consider pooling this too later.
