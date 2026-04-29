@@ -160,6 +160,7 @@ public class curseOffhand : MonoBehaviour
             CrackenTentacleCollider kraken = hitRef.GetComponentInParent<CrackenTentacleCollider>();
             SkeletonSwordEnemy swordEnemy = hitRef.GetComponentInParent<SkeletonSwordEnemy>();
             SkeletonGunEnemy gunEnemy = hitRef.GetComponentInParent<SkeletonGunEnemy>();
+            SkeletonSwordCaptain captainEnemy =  hitRef.GetComponentInParent<SkeletonSwordCaptain>();
 
             // Kraken tentacle
             if (kraken != null)
@@ -295,6 +296,26 @@ public class curseOffhand : MonoBehaviour
                 {
                     if (spawnedCurseVfx != null) { Destroy(spawnedCurseVfx); spawnedCurseVfx = null; }
                     Transform follow = getChest(gunEnemy.transform);
+                    spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
+                    spawnedCurseVfx.transform.localPosition = Vector3.zero;
+                }
+                if (cursedFlame != null) cursedFlame.SetActive(false);
+                return;
+            }
+            if (captainEnemy != null)
+            {
+                cursedTarget = hitRef;
+                curseActive = true;
+                PlaySound(applyClip, applyVol);
+                ClearPreview();
+                CurseManager.Instance.RegisterCurse(curseDuration, ClearCurse);
+                captainEnemy.isCursed = true;
+                captainEnemy.curseDamageMult = damageMult;
+                captainEnemy.curseSpeedMult = slowUpgrade ? slowSpeedMultiplier : 1f;
+                if (activeCurseVfx != null)
+                {
+                    if (spawnedCurseVfx != null) { Destroy(spawnedCurseVfx); spawnedCurseVfx = null; }
+                    Transform follow = getChest(captainEnemy.transform);
                     spawnedCurseVfx = Instantiate(activeCurseVfx, follow.position, Quaternion.identity, follow);
                     spawnedCurseVfx.transform.localPosition = Vector3.zero;
                 }
