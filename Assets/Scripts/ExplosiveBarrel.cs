@@ -26,7 +26,7 @@ public class ExplosiveBarrel : MonoBehaviour
 
     private Collider[] overlapResults;
     private readonly HashSet<GameObject> damagedRoots = new HashSet<GameObject>();
-
+    public GameObject ammoBag;
     private void Awake()
     {
         if (barrelCollider == null)
@@ -39,6 +39,8 @@ public class ExplosiveBarrel : MonoBehaviour
 
         if (explosionFxChild != null)
             explosionFxChild.SetActive(false);
+
+        ammoBag.SetActive(false);
     }
 
     public void Explode()
@@ -54,6 +56,10 @@ public class ExplosiveBarrel : MonoBehaviour
         PlayExplosionFx();
         DisableBarrelVisuals();
         ProcessExplosionHits();
+
+        ammoBag.SetActive(true);
+        ammoBag.transform.parent = null;
+        ammoBag.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
 
         Destroy(gameObject);
     }

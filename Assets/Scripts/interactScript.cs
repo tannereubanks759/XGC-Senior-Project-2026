@@ -20,7 +20,10 @@ public class interactScript : MonoBehaviour
     private bool shopInteract = false;
     private GameObject shop;
     private bool healthPotionInteract = false;
+    private bool ammoInteract;
     public HealthPotion HealthPotionScript;
+    public GameObject ammoBag;
+    public Blunderbuss blunderbuss;
     private GoldBank goldRef;
     public int priceOfHealthPotion = 0;
     private bool upgrade = false;
@@ -80,6 +83,13 @@ public class interactScript : MonoBehaviour
             interactText.SetActive(true);
             currentHealthPotion = other.gameObject;
         }
+        else if (other.CompareTag("Ammo"))
+        {
+            ammoInteract = true;
+            tmpro.text = "E to pickup ammo";
+            interactText.SetActive(true);
+            ammoBag = other.gameObject;
+        }
         else if (other.CompareTag("Teleporter"))
         {
             TeleporterInteract = true;
@@ -110,6 +120,12 @@ public class interactScript : MonoBehaviour
             healthPotionInteract = false;
             tmpro.text = "E to interact";
             currentHealthPotion = null;
+        }
+        else if (other.CompareTag("Ammo"))
+        {
+            ammoInteract = false;
+            tmpro.text = "E to interact";
+            ammoBag = null;
         }
         
         else if (other.CompareTag("Teleporter"))
@@ -195,8 +211,17 @@ public class interactScript : MonoBehaviour
                     upgradeScript.openUI();
                 }
             }
-            
-
+            else if (ammoInteract)
+            {
+                blunderbuss.AddAmmo(1);
+                if(ammoBag != null)
+                {
+                    Destroy(ammoBag);
+                }
+                ammoBag = null;
+                ammoInteract = false;
+                tmpro.text = "E to interact";
+            }
 
                 interactText.SetActive(false);
 
