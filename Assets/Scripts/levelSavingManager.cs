@@ -29,7 +29,7 @@ public class levelSavingManager : MonoBehaviour
 
         levelStartSaving snapshot = new levelStartSaving();
 
-        if (combatController != null) snapshot.health = combatController.health;
+        if (combatController != null) snapshot.health = 100;
         if (gb != null) snapshot.gold = gb.gold;
         if (healthPotion != null) snapshot.healthPotions = healthPotion.GetQuantity();
         if(blunderbuss!=null)
@@ -167,7 +167,7 @@ public class levelSavingManager : MonoBehaviour
         {
             if (levelStartSceneName != scene.name)
             {
-                if (combatController != null) current.health = combatController.health;
+                if (combatController != null) current.health = 100;
                 if (gb != null) current.gold = gb.gold;
                 if (healthPotion != null) current.healthPotions = healthPotion.GetQuantity();
                 var bb = FindFirstObjectByType<Blunderbuss>(FindObjectsInactive.Include);
