@@ -24,6 +24,7 @@ public class IslandTeleporter : MonoBehaviour
             this.GetComponent<Collider>().enabled = true;
         }
     }
+    
     public void OpenDoor()
     {
         if (source)
@@ -35,7 +36,15 @@ public class IslandTeleporter : MonoBehaviour
     }
     public void Teleport()
     {
-        if (!isFinalTeleporter) //Go to next island
+        if (nextIsland == "Ending Cutscene")
+        {
+            this.GetComponent<Collider>().enabled = false;
+            loadingScreen = FindAnyObjectByType<FirstPersonController>().loadingScreen;
+            slider = loadingScreen.GetComponentInChildren<Slider>();
+            loadingScreen.SetActive(true);
+            StartCoroutine(LoadLevelAsync(nextIsland));
+        } 
+        else if (!isFinalTeleporter) //Go to next island
         {
             this.GetComponent<Collider>().enabled = false;
             loadingScreen = FindAnyObjectByType<FirstPersonController>().loadingScreen;
