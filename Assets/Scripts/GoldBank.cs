@@ -38,9 +38,9 @@ public class GoldBank : MonoBehaviour
     }
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.B)) 
+        /*if(Input.GetKeyDown(KeyCode.B)) 
         {
             AddGold(10);
-        }
+        }*/
     }
 }
