@@ -32,6 +32,22 @@
 	#define MAX_FFT_WAVES_MAX_CASCADES 4
 	float3 KWS_WavesDomainScales[MAX_FFT_WAVES_MAX_CASCADES];
 
+
+bool IsValid(float x)
+{
+	return !isnan(x) && !isinf(x);
+}
+
+float3 Sanitize(float3 v)
+{
+	return float3(
+		IsValid(v.x) ? v.x : 0,
+		IsValid(v.y) ? v.y : 0,
+		IsValid(v.z) ? v.z : 0
+	);
+}
+
+
 	uint crossReversebits(uint x)
 	{
 		x = ((x >> 1) & 0x55555555u) | ((x & 0x55555555u) << 1);
@@ -153,7 +169,7 @@
 		#else
 			float sign = ((id.x + id.y) % 2) == 1 ?  - 1.0f : 1.0f;
 			float3 res = float3(sign * resultX.x, sign * resultH.x, sign * resultZ.x);
-			_displaceXYZ[id] = float3(sign * resultX.x, sign * resultH.x, sign * resultZ.x) * KWS_WavesDomainScales[id.z].xyz;
+			_displaceXYZ[id] = Sanitize(float3(sign * resultX.x, sign * resultH.x, sign * resultZ.x) * KWS_WavesDomainScales[id.z].xyz);
 		#endif
 	}
 

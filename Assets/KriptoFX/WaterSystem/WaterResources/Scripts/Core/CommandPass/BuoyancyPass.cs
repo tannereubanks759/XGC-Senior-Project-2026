@@ -1,9 +1,14 @@
-﻿using System;
+﻿#pragma warning disable CS0168 // variable is declared but never used
+#pragma warning disable CS0618 // member is obsolete (with message)
+#pragma warning disable CS0649 // field is never assigned (but may be set in inspector)
+#pragma warning disable CS0219 // variable is assigned but its value is never used
+#pragma warning disable CS0414 // field is assigned but its value is never used
+
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 
 namespace KWS
@@ -19,10 +24,11 @@ namespace KWS
         public static ComputeBuffer Buffer;
         public static AsyncTextureSynchronizer<SurfaceData> AsyncTextureSynchronizer = new AsyncTextureSynchronizer<SurfaceData>();
 
-        static List<IWaterSurfaceRequest> _newRequests = new List<IWaterSurfaceRequest>();
+        static List<IWaterSurfaceRequest>            _newRequests       = new List<IWaterSurfaceRequest>();
         static Dictionary<IWaterSurfaceRequest, int> _asyncLateRequests = new Dictionary<IWaterSurfaceRequest, int>();
-        static NativeArray<SurfaceData> _surfaceData;
-
+        static NativeArray<SurfaceData>              _surfaceData;
+        static NativeArray<SurfaceData>              JobsData;
+        
         public BuoyancyPass()
         {
             AsyncTextureSynchronizer.DataUpdated = DataUpdated;
@@ -92,28 +98,43 @@ namespace KWS
                 return;
             }
 
-            if (_newRequests.Count == 0) return;
+            if (_newRequests.Count == 0 && WaterSurfaceJobs.EnableWaterJobSystem == false) return;
             if (AsyncTextureSynchronizer.IsBusy()) return;
 
-            var length = 0;
-            foreach (var request in _newRequests)
+            var actualLength = 0;
+            if (WaterSurfaceJobs.EnableWaterJobSystem)
             {
-                length += request.CurrentCount;
+                JobsData = WaterSurfaceJobs.DataToSend;
+                
+                if (JobsData.IsCreated && JobsData.Length == 0) return;
+                actualLength = JobsData.Length;
+                
+                Buffer = KWS_CoreUtils.GetOrUpdateBuffer<SurfaceData>(ref Buffer, JobsData.Length);
+                cmd.SetBufferData(Buffer, JobsData);
+            }
+            else
+            {
+               
+                foreach (var request in _newRequests)
+                {
+                    actualLength += request.CurrentCount;
+                }
+
+                _surfaceData = KWS_CoreUtils.GetOrUpdateNativeArray(ref _surfaceData, actualLength, Allocator.Persistent);
+
+                var nativeArrayIdx = 0;
+                foreach (var request in _newRequests)
+                {
+                    request.SetAsyncData(_surfaceData, ref nativeArrayIdx);
+                    _asyncLateRequests.Add(request, request.CurrentCount);
+                }
+                _newRequests.Clear();
+
+                Buffer = KWS_CoreUtils.GetOrUpdateBuffer<SurfaceData>(ref Buffer, _surfaceData.Length);
+                cmd.SetBufferData(Buffer, _surfaceData);
             }
 
-            _surfaceData = KWS_CoreUtils.GetOrUpdateNativeArray(ref _surfaceData, length, Allocator.Persistent);
 
-            var nativeArrayIdx = 0;
-            foreach (var request in _newRequests)
-            {
-                request.SetAsyncData(_surfaceData, ref nativeArrayIdx);
-                _asyncLateRequests.Add(request, request.CurrentCount);
-            }
-            _newRequests.Clear();
-
-
-            Buffer = KWS_CoreUtils.GetOrUpdateBuffer<SurfaceData>(ref Buffer, _surfaceData.Length);
-            cmd.SetBufferData(Buffer, _surfaceData);
 
             cmd.SetComputeFloatParam(_computeShader, KWS_ShaderConstants.ConstantWaterParams.KWS_WavesCascades, waterInstance.Settings.CurrentFftWavesCascades);
             cmd.SetComputeFloatParam(_computeShader, KWS_ShaderConstants.ConstantWaterParams.KWS_WavesAreaScale, waterInstance.Settings.CurrentWavesAreaScale);
@@ -126,8 +147,8 @@ namespace KWS
             cmd.SetComputeTextureParam(_computeShader, 0, KWS_ShaderConstants.FFT.KWS_FftWavesNormal, WaterSharedResources.GetFftWavesNormalTexture(waterInstance));
 
             cmd.SetComputeBufferParam(_computeShader, 0, "SurfaceDataBuffer", Buffer);
-            cmd.SetComputeIntParam(_computeShader, "KWS_SurfaceDataBufferCount", length);
-            cmd.DispatchCompute(_computeShader, 0, Mathf.CeilToInt(length / 64f), 1, 1);
+            cmd.SetComputeIntParam(_computeShader, "KWS_SurfaceDataBufferCount", actualLength);
+            cmd.DispatchCompute(_computeShader, 0, Mathf.CeilToInt(actualLength / 64f), 1, 1);
 
             AsyncTextureSynchronizer.EnqueueRequest(cmd, Buffer);
             
@@ -137,18 +158,25 @@ namespace KWS
         {
             NativeArray<SurfaceData> bufferResult = AsyncTextureSynchronizer.CurrentBuffer();
 
-            var nativeArrayIdx = 0;
-            foreach (var request in _asyncLateRequests)
+            if (WaterSurfaceJobs.EnableWaterJobSystem)
             {
-                if (request.Key == null)
-                {
-                    this.WaterLog("async request is null, elements: " + request.Value);
-                    nativeArrayIdx += request.Value;
-                    continue;
-                }
-                request.Key.GetAsyncData(bufferResult, ref nativeArrayIdx);
+                WaterSurfaceJobs.Result = bufferResult;
             }
-            _asyncLateRequests.Clear();
+            else
+            {
+                var nativeArrayIdx = 0;
+                foreach (var request in _asyncLateRequests)
+                {
+                    if (request.Key == null)
+                    {
+                        this.WaterLog("async request is null, elements: " + request.Value);
+                        nativeArrayIdx += request.Value;
+                        continue;
+                    }
+                    request.Key.GetAsyncData(bufferResult, ref nativeArrayIdx);
+                }
+                _asyncLateRequests.Clear();
+            }
         }
 
         public static void TryGetWaterSurfaceData(IWaterSurfaceRequest surfaceRequest)
@@ -168,7 +196,14 @@ namespace KWS
 
     }
 
+    public static class WaterSurfaceJobs
+    {
+        public static NativeArray<SurfaceData> DataToSend;
+        public static NativeArray<SurfaceData> Result;
+        public static bool                     EnableWaterJobSystem;
+    }
 
+    
     public struct SurfaceData
     {
         public Vector3 Position;

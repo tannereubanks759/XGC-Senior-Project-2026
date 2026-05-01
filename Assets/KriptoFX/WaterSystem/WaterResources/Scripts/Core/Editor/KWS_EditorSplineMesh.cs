@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using UnityEngine.Rendering;
 
 namespace KWS
 {
@@ -189,7 +190,7 @@ namespace KWS
         {
             var newPos = position;
             Handles.color = color;
-            newPos = Handles.FreeMoveHandle(newPos, Quaternion.identity, GetHandleSphereSize(position), Vector3.one, Handles.CylinderHandleCap);
+            newPos        = Handles.FreeMoveHandle(newPos, Quaternion.identity, GetHandleSphereSize(position), Vector3.one, Handles.CylinderHandleCap);
             return newPos;
         }
 

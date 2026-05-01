@@ -66050,13 +66050,13 @@ MonoBehaviour:
   ReflectSun: 1
   ReflectedSunCloudinessStrength: 0.03
   ReflectedSunStrength: 1
-  RefractionProfile: 2
-  RefractionMode: 1
+  RefractionProfile: 0
+  RefractionMode: 0
   RefractionAproximatedDepth: 2
   RefractionSimpleStrength: 0.25
-  UseRefractionDispersion: 1
+  UseRefractionDispersion: 0
   RefractionDispersionStrength: 0.35
-  RefractionResolution: 50
+  RefractionResolution: 25
   VolumetricLightProfile: 2
   UseVolumetricLight: 1
   VolumetricLightResolutionQuality: 50
@@ -83061,7 +83061,7 @@ MonoBehaviour:
   ShowFoam: 1
   ShowReflectionSettings: 1
   ShowExpertReflectionSettings: 0
-  ShowRefractionSettings: 0
+  ShowRefractionSettings: 1
   ShowExpertRefractionSettings: 0
   ShowVolumetricLightSettings: 1
   ShowExpertVolumetricLightSettings: 0

@@ -1,17 +1,22 @@
+#pragma warning disable CS0168 // variable is declared but never used
+#pragma warning disable CS0618 // member is obsolete (with message)
+#pragma warning disable CS0649 // field is never assigned (but may be set in inspector)
+#pragma warning disable CS0219 // variable is assigned but its value is never used
+#pragma warning disable CS0414 // field is assigned but its value is never used
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
-using UnityEngine.Rendering;
 using Application = UnityEngine.Application;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
+using UnityEngine.Rendering;
 
 namespace KWS
 {
@@ -288,47 +293,7 @@ namespace KWS
 #endif
         }
 
-        public static async Task ReadAsync(this ResourceRequest controller)
-        {
-            var tcs = new TaskCompletionSource<object>();
-
-            void Handler(AsyncOperation n)
-            {
-                tcs.TrySetResult(null);
-            }
-
-            try
-            {
-                controller.completed += Handler;
-                await tcs.Task;
-            }
-            finally
-            {
-                controller.completed -= Handler;
-            }
-        }
-
-        public static async Task<T[]> LoadBinaryDataAsync<T>(string relativePathToFile)
-        {
-            try
-            {
-                var request = Resources.LoadAsync<TextAsset>(relativePathToFile);
-                await request.ReadAsync();
-                var bytes = ((TextAsset)request.asset).bytes;
-                Resources.UnloadUnusedAssets();
-
-                var dataRaw = new T[bytes.Length / Marshal.SizeOf(default(T))];
-                Buffer.BlockCopy(bytes, 0, dataRaw, 0, bytes.Length);
-
-                return dataRaw;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError("ReadTextureFromFileAsync error: " + e.Message);
-                return default;
-            }
-        }
-
+      
         static bool CheckAndCreateDirectory(string path)
         {
             var directory = Path.GetDirectoryName(path);
@@ -1011,7 +976,7 @@ namespace KWS
             All = ~0
         }
 
-        private static WaterLogMessageType _debugFlags = WaterLogMessageType.All;
+        private static WaterLogMessageType _debugFlags = WaterLogMessageType.Error;
         //private static WaterLogMessageType _debugFlags = WaterLogMessageType.Error | WaterLogMessageType.Initialize;
 
 

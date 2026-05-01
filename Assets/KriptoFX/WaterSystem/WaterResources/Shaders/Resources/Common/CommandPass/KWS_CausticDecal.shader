@@ -135,7 +135,10 @@
 				if (waterID != KWS_WaterInstanceID) discard;
 
 				float depth = GetSceneDepth(screenUV);
-				//if (depth > GetWaterDepth(screenUV)) discard;
+				float waterDepth = GetWaterDepth(screenUV);
+				float waterMask = GetWaterMask(screenUV);
+
+				if (waterMask < 0.9 && depth > waterDepth) discard;
 
 				float3 worldPos = GetWorldSpacePositionFromDepth(screenUV, depth);
 

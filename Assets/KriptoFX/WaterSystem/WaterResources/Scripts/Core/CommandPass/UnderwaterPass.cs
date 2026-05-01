@@ -1,4 +1,11 @@
-﻿using UnityEngine;
+﻿#pragma warning disable CS0168 // variable is declared but never used
+#pragma warning disable CS0618 // member is obsolete (with message)
+#pragma warning disable CS0649 // field is never assigned (but may be set in inspector)
+#pragma warning disable CS0219 // variable is assigned but its value is never used
+#pragma warning disable CS0414 // field is assigned but its value is never used
+
+
+using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace KWS
@@ -68,7 +75,7 @@ namespace KWS
 
             _renderParams.camera             = cam;
             _renderParams.material           = _underwaterMaterial;
-            _renderParams.renderingLayerMask = GraphicsSettings.defaultRenderingLayerMask;
+            _renderParams.renderingLayerMask = 1;
             _renderParams.layer              = KWS_Settings.Water.WaterLayer;
 
 

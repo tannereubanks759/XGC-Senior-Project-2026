@@ -210,7 +210,7 @@ FragmentOutput  fragDepth(v2fDepth i, float facing : VFACE) : SV_Target
 			mask = facing > 0.0 ? 0.1 : 1;
 		}
 		
-		if(KWS_MeshType != KWS_MESH_TYPE_INFINITE_OCEAN && KWS_MeshType != KWS_MESH_TYPE_RIVER && i.worldPos.y < KWS_OceanLevel + 0.25) discard;
+		//if(KWS_MeshType != KWS_MESH_TYPE_INFINITE_OCEAN && KWS_MeshType != KWS_MESH_TYPE_RIVER && i.worldPos.y < KWS_OceanLevel + 0.25) discard;
 	
 	#endif
 
