@@ -98,7 +98,8 @@ public class CombatController : MonoBehaviour
     public LavaDamage lavaDMG;
     public UImanager um;
     public Animator healthAnim;
-
+    public Collider playerCol;
+    public LightningDashAbility lightningDash;
     void Start()
     {
         if(hurtSource == null)
@@ -311,6 +312,7 @@ public class CombatController : MonoBehaviour
 
     public void Die()
     {
+        lightningDash.CancelDashOnDeath();
         if (MusicManager.Instance != null)
         {
             MusicManager.Instance.ExitBossMusic(false);

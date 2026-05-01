@@ -41,8 +41,10 @@ public class LightningDashAbility : MonoBehaviour
 
     [Header("Cooldown")]
     public float cooldownSeconds = 10f;
+    public bool resetCooldownOnDeath = true;
     public UnityEvent onDashReady;
     public UnityEvent onDashUsed;
+
     [Header("Audio")]
     public AudioSource source;
     public AudioClip chargeUp;
@@ -54,9 +56,14 @@ public class LightningDashAbility : MonoBehaviour
     public Rigidbody rb;
     public FirstPersonController controller;
     public Collider playerCollider;
+    public GameObject playerRoot;
     public string dashingLayerName = "Dashing";
     public string defaultLayerName = "Player";
     public PopUpMessage pum;
+    public Image dashFillImage;
+    public GameObject dashUIObject;
+    public FirstPersonController fpc;
+
     private bool canDash = true;
     private float cooldownTimer = 0f;
     private float baseFov;
@@ -64,72 +71,72 @@ public class LightningDashAbility : MonoBehaviour
     private bool recoveringVignette = false;
     private int normalLayer;
     private int dashingLayer;
-    public Image dashFillImage;
-    public GameObject dashUIObject;
-    public FirstPersonController fpc;
+    private Coroutine dashCoroutine;
 
     private void Awake()
     {
-        if(!dashUnlocked)
-        {
-            dashUIObject.SetActive(false);
-            return;
-        }
-        if (playerCamera == null) playerCamera = Camera.main;
-        baseFov = playerCamera.fieldOfView;
+        if (playerRoot == null)
+            playerRoot = transform.root.gameObject;
+
+        if (playerCamera == null)
+            playerCamera = Camera.main;
+
+        if (playerCamera != null)
+            baseFov = playerCamera.fieldOfView;
+
         normalLayer = LayerMask.NameToLayer(defaultLayerName);
         dashingLayer = LayerMask.NameToLayer(dashingLayerName);
 
-        // Start fully invisible
+        if (normalLayer == -1)
+            normalLayer = 7;
+
+        if (dashingLayer == -1)
+            Debug.LogWarning("Dashing layer was not found. Make sure a layer named 'Dashing' exists.");
+
+        SetPlayerRootLayer(normalLayer);
         SetVignetteAlpha(0f);
+
+        if (!dashUnlocked && dashUIObject != null)
+            dashUIObject.SetActive(false);
     }
+
     private void OnDisable()
     {
-        if (!dashUnlocked)
-        {
-            dashUIObject.SetActive(false);
-            return;
-        }
-        StopAllCoroutines();
-        SetVignetteAlpha(0f);
-       /* if (playerCamera != null)
-            playerCamera.fieldOfView = fpc.fov;*/
-        recoveringFov = false;
-        recoveringVignette = false;
-        rb.useGravity = true;
-        if (controller != null) controller.playerCanMove = true;
-        playerCollider.gameObject.layer = normalLayer;
+        CancelDashAndResetState(false);
     }
-    private void PlaySound(AudioClip clip, float vol = 1f)
-    {
-        if (source != null && clip != null)
-            source.PlayOneShot(clip, vol);
-    }
+
     private void Update()
     {
-        if (dashUnlocked)
-        {
+        if (dashUnlocked && dashUIObject != null)
             dashUIObject.SetActive(true);
-            
-        }
+
         if (!canDash)
         {
             cooldownTimer -= Time.deltaTime;
-            float fill = 1f - Mathf.Clamp01(cooldownTimer / cooldownSeconds);
-            dashFillImage.fillAmount = fill;
+
+            if (dashFillImage != null)
+            {
+                float fill = 1f - Mathf.Clamp01(cooldownTimer / cooldownSeconds);
+                dashFillImage.fillAmount = fill;
+            }
 
             if (cooldownTimer <= 0f)
             {
-                dashFillImage.fillAmount = 1f;
+                if (dashFillImage != null)
+                    dashFillImage.fillAmount = 1f;
+
                 canDash = true;
                 onDashReady?.Invoke();
             }
         }
 
-        if (recoveringFov)
+        if (recoveringFov && playerCamera != null)
         {
             playerCamera.fieldOfView = Mathf.Lerp(
-                playerCamera.fieldOfView, baseFov, fovRecoverySpeed * Time.deltaTime);
+                playerCamera.fieldOfView,
+                baseFov,
+                fovRecoverySpeed * Time.deltaTime
+            );
 
             if (Mathf.Abs(playerCamera.fieldOfView - baseFov) < 0.05f)
             {
@@ -159,54 +166,121 @@ public class LightningDashAbility : MonoBehaviour
     {
         if (!canDash)
         {
-            pum.ShowMessage("On cooldown (" + cooldownTimer.ToString("#.#") + " seconds)");
+            if (pum != null)
+                pum.ShowMessage("On cooldown (" + cooldownTimer.ToString("#.#") + " seconds)");
+
             return;
         }
-            
-        StartCoroutine(DashRoutine());
+
+        if (dashCoroutine != null)
+            StopCoroutine(dashCoroutine);
+
+        dashCoroutine = StartCoroutine(DashRoutine());
+    }
+
+    public void CancelDashOnDeath()
+    {
+        CancelDashAndResetState(resetCooldownOnDeath);
+        Debug.Log("Lightning dash canceled on death. Player root layer reset to: " + playerRoot.layer);
+    }
+
+    private void CancelDashAndResetState(bool resetCooldown)
+    {
+        if (dashCoroutine != null)
+        {
+            StopCoroutine(dashCoroutine);
+            dashCoroutine = null;
+        }
+
+        if (rb != null)
+        {
+            rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero;
+        }
+
+        if (controller != null)
+            controller.playerCanMove = true;
+
+        SetPlayerRootLayer(normalLayer);
+
+        recoveringFov = false;
+        recoveringVignette = false;
+
+        if (playerCamera != null)
+            playerCamera.fieldOfView = baseFov;
+
+        SetVignetteAlpha(0f);
+
+        if (resetCooldown)
+        {
+            canDash = true;
+            cooldownTimer = 0f;
+
+            if (dashFillImage != null)
+                dashFillImage.fillAmount = 1f;
+        }
     }
 
     private IEnumerator DashRoutine()
     {
         canDash = false;
         cooldownTimer = cooldownSeconds;
-        dashFillImage.fillAmount = 0f;
+
+        if (dashFillImage != null)
+            dashFillImage.fillAmount = 0f;
+
         onDashUsed?.Invoke();
 
         float elapsed = 0f;
-        baseFov = fpc.fov;
-        float startFov = playerCamera.fieldOfView;
+
+        if (fpc != null)
+            baseFov = fpc.fov;
+        else if (playerCamera != null)
+            baseFov = playerCamera.fieldOfView;
+
+        float startFov = playerCamera != null ? playerCamera.fieldOfView : baseFov;
         float boostedFov = startFov + chargeUpFovBoost;
+
         recoveringFov = false;
         recoveringVignette = false;
+
         SetVignetteAlpha(vignetteStartAlpha);
         PlaySound(dashSound, dashVol);
+
         try
         {
             while (elapsed < chargeUpDuration)
             {
                 elapsed += Time.deltaTime;
+
                 float t = Mathf.Clamp01(elapsed / chargeUpDuration);
                 float tEased = t * t;
 
-                playerCamera.fieldOfView = Mathf.Lerp(startFov, boostedFov, tEased);
+                if (playerCamera != null)
+                    playerCamera.fieldOfView = Mathf.Lerp(startFov, boostedFov, tEased);
+
                 SetVignetteAlpha(Mathf.Lerp(vignetteStartAlpha, vignettePeakAlpha, tEased));
 
                 yield return null;
             }
 
-            playerCamera.fieldOfView = boostedFov;
+            if (playerCamera != null)
+                playerCamera.fieldOfView = boostedFov;
+
             SetVignetteAlpha(vignettePeakAlpha);
 
-            // Destination
             Vector3 dir = Camera.main.transform.forward;
             dir.y = 0f;
-            if (dir.sqrMagnitude < 1e-4f) yield break;
+
+            if (dir.sqrMagnitude < 1e-4f)
+                yield break;
+
             dir.Normalize();
 
             Vector3 origin = transform.position;
 
             float travelDistance = blinkDistance;
+
             if (Physics.SphereCast(origin, playerRadius, dir, out RaycastHit wallHit, blinkDistance, blockingMask, QueryTriggerInteraction.Ignore))
                 travelDistance = Mathf.Max(0f, wallHit.distance - playerRadius * 1.1f);
 
@@ -214,20 +288,23 @@ public class LightningDashAbility : MonoBehaviour
             Vector3 groundCheckOrigin = horizontalDestination + Vector3.up * groundCheckRayHeight;
             Vector3 destination = horizontalDestination;
 
-            if (Physics.Raycast(groundCheckOrigin, Vector3.down, out RaycastHit groundHit,
-                groundCheckRayHeight + groundCheckRayDepth, groundMask, QueryTriggerInteraction.Ignore))
+            if (Physics.Raycast(groundCheckOrigin, Vector3.down, out RaycastHit groundHit, groundCheckRayHeight + groundCheckRayDepth, groundMask, QueryTriggerInteraction.Ignore))
                 destination = groundHit.point + Vector3.up * groundOffset;
 
-            //Dash travel
-            playerCollider.gameObject.layer = dashingLayer;
-            if (controller != null) controller.playerCanMove = false;
+            SetPlayerRootLayer(dashingLayer);
+
+            if (controller != null)
+                controller.playerCanMove = false;
 
             float charge = GetCharge01();
             float damage = baseDamage + (charge * .2f);
             HashSet<DamageRef> hitAlready = new HashSet<DamageRef>();
 
-            rb.linearVelocity = Vector3.zero;
-            rb.useGravity = false;
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector3.zero;
+                rb.useGravity = false;
+            }
 
             float dashElapsed = 0f;
             float duration = Mathf.Max(0.0001f, dashTravelDuration);
@@ -235,31 +312,61 @@ public class LightningDashAbility : MonoBehaviour
             while (dashElapsed < duration)
             {
                 yield return new WaitForFixedUpdate();
+
                 dashElapsed += Time.fixedDeltaTime;
+
                 float t = Mathf.Clamp01(dashElapsed / duration);
                 float curved = travelCurve.Evaluate(t);
 
-                rb.MovePosition(Vector3.LerpUnclamped(origin, destination, curved));
+                if (rb != null)
+                    rb.MovePosition(Vector3.LerpUnclamped(origin, destination, curved));
+
                 DoDashDamage(transform.position, damage, hitAlready);
             }
 
-            rb.MovePosition(destination);
+            if (rb != null)
+                rb.MovePosition(destination);
         }
-        // Charge up
         finally
         {
-            rb.useGravity = true;
-            rb.linearVelocity = Vector3.zero;
-            if (controller != null) controller.playerCanMove = true;
-            playerCollider.gameObject.layer = normalLayer;
+            if (rb != null)
+            {
+                rb.useGravity = true;
+                rb.linearVelocity = Vector3.zero;
+            }
+
+            if (controller != null)
+                controller.playerCanMove = true;
+
+            SetPlayerRootLayer(normalLayer);
+
             recoveringFov = true;
             recoveringVignette = true;
+
+            dashCoroutine = null;
         }
+    }
+
+    private void SetPlayerRootLayer(int layer)
+    {
+        if (playerRoot == null)
+            playerRoot = transform.root.gameObject;
+
+        if (playerRoot != null && layer >= 0)
+            playerRoot.layer = layer;
+    }
+
+    private void PlaySound(AudioClip clip, float vol = 1f)
+    {
+        if (source != null && clip != null)
+            source.PlayOneShot(clip, vol);
     }
 
     private void SetVignetteAlpha(float alpha)
     {
-        if (vignetteImage == null) return;
+        if (vignetteImage == null)
+            return;
+
         Color c = vignetteImage.color;
         c.a = alpha;
         vignetteImage.color = c;
@@ -267,22 +374,36 @@ public class LightningDashAbility : MonoBehaviour
 
     private float GetVignetteAlpha()
     {
-        if (vignetteImage == null) return 0f;
+        if (vignetteImage == null)
+            return 0f;
+
         return vignetteImage.color.a;
     }
 
     private void DoDashDamage(Vector3 center, float damage, HashSet<DamageRef> hitAlready)
     {
         Collider[] hits = Physics.OverlapSphere(center, damageRadius, damageMask, QueryTriggerInteraction.Collide);
+
         foreach (Collider hit in hits)
         {
-            if (hit == null) continue;
+            if (hit == null)
+                continue;
+
             DamageRef dr = hit.GetComponentInParent<DamageRef>();
-            if (dr == null || hitAlready.Contains(dr)) continue;
+
+            if (dr == null || hitAlready.Contains(dr))
+                continue;
+
             hitAlready.Add(dr);
             dr.TakeDamage(damage);
         }
     }
 
-    private float GetCharge01() => chargeSource.currentCharge;
+    private float GetCharge01()
+    {
+        if (chargeSource == null)
+            return 0f;
+
+        return chargeSource.currentCharge;
+    }
 }

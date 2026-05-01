@@ -36,11 +36,11 @@ public class GoldBank : MonoBehaviour
         goldText.text = gold.ToString();
         UpgradeText.text = gold.ToString();
     }
-    /*private void Update()
+    private void Update()
     {
         if(Input.GetKeyDown(KeyCode.B)) 
         {
             AddGold(10);
         }
-    }*/
+    }
 }

@@ -279,6 +279,7 @@ public class FirstPersonController : MonoBehaviour
     {
         if (this.gameObject != null)
         {
+            this.gameObject.layer = 7;
             if (UIM) UIM.CloseWinScreen(); UIM.OpenPlayerUIScreen();
             loadingScreen.SetActive(false);
             SkeletonSpawnManager spawnmg = GameObject.FindAnyObjectByType<SkeletonSpawnManager>();

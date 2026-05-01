@@ -48,7 +48,7 @@ public class UI : MonoBehaviour
         isPaused = true;
         UIM.OpenPauseScreen();
     }
-
+    
     public void Resume()
     {
         wm.isPaused = false;
@@ -83,6 +83,7 @@ public class UI : MonoBehaviour
 
     public void LoadScene(string name)
     {
+        this.GetComponentInParent<FirstPersonController>().gameObject.layer = 7;
         if (name == "MainMenu" || name == "AudioDesignMainMenu")
         {
             Destroy(this.GetComponentInParent<FirstPersonController>().gameObject);
